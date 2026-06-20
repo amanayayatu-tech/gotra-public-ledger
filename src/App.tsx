@@ -8,6 +8,7 @@ import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { LedgerTable, type SortKey, type SortState } from "./components/LedgerTable";
 import { SiteFooter } from "./components/SiteFooter";
+import { Subscribe } from "./components/Subscribe";
 import { TrustStrip } from "./components/TrustStrip";
 import { buildTickerList } from "./data/cognition";
 import { computeSummary, toRecordView, type LedgerStatus, type RecordView } from "./data/metrics";
@@ -275,6 +276,7 @@ function App() {
         <CredibilityDashboard records={views} />
 
         <BoundaryPanel metadata={dataset.metadata} />
+        <Subscribe />
         <SiteFooter metadata={dataset.metadata} />
       </main>
 
