@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, RefreshCw, Search } from "lucide-react";
 import { BoundaryPanel } from "./components/BoundaryPanel";
 import { CognitionDashboard } from "./components/CognitionDashboard";
+import { CredibilityDashboard } from "./components/CredibilityDashboard";
 import { DetailDrawer } from "./components/DetailDrawer";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
@@ -270,6 +271,8 @@ function App() {
             <LedgerTable records={filteredRecords} sort={sort} onSort={handleSort} onSelect={openRecord} />
           </div>
         </section>
+
+        <CredibilityDashboard records={views} />
 
         <BoundaryPanel metadata={dataset.metadata} />
         <SiteFooter metadata={dataset.metadata} />
