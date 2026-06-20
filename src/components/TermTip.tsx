@@ -20,16 +20,33 @@ export function TermTip({ term, compact = false }: TermTipProps) {
 }
 
 export function GlossaryStrip() {
+  const entries = [
+    "expected_change_pct",
+    "actual_change_pct",
+    "cumulative_accuracy",
+    "average_error",
+    "pending",
+    "frozen_pending",
+    "frozen_demo_snapshot",
+    "oos",
+    "direct_llm_parametric_memory_control",
+  ] as const;
+
   return (
     <section className="glossary-strip" aria-label="Terminology glossary">
-      <TermTip term="expected_change_pct" />
-      <TermTip term="actual_change_pct" />
-      <TermTip term="cumulative_accuracy" />
-      <TermTip term="average_error" />
-      <TermTip term="frozen_pending" />
-      <TermTip term="frozen_demo_snapshot" />
-      <TermTip term="oos" />
-      <TermTip term="direct_llm_parametric_memory_control" />
+      <div className="glossary-chip-row">
+        {entries.map((term) => (
+          <TermTip term={term} key={term} />
+        ))}
+      </div>
+      <dl className="glossary-list">
+        {entries.map((term) => (
+          <div key={term}>
+            <dt>{labelMap[term].label}</dt>
+            <dd>{labelMap[term].help}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }

@@ -60,12 +60,12 @@ export function computeSummary(dataset: LedgerDataset): SummaryMetrics {
 }
 
 export function formatPercent(value: number | null, digits = 1): string {
-  return value === null ? "n/a" : `${(value * 100).toFixed(digits)}%`;
+  return value === null ? "暂无" : `${(value * 100).toFixed(digits)}%`;
 }
 
 export function formatSignedPercent(value: number | null, digits = 1): string {
   if (value === null) {
-    return "n/a";
+    return "暂无";
   }
 
   const sign = value > 0 ? "+" : "";
@@ -73,7 +73,7 @@ export function formatSignedPercent(value: number | null, digits = 1): string {
 }
 
 export function formatNumber(value: number | null, digits = 1): string {
-  return value === null ? "n/a" : value.toFixed(digits);
+  return value === null ? "暂无" : value.toFixed(digits);
 }
 
 export function statusLabel(status: LedgerStatus): string {
@@ -81,8 +81,8 @@ export function statusLabel(status: LedgerStatus): string {
     case "resolved":
       return "已结算";
     case "frozen_pending":
-      return "冻结 pending";
+      return "冻结待判定";
     case "pending":
-      return "pending";
+      return "待判定";
   }
 }

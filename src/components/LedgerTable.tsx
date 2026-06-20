@@ -42,6 +42,10 @@ function DirectionBadge({ direction }: { direction: RecordView["direction"] }) {
   return <span className={`direction-badge ${direction}`}>{label}</span>;
 }
 
+function formatErrorText(value: number | null): string {
+  return value === null ? "误差暂无" : `误差 ${formatNumber(value)} 点`;
+}
+
 function StatusBadge({ status }: { status: LedgerStatus }) {
   return <span className={`status-badge ${status}`}>{statusLabel(status)}</span>;
 }
@@ -105,11 +109,11 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
               </td>
               <td>
                 {record.actual_change_pct === null ? (
-                  <span className="muted">n/a</span>
+                  <span className="muted">暂无</span>
                 ) : (
                   <span className="mono">{formatSignedPercent(record.actual_change_pct)}</span>
                 )}
-                <small>{record.error === null ? "error n/a" : `error ${formatNumber(record.error)} pp`}</small>
+                <small>{formatErrorText(record.error)}</small>
               </td>
               <td>
                 <span className="mono">{record.evidence_count}</span>
@@ -121,7 +125,7 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
           ))}
         </tbody>
       </table>
-      {records.length === 0 ? <div className="empty-state">No matching demo records.</div> : null}
+      {records.length === 0 ? <div className="empty-state">没有匹配的演示记录。</div> : null}
     </div>
   );
 }

@@ -17,18 +17,18 @@ export const labelMap = {
   },
   average_error: {
     label: "平均误差",
-    help: "预测涨跌幅与实际涨跌幅的平均绝对差，单位是 percentage points，越低越好。",
+    help: "预测涨跌幅与实际涨跌幅的平均绝对差，单位是百分点，越低越好。",
   },
   pending: {
-    label: "pending",
+    label: "待判定",
     help: "结果尚未进入可判定状态。",
   },
   frozen_pending: {
-    label: "frozen_pending",
+    label: "冻结待判定",
     help: "源快照中仍标为 pending，但该页面不回填/不伪造后验结果。",
   },
   frozen_demo_snapshot: {
-    label: "frozen demo snapshot",
+    label: "冻结演示快照",
     help: "冻结的 public-safe demo 数据，不是 live feed。",
   },
   oos: {

@@ -17,40 +17,40 @@ type Card = {
 export function SummaryCards({ metrics }: SummaryCardsProps) {
   const cards: Card[] = [
     {
-      label: "Total",
+      label: "总记录数",
       value: String(metrics.total),
-      detail: "Demo records",
+      detail: "演示记录",
       icon: Database,
     },
     {
-      label: "Resolved",
+      label: "已结算",
       value: String(metrics.resolved),
-      detail: "Used for hit/error metrics",
+      detail: "用于命中和误差计算",
       icon: CheckCircle2,
     },
     {
-      label: "Frozen pending",
+      label: "冻结待判定",
       value: String(metrics.frozenPending),
-      detail: metrics.pending > 0 ? `${metrics.pending} open pending tracked separately` : "Not live/current",
+      detail: metrics.pending > 0 ? `${metrics.pending} 条待判定单独统计` : "不是实时数据",
       icon: Snowflake,
       tone: "warn",
     },
     {
-      label: "Direction hit rate",
+      label: "方向命中率",
       value: formatPercent(metrics.directionHitRate),
-      detail: "Demo resolved records only",
+      detail: "仅演示数据中的已结算记录",
       icon: Target,
     },
     {
-      label: "Average absolute error",
+      label: "平均绝对误差",
       value: formatNumber(metrics.averageAbsoluteError),
-      detail: "Percentage points",
+      detail: "单位：百分点",
       icon: Ruler,
     },
     {
-      label: "Ticker coverage",
+      label: "覆盖股票",
       value: String(metrics.tickerCoverage),
-      detail: "Unique tickers",
+      detail: "不同 ticker 数量",
       icon: Hash,
     },
   ];

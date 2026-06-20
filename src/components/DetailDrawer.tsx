@@ -21,19 +21,19 @@ function ResultText({ record }: { record: RecordView }) {
     return (
       <p>
         源快照仍把这条记录标为 pending，但 outcome_availability_date 已经过去。
-        页面保留 frozen_pending，不补写或伪造后验结果。
+        页面保留冻结待判定状态，不补写或伪造后验结果。
       </p>
     );
   }
 
   if (record.direction_correct === "pending") {
-    return <p>这条记录在冻结源快照中仍是 pending。</p>;
+    return <p>这条记录在冻结源快照中仍是待判定。</p>;
   }
 
   return (
     <p>
       方向结果：<strong>{record.direction_correct ? "判对" : "判错"}</strong>。
-      绝对误差：<strong>{formatNumber(record.error)}</strong> percentage points。
+      绝对误差：<strong>{formatNumber(record.error)}</strong> 个百分点。
     </p>
   );
 }
@@ -151,7 +151,7 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
           </section>
 
           <section className="detail-section provenance-block">
-            <h3>Record provenance</h3>
+            <h3>记录来源审计</h3>
             <dl>
               <div>
                 <dt>dataset_id</dt>
@@ -163,13 +163,13 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
               </div>
               <div>
                 <dt>source_record_index</dt>
-                <dd>{record.provenance.source_record_index ?? "n/a"}</dd>
+                <dd>{record.provenance.source_record_index ?? "暂无"}</dd>
               </div>
               <div>
                 <dt>immutable_demo_snapshot</dt>
                 <dd>
                   {record.provenance.immutable_demo_snapshot === undefined
-                    ? "n/a"
+                    ? "暂无"
                     : String(record.provenance.immutable_demo_snapshot)}
                 </dd>
               </div>

@@ -118,13 +118,13 @@ function App() {
           </span>
           <div>
             <strong>GOTRA Public Ledger</strong>
-            <span>认知演化 · frozen demo snapshot</span>
+            <span>认知演化 · 冻结演示快照</span>
           </div>
         </div>
         <div className="topbar-meta" aria-label="Dataset boundary">
-          <span>snapshot_date {dataset.metadata.snapshot_date}</span>
-          <span>Research information only</span>
-          <span>Not investment advice</span>
+          <span title={`snapshot_date ${dataset.metadata.snapshot_date}`}>冻结快照日期 {dataset.metadata.snapshot_date}</span>
+          <span title="Research information only">研究信息展示</span>
+          <span title="Not investment advice">不是投资建议</span>
         </div>
       </header>
 
@@ -145,7 +145,7 @@ function App() {
               <div>
                 <h2>公开账本明细</h2>
                 <p>
-                  {filteredRecords.length} of {views.length} records shown
+                  当前显示 {filteredRecords.length} / {views.length} 条记录
                 </p>
               </div>
               <div className="filters">
@@ -155,25 +155,25 @@ function App() {
                   <input
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    placeholder="Search ticker, company, sector"
+                    placeholder="搜索股票、公司或行业"
                   />
                 </label>
                 <label>
-                  <span>Status</span>
+                  <span>状态</span>
                   <select
                     value={statusFilter}
                     onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
                   >
-                    <option value="all">All</option>
-                    <option value="resolved">Resolved</option>
-                    <option value="frozen_pending">Frozen pending</option>
-                    <option value="pending">Pending</option>
+                    <option value="all">全部</option>
+                    <option value="resolved">已结算</option>
+                    <option value="frozen_pending">冻结待判定</option>
+                    <option value="pending">待判定</option>
                   </select>
                 </label>
                 <label>
-                  <span>Sector</span>
+                  <span>行业</span>
                   <select value={sectorFilter} onChange={(event) => setSectorFilter(event.target.value)}>
-                    <option value="all">All sectors</option>
+                    <option value="all">全部行业</option>
                     {sectors.map((sector) => (
                       <option value={sector} key={sector}>
                         {sector}

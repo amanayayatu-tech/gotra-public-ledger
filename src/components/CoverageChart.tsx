@@ -23,8 +23,8 @@ export function CoverageChart({ records }: CoverageChartProps) {
     <section className="side-panel chart-panel" aria-labelledby="coverage-heading">
       <div className="panel-heading">
         <div>
-          <h2 id="coverage-heading">Ticker Coverage</h2>
-          <p>Top sectors in the frozen demo dataset</p>
+          <h2 id="coverage-heading">标的覆盖</h2>
+          <p>冻结演示数据中的主要行业</p>
         </div>
       </div>
       <div className="chart-frame">
@@ -49,7 +49,7 @@ export function CoverageChart({ records }: CoverageChartProps) {
                 return (
                   <div className="chart-tooltip">
                     <strong>{row.sector}</strong>
-                    <span>{row.count} demo records</span>
+                    <span>{row.count} 条演示记录</span>
                   </div>
                 );
               }}

@@ -62,6 +62,24 @@ type ChartTooltipPayload = Array<{
   payload?: CognitionPoint;
 }>;
 
+function datasetDisplayLabel(value: string): string {
+  if (value === "frozen_demo_snapshot/public_safe_demo") {
+    return "公开安全演示数据";
+  }
+  return value;
+}
+
+function sourceDisplayLabel(value: string): string {
+  if (value === "zip_demo_rebuilt_public_safe_dataset") {
+    return "demo zip 重建数据";
+  }
+  return value;
+}
+
+function formatPointValue(value: number | null): string {
+  return value === null ? "暂无" : `${formatNumber(value)} 点`;
+}
+
 function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
   if (!active || !payload?.length) {
     return null;
@@ -79,8 +97,8 @@ function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
       <span>预测：{formatSignedPercent(point.predicted)}</span>
       <span>实际：{formatSignedPercent(point.actual)}</span>
       <span>{resultLabel(point)}</span>
-      <span>累计准确率：{point.cumulativeAccuracy === null ? "n/a" : `${point.cumulativeAccuracy.toFixed(1)}%`}</span>
-      <span>平均误差：{formatNumber(point.averageError)} pp</span>
+      <span>累计准确率：{point.cumulativeAccuracy === null ? "暂无" : `${point.cumulativeAccuracy.toFixed(1)}%`}</span>
+      <span>平均误差：{formatPointValue(point.averageError)}</span>
     </div>
   );
 }
@@ -99,8 +117,8 @@ function EvolutionTooltip({ active, payload }: TooltipProps<number, string>) {
     <div className="chart-tooltip cognition-tooltip">
       <strong>{point.date}</strong>
       <span>{resultLabel(point)}</span>
-      <span>累计准确率：{point.cumulativeAccuracy === null ? "n/a" : `${point.cumulativeAccuracy.toFixed(1)}%`}</span>
-      <span>平均误差：{formatNumber(point.averageError)} pp</span>
+      <span>累计准确率：{point.cumulativeAccuracy === null ? "暂无" : `${point.cumulativeAccuracy.toFixed(1)}%`}</span>
+      <span>平均误差：{formatPointValue(point.averageError)}</span>
     </div>
   );
 }
@@ -315,7 +333,7 @@ function EvidenceTimeline({
                 </strong>
                 <small>{record.evidence.map((item) => item.source).join(" / ")}</small>
               </span>
-              <span className="timeline-count">{record.evidence_count} sources</span>
+              <span className="timeline-count">{record.evidence_count} 个来源</span>
             </button>
           </li>
         ))}
@@ -330,7 +348,7 @@ function ErrorReview({ record }: { record: RecordView | null }) {
       <div className="chart-card-header">
         <div>
           <h2 id="review-title">错误复盘</h2>
-          <p>只解释历史偏差，不生成任何交易建议。</p>
+      <p>只解释历史偏差，不生成任何交易建议。</p>
         </div>
         <AlertTriangle aria-hidden="true" size={20} />
       </div>
@@ -375,7 +393,7 @@ export function CognitionDashboard({
         <div className="hero-copy">
           <div className="section-kicker">
             <Database aria-hidden="true" size={15} />
-            {dataset.metadata.dataset_type}
+            {datasetDisplayLabel(dataset.metadata.dataset_type)}
           </div>
           <h1 id="page-title">认知演化视图</h1>
           <p>
@@ -384,39 +402,41 @@ export function CognitionDashboard({
         </div>
         <div className="snapshot-card">
           <div>
-            <span>snapshot_date</span>
-            <strong>{dataset.metadata.snapshot_date}</strong>
+            <span>冻结快照日期</span>
+            <strong title={`snapshot_date ${dataset.metadata.snapshot_date}`}>{dataset.metadata.snapshot_date}</strong>
           </div>
           <div>
-            <span>source</span>
-            <strong>{dataset.metadata.source.type}</strong>
+            <span>来源</span>
+            <strong title={`source.type ${dataset.metadata.source.type}`}>
+              {sourceDisplayLabel(dataset.metadata.source.type)}
+            </strong>
           </div>
           <BoundaryPills labels={dataset.metadata.claim_boundary} />
         </div>
       </section>
 
       <section className="metric-grid" aria-label="Global cognition overview">
-        <MetricTile icon={<Target size={18} />} label="总记录数" value={String(metrics.total)} note="frozen demo records" />
-        <MetricTile icon={<CheckCircle2 size={18} />} label="已结算" value={String(metrics.resolved)} note="用于命中率计算" />
+        <MetricTile icon={<Target size={18} />} label="总记录数" value={String(metrics.total)} note="演示记录" />
+        <MetricTile icon={<CheckCircle2 size={18} />} label="已结算" value={String(metrics.resolved)} note="仅已结算记录" />
         <MetricTile
           icon={<Gauge size={18} />}
           label={<TermTip term="direction_hit_rate" compact />}
           value={formatPercent(metrics.directionHitRate)}
-          note="demo/resolved only"
+          note="仅演示数据中的已结算记录"
         />
         <MetricTile
           icon={<BarChart3 size={18} />}
           label={<TermTip term="average_error" compact />}
-          value={`${formatNumber(metrics.averageAbsoluteError)} pp`}
+          value={formatPointValue(metrics.averageAbsoluteError)}
           note="越低越好"
         />
         <MetricTile
           icon={<Clock3 size={18} />}
-          label="pending / frozen"
+          label="待判定 / 冻结"
           value={`${metrics.pending} / ${metrics.frozenPending}`}
           note="不回填后验结果"
         />
-        <MetricTile icon={<CircleDot size={18} />} label="覆盖 ticker" value={String(metrics.tickerCoverage)} note="可切换单标的" />
+        <MetricTile icon={<CircleDot size={18} />} label="覆盖股票" value={String(metrics.tickerCoverage)} note="可切换单标的" />
       </section>
 
       <section className="ticker-workbench" aria-label="Single ticker cognition workbench">
@@ -426,10 +446,10 @@ export function CognitionDashboard({
             <p>{cognition.profile.description}</p>
           </div>
           <div className="ticker-stat-row">
-            <span>{cognition.records.length} records</span>
-            <span>{cognition.resolvedCount} resolved</span>
-            <span>{formatPercent(cognition.hitRate)} hit rate</span>
-            <span>{formatNumber(cognition.averageError)} pp avg error</span>
+            <span>{cognition.records.length} 条记录</span>
+            <span>{cognition.resolvedCount} 已结算</span>
+            <span>{formatPercent(cognition.hitRate)} 方向命中</span>
+            <span>{formatPointValue(cognition.averageError)}平均误差</span>
           </div>
         </div>
 
@@ -471,7 +491,7 @@ export function CognitionDashboard({
             边界与术语
           </h2>
           <p>
-            页面是 frontend UX/smoke evidence only；图表展示 frozen demo snapshot，不是 OOS、science/public proof、formal acceptance、trading signal 或投资建议。
+            页面是前端 UX/smoke evidence only；图表展示冻结演示快照，不是 OOS、science/public proof、formal acceptance、trading signal 或投资建议。
           </p>
           <p>
             direct_llm 只按 direct_llm_parametric_memory_control 理解：现代 LLM 参数记忆不能按 decision_date 截断，可能含历史后验市场叙事，不是 clean no-future baseline。

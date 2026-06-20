@@ -754,12 +754,17 @@ h1 {
 }
 
 .glossary-strip {
+  display: grid;
+  gap: 10px;
+}
+
+.glossary-chip-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.glossary-strip .term-tip {
+.glossary-chip-row .term-tip {
   min-height: 28px;
   padding: 4px 8px;
   border: 1px solid var(--border);
@@ -768,6 +773,34 @@ h1 {
   color: var(--muted);
   font-size: 12px;
   font-weight: 650;
+}
+
+.glossary-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.glossary-list div {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-muted);
+}
+
+.glossary-list dt {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.glossary-list dd {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .ledger-section {
@@ -1301,6 +1334,10 @@ h1 {
 
   .detail-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .glossary-list {
+    grid-template-columns: 1fr;
   }
 
   .review-facts div,

@@ -106,14 +106,14 @@ export function buildTickerCognition(ticker: string, records: RecordView[]): Tic
 
 export function describeRecordOutcome(record: RecordView): string {
   if (record.status === "frozen_pending") {
-    return "源快照仍标记为 pending；本页面保留冻结状态，不补写后验结果。";
+    return "源快照仍标记为待判定；本页面保留冻结状态，不补写后验结果。";
   }
   if (record.status === "pending" || record.direction_correct === "pending") {
     return "结果尚未进入可判定状态。";
   }
   return record.direction_correct
-      ? `方向一致，幅度误差为 ${formatNumber(Math.abs(record.error ?? 0))} percentage points。`
-      : `方向不一致，幅度误差为 ${formatNumber(Math.abs(record.error ?? 0))} percentage points。`;
+    ? `方向一致，幅度误差为 ${formatNumber(Math.abs(record.error ?? 0))} 个百分点。`
+    : `方向不一致，幅度误差为 ${formatNumber(Math.abs(record.error ?? 0))} 个百分点。`;
 }
 
 export function describeLargestError(record: RecordView | null): string {
@@ -126,18 +126,18 @@ export function describeLargestError(record: RecordView | null): string {
   const error = formatNumber(Math.abs(record.error ?? 0));
 
   if (record.direction_correct === false) {
-    return `最大偏差出现在 ${record.decision_date}：预测为 ${predicted}，实际为 ${actual}，方向相反，误差 ${error} percentage points。这说明该窗口的方向判断偏离了随后观察到的价格变化。`;
+    return `最大偏差出现在 ${record.decision_date}：预测为 ${predicted}，实际为 ${actual}，方向相反，误差 ${error} 个百分点。这说明该窗口的方向判断偏离了随后观察到的价格变化。`;
   }
 
-  return `最大幅度误差出现在 ${record.decision_date}：预测为 ${predicted}，实际为 ${actual}，方向一致但幅度偏差 ${error} percentage points。这更像是幅度估计问题，而不是方向判断问题。`;
+  return `最大幅度误差出现在 ${record.decision_date}：预测为 ${predicted}，实际为 ${actual}，方向一致但幅度偏差 ${error} 个百分点。这更像是幅度估计问题，而不是方向判断问题。`;
 }
 
 export function resultLabel(point: CognitionPoint): string {
   if (point.status === "frozen_pending") {
-    return "冻结 pending";
+    return "冻结待判定";
   }
   if (point.status === "pending") {
-    return "pending";
+    return "待判定";
   }
   return point.directionCorrect ? "方向判对" : "方向判错";
 }
