@@ -1,0 +1,2051 @@
+{
+  "metadata": {
+    "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+    "dataset_type": "frozen_demo_snapshot/public_safe_demo",
+    "snapshot_date": "2026-02-10",
+    "source": {
+      "type": "zip_demo_rebuilt_public_safe_dataset",
+      "description": "Rebuilt from the public demo zip build artifact. The zip was used only as a visual/field/data reference, not as production source code.",
+      "source_zip_basename": "gotra 公开预测账本 (1).zip",
+      "extracted_bundle_basename": "index-PjV2n-_Q.js"
+    },
+    "current_date_for_boundary_review": "2026-06-20",
+    "record_count": 54,
+    "pending_outcome_boundary": {
+      "source_pending_count": 6,
+      "note": "All source-pending records have outcome_availability_date before 2026-06-20. They are displayed as frozen_pending in this MVP, not as live/current open predictions."
+    },
+    "claim_boundary": [
+      "Research information only",
+      "Not investment advice",
+      "Demo/public-safe dataset",
+      "Not OOS",
+      "Not science/public proof",
+      "Not trading signal"
+    ]
+  },
+  "records": [
+    {
+      "prediction_id": "PRED-20260203-TSM-0054",
+      "ticker": "TSM",
+      "company": "台积电",
+      "sector": "晶圆代工",
+      "decision_date": "2026-02-03",
+      "direction": "down",
+      "expected_change_pct": -1.3,
+      "confidence": 0.52,
+      "reasoning": "消费电子需求复苏偏慢,部分成熟制程稼动率不足,地缘风险溢价压制估值。短期我们判断方向中性偏弱。",
+      "evidence": [
+        {
+          "source": "管理层电话会",
+          "date": "2026-01-29"
+        },
+        {
+          "source": "美联储议息纪要",
+          "date": "2026-01-31"
+        },
+        {
+          "source": "摩根士丹利研报",
+          "date": "2026-02-03"
+        },
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2026-01-31"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2026-02-04",
+      "actual_change_pct": -1.5,
+      "error": 0.2,
+      "direction_correct": true,
+      "style_window": "板块轮动",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 0,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20260127-3690HK-0053",
+      "ticker": "3690.HK",
+      "company": "美团",
+      "sector": "本地生活/外卖",
+      "decision_date": "2026-01-27",
+      "direction": "down",
+      "expected_change_pct": -3.6,
+      "confidence": 0.58,
+      "reasoning": "即时零售闪购增长强劲，外卖单均盈利环比改善，竞争格局边际趋稳。估值已部分反映悲观预期，超跌反弹概率上升。",
+      "evidence": [
+        {
+          "source": "渠道调研",
+          "date": "2026-01-20"
+        },
+        {
+          "source": "管理层电话会",
+          "date": "2026-01-22"
+        },
+        {
+          "source": "彭博社报道",
+          "date": "2026-01-20"
+        },
+        {
+          "source": "公司公告",
+          "date": "2026-01-25"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2026-02-26",
+      "actual_change_pct": null,
+      "error": null,
+      "direction_correct": "pending",
+      "style_window": "板块轮动",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 1,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20260122-NVDA-0052",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2026-01-22",
+      "direction": "down",
+      "expected_change_pct": -7,
+      "confidence": 0.77,
+      "reasoning": "市场对 AI 资本开支可持续性的担忧升温，部分超大规模云厂商释放支出节奏放缓信号，叠加前期涨幅过大获利盘集中，短期回调风险高于上行空间。",
+      "evidence": [
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2026-01-22"
+        },
+        {
+          "source": "路透社报道",
+          "date": "2026-01-15"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2026-02-21",
+      "actual_change_pct": null,
+      "error": null,
+      "direction_correct": "pending",
+      "style_window": "加息周期",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 2,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20260111-NVDA-0051",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2026-01-11",
+      "direction": "down",
+      "expected_change_pct": -16.8,
+      "confidence": 0.72,
+      "reasoning": "市场对 AI 资本开支可持续性的担忧升温，部分超大规模云厂商释放支出节奏放缓信号，叠加前期涨幅过大获利盘集中，短期回调风险高于上行空间。",
+      "evidence": [
+        {
+          "source": "英伟达 Q1 财报",
+          "date": "2026-01-07"
+        },
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2026-01-11"
+        },
+        {
+          "source": "摩根士丹利研报",
+          "date": "2026-01-07"
+        }
+      ],
+      "prediction_window": "90天",
+      "outcome_availability_date": "2026-04-11",
+      "actual_change_pct": null,
+      "error": null,
+      "direction_correct": "pending",
+      "style_window": "加息周期",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 3,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20260105-AAPL-0050",
+      "ticker": "AAPL",
+      "company": "苹果",
+      "sector": "消费电子",
+      "decision_date": "2026-01-05",
+      "direction": "up",
+      "expected_change_pct": 14.6,
+      "confidence": 0.52,
+      "reasoning": "中国市场竞争加剧份额承压,AI 功能落地节奏慢于预期,硬件升级吸引力不足。高估值下我们认为短期下行风险更大。",
+      "evidence": [
+        {
+          "source": "渠道调研",
+          "date": "2025-12-31"
+        },
+        {
+          "source": "彭博社报道",
+          "date": "2025-12-30"
+        },
+        {
+          "source": "路透社报道",
+          "date": "2025-12-29"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2026-01-02"
+        }
+      ],
+      "prediction_window": "90天",
+      "outcome_availability_date": "2026-04-05",
+      "actual_change_pct": null,
+      "error": null,
+      "direction_correct": "pending",
+      "style_window": "流动性宽松",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 4,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251227-9988HK-0049",
+      "ticker": "9988.HK",
+      "company": "阿里巴巴",
+      "sector": "电商/云计算",
+      "decision_date": "2025-12-27",
+      "direction": "up",
+      "expected_change_pct": 4.3,
+      "confidence": 0.67,
+      "reasoning": "淘天 GMV 增速企稳,CMR 受货币化率提升带动转正,云业务受 AI 需求拉动重回双位数增长。回购与分红提升股东回报,我们偏乐观。",
+      "evidence": [
+        {
+          "source": "彭博社报道",
+          "date": "2025-12-21"
+        },
+        {
+          "source": "路透社报道",
+          "date": "2025-12-20"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2026-01-26",
+      "actual_change_pct": 5.1,
+      "error": 0.8,
+      "direction_correct": true,
+      "style_window": "消费复苏",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 5,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251219-MSFT-0048",
+      "ticker": "MSFT",
+      "company": "微软",
+      "sector": "软件/云计算",
+      "decision_date": "2025-12-19",
+      "direction": "down",
+      "expected_change_pct": -4.5,
+      "confidence": 0.83,
+      "reasoning": "云资本开支高企压制自由现金流,Copilot 付费转化慢于预期,市场对 AI 变现节奏存疑。前期涨幅充分,短期回调风险偏高。",
+      "evidence": [
+        {
+          "source": "公司公告",
+          "date": "2025-12-18"
+        },
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2025-12-17"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-12-26",
+      "actual_change_pct": 3.9,
+      "error": 8.4,
+      "direction_correct": false,
+      "style_window": "生成式AI行情",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 6,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251213-0700HK-0047",
+      "ticker": "0700.HK",
+      "company": "腾讯控股",
+      "sector": "互联网/社交",
+      "decision_date": "2025-12-13",
+      "direction": "neutral",
+      "expected_change_pct": 0.8,
+      "confidence": 0.85,
+      "reasoning": "微信生态商业化推进顺利，小游戏与视频号 take rate 提升，金融科技监管边际缓和。财报前我们偏乐观，但反弹幅度受港股流动性约束。",
+      "evidence": [
+        {
+          "source": "美联储议息纪要",
+          "date": "2025-12-12"
+        },
+        {
+          "source": "财新报道",
+          "date": "2025-12-05"
+        },
+        {
+          "source": "摩根士丹利研报",
+          "date": "2025-12-08"
+        }
+      ],
+      "prediction_window": "90天",
+      "outcome_availability_date": "2026-03-13",
+      "actual_change_pct": null,
+      "error": null,
+      "direction_correct": "pending",
+      "style_window": "生成式AI行情",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 7,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251206-NVDA-0046",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-12-06",
+      "direction": "down",
+      "expected_change_pct": -3.8,
+      "confidence": 0.6,
+      "reasoning": "市场对 AI 资本开支可持续性的担忧升温，部分超大规模云厂商释放支出节奏放缓信号，叠加前期涨幅过大获利盘集中，短期回调风险高于上行空间。",
+      "evidence": [
+        {
+          "source": "公司公告",
+          "date": "2025-12-04"
+        },
+        {
+          "source": "摩根士丹利研报",
+          "date": "2025-12-06"
+        },
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-11-28"
+        },
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2025-12-05"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-12-13",
+      "actual_change_pct": -4.8,
+      "error": 1,
+      "direction_correct": true,
+      "style_window": "财报季",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 8,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251129-1211HK-0045",
+      "ticker": "1211.HK",
+      "company": "比亚迪",
+      "sector": "新能源汽车",
+      "decision_date": "2025-11-29",
+      "direction": "down",
+      "expected_change_pct": -4.7,
+      "confidence": 0.62,
+      "reasoning": "高端品牌仰望与方程豹放量改善产品结构,海外工厂投产打开增长空间,电池外供业务超预期。我们看好中期方向,预期温和上行。",
+      "evidence": [
+        {
+          "source": "海关出口数据",
+          "date": "2025-11-22"
+        },
+        {
+          "source": "渠道调研",
+          "date": "2025-11-24"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2025-12-29",
+      "actual_change_pct": -7.5,
+      "error": 2.8,
+      "direction_correct": true,
+      "style_window": "流动性宽松",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 9,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251120-NVDA-0044",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-11-20",
+      "direction": "neutral",
+      "expected_change_pct": 1.3,
+      "confidence": 0.74,
+      "reasoning": "市场对 AI 资本开支可持续性的担忧升温，部分超大规模云厂商释放支出节奏放缓信号，叠加前期涨幅过大获利盘集中，短期回调风险高于上行空间。",
+      "evidence": [
+        {
+          "source": "财新报道",
+          "date": "2025-11-13"
+        },
+        {
+          "source": "管理层电话会",
+          "date": "2025-11-13"
+        },
+        {
+          "source": "摩根士丹利研报",
+          "date": "2025-11-14"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-11-12"
+        }
+      ],
+      "prediction_window": "90天",
+      "outcome_availability_date": "2026-02-18",
+      "actual_change_pct": null,
+      "error": null,
+      "direction_correct": "pending",
+      "style_window": "板块轮动",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 10,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251113-1211HK-0043",
+      "ticker": "1211.HK",
+      "company": "比亚迪",
+      "sector": "新能源汽车",
+      "decision_date": "2025-11-13",
+      "direction": "up",
+      "expected_change_pct": 3,
+      "confidence": 0.73,
+      "reasoning": "高端品牌仰望与方程豹放量改善产品结构,海外工厂投产打开增长空间,电池外供业务超预期。我们看好中期方向,预期温和上行。",
+      "evidence": [
+        {
+          "source": "彭博社报道",
+          "date": "2025-11-12"
+        },
+        {
+          "source": "管理层电话会",
+          "date": "2025-11-10"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-11-09"
+        },
+        {
+          "source": "财新报道",
+          "date": "2025-11-05"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-11-20",
+      "actual_change_pct": 1.1,
+      "error": 1.9,
+      "direction_correct": true,
+      "style_window": "加息周期",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 11,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251107-6060HK-0042",
+      "ticker": "6060.HK",
+      "company": "众安在线",
+      "sector": "互联网保险",
+      "decision_date": "2025-11-07",
+      "direction": "down",
+      "expected_change_pct": -16.3,
+      "confidence": 0.62,
+      "reasoning": "互联网保险渗透率提升,公司线上获客成本优化,承保盈利改善超预期。低基数下业绩弹性较大,我们偏乐观。",
+      "evidence": [
+        {
+          "source": "高盛行业研报",
+          "date": "2025-11-02"
+        },
+        {
+          "source": "管理层电话会",
+          "date": "2025-11-01"
+        }
+      ],
+      "prediction_window": "90天",
+      "outcome_availability_date": "2026-02-05",
+      "actual_change_pct": 16.4,
+      "error": 32.7,
+      "direction_correct": false,
+      "style_window": "流动性宽松",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 12,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251030-NVDA-0041",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-10-30",
+      "direction": "neutral",
+      "expected_change_pct": -1.4,
+      "confidence": 0.75,
+      "reasoning": "市场对 AI 资本开支可持续性的担忧升温，部分超大规模云厂商释放支出节奏放缓信号，叠加前期涨幅过大获利盘集中，短期回调风险高于上行空间。",
+      "evidence": [
+        {
+          "source": "彭博社报道",
+          "date": "2025-10-23"
+        },
+        {
+          "source": "美联储议息纪要",
+          "date": "2025-10-23"
+        },
+        {
+          "source": "摩根士丹利研报",
+          "date": "2025-10-24"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-10-31",
+      "actual_change_pct": -2.3,
+      "error": 0.9,
+      "direction_correct": false,
+      "style_window": "生成式AI行情",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 13,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251022-3690HK-0040",
+      "ticker": "3690.HK",
+      "company": "美团",
+      "sector": "本地生活/外卖",
+      "decision_date": "2025-10-22",
+      "direction": "down",
+      "expected_change_pct": -4,
+      "confidence": 0.72,
+      "reasoning": "即时零售闪购增长强劲，外卖单均盈利环比改善，竞争格局边际趋稳。估值已部分反映悲观预期，超跌反弹概率上升。",
+      "evidence": [
+        {
+          "source": "管理层电话会",
+          "date": "2025-10-14"
+        },
+        {
+          "source": "财新报道",
+          "date": "2025-10-15"
+        },
+        {
+          "source": "摩根士丹利研报",
+          "date": "2025-10-22"
+        },
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-10-17"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-10-29",
+      "actual_change_pct": 3.5,
+      "error": 7.5,
+      "direction_correct": false,
+      "style_window": "生成式AI行情",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 14,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251018-6060HK-0039",
+      "ticker": "6060.HK",
+      "company": "众安在线",
+      "sector": "互联网保险",
+      "decision_date": "2025-10-18",
+      "direction": "up",
+      "expected_change_pct": 1.5,
+      "confidence": 0.66,
+      "reasoning": "互联网保险渗透率提升,公司线上获客成本优化,承保盈利改善超预期。低基数下业绩弹性较大,我们偏乐观。",
+      "evidence": [
+        {
+          "source": "管理层电话会",
+          "date": "2025-10-15"
+        },
+        {
+          "source": "财新报道",
+          "date": "2025-10-15"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-10-17"
+        },
+        {
+          "source": "路透社报道",
+          "date": "2025-10-16"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-10-19",
+      "actual_change_pct": 0.5,
+      "error": 1,
+      "direction_correct": true,
+      "style_window": "贸易摩擦",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 15,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251011-MSFT-0038",
+      "ticker": "MSFT",
+      "company": "微软",
+      "sector": "软件/云计算",
+      "decision_date": "2025-10-11",
+      "direction": "down",
+      "expected_change_pct": -4.3,
+      "confidence": 0.65,
+      "reasoning": "云资本开支高企压制自由现金流,Copilot 付费转化慢于预期,市场对 AI 变现节奏存疑。前期涨幅充分,短期回调风险偏高。",
+      "evidence": [
+        {
+          "source": "管理层电话会",
+          "date": "2025-10-11"
+        },
+        {
+          "source": "美联储议息纪要",
+          "date": "2025-10-08"
+        },
+        {
+          "source": "公司公告",
+          "date": "2025-10-07"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-10-18",
+      "actual_change_pct": -4.6,
+      "error": 0.3,
+      "direction_correct": true,
+      "style_window": "加息周期",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 16,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20251003-1810HK-0037",
+      "ticker": "1810.HK",
+      "company": "小米集团",
+      "sector": "消费电子/汽车",
+      "decision_date": "2025-10-03",
+      "direction": "down",
+      "expected_change_pct": -0.7,
+      "confidence": 0.66,
+      "reasoning": "手机出货受行业去库存影响承压,IoT 增长放缓,汽车业务仍处投入期拖累整体利润率。短期估值已计入较多乐观预期,回调风险偏高。",
+      "evidence": [
+        {
+          "source": "公司公告",
+          "date": "2025-09-29"
+        },
+        {
+          "source": "美联储议息纪要",
+          "date": "2025-09-30"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-10-04",
+      "actual_change_pct": -0.3,
+      "error": 0.4,
+      "direction_correct": true,
+      "style_window": "板块轮动",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 17,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250925-NVDA-0036",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-09-25",
+      "direction": "up",
+      "expected_change_pct": 3.6,
+      "confidence": 0.62,
+      "reasoning": "数据中心业务持续超预期，Hopper 与 Blackwell 平台需求未见放缓，云厂商资本开支指引上修支撑后续出货。当前估值对应远期 PE 仍处历史中枢，看好财报后的估值修复。",
+      "evidence": [
+        {
+          "source": "管理层电话会",
+          "date": "2025-09-18"
+        },
+        {
+          "source": "财新报道",
+          "date": "2025-09-25"
+        },
+        {
+          "source": "彭博社报道",
+          "date": "2025-09-18"
+        },
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2025-09-18"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-10-02",
+      "actual_change_pct": 1.3,
+      "error": 2.3,
+      "direction_correct": true,
+      "style_window": "生成式AI行情",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 18,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250916-1810HK-0035",
+      "ticker": "1810.HK",
+      "company": "小米集团",
+      "sector": "消费电子/汽车",
+      "decision_date": "2025-09-16",
+      "direction": "down",
+      "expected_change_pct": -1.6,
+      "confidence": 0.63,
+      "reasoning": "手机出货受行业去库存影响承压,IoT 增长放缓,汽车业务仍处投入期拖累整体利润率。短期估值已计入较多乐观预期,回调风险偏高。",
+      "evidence": [
+        {
+          "source": "公司业绩说明会纪要",
+          "date": "2025-09-09"
+        },
+        {
+          "source": "财新报道",
+          "date": "2025-09-08"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-09-17",
+      "actual_change_pct": 1.9,
+      "error": 3.5,
+      "direction_correct": false,
+      "style_window": "加息周期",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 19,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250909-TSM-0034",
+      "ticker": "TSM",
+      "company": "台积电",
+      "sector": "晶圆代工",
+      "decision_date": "2025-09-09",
+      "direction": "down",
+      "expected_change_pct": -14.5,
+      "confidence": 0.69,
+      "reasoning": "消费电子需求复苏偏慢,部分成熟制程稼动率不足,地缘风险溢价压制估值。短期我们判断方向中性偏弱。",
+      "evidence": [
+        {
+          "source": "公司业绩说明会纪要",
+          "date": "2025-09-04"
+        },
+        {
+          "source": "管理层电话会",
+          "date": "2025-09-01"
+        },
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2025-09-03"
+        },
+        {
+          "source": "美联储议息纪要",
+          "date": "2025-09-04"
+        }
+      ],
+      "prediction_window": "90天",
+      "outcome_availability_date": "2025-12-08",
+      "actual_change_pct": -8.5,
+      "error": 6,
+      "direction_correct": true,
+      "style_window": "板块轮动",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 20,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250905-MSFT-0033",
+      "ticker": "MSFT",
+      "company": "微软",
+      "sector": "软件/云计算",
+      "decision_date": "2025-09-05",
+      "direction": "up",
+      "expected_change_pct": 9,
+      "confidence": 0.69,
+      "reasoning": "云资本开支高企压制自由现金流,Copilot 付费转化慢于预期,市场对 AI 变现节奏存疑。前期涨幅充分,短期回调风险偏高。",
+      "evidence": [
+        {
+          "source": "管理层电话会",
+          "date": "2025-09-01"
+        },
+        {
+          "source": "美联储议息纪要",
+          "date": "2025-08-28"
+        },
+        {
+          "source": "财新报道",
+          "date": "2025-09-04"
+        }
+      ],
+      "prediction_window": "90天",
+      "outcome_availability_date": "2025-12-04",
+      "actual_change_pct": 6.9,
+      "error": 2.1,
+      "direction_correct": true,
+      "style_window": "财报季",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 21,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250824-AAPL-0032",
+      "ticker": "AAPL",
+      "company": "苹果",
+      "sector": "消费电子",
+      "decision_date": "2025-08-24",
+      "direction": "neutral",
+      "expected_change_pct": 0.6,
+      "confidence": 0.74,
+      "reasoning": "中国市场竞争加剧份额承压,AI 功能落地节奏慢于预期,硬件升级吸引力不足。高估值下我们认为短期下行风险更大。",
+      "evidence": [
+        {
+          "source": "公司公告",
+          "date": "2025-08-18"
+        },
+        {
+          "source": "渠道调研",
+          "date": "2025-08-19"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-08-23"
+        },
+        {
+          "source": "财新报道",
+          "date": "2025-08-17"
+        }
+      ],
+      "prediction_window": "90天",
+      "outcome_availability_date": "2025-11-22",
+      "actual_change_pct": 0.8,
+      "error": 0.2,
+      "direction_correct": true,
+      "style_window": "流动性宽松",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 22,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250818-NVDA-0031",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-08-18",
+      "direction": "down",
+      "expected_change_pct": -0.9,
+      "confidence": 0.8,
+      "reasoning": "市场对 AI 资本开支可持续性的担忧升温，部分超大规模云厂商释放支出节奏放缓信号，叠加前期涨幅过大获利盘集中，短期回调风险高于上行空间。",
+      "evidence": [
+        {
+          "source": "美联储议息纪要",
+          "date": "2025-08-18"
+        },
+        {
+          "source": "公司公告",
+          "date": "2025-08-10"
+        },
+        {
+          "source": "路透社报道",
+          "date": "2025-08-13"
+        },
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-08-10"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-08-19",
+      "actual_change_pct": 0.7,
+      "error": 1.6,
+      "direction_correct": false,
+      "style_window": "财报季",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 23,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250811-NVDA-0030",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-08-11",
+      "direction": "down",
+      "expected_change_pct": -1.2,
+      "confidence": 0.6,
+      "reasoning": "市场对 AI 资本开支可持续性的担忧升温，部分超大规模云厂商释放支出节奏放缓信号，叠加前期涨幅过大获利盘集中，短期回调风险高于上行空间。",
+      "evidence": [
+        {
+          "source": "财新报道",
+          "date": "2025-08-09"
+        },
+        {
+          "source": "管理层电话会",
+          "date": "2025-08-09"
+        },
+        {
+          "source": "高盛行业研报",
+          "date": "2025-08-10"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-08-12",
+      "actual_change_pct": -1.8,
+      "error": 0.6,
+      "direction_correct": true,
+      "style_window": "财报季",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 24,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250805-1810HK-0029",
+      "ticker": "1810.HK",
+      "company": "小米集团",
+      "sector": "消费电子/汽车",
+      "decision_date": "2025-08-05",
+      "direction": "up",
+      "expected_change_pct": 7.6,
+      "confidence": 0.63,
+      "reasoning": "手机出货受行业去库存影响承压,IoT 增长放缓,汽车业务仍处投入期拖累整体利润率。短期估值已计入较多乐观预期,回调风险偏高。",
+      "evidence": [
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-08-05"
+        },
+        {
+          "source": "路透社报道",
+          "date": "2025-07-31"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-08-04"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2025-09-04",
+      "actual_change_pct": 9.7,
+      "error": 2.1,
+      "direction_correct": true,
+      "style_window": "生成式AI行情",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 25,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250729-0700HK-0028",
+      "ticker": "0700.HK",
+      "company": "腾讯控股",
+      "sector": "互联网/社交",
+      "decision_date": "2025-07-29",
+      "direction": "down",
+      "expected_change_pct": -7.4,
+      "confidence": 0.79,
+      "reasoning": "游戏业务受新版号与海外大作驱动恢复增长，广告受视频号商业化提速拉动，回购力度维持高位形成估值底。但宏观消费偏弱限制弹性，预期温和上行。",
+      "evidence": [
+        {
+          "source": "美联储议息纪要",
+          "date": "2025-07-29"
+        },
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-07-23"
+        },
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2025-07-22"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2025-08-28",
+      "actual_change_pct": 10.4,
+      "error": 17.8,
+      "direction_correct": false,
+      "style_window": "生成式AI行情",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 26,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250721-1211HK-0027",
+      "ticker": "1211.HK",
+      "company": "比亚迪",
+      "sector": "新能源汽车",
+      "decision_date": "2025-07-21",
+      "direction": "up",
+      "expected_change_pct": 10.1,
+      "confidence": 0.59,
+      "reasoning": "新能源车销量受价格战影响均价下行,海外出口增长但毛利率承压,行业产能过剩担忧未消。短期我们判断股价偏弱。",
+      "evidence": [
+        {
+          "source": "摩根士丹利研报",
+          "date": "2025-07-17"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-07-15"
+        },
+        {
+          "source": "比亚迪 Q2 财报",
+          "date": "2025-07-14"
+        },
+        {
+          "source": "高盛行业研报",
+          "date": "2025-07-17"
+        }
+      ],
+      "prediction_window": "90天",
+      "outcome_availability_date": "2025-10-19",
+      "actual_change_pct": -10.5,
+      "error": 20.6,
+      "direction_correct": false,
+      "style_window": "流动性宽松",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 27,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250714-NVDA-0026",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-07-14",
+      "direction": "up",
+      "expected_change_pct": 2.3,
+      "confidence": 0.55,
+      "reasoning": "Blackwell 量产爬坡进度好于预期，供应链端确认订单能见度延伸至下半年，毛利率受新品占比提升带动。我们认为短期窗口内仍偏强。",
+      "evidence": [
+        {
+          "source": "彭博社报道",
+          "date": "2025-07-11"
+        },
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-07-12"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-07-21",
+      "actual_change_pct": 1.6,
+      "error": 0.7,
+      "direction_correct": true,
+      "style_window": "财报季",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 28,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250707-TSM-0025",
+      "ticker": "TSM",
+      "company": "台积电",
+      "sector": "晶圆代工",
+      "decision_date": "2025-07-07",
+      "direction": "down",
+      "expected_change_pct": -0.8,
+      "confidence": 0.83,
+      "reasoning": "消费电子需求复苏偏慢,部分成熟制程稼动率不足,地缘风险溢价压制估值。短期我们判断方向中性偏弱。",
+      "evidence": [
+        {
+          "source": "渠道调研",
+          "date": "2025-06-29"
+        },
+        {
+          "source": "美联储议息纪要",
+          "date": "2025-06-29"
+        },
+        {
+          "source": "高盛行业研报",
+          "date": "2025-07-05"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-06-30"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-07-08",
+      "actual_change_pct": -0.7,
+      "error": 0.1,
+      "direction_correct": true,
+      "style_window": "板块轮动",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 29,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250701-AAPL-0024",
+      "ticker": "AAPL",
+      "company": "苹果",
+      "sector": "消费电子",
+      "decision_date": "2025-07-01",
+      "direction": "up",
+      "expected_change_pct": 1.4,
+      "confidence": 0.82,
+      "reasoning": "中国市场竞争加剧份额承压,AI 功能落地节奏慢于预期,硬件升级吸引力不足。高估值下我们认为短期下行风险更大。",
+      "evidence": [
+        {
+          "source": "彭博社报道",
+          "date": "2025-07-01"
+        },
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2025-06-25"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-07-02",
+      "actual_change_pct": -1.2,
+      "error": 2.6,
+      "direction_correct": false,
+      "style_window": "贸易摩擦",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 30,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250622-TSM-0023",
+      "ticker": "TSM",
+      "company": "台积电",
+      "sector": "晶圆代工",
+      "decision_date": "2025-06-22",
+      "direction": "down",
+      "expected_change_pct": -3.5,
+      "confidence": 0.62,
+      "reasoning": "消费电子需求复苏偏慢,部分成熟制程稼动率不足,地缘风险溢价压制估值。短期我们判断方向中性偏弱。",
+      "evidence": [
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2025-06-19"
+        },
+        {
+          "source": "管理层电话会",
+          "date": "2025-06-20"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-06-29",
+      "actual_change_pct": -1.5,
+      "error": 2,
+      "direction_correct": true,
+      "style_window": "加息周期",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 31,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250613-TSM-0022",
+      "ticker": "TSM",
+      "company": "台积电",
+      "sector": "晶圆代工",
+      "decision_date": "2025-06-13",
+      "direction": "up",
+      "expected_change_pct": 3.5,
+      "confidence": 0.84,
+      "reasoning": "消费电子需求复苏偏慢,部分成熟制程稼动率不足,地缘风险溢价压制估值。短期我们判断方向中性偏弱。",
+      "evidence": [
+        {
+          "source": "渠道调研",
+          "date": "2025-06-09"
+        },
+        {
+          "source": "台积电 Q3 财报",
+          "date": "2025-06-07"
+        },
+        {
+          "source": "管理层电话会",
+          "date": "2025-06-06"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-06-20",
+      "actual_change_pct": -3.8,
+      "error": 7.3,
+      "direction_correct": false,
+      "style_window": "加息周期",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 32,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250606-NVDA-0021",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-06-06",
+      "direction": "up",
+      "expected_change_pct": 6.1,
+      "confidence": 0.67,
+      "reasoning": "Blackwell 量产爬坡进度好于预期，供应链端确认订单能见度延伸至下半年，毛利率受新品占比提升带动。我们认为短期窗口内仍偏强。",
+      "evidence": [
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2025-06-05"
+        },
+        {
+          "source": "公司业绩说明会纪要",
+          "date": "2025-06-01"
+        },
+        {
+          "source": "高盛行业研报",
+          "date": "2025-06-02"
+        },
+        {
+          "source": "摩根士丹利研报",
+          "date": "2025-05-31"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2025-07-06",
+      "actual_change_pct": -7,
+      "error": 13.1,
+      "direction_correct": false,
+      "style_window": "板块轮动",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 33,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250531-NVDA-0020",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-05-31",
+      "direction": "up",
+      "expected_change_pct": 7.7,
+      "confidence": 0.54,
+      "reasoning": "Blackwell 量产爬坡进度好于预期，供应链端确认订单能见度延伸至下半年，毛利率受新品占比提升带动。我们认为短期窗口内仍偏强。",
+      "evidence": [
+        {
+          "source": "高盛行业研报",
+          "date": "2025-05-29"
+        },
+        {
+          "source": "英伟达 Q1 财报",
+          "date": "2025-05-31"
+        },
+        {
+          "source": "路透社报道",
+          "date": "2025-05-25"
+        },
+        {
+          "source": "管理层电话会",
+          "date": "2025-05-26"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2025-06-30",
+      "actual_change_pct": 7.4,
+      "error": 0.3,
+      "direction_correct": true,
+      "style_window": "财报季",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 34,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250524-9988HK-0019",
+      "ticker": "9988.HK",
+      "company": "阿里巴巴",
+      "sector": "电商/云计算",
+      "decision_date": "2025-05-24",
+      "direction": "up",
+      "expected_change_pct": 1.7,
+      "confidence": 0.79,
+      "reasoning": "淘天 GMV 增速企稳,CMR 受货币化率提升带动转正,云业务受 AI 需求拉动重回双位数增长。回购与分红提升股东回报,我们偏乐观。",
+      "evidence": [
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-05-19"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-05-21"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-05-31",
+      "actual_change_pct": -2.3,
+      "error": 4,
+      "direction_correct": false,
+      "style_window": "生成式AI行情",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 35,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250515-1211HK-0018",
+      "ticker": "1211.HK",
+      "company": "比亚迪",
+      "sector": "新能源汽车",
+      "decision_date": "2025-05-15",
+      "direction": "up",
+      "expected_change_pct": 1.7,
+      "confidence": 0.83,
+      "reasoning": "新能源车销量受价格战影响均价下行,海外出口增长但毛利率承压,行业产能过剩担忧未消。短期我们判断股价偏弱。",
+      "evidence": [
+        {
+          "source": "公司业绩说明会纪要",
+          "date": "2025-05-07"
+        },
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2025-05-13"
+        },
+        {
+          "source": "路透社报道",
+          "date": "2025-05-13"
+        },
+        {
+          "source": "高盛行业研报",
+          "date": "2025-05-09"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-05-16",
+      "actual_change_pct": -2.4,
+      "error": 4.1,
+      "direction_correct": false,
+      "style_window": "贸易摩擦",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 36,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250510-TSM-0017",
+      "ticker": "TSM",
+      "company": "台积电",
+      "sector": "晶圆代工",
+      "decision_date": "2025-05-10",
+      "direction": "neutral",
+      "expected_change_pct": -0.2,
+      "confidence": 0.81,
+      "reasoning": "先进制程产能满载,AI 与 HPC 需求驱动 3nm/5nm 出货强劲,代工提价落地改善毛利。我们看好财报后股价上行。",
+      "evidence": [
+        {
+          "source": "管理层电话会",
+          "date": "2025-05-02"
+        },
+        {
+          "source": "彭博社报道",
+          "date": "2025-05-02"
+        },
+        {
+          "source": "财新报道",
+          "date": "2025-05-09"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-05-08"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2025-06-09",
+      "actual_change_pct": -1.8,
+      "error": 1.6,
+      "direction_correct": true,
+      "style_window": "加息周期",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 37,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250501-NVDA-0016",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-05-01",
+      "direction": "down",
+      "expected_change_pct": -1.9,
+      "confidence": 0.71,
+      "reasoning": "市场对 AI 资本开支可持续性的担忧升温，部分超大规模云厂商释放支出节奏放缓信号，叠加前期涨幅过大获利盘集中，短期回调风险高于上行空间。",
+      "evidence": [
+        {
+          "source": "路透社报道",
+          "date": "2025-04-23"
+        },
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-04-27"
+        },
+        {
+          "source": "财新报道",
+          "date": "2025-04-28"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-05-02",
+      "actual_change_pct": -2.7,
+      "error": 0.8,
+      "direction_correct": true,
+      "style_window": "板块轮动",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 38,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250422-9988HK-0015",
+      "ticker": "9988.HK",
+      "company": "阿里巴巴",
+      "sector": "电商/云计算",
+      "decision_date": "2025-04-22",
+      "direction": "up",
+      "expected_change_pct": 1.9,
+      "confidence": 0.86,
+      "reasoning": "电商竞争依旧激烈,用户时长被分流,云业务利润率受价格战压制。宏观消费疲弱下我们对短期反弹幅度持谨慎态度,判断方向中性。",
+      "evidence": [
+        {
+          "source": "高盛行业研报",
+          "date": "2025-04-19"
+        },
+        {
+          "source": "路透社报道",
+          "date": "2025-04-18"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-04-23",
+      "actual_change_pct": 1.1,
+      "error": 0.8,
+      "direction_correct": true,
+      "style_window": "流动性宽松",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 39,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250419-3690HK-0014",
+      "ticker": "3690.HK",
+      "company": "美团",
+      "sector": "本地生活/外卖",
+      "decision_date": "2025-04-19",
+      "direction": "down",
+      "expected_change_pct": -1.7,
+      "confidence": 0.53,
+      "reasoning": "即时零售闪购增长强劲，外卖单均盈利环比改善，竞争格局边际趋稳。估值已部分反映悲观预期，超跌反弹概率上升。",
+      "evidence": [
+        {
+          "source": "公司业绩说明会纪要",
+          "date": "2025-04-14"
+        },
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2025-04-15"
+        },
+        {
+          "source": "财新报道",
+          "date": "2025-04-17"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-04-26",
+      "actual_change_pct": -1.8,
+      "error": 0.1,
+      "direction_correct": true,
+      "style_window": "流动性宽松",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 40,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250407-NVDA-0013",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-04-07",
+      "direction": "down",
+      "expected_change_pct": -1.4,
+      "confidence": 0.54,
+      "reasoning": "市场对 AI 资本开支可持续性的担忧升温，部分超大规模云厂商释放支出节奏放缓信号，叠加前期涨幅过大获利盘集中，短期回调风险高于上行空间。",
+      "evidence": [
+        {
+          "source": "英伟达 Q2 财报",
+          "date": "2025-04-06"
+        },
+        {
+          "source": "渠道调研",
+          "date": "2025-04-06"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-04-08",
+      "actual_change_pct": -2,
+      "error": 0.6,
+      "direction_correct": true,
+      "style_window": "财报季",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 41,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250401-3690HK-0012",
+      "ticker": "3690.HK",
+      "company": "美团",
+      "sector": "本地生活/外卖",
+      "decision_date": "2025-04-01",
+      "direction": "up",
+      "expected_change_pct": 4.1,
+      "confidence": 0.68,
+      "reasoning": "外卖单量受补贴战影响利润承压，到店酒旅竞争加剧，抖音本地生活分流持续。短期利润率指引偏谨慎，我们判断财报后存在下修风险。",
+      "evidence": [
+        {
+          "source": "管理层电话会",
+          "date": "2025-03-28"
+        },
+        {
+          "source": "公司公告",
+          "date": "2025-03-24"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-03-30"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-04-08",
+      "actual_change_pct": -2.4,
+      "error": 6.5,
+      "direction_correct": false,
+      "style_window": "财报季",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 42,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250327-NVDA-0011",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-03-27",
+      "direction": "down",
+      "expected_change_pct": -4,
+      "confidence": 0.56,
+      "reasoning": "市场对 AI 资本开支可持续性的担忧升温，部分超大规模云厂商释放支出节奏放缓信号，叠加前期涨幅过大获利盘集中，短期回调风险高于上行空间。",
+      "evidence": [
+        {
+          "source": "管理层电话会",
+          "date": "2025-03-24"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-03-20"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2025-04-26",
+      "actual_change_pct": -1.9,
+      "error": 2.1,
+      "direction_correct": true,
+      "style_window": "生成式AI行情",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 43,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250316-NVDA-0010",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-03-16",
+      "direction": "neutral",
+      "expected_change_pct": 0.5,
+      "confidence": 0.54,
+      "reasoning": "Blackwell 量产爬坡进度好于预期，供应链端确认订单能见度延伸至下半年，毛利率受新品占比提升带动。我们认为短期窗口内仍偏强。",
+      "evidence": [
+        {
+          "source": "海关出口数据",
+          "date": "2025-03-13"
+        },
+        {
+          "source": "公司业绩说明会纪要",
+          "date": "2025-03-15"
+        },
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-03-11"
+        },
+        {
+          "source": "摩根士丹利研报",
+          "date": "2025-03-10"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-03-17",
+      "actual_change_pct": -1.3,
+      "error": 1.8,
+      "direction_correct": true,
+      "style_window": "生成式AI行情",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 44,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250310-TSM-0009",
+      "ticker": "TSM",
+      "company": "台积电",
+      "sector": "晶圆代工",
+      "decision_date": "2025-03-10",
+      "direction": "up",
+      "expected_change_pct": 5.2,
+      "confidence": 0.75,
+      "reasoning": "先进制程产能满载,AI 与 HPC 需求驱动 3nm/5nm 出货强劲,代工提价落地改善毛利。我们看好财报后股价上行。",
+      "evidence": [
+        {
+          "source": "路透社报道",
+          "date": "2025-03-10"
+        },
+        {
+          "source": "高盛行业研报",
+          "date": "2025-03-07"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2025-04-09",
+      "actual_change_pct": -4.7,
+      "error": 9.9,
+      "direction_correct": false,
+      "style_window": "生成式AI行情",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 45,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250303-1810HK-0008",
+      "ticker": "1810.HK",
+      "company": "小米集团",
+      "sector": "消费电子/汽车",
+      "decision_date": "2025-03-03",
+      "direction": "up",
+      "expected_change_pct": 0.7,
+      "confidence": 0.71,
+      "reasoning": "汽车业务交付量爬坡顺利,SU7 订单超预期带动品牌溢价,手机高端化推进改善毛利。市场对造车盈利拐点预期升温,我们看好估值重估。",
+      "evidence": [
+        {
+          "source": "Counterpoint 出货数据",
+          "date": "2025-02-23"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-02-27"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-03-04",
+      "actual_change_pct": -0.9,
+      "error": 1.6,
+      "direction_correct": false,
+      "style_window": "消费复苏",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 46,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250225-6060HK-0007",
+      "ticker": "6060.HK",
+      "company": "众安在线",
+      "sector": "互联网保险",
+      "decision_date": "2025-02-25",
+      "direction": "neutral",
+      "expected_change_pct": 0,
+      "confidence": 0.82,
+      "reasoning": "互联网保险渗透率提升,公司线上获客成本优化,承保盈利改善超预期。低基数下业绩弹性较大,我们偏乐观。",
+      "evidence": [
+        {
+          "source": "渠道调研",
+          "date": "2025-02-20"
+        },
+        {
+          "source": "美联储议息纪要",
+          "date": "2025-02-17"
+        },
+        {
+          "source": "公司业绩说明会纪要",
+          "date": "2025-02-20"
+        },
+        {
+          "source": "彭博社报道",
+          "date": "2025-02-25"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-02-26",
+      "actual_change_pct": 1.5,
+      "error": 1.5,
+      "direction_correct": true,
+      "style_window": "汇率波动",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 47,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250215-NVDA-0006",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-02-15",
+      "direction": "down",
+      "expected_change_pct": -2.7,
+      "confidence": 0.79,
+      "reasoning": "市场对 AI 资本开支可持续性的担忧升温，部分超大规模云厂商释放支出节奏放缓信号，叠加前期涨幅过大获利盘集中，短期回调风险高于上行空间。",
+      "evidence": [
+        {
+          "source": "渠道调研",
+          "date": "2025-02-15"
+        },
+        {
+          "source": "管理层电话会",
+          "date": "2025-02-07"
+        },
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-02-10"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-02-22",
+      "actual_change_pct": -2.1,
+      "error": 0.6,
+      "direction_correct": true,
+      "style_window": "财报季",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 48,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250210-1211HK-0005",
+      "ticker": "1211.HK",
+      "company": "比亚迪",
+      "sector": "新能源汽车",
+      "decision_date": "2025-02-10",
+      "direction": "up",
+      "expected_change_pct": 1.8,
+      "confidence": 0.84,
+      "reasoning": "高端品牌仰望与方程豹放量改善产品结构,海外工厂投产打开增长空间,电池外供业务超预期。我们看好中期方向,预期温和上行。",
+      "evidence": [
+        {
+          "source": "海关出口数据",
+          "date": "2025-02-07"
+        },
+        {
+          "source": "彭博社报道",
+          "date": "2025-02-04"
+        },
+        {
+          "source": "管理层电话会",
+          "date": "2025-02-05"
+        },
+        {
+          "source": "公司公告",
+          "date": "2025-02-08"
+        }
+      ],
+      "prediction_window": "1天",
+      "outcome_availability_date": "2025-02-11",
+      "actual_change_pct": 2.1,
+      "error": 0.3,
+      "direction_correct": true,
+      "style_window": "加息周期",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 49,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250202-AAPL-0004",
+      "ticker": "AAPL",
+      "company": "苹果",
+      "sector": "消费电子",
+      "decision_date": "2025-02-02",
+      "direction": "up",
+      "expected_change_pct": 2.2,
+      "confidence": 0.59,
+      "reasoning": "iPhone 换机周期受 AI 功能驱动启动,服务业务维持双位数增长,大中华区降幅收窄。但硬件创新边际减弱,我们判断温和上行。",
+      "evidence": [
+        {
+          "source": "财新报道",
+          "date": "2025-01-27"
+        },
+        {
+          "source": "公司业绩说明会纪要",
+          "date": "2025-01-25"
+        },
+        {
+          "source": "彭博社报道",
+          "date": "2025-01-28"
+        },
+        {
+          "source": "海关出口数据",
+          "date": "2025-01-30"
+        }
+      ],
+      "prediction_window": "7天",
+      "outcome_availability_date": "2025-02-09",
+      "actual_change_pct": -2.4,
+      "error": 4.6,
+      "direction_correct": false,
+      "style_window": "汇率波动",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 50,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250126-9988HK-0003",
+      "ticker": "9988.HK",
+      "company": "阿里巴巴",
+      "sector": "电商/云计算",
+      "decision_date": "2025-01-26",
+      "direction": "down",
+      "expected_change_pct": -6.2,
+      "confidence": 0.77,
+      "reasoning": "电商竞争依旧激烈,用户时长被分流,云业务利润率受价格战压制。宏观消费疲弱下我们对短期反弹幅度持谨慎态度,判断方向中性。",
+      "evidence": [
+        {
+          "source": "美联储议息纪要",
+          "date": "2025-01-25"
+        },
+        {
+          "source": "高盛行业研报",
+          "date": "2025-01-23"
+        },
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-01-25"
+        },
+        {
+          "source": "公司业绩说明会纪要",
+          "date": "2025-01-25"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2025-02-25",
+      "actual_change_pct": 5.1,
+      "error": 11.3,
+      "direction_correct": false,
+      "style_window": "财报季",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 51,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250121-AAPL-0002",
+      "ticker": "AAPL",
+      "company": "苹果",
+      "sector": "消费电子",
+      "decision_date": "2025-01-21",
+      "direction": "down",
+      "expected_change_pct": -7.9,
+      "confidence": 0.52,
+      "reasoning": "中国市场竞争加剧份额承压,AI 功能落地节奏慢于预期,硬件升级吸引力不足。高估值下我们认为短期下行风险更大。",
+      "evidence": [
+        {
+          "source": "公司业绩说明会纪要",
+          "date": "2025-01-16"
+        },
+        {
+          "source": "公司公告",
+          "date": "2025-01-20"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2025-02-20",
+      "actual_change_pct": 6.1,
+      "error": 14,
+      "direction_correct": false,
+      "style_window": "加息周期",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 52,
+        "immutable_demo_snapshot": true
+      }
+    },
+    {
+      "prediction_id": "PRED-20250110-NVDA-0001",
+      "ticker": "NVDA",
+      "company": "英伟达",
+      "sector": "半导体/AI算力",
+      "decision_date": "2025-01-10",
+      "direction": "up",
+      "expected_change_pct": 3.4,
+      "confidence": 0.57,
+      "reasoning": "Blackwell 量产爬坡进度好于预期，供应链端确认订单能见度延伸至下半年，毛利率受新品占比提升带动。我们认为短期窗口内仍偏强。",
+      "evidence": [
+        {
+          "source": "英伟达 Q2 财报",
+          "date": "2025-01-07"
+        },
+        {
+          "source": "SemiAnalysis 供应链跟踪",
+          "date": "2025-01-02"
+        },
+        {
+          "source": "路透社报道",
+          "date": "2025-01-02"
+        }
+      ],
+      "prediction_window": "30天",
+      "outcome_availability_date": "2025-02-09",
+      "actual_change_pct": -3.4,
+      "error": 6.8,
+      "direction_correct": false,
+      "style_window": "加息周期",
+      "provenance": {
+        "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+        "source": "zip_demo_rebuilt_public_safe_dataset",
+        "source_record_index": 53,
+        "immutable_demo_snapshot": true
+      }
+    }
+  ]
+}
