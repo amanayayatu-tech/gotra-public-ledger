@@ -41,11 +41,19 @@ type CognitionDashboardProps = {
 type ChartTooltipPayload = Array<{
   name?: string;
   value?: number | string | null;
-  payload?: CognitionPoint;
+  payload?: CognitionChartPoint;
 }>;
+
+type CognitionChartPoint = CognitionPoint & {
+  pendingPredicted: number | null;
+};
 
 function formatPointValue(value: number | null): string {
   return value === null ? "暂无" : `${formatNumber(value)} 点`;
+}
+
+function formatErrorValue(value: number | null): string {
+  return value === null ? "暂无" : `${formatNumber(Math.abs(value))} 点`;
 }
 
 function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
@@ -64,6 +72,7 @@ function ChartTooltip({ active, payload }: TooltipProps<number, string>) {
       <span>窗口：{point.window}</span>
       <span>预测：{formatSignedPercent(point.predicted)}</span>
       <span>实际：{formatSignedPercent(point.actual)}</span>
+      <span>误差：{formatErrorValue(point.error)}</span>
       <span>{resultLabel(point)}</span>
       <span>累计准确率：{point.cumulativeAccuracy === null ? "暂无" : `${point.cumulativeAccuracy.toFixed(1)}%`}</span>
       <span>平均误差：{formatPointValue(point.averageError)}</span>
@@ -98,6 +107,15 @@ function CustomDot(props: { cx?: number; cy?: number; payload?: CognitionPoint }
   }
 
   return <circle className={`outcome-dot ${statusTone(payload)}`} cx={cx} cy={cy} r={5} />;
+}
+
+function PendingDot(props: { cx?: number; cy?: number; payload?: CognitionChartPoint }) {
+  const { cx, cy, payload } = props;
+  if (typeof cx !== "number" || typeof cy !== "number" || !payload || payload.status === "resolved") {
+    return null;
+  }
+
+  return <circle className={`pending-chart-dot ${payload.status}`} cx={cx} cy={cy} r={5} />;
 }
 
 function TickerChips({
@@ -136,18 +154,24 @@ function TickerChips({
 }
 
 function PredictionOutcomeChart({ points }: { points: CognitionPoint[] }) {
+  const chartPoints: CognitionChartPoint[] = points.map((point) => ({
+    ...point,
+    pendingPredicted: point.status === "resolved" ? null : point.predicted,
+  }));
+
   return (
     <section className="chart-card main-chart-card" aria-labelledby="prediction-chart-title">
       <div className="chart-card-header">
         <div>
           <h2 id="prediction-chart-title">系统当时预期 vs 后来真实表现</h2>
           <p>蓝线是当时预测，绿/红/灰点分别代表方向判对、判错、待判定或冻结待判定。</p>
+          <span className="chart-boundary-label">public-safe demo · 非 OOS</span>
         </div>
         <LineChartIcon aria-hidden="true" size={20} />
       </div>
       <div className="chart-frame tall-chart">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={points} margin={{ top: 14, right: 18, bottom: 10, left: 0 }}>
+          <ComposedChart data={chartPoints} margin={{ top: 14, right: 18, bottom: 10, left: 0 }}>
             <CartesianGrid stroke="#e6ecea" vertical={false} />
             <XAxis dataKey="label" tick={{ fill: "#66757f", fontSize: 12 }} tickMargin={8} />
             <YAxis
@@ -176,6 +200,17 @@ function PredictionOutcomeChart({ points }: { points: CognitionPoint[] }) {
               strokeWidth={2}
               strokeDasharray="5 4"
               dot={<CustomDot />}
+              activeDot={{ r: 6 }}
+              connectNulls={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="pendingPredicted"
+              name="待判定/冻结"
+              stroke="#8a97a3"
+              strokeWidth={2}
+              strokeDasharray="2 5"
+              dot={<PendingDot />}
               activeDot={{ r: 6 }}
               connectNulls={false}
             />

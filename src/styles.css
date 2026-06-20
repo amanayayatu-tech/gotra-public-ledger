@@ -902,6 +902,7 @@ h1 {
 .chart-card {
   min-width: 0;
   padding: 14px;
+  overflow: hidden;
 }
 
 .main-chart-card {
@@ -933,6 +934,20 @@ h1 {
   line-height: 1.5;
 }
 
+.chart-boundary-label {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 8px;
+  padding: 4px 7px;
+  border: 1px solid rgba(117, 216, 143, 0.26);
+  border-radius: 7px;
+  background: rgba(117, 216, 143, 0.08);
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1;
+}
+
 .chart-card-header svg {
   flex: 0 0 auto;
   color: var(--green);
@@ -944,6 +959,11 @@ h1 {
 
 .tall-chart {
   height: 438px;
+}
+
+.chart-frame .recharts-responsive-container,
+.chart-frame .recharts-wrapper {
+  max-width: 100%;
 }
 
 .recharts-legend-item-text {
@@ -988,6 +1008,19 @@ h1 {
 
 .outcome-dot.neutral {
   fill: #7b8792;
+}
+
+.pending-chart-dot {
+  stroke: #0e151d;
+  stroke-width: 2;
+}
+
+.pending-chart-dot.pending {
+  fill: var(--blue);
+}
+
+.pending-chart-dot.frozen_pending {
+  fill: var(--amber);
 }
 
 .timeline-list {
