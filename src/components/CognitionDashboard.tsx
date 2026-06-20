@@ -148,23 +148,23 @@ function PredictionOutcomeChart({ points }: { points: CognitionPoint[] }) {
       <div className="chart-frame tall-chart">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={points} margin={{ top: 14, right: 18, bottom: 10, left: 0 }}>
-            <CartesianGrid stroke="#e6ecea" vertical={false} />
-            <XAxis dataKey="label" tick={{ fill: "#66757f", fontSize: 12 }} tickMargin={8} />
+            <CartesianGrid stroke="#263441" vertical={false} />
+            <XAxis dataKey="label" tick={{ fill: "#71818e", fontSize: 12 }} tickMargin={8} />
             <YAxis
-              tick={{ fill: "#66757f", fontSize: 12 }}
+              tick={{ fill: "#71818e", fontSize: 12 }}
               tickFormatter={(value) => `${value}%`}
               width={44}
             />
-            <ReferenceLine y={0} stroke="#aeb8b4" strokeDasharray="4 4" />
+            <ReferenceLine y={0} stroke="#566674" strokeDasharray="4 4" />
             <Tooltip content={<ChartTooltip />} />
             <Legend verticalAlign="top" height={28} />
             <Line
               type="monotone"
               dataKey="predicted"
               name="预测涨跌幅"
-              stroke="#2563eb"
+              stroke="#2f8cff"
               strokeWidth={2}
-              dot={{ r: 3, strokeWidth: 0, fill: "#2563eb" }}
+              dot={{ r: 3, strokeWidth: 0, fill: "#2f8cff" }}
               activeDot={{ r: 6 }}
               connectNulls
             />
@@ -172,7 +172,7 @@ function PredictionOutcomeChart({ points }: { points: CognitionPoint[] }) {
               type="monotone"
               dataKey="actual"
               name="实际涨跌幅"
-              stroke="#0f766e"
+              stroke="#e5edf2"
               strokeWidth={2}
               strokeDasharray="5 4"
               dot={<CustomDot />}
@@ -199,19 +199,19 @@ function EvolutionChart({ points }: { points: CognitionPoint[] }) {
       <div className="chart-frame">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={points} margin={{ top: 14, right: 10, bottom: 10, left: 0 }}>
-            <CartesianGrid stroke="#e6ecea" vertical={false} />
-            <XAxis dataKey="label" tick={{ fill: "#66757f", fontSize: 12 }} tickMargin={8} />
+            <CartesianGrid stroke="#263441" vertical={false} />
+            <XAxis dataKey="label" tick={{ fill: "#71818e", fontSize: 12 }} tickMargin={8} />
             <YAxis
               yAxisId="left"
               domain={[0, 100]}
-              tick={{ fill: "#66757f", fontSize: 12 }}
+              tick={{ fill: "#71818e", fontSize: 12 }}
               tickFormatter={(value) => `${value}%`}
               width={44}
             />
             <YAxis
               yAxisId="right"
               orientation="right"
-              tick={{ fill: "#66757f", fontSize: 12 }}
+              tick={{ fill: "#71818e", fontSize: 12 }}
               tickFormatter={(value) => `${value}`}
               width={38}
             />
@@ -222,9 +222,9 @@ function EvolutionChart({ points }: { points: CognitionPoint[] }) {
               type="stepAfter"
               dataKey="cumulativeAccuracy"
               name="累计准确率"
-              stroke="#2563eb"
+              stroke="#2f8cff"
               strokeWidth={2}
-              dot={{ r: 3, fill: "#2563eb", strokeWidth: 0 }}
+              dot={{ r: 3, fill: "#2f8cff", strokeWidth: 0 }}
               connectNulls
             />
             <Line
@@ -232,9 +232,9 @@ function EvolutionChart({ points }: { points: CognitionPoint[] }) {
               type="monotone"
               dataKey="averageError"
               name="平均误差"
-              stroke="#d97706"
+              stroke="#ff6b74"
               strokeWidth={2}
-              dot={{ r: 3, fill: "#d97706", strokeWidth: 0 }}
+              dot={{ r: 3, fill: "#ff6b74", strokeWidth: 0 }}
               connectNulls
             />
           </ComposedChart>
@@ -329,32 +329,14 @@ export function CognitionDashboard({
     <section className="ticker-workbench" id="ledger-proof" aria-labelledby="ledger-proof-title">
       <div className="section-heading proof-heading">
         <span>S4 · Ledger proof</span>
-        <h2 id="ledger-proof-title">挑一只股票，看 GOTRA 对它的判断是怎么一步步演化的</h2>
+        <h2 id="ledger-proof-title">账本证明（单票认知工作台）</h2>
         <p>
-          默认选中记录最多的标的；当前数据中是 {selectedTicker}。所有图表来自 snapshot_date{" "}
-          {dataset.metadata.snapshot_date} 的公开安全快照。
+          默认优先选择 NVDA；当前数据中是 {selectedTicker}。所有图表来自 snapshot_date{" "}
+          {dataset.metadata.snapshot_date} 的 public-safe dataset。
         </p>
       </div>
 
       <div className="ticker-workbench-inner">
-        <div className="ticker-header">
-          <div>
-            <h2>{cognition.profile.displayName}</h2>
-            <p>
-              {cognition.profile.description}
-              GOTRA 对{cognition.profile.shortName}做了 {cognition.records.length} 次判断，
-              {cognition.resolvedCount} 次已结算，方向命中 {formatPercent(cognition.hitRate)}，平均误差{" "}
-              {formatPointValue(cognition.averageError)}。
-            </p>
-          </div>
-          <div className="ticker-stat-row">
-            <span>{cognition.records.length} 条记录</span>
-            <span>{cognition.resolvedCount} 已结算</span>
-            <span>{formatPercent(cognition.hitRate)} 方向命中</span>
-            <span>{formatPointValue(cognition.averageError)}平均误差</span>
-          </div>
-        </div>
-
         <TickerChips
           tickers={tickers}
           records={records}
@@ -362,27 +344,52 @@ export function CognitionDashboard({
           onTickerChange={onTickerChange}
         />
 
-        <div className="latest-record">
-          <div className="latest-title">
-            <CalendarDays aria-hidden="true" size={18} />
-            <div>
-              <span>最新记录</span>
-              <strong>
-                {latest.decision_date} · {formatSignedPercent(latest.expected_change_pct)} · {latest.prediction_window}
-              </strong>
+        <div className="proof-workspace">
+          <div className="proof-main">
+            <div className="ticker-header">
+              <div>
+                <h2>{cognition.profile.displayName}</h2>
+                <p>
+                  {cognition.profile.description}
+                  GOTRA 对{cognition.profile.shortName}做了 {cognition.records.length} 次判断，
+                  {cognition.resolvedCount} 次已结算，方向命中 {formatPercent(cognition.hitRate)}，平均误差{" "}
+                  {formatPointValue(cognition.averageError)}。
+                </p>
+              </div>
+              <div className="ticker-stat-row">
+                <span>{cognition.records.length} 条记录</span>
+                <span>{cognition.resolvedCount} 已结算</span>
+                <span>{formatPercent(cognition.hitRate)} 方向命中</span>
+                <span>{formatPointValue(cognition.averageError)}平均误差</span>
+              </div>
+            </div>
+
+            <div className="chart-grid">
+              <PredictionOutcomeChart points={cognition.points} />
+              <EvolutionChart points={cognition.points} />
+              <EvidenceTimeline records={cognition.records} onSelectRecord={onSelectRecord} />
             </div>
           </div>
-          <p>{describeRecordOutcome(latest)}</p>
-          <button type="button" onClick={() => onSelectRecord(latest)}>
-            打开记录
-          </button>
-        </div>
 
-        <div className="chart-grid">
-          <PredictionOutcomeChart points={cognition.points} />
-          <EvolutionChart points={cognition.points} />
-          <EvidenceTimeline records={cognition.records} onSelectRecord={onSelectRecord} />
-          <ErrorReview record={cognition.largestErrorRecord} />
+          <aside className="proof-side" aria-label="Ticker review cards">
+            <div className="latest-record">
+              <div className="latest-title">
+                <CalendarDays aria-hidden="true" size={18} />
+                <div>
+                  <span>最新记录</span>
+                  <strong>
+                    {latest.decision_date} · {formatSignedPercent(latest.expected_change_pct)} ·{" "}
+                    {latest.prediction_window}
+                  </strong>
+                </div>
+              </div>
+              <p>{describeRecordOutcome(latest)}</p>
+              <button type="button" onClick={() => onSelectRecord(latest)}>
+                打开记录
+              </button>
+            </div>
+            <ErrorReview record={cognition.largestErrorRecord} />
+          </aside>
         </div>
       </div>
     </section>

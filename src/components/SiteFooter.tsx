@@ -7,10 +7,10 @@ type SiteFooterProps = {
 
 export function SiteFooter({ metadata }: SiteFooterProps) {
   return (
-    <footer className="site-footer" aria-labelledby="footer-title">
+    <footer className="site-footer" id="site-footer" aria-labelledby="footer-title">
       <div>
         <span className="brand-mark footer-mark" aria-hidden="true">
-          GL
+          <span />
         </span>
         <h2 id="footer-title">大多数金融内容制造注意力，GOTRA 制造信用。</h2>
         <p>

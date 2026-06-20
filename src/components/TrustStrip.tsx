@@ -1,12 +1,9 @@
-import { AlertTriangle, CheckCircle2, ShieldCheck, TrendingUp } from "lucide-react";
-import { describeLargestError } from "../data/cognition";
+import { AlertTriangle, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
 import { formatNumber, formatPercent, formatSignedPercent, type RecordView } from "../data/metrics";
 
 type TrustStripProps = {
   records: RecordView[];
 };
-
-const dayMs = 24 * 60 * 60 * 1000;
 
 function getLargestErrorRecord(records: RecordView[]): RecordView | null {
   const settled = records.filter((record) => record.status === "resolved" && typeof record.error === "number");
@@ -19,31 +16,12 @@ function getLargestErrorRecord(records: RecordView[]): RecordView | null {
   );
 }
 
-function getLongestTrackingDays(records: RecordView[]): number {
-  const byTicker = new Map<string, RecordView[]>();
-  records.forEach((record) => {
-    byTicker.set(record.ticker, [...(byTicker.get(record.ticker) ?? []), record]);
-  });
-
-  return Math.max(
-    0,
-    ...[...byTicker.values()].map((tickerRecords) => {
-      const times = tickerRecords.flatMap((record) => [
-        new Date(`${record.decision_date}T00:00:00Z`).getTime(),
-        new Date(`${record.outcome_availability_date}T00:00:00Z`).getTime(),
-      ]);
-      return Math.round((Math.max(...times) - Math.min(...times)) / dayMs);
-    }),
-  );
-}
-
 export function TrustStrip({ records }: TrustStripProps) {
   const settled = records.filter((record) => record.status === "resolved");
   const frozenPending = records.filter((record) => record.status === "frozen_pending");
   const misses = settled.filter((record) => record.direction_correct === false);
   const largestErrorRecord = getLargestErrorRecord(records);
   const reviewDenominator = settled.length + frozenPending.length;
-  const trackingDays = getLongestTrackingDays(records);
 
   return (
     <section className="trust-section" id="trust-strip" aria-labelledby="trust-title">
@@ -75,40 +53,27 @@ export function TrustStrip({ records }: TrustStripProps) {
           <small>在 {settled.length} 条已结算记录中公开保留</small>
         </div>
         <div>
-          <TrendingUp aria-hidden="true" size={22} />
-          <span>最长单标的追踪</span>
-          <strong>{trackingDays} 天</strong>
-          <small>按记录日期与 outcome 窗口派生</small>
+          <Zap aria-hidden="true" size={22} />
+          <span>最大单次误差</span>
+          <strong className="red-value">
+            {largestErrorRecord ? `${formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp` : "暂无"}
+          </strong>
+          <small>
+            {largestErrorRecord
+              ? `${largestErrorRecord.ticker} ${largestErrorRecord.decision_date}`
+              : "暂无已结算记录"}
+          </small>
         </div>
       </div>
 
-      <article className="mistake-card">
-        <div>
-          <span>这是我们错得最离谱的一次，我们留着它。</span>
-          <h3>
-            {largestErrorRecord
-              ? `${largestErrorRecord.ticker} · ${largestErrorRecord.company}`
-              : "暂无已结算错误记录"}
-          </h3>
-        </div>
-        {largestErrorRecord ? (
-          <dl>
-            <div>
-              <dt>预测</dt>
-              <dd>{formatSignedPercent(largestErrorRecord.expected_change_pct)}</dd>
-            </div>
-            <div>
-              <dt>实际</dt>
-              <dd>{formatSignedPercent(largestErrorRecord.actual_change_pct)}</dd>
-            </div>
-            <div>
-              <dt>误差</dt>
-              <dd>{formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp</dd>
-            </div>
-          </dl>
-        ) : null}
-        <p>{describeLargestError(largestErrorRecord)}</p>
-      </article>
+      {largestErrorRecord ? (
+        <p className="trust-footnote">
+          最大误差记录：{largestErrorRecord.ticker} 预测{" "}
+          {formatSignedPercent(largestErrorRecord.expected_change_pct)}，实际{" "}
+          {formatSignedPercent(largestErrorRecord.actual_change_pct)}，误差{" "}
+          {formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp。该记录仍保留在公开账本中。
+        </p>
+      ) : null}
     </section>
   );
 }

@@ -38,7 +38,7 @@ export function HowItWorks() {
     <section className="story-section" id="how-it-works" aria-labelledby="how-title">
       <div className="section-heading">
         <span>S2 · How it works</span>
-        <h2 id="how-title">预测不是重点，能不能被追责才是重点</h2>
+        <h2 id="how-title">我们的工作机制（公开、可验证、可迭代）</h2>
         <p>大多数金融内容只在事后解释；GOTRA 在事前留痕，然后把验证和复盘也放到同一条链上。</p>
       </div>
 
@@ -60,6 +60,11 @@ export function HowItWorks() {
           );
         })}
       </ol>
+      <div className="workflow-loop" aria-hidden="true">
+        <span />
+        <strong>持续迭代，减少未来错误</strong>
+        <span />
+      </div>
     </section>
   );
 }
