@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, GitBranch, RefreshCw, Search } from "lucide-react";
-import { BoundaryPanel, BoundaryPills } from "./components/BoundaryPanel";
-import { CoverageChart } from "./components/CoverageChart";
+import { AlertCircle, RefreshCw, Search } from "lucide-react";
+import { CognitionDashboard } from "./components/CognitionDashboard";
 import { DetailDrawer } from "./components/DetailDrawer";
 import { LedgerTable, type SortKey, type SortState } from "./components/LedgerTable";
-import { SummaryCards } from "./components/SummaryCards";
+import { buildTickerList } from "./data/cognition";
 import { computeSummary, toRecordView, type LedgerStatus, type RecordView } from "./data/metrics";
 import { loadLedgerDataset, type LedgerDataset } from "./data/schema";
 
@@ -37,6 +36,7 @@ function App() {
   const [sectorFilter, setSectorFilter] = useState("all");
   const [sort, setSort] = useState<SortState>({ key: "decision_date", direction: "desc" });
   const [selectedRecord, setSelectedRecord] = useState<RecordView | null>(null);
+  const [selectedTicker, setSelectedTicker] = useState("");
 
   useEffect(() => {
     loadLedgerDataset()
@@ -54,6 +54,8 @@ function App() {
   }, [dataset]);
 
   const metrics = useMemo(() => (dataset ? computeSummary(dataset) : null), [dataset]);
+  const tickers = useMemo(() => buildTickerList(views), [views]);
+  const activeTicker = selectedTicker && tickers.includes(selectedTicker) ? selectedTicker : tickers[0] ?? "";
 
   const sectors = useMemo(
     () => [...new Set(views.map((record) => record.sector))].sort((a, b) => a.localeCompare(b, "zh-CN")),
@@ -98,7 +100,7 @@ function App() {
     );
   }
 
-  if (!dataset || !metrics) {
+  if (!dataset || !metrics || !activeTicker) {
     return (
       <main className="loading-screen">
         <RefreshCw aria-hidden="true" size={22} />
@@ -116,39 +118,32 @@ function App() {
           </span>
           <div>
             <strong>GOTRA Public Ledger</strong>
-            <span>Frozen demo snapshot</span>
+            <span>认知演化 · frozen demo snapshot</span>
           </div>
         </div>
-        <div className="topbar-meta">
+        <div className="topbar-meta" aria-label="Dataset boundary">
           <span>snapshot_date {dataset.metadata.snapshot_date}</span>
-          <span>{dataset.metadata.dataset_type}</span>
+          <span>Research information only</span>
+          <span>Not investment advice</span>
         </div>
       </header>
 
       <main className="page-shell">
-        <section className="ledger-intro" aria-labelledby="page-title">
-          <div className="intro-copy">
-            <div className="section-kicker">
-              <GitBranch aria-hidden="true" size={15} />
-              public-safe demo dataset
-            </div>
-            <h1 id="page-title">GOTRA Public Ledger</h1>
-            <p>
-              Frozen, public-safe prediction ledger rebuilt from the demo zip.
-              The source snapshot is not live and does not establish OOS or
-              public science claims.
-            </p>
-          </div>
-          <BoundaryPills labels={dataset.metadata.claim_boundary} />
-        </section>
+        <CognitionDashboard
+          dataset={dataset}
+          records={views}
+          metrics={metrics}
+          tickers={tickers}
+          selectedTicker={activeTicker}
+          onTickerChange={setSelectedTicker}
+          onSelectRecord={setSelectedRecord}
+        />
 
-        <SummaryCards metrics={metrics} />
-
-        <section className="workbench" aria-label="Ledger workbench">
+        <section className="ledger-section" aria-label="Ledger table">
           <div className="ledger-panel">
             <div className="ledger-toolbar">
               <div>
-                <h2>Ledger</h2>
+                <h2>公开账本明细</h2>
                 <p>
                   {filteredRecords.length} of {views.length} records shown
                 </p>
@@ -191,11 +186,6 @@ function App() {
 
             <LedgerTable records={filteredRecords} sort={sort} onSort={handleSort} onSelect={setSelectedRecord} />
           </div>
-
-          <aside className="right-rail">
-            <BoundaryPanel metadata={dataset.metadata} />
-            <CoverageChart records={views} />
-          </aside>
         </section>
       </main>
 

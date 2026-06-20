@@ -30,15 +30,16 @@ type LedgerTableProps = {
 
 const columns: Array<{ key: SortKey; label: string; className?: string }> = [
   { key: "ticker", label: "Ticker" },
-  { key: "decision_date", label: "Date" },
-  { key: "confidence", label: "Confidence" },
-  { key: "expected_change_pct", label: "Expected" },
-  { key: "error", label: "Actual / Error" },
-  { key: "evidence_count", label: "Evidence" },
+  { key: "decision_date", label: "日期" },
+  { key: "confidence", label: "置信度" },
+  { key: "expected_change_pct", label: "预测" },
+  { key: "error", label: "实际 / 误差" },
+  { key: "evidence_count", label: "证据" },
 ];
 
 function DirectionBadge({ direction }: { direction: RecordView["direction"] }) {
-  return <span className={`direction-badge ${direction}`}>{direction}</span>;
+  const label = direction === "up" ? "看涨" : direction === "down" ? "看跌" : "中性";
+  return <span className={`direction-badge ${direction}`}>{label}</span>;
 }
 
 function StatusBadge({ status }: { status: LedgerStatus }) {
@@ -71,7 +72,7 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
                 </button>
               </th>
             ))}
-            <th>Status</th>
+            <th>状态</th>
           </tr>
         </thead>
         <tbody>
@@ -108,7 +109,7 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
                 ) : (
                   <span className="mono">{formatSignedPercent(record.actual_change_pct)}</span>
                 )}
-                <small>{record.error === null ? "error n/a" : `error ${formatNumber(record.error)}`}</small>
+                <small>{record.error === null ? "error n/a" : `error ${formatNumber(record.error)} pp`}</small>
               </td>
               <td>
                 <span className="mono">{record.evidence_count}</span>

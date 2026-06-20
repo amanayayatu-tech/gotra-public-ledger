@@ -16,6 +16,20 @@ Dataset metadata:
 
 As of the boundary review date `2026-06-20`, all six source records marked `pending` have `outcome_availability_date` in the past. They remain `frozen_pending` in this MVP because the frozen source bundle does not contain actual outcomes for them.
 
+## Derived Frontend Metrics
+
+The cognition evolution UI derives display metrics from `ledger.demo.json` only:
+
+- per-ticker prediction and outcome series
+- cumulative direction hit rate over resolved rows
+- cumulative average absolute error over resolved rows
+- evidence/source counts from each record
+- largest resolved error per ticker
+
+These derived fields are for frontend explanation and inspection. They are not
+new source evidence, not OOS, not science/public proof, not a trading signal,
+and not investment advice.
+
 ## Allowed Sources
 
 - Demo zip records rebuilt into public-safe JSON.
@@ -42,3 +56,9 @@ must keep those outcome fields empty (`null` or omitted).
 ## Evidence Index
 
 `public/data/evidence-index.json` is derived from `ledger.demo.json`. It contains source labels and dates from the frozen demo data only. It is not live source retrieval, not raw provider evidence, and not a private research artifact.
+
+## Public Source Inventory
+
+`docs/PUBLIC_DATA_INVENTORY.md` records the public GitHub source check used for
+the Phase 4 redesign. The current frontend did not adopt additional public
+prediction rows beyond the existing frozen demo dataset.

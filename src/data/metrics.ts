@@ -79,10 +79,10 @@ export function formatNumber(value: number | null, digits = 1): string {
 export function statusLabel(status: LedgerStatus): string {
   switch (status) {
     case "resolved":
-      return "Resolved";
+      return "已结算";
     case "frozen_pending":
-      return "Frozen pending";
+      return "冻结 pending";
     case "pending":
-      return "Pending";
+      return "pending";
   }
 }

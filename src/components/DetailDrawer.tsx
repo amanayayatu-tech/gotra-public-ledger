@@ -20,21 +20,20 @@ function ResultText({ record }: { record: RecordView }) {
   if (record.status === "frozen_pending") {
     return (
       <p>
-        The source snapshot still marks this record as pending, but its
-        outcome_availability_date has passed. The MVP preserves it as frozen
-        pending instead of inventing or backfilling an outcome.
+        源快照仍把这条记录标为 pending，但 outcome_availability_date 已经过去。
+        页面保留 frozen_pending，不补写或伪造后验结果。
       </p>
     );
   }
 
   if (record.direction_correct === "pending") {
-    return <p>This record is pending in the frozen source snapshot.</p>;
+    return <p>这条记录在冻结源快照中仍是 pending。</p>;
   }
 
   return (
     <p>
-      Direction result: <strong>{record.direction_correct ? "correct" : "incorrect"}</strong>.
-      Absolute error: <strong>{formatNumber(record.error)}</strong> percentage points.
+      方向结果：<strong>{record.direction_correct ? "判对" : "判错"}</strong>。
+      绝对误差：<strong>{formatNumber(record.error)}</strong> percentage points。
     </p>
   );
 }
@@ -84,27 +83,27 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
         <div className="drawer-body">
           <section className="detail-metrics" aria-label="Prediction and outcome">
             <div>
-              <span>Decision date</span>
+              <span>决策日期</span>
               <strong>{record.decision_date}</strong>
             </div>
             <div>
-              <span>Window</span>
+              <span>窗口</span>
               <strong>{record.prediction_window}</strong>
             </div>
             <div>
-              <span>Confidence</span>
+              <span>置信度</span>
               <strong>{formatPercent(record.confidence, 0)}</strong>
             </div>
             <div>
-              <span>Expected</span>
+              <span>预测涨跌幅</span>
               <strong>{formatSignedPercent(record.expected_change_pct)}</strong>
             </div>
             <div>
-              <span>Actual</span>
+              <span>实际涨跌幅</span>
               <strong>{formatSignedPercent(record.actual_change_pct)}</strong>
             </div>
             <div>
-              <span>Error</span>
+              <span>误差</span>
               <strong>{formatNumber(record.error)}</strong>
             </div>
           </section>
@@ -112,7 +111,7 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
           <section className="detail-section">
             <h3>
               <FileText aria-hidden="true" size={16} />
-              Reasoning
+              推理摘要
             </h3>
             <p>{record.reasoning}</p>
           </section>
@@ -120,7 +119,7 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
           <section className="detail-section">
             <h3>
               <CalendarDays aria-hidden="true" size={16} />
-              Evidence sources
+              证据来源
             </h3>
             <ul className="evidence-list">
               {record.evidence.map((item) => (
@@ -135,7 +134,7 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
           <section className="detail-section">
             <h3>
               <Scale aria-hidden="true" size={16} />
-              Prediction vs actual
+              预测 vs 实际
             </h3>
             <ResultText record={record} />
             <p className="muted">
@@ -146,7 +145,7 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
           <section className="detail-section">
             <h3>
               <ShieldAlert aria-hidden="true" size={16} />
-              Boundary labels
+              边界标签
             </h3>
             <BoundaryPills labels={metadata.claim_boundary} />
           </section>

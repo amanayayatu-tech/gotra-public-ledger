@@ -22,6 +22,11 @@ Do not write or imply:
 
 Local checks, build success, UI screenshots, deployment, and demo data inspection are only local frontend evidence. They are not OOS evidence, formal acceptance, science/public proof, or trading evidence.
 
+The Phase 4 cognition charts are also local frontend UX/smoke evidence only.
+They visualize frozen demo records and derived demo metrics; they do not prove
+learning, superiority, OOS validity, public science claims, tradable returns, or
+investment usefulness.
+
 ## direct_llm Caveat
 
 If `direct_llm` is mentioned, write it as `direct_llm_parametric_memory_control`.
