@@ -269,6 +269,9 @@ h1 {
   font-size: clamp(42px, 5.2vw, 78px);
   line-height: 1.03;
   letter-spacing: 0;
+  overflow-wrap: normal;
+  text-wrap: balance;
+  word-break: keep-all;
 }
 
 .hero-copy p {
@@ -277,6 +280,15 @@ h1 {
   color: #c5d0d8;
   font-size: 18px;
   line-height: 1.72;
+}
+
+.hero-copy .hero-brand-motif {
+  width: fit-content;
+  margin-top: 18px;
+  color: var(--green);
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1.35;
 }
 
 .hero-actions {
@@ -367,7 +379,8 @@ h1 {
 .hero-stat-grid strong {
   color: var(--text);
   font-family: "SFMono-Regular", Consolas, monospace;
-  font-size: 32px;
+  overflow-wrap: anywhere;
+  font-size: 27px;
   line-height: 1;
 }
 
@@ -380,6 +393,82 @@ h1 {
 .hero-data-note span {
   color: var(--faint);
   font-family: "SFMono-Regular", Consolas, monospace;
+}
+
+.hero-mini-chart {
+  display: grid;
+  gap: 8px;
+  min-height: 148px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(16, 24, 32, 0.9);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset;
+}
+
+.hero-mini-chart.empty {
+  align-content: start;
+}
+
+.hero-mini-chart.empty p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.hero-mini-chart svg {
+  width: 100%;
+  height: 76px;
+  overflow: visible;
+}
+
+.hero-mini-chart line {
+  stroke: rgba(113, 129, 142, 0.32);
+  stroke-width: 0.8;
+}
+
+.hero-mini-chart polyline {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+
+.hero-mini-chart .predicted-line {
+  stroke: var(--blue);
+  stroke-dasharray: 4 3;
+}
+
+.hero-mini-chart .actual-line {
+  stroke: #dfe8ee;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-legend i {
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+}
+
+.chart-legend .predicted {
+  background: var(--blue);
+}
+
+.chart-legend .actual {
+  background: #dfe8ee;
 }
 
 .hero-proof {
@@ -1846,6 +1935,11 @@ h1 {
     margin-top: 16px;
   }
 
+  .hero-copy .hero-brand-motif {
+    margin-top: 14px;
+    font-size: 14px;
+  }
+
   .hero-boundary-note {
     min-height: 30px;
     padding: 6px 8px;
@@ -1964,11 +2058,37 @@ h1 {
   }
 
   h1 {
-    font-size: 32px;
+    margin-top: 14px;
+    font-size: 30px;
+    line-height: 1.08;
+    text-wrap: auto;
+  }
+
+  .hero-section {
+    gap: 12px;
+  }
+
+  .hero-copy p {
+    margin-top: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .hero-boundary-note {
+    max-width: 100%;
+  }
+
+  .hero-actions {
+    margin-top: 16px;
   }
 
   .hero-actions a {
     width: 100%;
+  }
+
+  .primary-action,
+  .secondary-action {
+    min-height: 40px;
   }
 
   .chart-frame,
