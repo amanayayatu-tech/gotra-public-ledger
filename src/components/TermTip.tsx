@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { HelpCircle } from "lucide-react";
 import { labelMap, type GlossaryKey } from "../data/glossary";
 
@@ -7,14 +8,24 @@ type TermTipProps = {
 };
 
 export function TermTip({ term, compact = false }: TermTipProps) {
+  const [open, setOpen] = useState(false);
   const entry = labelMap[term];
 
   return (
-    <span className={`term-tip ${compact ? "compact" : ""}`}>
+    <span className={`term-tip ${compact ? "compact" : ""} ${open ? "open" : ""}`}>
       <span>{entry.label}</span>
-      <button type="button" aria-label={`${entry.label}: ${entry.help}`} title={entry.help}>
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-label={`${entry.label}: ${entry.help}`}
+        onClick={() => setOpen((current) => !current)}
+        title={entry.help}
+      >
         <HelpCircle aria-hidden="true" size={13} />
       </button>
+      <span className="term-popover" role="tooltip">
+        {entry.help}
+      </span>
     </span>
   );
 }
@@ -29,7 +40,6 @@ export function GlossaryStrip() {
     "frozen_pending",
     "frozen_demo_snapshot",
     "oos",
-    "direct_llm_parametric_memory_control",
   ] as const;
 
   return (

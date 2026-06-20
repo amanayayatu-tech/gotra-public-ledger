@@ -1140,6 +1140,7 @@ h1 {
 }
 
 .term-tip {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -1172,6 +1173,30 @@ h1 {
 .term-tip button:hover {
   color: var(--green);
   border-color: rgba(117, 216, 143, 0.56);
+}
+
+.term-popover {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  top: calc(100% + 6px);
+  display: none;
+  width: min(280px, 78vw);
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0e151d;
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.term-tip:hover .term-popover,
+.term-tip:focus-within .term-popover,
+.term-tip.open .term-popover {
+  display: block;
 }
 
 .ledger-panel {
@@ -1587,6 +1612,28 @@ h1 {
   letter-spacing: 0;
 }
 
+.core-boundary-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 0;
+  margin: 11px 0 0;
+  list-style: none;
+}
+
+.core-boundary-list li {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 9px;
+  border: 1px solid rgba(117, 216, 143, 0.28);
+  border-radius: 7px;
+  background: rgba(117, 216, 143, 0.08);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 850;
+}
+
 .boundary-list {
   display: grid;
   gap: 8px;
@@ -1649,6 +1696,44 @@ h1 {
   color: inherit;
   font-size: 13px;
   line-height: 1.6;
+}
+
+.technical-appendix {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.technical-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(105, 167, 255, 0.08);
+  color: #d5e4f5;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.technical-toggle:hover {
+  border-color: var(--border-strong);
+}
+
+.technical-toggle svg:last-child {
+  margin-left: auto;
+  transition: transform 180ms ease;
+}
+
+.technical-toggle svg:last-child.open {
+  transform: rotate(180deg);
+}
+
+.technical-details {
+  display: block;
 }
 
 .glossary-strip {
