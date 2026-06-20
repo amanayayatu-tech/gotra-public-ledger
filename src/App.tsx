@@ -14,6 +14,16 @@ import { loadLedgerDataset, type LedgerDataset } from "./data/schema";
 
 type StatusFilter = "all" | LedgerStatus;
 
+const sectionRail = [
+  { id: "hero", code: "S1", label: "Hero" },
+  { id: "how-it-works", code: "S2", label: "How It Works" },
+  { id: "trust-strip", code: "S3", label: "Trust Strip" },
+  { id: "ledger-proof", code: "S4", label: "Ledger Proof" },
+  { id: "full-ledger", code: "S5", label: "Full Ledger" },
+  { id: "method-boundary", code: "S6", label: "Method & Boundary" },
+  { id: "site-footer", code: "S7", label: "Footer" },
+];
+
 function compareRecord(a: RecordView, b: RecordView, key: SortKey): number {
   const left = a[key];
   const right = b[key];
@@ -60,7 +70,8 @@ function App() {
 
   const metrics = useMemo(() => (dataset ? computeSummary(dataset) : null), [dataset]);
   const tickers = useMemo(() => buildTickerList(views), [views]);
-  const activeTicker = selectedTicker && tickers.includes(selectedTicker) ? selectedTicker : tickers[0] ?? "";
+  const defaultTicker = useMemo(() => (tickers.includes("NVDA") ? "NVDA" : tickers[0] ?? ""), [tickers]);
+  const activeTicker = selectedTicker && tickers.includes(selectedTicker) ? selectedTicker : defaultTicker;
 
   const sectors = useMemo(
     () => [...new Set(views.map((record) => record.sector))].sort((a, b) => a.localeCompare(b, "zh-CN")),
@@ -119,20 +130,40 @@ function App() {
       <header className="topbar">
         <div className="brand">
           <span className="brand-mark" aria-hidden="true">
-            GL
+            <span />
           </span>
           <div>
             <strong>GOTRA Public Ledger</strong>
-            <span>公开预测账本 · 错误也留痕</span>
+            <span>公开预测账本</span>
           </div>
         </div>
-        <div className="topbar-meta" aria-label="Dataset boundary">
-          <a href="#how-it-works">方法</a>
-          <a href="#ledger-proof">证据</a>
-          <a href="#full-ledger">账本</a>
-          <a href="#method-boundary">边界</a>
+        <nav className="topbar-nav" aria-label="Primary navigation">
+          <a href="#full-ledger">公开预测</a>
+          <a href="#method-boundary">方法与边界</a>
+          <a href="#trust-strip">错误复盘</a>
+          <a href="#method-boundary">数据说明</a>
+        </nav>
+        <a className="topbar-search" href="#full-ledger" aria-label="跳到账本搜索">
+          <Search aria-hidden="true" size={15} />
+          <span>搜索代码 / 主题</span>
+        </a>
+        <div className="topbar-status" aria-label="Dataset snapshot status">
+          <i aria-hidden="true" />
+          <span>
+            数据快照
+            <strong>{dataset.metadata.snapshot_date}</strong>
+          </span>
         </div>
       </header>
+
+      <nav className="section-rail" aria-label="Section rail">
+        {sectionRail.map((section) => (
+          <a href={`#${section.id}`} key={section.id}>
+            <strong>{section.code}</strong>
+            <span>{section.label}</span>
+          </a>
+        ))}
+      </nav>
 
       <main className="page-shell">
         <Hero dataset={dataset} metrics={metrics} records={views} />

@@ -16,11 +16,23 @@ const boundaryLabelMap: Record<string, string> = {
 };
 
 function datasetDisplayLabel(value: string): string {
-  return value === "frozen_demo_snapshot/public_safe_demo" ? "公开安全演示数据" : value;
+  if (value === "frozen_demo_snapshot/public_safe_demo") {
+    return "公开安全演示数据";
+  }
+  if (value.includes("public_safe_demo") || value.includes("public_safe")) {
+    return "public-safe dataset";
+  }
+  return value;
 }
 
 function sourceDisplayLabel(value: string): string {
-  return value === "zip_demo_rebuilt_public_safe_dataset" ? "demo zip 重建数据" : value;
+  if (value === "zip_demo_rebuilt_public_safe_dataset") {
+    return "demo zip 重建数据";
+  }
+  if (value.includes("public_preregistered") || value.includes("public")) {
+    return "公开数据/公开协议派生";
+  }
+  return value;
 }
 
 export function BoundaryPills({ labels }: { labels: string[] }) {
@@ -40,16 +52,14 @@ export function BoundaryPanel({ metadata }: BoundaryPanelProps) {
     <section className="boundary-panel" id="method-boundary" aria-labelledby="boundary-heading">
       <div className="section-heading">
         <span>S6 · Method & boundary</span>
-        <h2 id="boundary-heading">我们主动告诉你这些限制</h2>
-        <p>
-          透明边界不是削弱可信度，而是让这份账本知道自己能说明什么、不能说明什么。
-        </p>
+        <h2 id="boundary-heading">方法与边界</h2>
+        <p>透明边界不是削弱可信度，而是让这份账本知道自己能说明什么、不能说明什么。</p>
       </div>
 
       <div className="boundary-layout">
         <div className="method-card">
           <BookOpenCheck aria-hidden="true" size={20} />
-          <h3>方法论简述</h3>
+          <h3>我们的研究方法</h3>
           <p>
             页面展示固定股票池中的公开预测记录。方向命中率与平均误差只用已结算记录计算；
             pending 和 frozen_pending 不进入分母，也不会被补写实际结果。
@@ -62,7 +72,7 @@ export function BoundaryPanel({ metadata }: BoundaryPanelProps) {
 
         <div className="method-card">
           <Scale aria-hidden="true" size={20} />
-          <h3>诚实边界声明</h3>
+          <h3>边界与局限</h3>
           <BoundaryPills labels={metadata.claim_boundary} />
           <p>
             本页是 research information only，不构成 investment advice。它展示的是 demo/public-safe snapshot，
@@ -72,7 +82,7 @@ export function BoundaryPanel({ metadata }: BoundaryPanelProps) {
 
         <div className="method-card">
           <ShieldCheck aria-hidden="true" size={20} />
-          <h3>快照来源</h3>
+          <h3>数据说明</h3>
           <dl className="boundary-list">
             <div>
               <dt>snapshot_date</dt>
