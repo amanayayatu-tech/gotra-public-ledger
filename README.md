@@ -21,6 +21,28 @@ npm run build
 npm run preview
 ```
 
+## GitHub Pages Deployment
+
+GitHub Pages deployment is handled by `.github/workflows/pages.yml`.
+
+Deployment triggers:
+
+- `push` to `main`
+- manual `workflow_dispatch`
+
+The PR branch does not automatically deploy to Pages. After this PR is reviewed
+and merged, the `main` push workflow builds the frontend with
+`GITHUB_PAGES=true npm run build` so Vite uses the project Pages base path:
+
+```text
+/gotra-public-ledger/
+```
+
+Pages deployment is frontend deployability evidence only. It means the static
+MVP can be built and served by GitHub Pages. It is not OOS evidence, not
+formal acceptance, not science/public proof, not a trading signal, and not
+investment advice.
+
 ## Data Replacement
 
 Replace `public/data/ledger.demo.json` with a public-safe JSON file that matches the schema in `src/data/schema.ts`.
@@ -61,4 +83,5 @@ npm run lint
 npm run build
 ```
 
-CI runs install, lint, and build only. GitHub Pages deployment is intentionally not included.
+CI runs install, lint, and build. GitHub Pages deploy runs only from `main` push
+or manual dispatch.
