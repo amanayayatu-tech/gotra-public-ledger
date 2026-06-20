@@ -105,11 +105,21 @@ function App() {
     );
   }
 
-  if (!dataset || !metrics || !activeTicker) {
+  if (!dataset || !metrics) {
     return (
       <main className="loading-screen">
         <RefreshCw aria-hidden="true" size={22} />
         <span>Loading ledger.demo.json</span>
+      </main>
+    );
+  }
+
+  if (!activeTicker) {
+    return (
+      <main className="error-screen">
+        <AlertCircle aria-hidden="true" size={24} />
+        <h1>Ledger data has no renderable records</h1>
+        <p>public-safe demo 数据已加载，但没有可渲染的记录；页面不会回填或伪造后验结果。</p>
       </main>
     );
   }
