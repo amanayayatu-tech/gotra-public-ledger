@@ -121,7 +121,7 @@ export function Hero({ dataset, metrics, records }: HeroProps) {
           </div>
         </div>
         <p className="hero-data-note">
-          包含 {metrics.frozenPending} 条 source-pending 的冻结快照记录；本页面不回填后验结果。
+          包含 {metrics.pending + metrics.frozenPending} 条未公开 outcome 的 pending/frozen_pending 记录；本页面不回填后验结果。
           <span> snapshot_date {dataset.metadata.snapshot_date}</span>
         </p>
         <MiniProofCard records={records} />

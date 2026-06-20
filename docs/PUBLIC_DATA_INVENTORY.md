@@ -1,12 +1,12 @@
 # Public Data Inventory
 
-This inventory records the public sources checked for the Phase 4 cognition
-evolution redesign. It is a data-boundary document, not proof of research
+This inventory records the public sources checked for the Phase 5 public-safe
+dataset expansion. It is a data-boundary document, not proof of research
 performance.
 
 ## Evidence Boundary
 
-- Evidence layer: local checks + frontend UX/smoke evidence only.
+- Evidence layer: public-source inventory + local checks + frontend smoke only.
 - Research information only.
 - Not investment advice.
 - Demo/public-safe dataset.
@@ -14,45 +14,70 @@ performance.
 - Not science/public proof.
 - Not trading signal.
 
+## Phase 5 Result
+
+- Previous dataset: 54 rows, 48 resolved, 6 source-pending demo rows.
+- Expanded dataset: 294 rows, 48 resolved, 246 pending/frozen_pending rows.
+- Added rows: 240 public-protocol-derived pending skeleton rows.
+- Added outcomes: 0.
+- Reason: no allowed public source contained additional prediction-row JSON/CSV
+  with real `actual_change_pct` and `error`.
+
 ## Sources Checked
 
 ### `amanayayatu-tech/gotra-public-ledger`
 
 - Public repo: `https://github.com/amanayayatu-tech/gotra-public-ledger`
-- Current PR dataset used by the app: `public/data/ledger.demo.json`
-- Current evidence index used by the app: `public/data/evidence-index.json`
+- Dataset used by the app: `public/data/ledger.demo.json`
+- Evidence index used by the app: `public/data/evidence-index.json`
 
-Adopted for Phase 4:
+Adopted for Phase 5:
 
-- `public/data/ledger.demo.json`
-- Derived UI-only metrics from the same records:
-  - per-ticker sorted prediction series
-  - cumulative direction hit rate over resolved rows
-  - cumulative average absolute error over resolved rows
-  - largest resolved error per ticker
-  - evidence/source timeline counts
+- Existing 54 public-safe frozen demo rows.
+- Existing resolved outcomes from the frozen demo dataset.
+- Rebuilt evidence index from the expanded `ledger.demo.json`.
 
-These derived metrics are frontend display metrics only. They do not create OOS
-evidence, science/public proof, trading evidence, or investment advice.
+These rows retain their original `zip_demo_rebuilt_public_safe_dataset`
+provenance. The Phase 5 script does not rewrite them as new research evidence.
 
 ### `amanayayatu-tech/gotra`
 
 - Public repo: `https://github.com/amanayayatu-tech/gotra`
 - Public/default branch checked: `main`
+- Locked commit used for generated rows:
+  `d42492cd9d1016aaf87581765a2c8d119776c0e0`
+- Main commit date observed: `2026-06-15T15:17:48Z`
+- Public tree scan found no prediction-row JSON/CSV files.
 - Public files observed as candidates:
-  - `README.md`
   - `SPEC.md`
   - `contracts/investment_event.schema.json`
   - `data/backtest/PREREGISTERED.md`
-  - `docs/AUTONOMY_RUNBOOK.md`
   - `docs/ROADMAP.md`
   - `gotra/backtest/ledger.py`
   - `methodologies/autonomy_v1.md`
+  - `tests/test_backtest_ledger.py`
 
-Phase 4 did not adopt rows from this repo because this pass found public
-architecture, schema, and methodology material, but not a directly reusable
-public-safe prediction-row JSON file with the frontend fields required by
-`src/data/schema.ts`.
+Adopted for Phase 5:
+
+- `data/backtest/PREREGISTERED.md`
+- Blob SHA observed through GitHub contents API:
+  `f4faaf0932d301afd2f2c4db05458bda3d77deb9`
+- Raw source:
+  `https://raw.githubusercontent.com/amanayayatu-tech/gotra/d42492cd9d1016aaf87581765a2c8d119776c0e0/data/backtest/PREREGISTERED.md`
+
+Use in the dataset:
+
+- Universe: 10 symbols.
+- Window: monthly 30-day protocol.
+- Range generated: 2024-01-01 through 2025-12-01 month starts.
+- Provenance: every generated row points to
+  `https://github.com/amanayayatu-tech/gotra/blob/d42492cd9d1016aaf87581765a2c8d119776c0e0/data/backtest/PREREGISTERED.md`.
+- Outcome policy: `actual_change_pct=null`, `error=null`,
+  `direction_correct="pending"`.
+
+The scan did not find a directly reusable public-safe prediction-row JSON/CSV
+with the frontend fields required by `src/data/schema.ts`, so no new resolved
+rows were added.
 
 ## Sources Not Used
 
@@ -65,25 +90,22 @@ does not use:
 - paper trading artifacts
 - Stage8/Stage9 local artifacts
 - `.env*`, API keys, auth files, or secrets
+- private run logs or private research artifacts
+- zip/tar/bundle artifacts
 
 ## Current Dataset Decision
 
-The Phase 4 frontend uses the existing frozen public-safe demo records only.
-Ticker descriptions in `src/data/companyProfiles.ts` are hand-curated display
-metadata for readability; they do not replace record provenance and do not add
-new outcome evidence.
+The Phase 5 frontend dataset uses the existing frozen public-safe demo records
+plus public-protocol-derived pending skeleton rows. Ticker descriptions in
+`src/data/companyProfiles.ts` are hand-curated display metadata for readability;
+they do not replace record provenance and do not add new outcome evidence.
 
-## Phase 5 Public Expansion Boundary
+## Rebuild Command
 
-The current Phase 4.2 PR does not expand the dataset. If a later task needs more
-public display records, it may inspect only:
+```bash
+python3 scripts/build_public_dataset.py
+```
 
-- `amanayayatu-tech/gotra` public GitHub raw docs.
-- `amanayayatu-tech/gotra` public PRs.
-- `amanayayatu-tech/gotra` public commits.
-- Public JSON/CSV files with explicit provenance.
-
-The later task must not read or import local GOTRA experiment outputs, provider
-raw responses, private run ledgers, databases, `.env*`, paper trading data, or
-Stage8/Stage9 local artifacts. The output should include a public-source
-inventory and provenance fields before the frontend consumes the rows.
+The script fetches the locked public raw `PREREGISTERED.md`, preserves the
+original demo records, generates deterministic pending skeleton rows, and
+rewrites `public/data/ledger.demo.json` plus `public/data/evidence-index.json`.
