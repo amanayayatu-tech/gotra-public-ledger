@@ -45,10 +45,12 @@ export function BoundaryPanel({ metadata }: BoundaryPanelProps) {
         </div>
       </dl>
 
-      <div className="callout warning">
-        <AlertTriangle aria-hidden="true" size={16} />
-        <p>{metadata.pending_outcome_boundary.note}</p>
-      </div>
+      {metadata.pending_outcome_boundary ? (
+        <div className="callout warning">
+          <AlertTriangle aria-hidden="true" size={16} />
+          <p>{metadata.pending_outcome_boundary.note}</p>
+        </div>
+      ) : null}
 
       <div className="callout">
         <BadgeInfo aria-hidden="true" size={16} />

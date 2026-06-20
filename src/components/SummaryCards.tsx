@@ -30,8 +30,8 @@ export function SummaryCards({ metrics }: SummaryCardsProps) {
     },
     {
       label: "Frozen pending",
-      value: String(metrics.frozenPending + metrics.pending),
-      detail: "Not live/current",
+      value: String(metrics.frozenPending),
+      detail: metrics.pending > 0 ? `${metrics.pending} open pending tracked separately` : "Not live/current",
       icon: Snowflake,
       tone: "warn",
     },

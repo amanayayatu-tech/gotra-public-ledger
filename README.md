@@ -47,6 +47,12 @@ investment advice.
 
 Replace `public/data/ledger.demo.json` with a public-safe JSON file that matches the schema in `src/data/schema.ts`.
 
+Replacement datasets may use non-demo `metadata.source.type` and
+`record.provenance.source` values, but they must keep explicit public-safe
+provenance. Resolved records must include numeric `actual_change_pct` and
+`error`; pending records must leave both values as `null` or omit them so the
+loader normalizes them to `null`.
+
 Allowed data sources:
 
 - This demo zip, rebuilt into public-safe JSON.

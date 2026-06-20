@@ -9,12 +9,14 @@ const evidenceSchema = z.object({
 
 const provenanceSchema = z.object({
   dataset_id: z.string(),
-  source: z.literal("zip_demo_rebuilt_public_safe_dataset"),
-  source_record_index: z.number().int().nonnegative(),
-  immutable_demo_snapshot: z.literal(true),
-});
+  source: z.string().min(1),
+  source_record_index: z.number().int().nonnegative().optional(),
+  immutable_demo_snapshot: z.boolean().optional(),
+  source_url_or_id: z.string().optional(),
+  notes: z.string().optional(),
+}).passthrough();
 
-export const ledgerRecordSchema = z.object({
+const ledgerRecordBaseSchema = z.object({
   prediction_id: z.string(),
   ticker: z.string(),
   company: z.string(),
@@ -27,29 +29,45 @@ export const ledgerRecordSchema = z.object({
   evidence: z.array(evidenceSchema),
   prediction_window: z.string(),
   outcome_availability_date: isoDateSchema,
-  actual_change_pct: z.number().nullable(),
-  error: z.number().nullable(),
-  direction_correct: z.union([z.boolean(), z.literal("pending")]),
   style_window: z.string(),
   provenance: provenanceSchema,
 });
 
+const resolvedOutcomeSchema = z.object({
+  direction_correct: z.boolean(),
+  actual_change_pct: z.number(),
+  error: z.number(),
+});
+
+const pendingOutcomeSchema = z.object({
+  direction_correct: z.literal("pending"),
+  actual_change_pct: z.null().optional().default(null),
+  error: z.null().optional().default(null),
+});
+
+export const ledgerRecordSchema = z.union([
+  ledgerRecordBaseSchema.extend(resolvedOutcomeSchema.shape),
+  ledgerRecordBaseSchema.extend(pendingOutcomeSchema.shape),
+]);
+
 const metadataSchema = z.object({
   dataset_id: z.string(),
-  dataset_type: z.literal("frozen_demo_snapshot/public_safe_demo"),
+  dataset_type: z.string().min(1),
   snapshot_date: isoDateSchema,
   source: z.object({
-    type: z.literal("zip_demo_rebuilt_public_safe_dataset"),
+    type: z.string().min(1),
     description: z.string(),
-    source_zip_basename: z.string(),
-    extracted_bundle_basename: z.string(),
-  }),
+    source_zip_basename: z.string().optional(),
+    extracted_bundle_basename: z.string().optional(),
+    source_url_or_id: z.string().optional(),
+    notes: z.string().optional(),
+  }).passthrough(),
   current_date_for_boundary_review: isoDateSchema,
   record_count: z.number().int().positive(),
   pending_outcome_boundary: z.object({
     source_pending_count: z.number().int().nonnegative(),
     note: z.string(),
-  }),
+  }).optional(),
   claim_boundary: z.array(z.string()),
 });
 

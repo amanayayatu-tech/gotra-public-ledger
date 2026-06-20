@@ -23,6 +23,11 @@ As of the boundary review date `2026-06-20`, all six source records marked `pend
 - GitHub public PRs, commits, and raw documentation.
 - Hand-curated public-safe datasets with explicit provenance.
 
+Replacement datasets may use non-demo `metadata.source.type` and
+`record.provenance.source` values. They must not falsify zip provenance. Resolved
+records must include numeric `actual_change_pct` and `error`; pending records
+must keep those outcome fields empty (`null` or omitted).
+
 ## Forbidden Sources
 
 - `/Users/peachy/Documents/gotra/data/backtest/runs/*`

@@ -164,11 +164,15 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
               </div>
               <div>
                 <dt>source_record_index</dt>
-                <dd>{record.provenance.source_record_index}</dd>
+                <dd>{record.provenance.source_record_index ?? "n/a"}</dd>
               </div>
               <div>
                 <dt>immutable_demo_snapshot</dt>
-                <dd>{String(record.provenance.immutable_demo_snapshot)}</dd>
+                <dd>
+                  {record.provenance.immutable_demo_snapshot === undefined
+                    ? "n/a"
+                    : String(record.provenance.immutable_demo_snapshot)}
+                </dd>
               </div>
             </dl>
           </section>
