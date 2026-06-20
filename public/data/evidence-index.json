@@ -1,0 +1,358 @@
+{
+  "metadata": {
+    "index_id": "gotra-public-ledger-demo-evidence-index-2026-02-10",
+    "dataset_id": "gotra-public-ledger-demo-2026-02-10",
+    "dataset_type": "frozen_demo_snapshot/public_safe_demo",
+    "snapshot_date": "2026-02-10",
+    "source": "derived_from_public_data_ledger_demo_json",
+    "note": "Evidence entries are source labels and dates from the frozen public-safe demo dataset. They are not raw provider responses, not private research artifacts, and not live source retrievals.",
+    "claim_boundary": [
+      "Research information only",
+      "Not investment advice",
+      "Demo/public-safe dataset",
+      "Not OOS",
+      "Not science/public proof",
+      "Not trading signal"
+    ]
+  },
+  "sources": [
+    {
+      "source": "比亚迪 Q2 财报",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-07-14",
+      "last_evidence_date": "2025-07-14",
+      "record_ids": [
+        "PRED-20250721-1211HK-0027"
+      ],
+      "record_count": 1
+    },
+    {
+      "source": "财新报道",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-01-27",
+      "last_evidence_date": "2025-12-05",
+      "record_ids": [
+        "PRED-20250202-AAPL-0004",
+        "PRED-20250419-3690HK-0014",
+        "PRED-20250501-NVDA-0016",
+        "PRED-20250510-TSM-0017",
+        "PRED-20250811-NVDA-0030",
+        "PRED-20250824-AAPL-0032",
+        "PRED-20250905-MSFT-0033",
+        "PRED-20250916-1810HK-0035",
+        "PRED-20250925-NVDA-0036",
+        "PRED-20251018-6060HK-0039",
+        "PRED-20251022-3690HK-0040",
+        "PRED-20251113-1211HK-0043",
+        "PRED-20251120-NVDA-0044",
+        "PRED-20251213-0700HK-0047"
+      ],
+      "record_count": 14
+    },
+    {
+      "source": "高盛行业研报",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-01-23",
+      "last_evidence_date": "2025-11-02",
+      "record_ids": [
+        "PRED-20250126-9988HK-0003",
+        "PRED-20250310-TSM-0009",
+        "PRED-20250422-9988HK-0015",
+        "PRED-20250515-1211HK-0018",
+        "PRED-20250531-NVDA-0020",
+        "PRED-20250606-NVDA-0021",
+        "PRED-20250707-TSM-0025",
+        "PRED-20250721-1211HK-0027",
+        "PRED-20250811-NVDA-0030",
+        "PRED-20251107-6060HK-0042"
+      ],
+      "record_count": 10
+    },
+    {
+      "source": "公司公告",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-01-20",
+      "last_evidence_date": "2026-01-25",
+      "record_ids": [
+        "PRED-20250121-AAPL-0002",
+        "PRED-20250210-1211HK-0005",
+        "PRED-20250401-3690HK-0012",
+        "PRED-20250818-NVDA-0031",
+        "PRED-20250824-AAPL-0032",
+        "PRED-20251003-1810HK-0037",
+        "PRED-20251011-MSFT-0038",
+        "PRED-20251206-NVDA-0046",
+        "PRED-20251219-MSFT-0048",
+        "PRED-20260127-3690HK-0053"
+      ],
+      "record_count": 10
+    },
+    {
+      "source": "公司业绩说明会纪要",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-01-16",
+      "last_evidence_date": "2025-09-09",
+      "record_ids": [
+        "PRED-20250121-AAPL-0002",
+        "PRED-20250126-9988HK-0003",
+        "PRED-20250202-AAPL-0004",
+        "PRED-20250225-6060HK-0007",
+        "PRED-20250316-NVDA-0010",
+        "PRED-20250419-3690HK-0014",
+        "PRED-20250515-1211HK-0018",
+        "PRED-20250606-NVDA-0021",
+        "PRED-20250909-TSM-0034",
+        "PRED-20250916-1810HK-0035"
+      ],
+      "record_count": 10
+    },
+    {
+      "source": "管理层电话会",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-02-05",
+      "last_evidence_date": "2026-01-29",
+      "record_ids": [
+        "PRED-20250210-1211HK-0005",
+        "PRED-20250215-NVDA-0006",
+        "PRED-20250327-NVDA-0011",
+        "PRED-20250401-3690HK-0012",
+        "PRED-20250510-TSM-0017",
+        "PRED-20250531-NVDA-0020",
+        "PRED-20250613-TSM-0022",
+        "PRED-20250622-TSM-0023",
+        "PRED-20250811-NVDA-0030",
+        "PRED-20250905-MSFT-0033",
+        "PRED-20250909-TSM-0034",
+        "PRED-20250925-NVDA-0036",
+        "PRED-20251011-MSFT-0038",
+        "PRED-20251018-6060HK-0039",
+        "PRED-20251022-3690HK-0040",
+        "PRED-20251107-6060HK-0042",
+        "PRED-20251113-1211HK-0043",
+        "PRED-20251120-NVDA-0044",
+        "PRED-20260127-3690HK-0053",
+        "PRED-20260203-TSM-0054"
+      ],
+      "record_count": 20
+    },
+    {
+      "source": "海关出口数据",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-01-30",
+      "last_evidence_date": "2026-01-02",
+      "record_ids": [
+        "PRED-20250202-AAPL-0004",
+        "PRED-20250210-1211HK-0005",
+        "PRED-20250303-1810HK-0008",
+        "PRED-20250316-NVDA-0010",
+        "PRED-20250327-NVDA-0011",
+        "PRED-20250401-3690HK-0012",
+        "PRED-20250510-TSM-0017",
+        "PRED-20250524-9988HK-0019",
+        "PRED-20250707-TSM-0025",
+        "PRED-20250721-1211HK-0027",
+        "PRED-20250805-1810HK-0029",
+        "PRED-20250824-AAPL-0032",
+        "PRED-20251018-6060HK-0039",
+        "PRED-20251113-1211HK-0043",
+        "PRED-20251120-NVDA-0044",
+        "PRED-20251129-1211HK-0045",
+        "PRED-20260105-AAPL-0050"
+      ],
+      "record_count": 17
+    },
+    {
+      "source": "路透社报道",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-01-02",
+      "last_evidence_date": "2026-01-15",
+      "record_ids": [
+        "PRED-20250110-NVDA-0001",
+        "PRED-20250310-TSM-0009",
+        "PRED-20250422-9988HK-0015",
+        "PRED-20250501-NVDA-0016",
+        "PRED-20250515-1211HK-0018",
+        "PRED-20250531-NVDA-0020",
+        "PRED-20250805-1810HK-0029",
+        "PRED-20250818-NVDA-0031",
+        "PRED-20251018-6060HK-0039",
+        "PRED-20251227-9988HK-0049",
+        "PRED-20260105-AAPL-0050",
+        "PRED-20260122-NVDA-0052"
+      ],
+      "record_count": 12
+    },
+    {
+      "source": "美联储议息纪要",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-01-25",
+      "last_evidence_date": "2026-01-31",
+      "record_ids": [
+        "PRED-20250126-9988HK-0003",
+        "PRED-20250225-6060HK-0007",
+        "PRED-20250707-TSM-0025",
+        "PRED-20250729-0700HK-0028",
+        "PRED-20250818-NVDA-0031",
+        "PRED-20250905-MSFT-0033",
+        "PRED-20250909-TSM-0034",
+        "PRED-20251003-1810HK-0037",
+        "PRED-20251011-MSFT-0038",
+        "PRED-20251030-NVDA-0041",
+        "PRED-20251213-0700HK-0047",
+        "PRED-20260203-TSM-0054"
+      ],
+      "record_count": 12
+    },
+    {
+      "source": "摩根士丹利研报",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-03-10",
+      "last_evidence_date": "2026-02-03",
+      "record_ids": [
+        "PRED-20250316-NVDA-0010",
+        "PRED-20250606-NVDA-0021",
+        "PRED-20250721-1211HK-0027",
+        "PRED-20251022-3690HK-0040",
+        "PRED-20251030-NVDA-0041",
+        "PRED-20251120-NVDA-0044",
+        "PRED-20251206-NVDA-0046",
+        "PRED-20251213-0700HK-0047",
+        "PRED-20260111-NVDA-0051",
+        "PRED-20260203-TSM-0054"
+      ],
+      "record_count": 10
+    },
+    {
+      "source": "彭博社报道",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-01-28",
+      "last_evidence_date": "2026-01-20",
+      "record_ids": [
+        "PRED-20250202-AAPL-0004",
+        "PRED-20250210-1211HK-0005",
+        "PRED-20250225-6060HK-0007",
+        "PRED-20250510-TSM-0017",
+        "PRED-20250701-AAPL-0024",
+        "PRED-20250714-NVDA-0026",
+        "PRED-20250925-NVDA-0036",
+        "PRED-20251030-NVDA-0041",
+        "PRED-20251113-1211HK-0043",
+        "PRED-20251227-9988HK-0049",
+        "PRED-20260105-AAPL-0050",
+        "PRED-20260127-3690HK-0053"
+      ],
+      "record_count": 12
+    },
+    {
+      "source": "渠道调研",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-02-15",
+      "last_evidence_date": "2026-01-20",
+      "record_ids": [
+        "PRED-20250215-NVDA-0006",
+        "PRED-20250225-6060HK-0007",
+        "PRED-20250407-NVDA-0013",
+        "PRED-20250613-TSM-0022",
+        "PRED-20250707-TSM-0025",
+        "PRED-20250824-AAPL-0032",
+        "PRED-20251129-1211HK-0045",
+        "PRED-20260105-AAPL-0050",
+        "PRED-20260127-3690HK-0053"
+      ],
+      "record_count": 9
+    },
+    {
+      "source": "台积电 Q3 财报",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-06-07",
+      "last_evidence_date": "2025-06-07",
+      "record_ids": [
+        "PRED-20250613-TSM-0022"
+      ],
+      "record_count": 1
+    },
+    {
+      "source": "英伟达 Q1 财报",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-05-31",
+      "last_evidence_date": "2026-01-07",
+      "record_ids": [
+        "PRED-20250531-NVDA-0020",
+        "PRED-20260111-NVDA-0051"
+      ],
+      "record_count": 2
+    },
+    {
+      "source": "英伟达 Q2 财报",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-01-07",
+      "last_evidence_date": "2025-04-06",
+      "record_ids": [
+        "PRED-20250110-NVDA-0001",
+        "PRED-20250407-NVDA-0013"
+      ],
+      "record_count": 2
+    },
+    {
+      "source": "Counterpoint 出货数据",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-02-23",
+      "last_evidence_date": "2026-01-31",
+      "record_ids": [
+        "PRED-20250303-1810HK-0008",
+        "PRED-20250419-3690HK-0014",
+        "PRED-20250515-1211HK-0018",
+        "PRED-20250606-NVDA-0021",
+        "PRED-20250622-TSM-0023",
+        "PRED-20250701-AAPL-0024",
+        "PRED-20250729-0700HK-0028",
+        "PRED-20250909-TSM-0034",
+        "PRED-20250925-NVDA-0036",
+        "PRED-20251206-NVDA-0046",
+        "PRED-20251219-MSFT-0048",
+        "PRED-20260111-NVDA-0051",
+        "PRED-20260122-NVDA-0052",
+        "PRED-20260203-TSM-0054"
+      ],
+      "record_count": 14
+    },
+    {
+      "source": "SemiAnalysis 供应链跟踪",
+      "evidence_type": "demo_evidence_label",
+      "source_dataset": "gotra-public-ledger-demo-2026-02-10",
+      "first_evidence_date": "2025-01-02",
+      "last_evidence_date": "2025-11-28",
+      "record_ids": [
+        "PRED-20250110-NVDA-0001",
+        "PRED-20250126-9988HK-0003",
+        "PRED-20250215-NVDA-0006",
+        "PRED-20250316-NVDA-0010",
+        "PRED-20250501-NVDA-0016",
+        "PRED-20250524-9988HK-0019",
+        "PRED-20250714-NVDA-0026",
+        "PRED-20250729-0700HK-0028",
+        "PRED-20250805-1810HK-0029",
+        "PRED-20250818-NVDA-0031",
+        "PRED-20251022-3690HK-0040",
+        "PRED-20251206-NVDA-0046"
+      ],
+      "record_count": 12
+    }
+  ]
+}
