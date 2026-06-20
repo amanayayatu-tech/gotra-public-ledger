@@ -8,6 +8,7 @@ import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { LedgerTable, type SortKey, type SortState } from "./components/LedgerTable";
 import { SiteFooter } from "./components/SiteFooter";
+import { SiteHeader } from "./components/SiteHeader";
 import { Subscribe } from "./components/Subscribe";
 import { TrustStrip } from "./components/TrustStrip";
 import { buildTickerList } from "./data/cognition";
@@ -163,23 +164,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            GL
-          </span>
-          <div>
-            <strong>GOTRA Public Ledger</strong>
-            <span>公开预测账本 · 错误也留痕</span>
-          </div>
-        </div>
-        <div className="topbar-meta" aria-label="Dataset boundary">
-          <a href="#how-it-works">方法</a>
-          <a href="#ledger-proof">证据</a>
-          <a href="#full-ledger">账本</a>
-          <a href="#method-boundary">边界</a>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main className="page-shell">
         <Hero dataset={dataset} metrics={metrics} records={views} />

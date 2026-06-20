@@ -120,6 +120,14 @@ p {
   backdrop-filter: blur(18px);
 }
 
+.topbar-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -160,6 +168,19 @@ p {
   line-height: 1.35;
 }
 
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+}
+
 .topbar-meta {
   display: flex;
   flex-wrap: wrap;
@@ -181,6 +202,13 @@ p {
   border-color: var(--border);
   color: var(--text);
   background: rgba(255, 255, 255, 0.04);
+}
+
+.topbar-meta a.active,
+.topbar-meta a[aria-current="page"] {
+  border-color: rgba(117, 216, 143, 0.48);
+  color: var(--green);
+  background: rgba(117, 216, 143, 0.08);
 }
 
 .page-shell {
@@ -557,7 +585,8 @@ h1 {
 #trust-strip,
 #ledger-proof,
 #full-ledger,
-#method-boundary {
+#method-boundary,
+#subscribe {
   scroll-margin-top: 86px;
 }
 
@@ -2396,15 +2425,31 @@ h1 {
 
 @media (max-width: 760px) {
   .topbar {
-    position: static;
-    align-items: flex-start;
+    position: sticky;
+    align-items: stretch;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     padding: 10px 14px;
   }
 
+  .topbar-main {
+    width: 100%;
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+  }
+
   .topbar-meta {
+    display: none;
+    width: 100%;
+    grid-template-columns: 1fr;
     justify-content: flex-start;
+  }
+
+  .topbar-meta.open {
+    display: grid;
   }
 
   .page-shell {
@@ -2419,7 +2464,7 @@ h1 {
   #full-ledger,
   #method-boundary,
   #subscribe {
-    scroll-margin-top: 12px;
+    scroll-margin-top: 88px;
   }
 
   .hero-section,
@@ -2579,9 +2624,13 @@ h1 {
 
 @media (max-width: 460px) {
   .topbar-meta {
-    display: grid;
+    display: none;
     width: 100%;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: 1fr;
+  }
+
+  .topbar-meta.open {
+    display: grid;
   }
 
   .topbar-meta a {
