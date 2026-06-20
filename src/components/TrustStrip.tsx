@@ -1,12 +1,9 @@
-import { AlertTriangle, CheckCircle2, ShieldCheck, TrendingUp } from "lucide-react";
-import { describeLargestError } from "../data/cognition";
+import { AlertTriangle, CheckCircle2, ShieldCheck, Zap } from "lucide-react";
 import { formatNumber, formatPercent, formatSignedPercent, type RecordView } from "../data/metrics";
 
 type TrustStripProps = {
   records: RecordView[];
 };
-
-const dayMs = 24 * 60 * 60 * 1000;
 
 function getLargestErrorRecord(records: RecordView[]): RecordView | null {
   const settled = records.filter((record) => record.status === "resolved" && typeof record.error === "number");
@@ -19,22 +16,17 @@ function getLargestErrorRecord(records: RecordView[]): RecordView | null {
   );
 }
 
-function getLongestTrackingDays(records: RecordView[]): number {
-  const byTicker = new Map<string, RecordView[]>();
-  records.forEach((record) => {
-    byTicker.set(record.ticker, [...(byTicker.get(record.ticker) ?? []), record]);
-  });
+function attributionSummary(record: RecordView | null): string {
+  if (!record) {
+    return "暂无已结算记录可归因。";
+  }
 
-  return Math.max(
-    0,
-    ...[...byTicker.values()].map((tickerRecords) => {
-      const times = tickerRecords.flatMap((record) => [
-        new Date(`${record.decision_date}T00:00:00Z`).getTime(),
-        new Date(`${record.outcome_availability_date}T00:00:00Z`).getTime(),
-      ]);
-      return Math.round((Math.max(...times) - Math.min(...times)) / dayMs);
-    }),
-  );
+  const error = formatNumber(Math.abs(record.error ?? 0));
+  if (record.direction_correct === false) {
+    return `归因摘要：错在方向。该窗口预测方向与实际走势相反，最大误差 ${error}pp。`;
+  }
+
+  return `归因摘要：错在幅度。方向一致，但预测幅度与实际变化相差 ${error}pp。`;
 }
 
 export function TrustStrip({ records }: TrustStripProps) {
@@ -43,7 +35,6 @@ export function TrustStrip({ records }: TrustStripProps) {
   const misses = settled.filter((record) => record.direction_correct === false);
   const largestErrorRecord = getLargestErrorRecord(records);
   const reviewDenominator = settled.length + frozenPending.length;
-  const trackingDays = getLongestTrackingDays(records);
 
   return (
     <section className="trust-section" id="trust-strip" aria-labelledby="trust-title">
@@ -71,14 +62,20 @@ export function TrustStrip({ records }: TrustStripProps) {
         <div>
           <AlertTriangle aria-hidden="true" size={22} />
           <span>公开错误数</span>
-          <strong>{misses.length}</strong>
+          <strong>{misses.length > 0 ? misses.length : "暂无"}</strong>
           <small>在 {settled.length} 条已结算记录中公开保留</small>
         </div>
         <div>
-          <TrendingUp aria-hidden="true" size={22} />
-          <span>最长单标的追踪</span>
-          <strong>{trackingDays} 天</strong>
-          <small>按记录日期与 outcome 窗口派生</small>
+          <Zap aria-hidden="true" size={22} />
+          <span>最大单次误差</span>
+          <strong className="trust-danger-value">
+            {largestErrorRecord ? `${formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp` : "暂无"}
+          </strong>
+          <small>
+            {largestErrorRecord
+              ? `${largestErrorRecord.ticker} · ${largestErrorRecord.decision_date}`
+              : "暂无已结算记录"}
+          </small>
         </div>
       </div>
 
@@ -103,11 +100,21 @@ export function TrustStrip({ records }: TrustStripProps) {
             </div>
             <div>
               <dt>误差</dt>
-              <dd>{formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp</dd>
+              <dd className="trust-danger-value">{formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp</dd>
             </div>
           </dl>
         ) : null}
-        <p>{describeLargestError(largestErrorRecord)}</p>
+        <div>
+          <p>{attributionSummary(largestErrorRecord)}</p>
+          {largestErrorRecord ? (
+            <p>
+              最大误差明细：{largestErrorRecord.ticker} 预测{" "}
+              {formatSignedPercent(largestErrorRecord.expected_change_pct)}，实际{" "}
+              {formatSignedPercent(largestErrorRecord.actual_change_pct)}，误差{" "}
+              {formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp，仍保留在公开账本中。
+            </p>
+          ) : null}
+        </div>
       </article>
     </section>
   );

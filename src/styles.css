@@ -658,6 +658,11 @@ h1 {
   line-height: 1;
 }
 
+.trust-grid strong.trust-danger-value,
+.mistake-card .trust-danger-value {
+  color: #ff7f87;
+}
+
 .trust-grid small {
   color: var(--faint);
   font-size: 12px;
@@ -714,6 +719,10 @@ h1 {
   color: #c8d2d8;
   font-size: 14px;
   line-height: 1.6;
+}
+
+.mistake-card p + p {
+  margin-top: 8px;
 }
 
 .ticker-workbench {
