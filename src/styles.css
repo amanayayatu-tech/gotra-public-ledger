@@ -1324,8 +1324,18 @@ h1 {
   background: rgba(16, 24, 32, 0.74);
 }
 
+.ledger-table tbody tr[role="button"] {
+  cursor: pointer;
+}
+
 .ledger-table tbody tr:hover {
   background: rgba(117, 216, 143, 0.055);
+}
+
+.ledger-table tbody tr:focus-visible {
+  outline: 2px solid rgba(117, 216, 143, 0.78);
+  outline-offset: -2px;
+  background: rgba(117, 216, 143, 0.075);
 }
 
 .ledger-table td {
@@ -1398,18 +1408,18 @@ h1 {
 }
 
 .status-badge.resolved {
-  background: var(--green-soft);
-  color: var(--green);
+  background: rgba(117, 216, 143, 0.16);
+  color: #8bed9f;
 }
 
 .status-badge.frozen_pending {
-  background: var(--amber-soft);
-  color: var(--amber);
+  background: rgba(245, 158, 11, 0.16);
+  color: #f7c56a;
 }
 
 .status-badge.pending {
-  background: var(--blue-soft);
-  color: var(--blue);
+  background: rgba(96, 165, 250, 0.16);
+  color: #8fc4ff;
 }
 
 .empty-state {
@@ -1702,6 +1712,13 @@ h1 {
   border-bottom: 1px solid var(--border);
 }
 
+.drawer-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  align-items: center;
+}
+
 .drawer-title-line {
   display: flex;
   flex-wrap: wrap;
@@ -1737,6 +1754,25 @@ h1 {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
   color: var(--muted);
+}
+
+.deep-link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.deep-link-button:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
 }
 
 .icon-button:hover {

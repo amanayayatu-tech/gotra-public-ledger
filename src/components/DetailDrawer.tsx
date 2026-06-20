@@ -38,6 +38,26 @@ function ResultText({ record }: { record: RecordView }) {
   );
 }
 
+function directionLabel(direction: RecordView["direction"]): string {
+  if (direction === "up") {
+    return "看涨";
+  }
+  if (direction === "down") {
+    return "看跌";
+  }
+  return "中性";
+}
+
+function formatErrorDetail(record: RecordView): string {
+  return record.error === null ? "误差暂无" : `${formatNumber(Math.abs(record.error))} 点`;
+}
+
+function recordDeepLink(record: RecordView): string {
+  const url = new URL(window.location.href);
+  url.searchParams.set("prediction_id", record.prediction_id);
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
 export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
   useEffect(() => {
     if (!record) {
@@ -62,6 +82,8 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
     return null;
   }
 
+  const deepLink = recordDeepLink(record);
+
   return (
     <div className="drawer-root" role="dialog" aria-modal="true" aria-label="Ledger record detail">
       <button className="drawer-backdrop" aria-label="Close detail" onClick={onClose} />
@@ -75,13 +97,22 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
             </div>
             <p>{record.prediction_id}</p>
           </div>
-          <button className="icon-button" type="button" aria-label="Close detail" onClick={onClose}>
-            <X aria-hidden="true" size={18} />
-          </button>
+          <div className="drawer-actions">
+            <a className="deep-link-button" href={deepLink}>
+              深链
+            </a>
+            <button className="icon-button" type="button" aria-label="Close detail" onClick={onClose}>
+              <X aria-hidden="true" size={18} />
+            </button>
+          </div>
         </header>
 
         <div className="drawer-body">
           <section className="detail-metrics" aria-label="Prediction and outcome">
+            <div>
+              <span>prediction_id</span>
+              <strong>{record.prediction_id}</strong>
+            </div>
             <div>
               <span>决策日期</span>
               <strong>{record.decision_date}</strong>
@@ -95,6 +126,10 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
               <strong>{formatPercent(record.confidence, 0)}</strong>
             </div>
             <div>
+              <span>方向</span>
+              <strong>{directionLabel(record.direction)}</strong>
+            </div>
+            <div>
               <span>预测涨跌幅</span>
               <strong>{formatSignedPercent(record.expected_change_pct)}</strong>
             </div>
@@ -104,7 +139,7 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
             </div>
             <div>
               <span>误差</span>
-              <strong>{formatNumber(record.error)}</strong>
+              <strong>{formatErrorDetail(record)}</strong>
             </div>
           </section>
 

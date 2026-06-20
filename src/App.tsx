@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, RefreshCw, Search } from "lucide-react";
 import { BoundaryPanel } from "./components/BoundaryPanel";
 import { CognitionDashboard } from "./components/CognitionDashboard";
@@ -13,6 +13,7 @@ import { computeSummary, toRecordView, type LedgerStatus, type RecordView } from
 import { loadLedgerDataset, type LedgerDataset } from "./data/schema";
 
 type StatusFilter = "all" | LedgerStatus;
+type DirectionFilter = "all" | RecordView["direction"];
 
 function compareRecord(a: RecordView, b: RecordView, key: SortKey): number {
   const left = a[key];
@@ -37,11 +38,14 @@ function App() {
   const [dataset, setDataset] = useState<LedgerDataset | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [sectorFilter, setSectorFilter] = useState("all");
+  const [directionFilter, setDirectionFilter] = useState<DirectionFilter>("all");
+  const [tickerFilter, setTickerFilter] = useState("all");
   const [sort, setSort] = useState<SortState>({ key: "decision_date", direction: "desc" });
   const [selectedRecord, setSelectedRecord] = useState<RecordView | null>(null);
   const [selectedTicker, setSelectedTicker] = useState("");
+  const lastRecordTriggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     loadLedgerDataset()
@@ -62,30 +66,61 @@ function App() {
   const tickers = useMemo(() => buildTickerList(views), [views]);
   const activeTicker = selectedTicker && tickers.includes(selectedTicker) ? selectedTicker : tickers[0] ?? "";
 
-  const sectors = useMemo(
-    () => [...new Set(views.map((record) => record.sector))].sort((a, b) => a.localeCompare(b, "zh-CN")),
-    [views],
-  );
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedQuery(query), 150);
+    return () => window.clearTimeout(timeout);
+  }, [query]);
+
+  const openRecord = useCallback((record: RecordView, trigger?: HTMLElement) => {
+    lastRecordTriggerRef.current = trigger ?? null;
+    setSelectedRecord(record);
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set("prediction_id", record.prediction_id);
+    window.history.replaceState({}, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
+  }, []);
+
+  const closeRecord = useCallback(() => {
+    setSelectedRecord(null);
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.delete("prediction_id");
+    window.history.replaceState({}, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
+    window.setTimeout(() => lastRecordTriggerRef.current?.focus(), 0);
+  }, []);
+
+  useEffect(() => {
+    if (views.length === 0 || selectedRecord) {
+      return;
+    }
+
+    const predictionId = new URLSearchParams(window.location.search).get("prediction_id");
+    if (!predictionId) {
+      return;
+    }
+
+    const linkedRecord = views.find((record) => record.prediction_id === predictionId);
+    if (linkedRecord) {
+      setSelectedRecord(linkedRecord);
+      window.setTimeout(() => document.getElementById("full-ledger")?.scrollIntoView({ block: "start" }), 0);
+    }
+  }, [selectedRecord, views]);
 
   const filteredRecords = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
+    const normalizedQuery = debouncedQuery.trim().toLowerCase();
     const result = views.filter((record) => {
       const matchesQuery =
         normalizedQuery.length === 0 ||
-        [record.ticker, record.company, record.sector, record.prediction_id]
-          .join(" ")
-          .toLowerCase()
-          .includes(normalizedQuery);
+        [record.ticker, record.company].join(" ").toLowerCase().includes(normalizedQuery);
       const matchesStatus = statusFilter === "all" || record.status === statusFilter;
-      const matchesSector = sectorFilter === "all" || record.sector === sectorFilter;
-      return matchesQuery && matchesStatus && matchesSector;
+      const matchesDirection = directionFilter === "all" || record.direction === directionFilter;
+      const matchesTicker = tickerFilter === "all" || record.ticker === tickerFilter;
+      return matchesQuery && matchesStatus && matchesDirection && matchesTicker;
     });
 
     return result.sort((a, b) => {
       const base = compareRecord(a, b, sort.key);
       return sort.direction === "asc" ? base : -base;
     });
-  }, [query, sectorFilter, sort, statusFilter, views]);
+  }, [debouncedQuery, directionFilter, sort, statusFilter, tickerFilter, views]);
 
   const handleSort = (key: SortKey) => {
     setSort((current) =>
@@ -188,7 +223,7 @@ function App() {
                   <input
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
-                    placeholder="搜索股票、公司或行业"
+                    placeholder="搜索 ticker 或公司"
                   />
                 </label>
                 <label>
@@ -204,12 +239,24 @@ function App() {
                   </select>
                 </label>
                 <label>
-                  <span>行业</span>
-                  <select value={sectorFilter} onChange={(event) => setSectorFilter(event.target.value)}>
-                    <option value="all">全部行业</option>
-                    {sectors.map((sector) => (
-                      <option value={sector} key={sector}>
-                        {sector}
+                  <span>方向</span>
+                  <select
+                    value={directionFilter}
+                    onChange={(event) => setDirectionFilter(event.target.value as DirectionFilter)}
+                  >
+                    <option value="all">全部方向</option>
+                    <option value="up">看涨</option>
+                    <option value="down">看跌</option>
+                    <option value="neutral">中性</option>
+                  </select>
+                </label>
+                <label>
+                  <span>标的</span>
+                  <select value={tickerFilter} onChange={(event) => setTickerFilter(event.target.value)}>
+                    <option value="all">全部标的</option>
+                    {tickers.map((ticker) => (
+                      <option value={ticker} key={ticker}>
+                        {ticker}
                       </option>
                     ))}
                   </select>
@@ -220,7 +267,7 @@ function App() {
               当前显示 {filteredRecords.length} / {views.length} 条快照数据；统计口径只把已结算记录纳入命中率与误差。
             </div>
 
-            <LedgerTable records={filteredRecords} sort={sort} onSort={handleSort} onSelect={setSelectedRecord} />
+            <LedgerTable records={filteredRecords} sort={sort} onSort={handleSort} onSelect={openRecord} />
           </div>
         </section>
 
@@ -228,7 +275,7 @@ function App() {
         <SiteFooter metadata={dataset.metadata} />
       </main>
 
-      <DetailDrawer record={selectedRecord} metadata={dataset.metadata} onClose={() => setSelectedRecord(null)} />
+      <DetailDrawer record={selectedRecord} metadata={dataset.metadata} onClose={closeRecord} />
     </div>
   );
 }

@@ -25,7 +25,7 @@ type LedgerTableProps = {
   records: RecordView[];
   sort: SortState;
   onSort: (key: SortKey) => void;
-  onSelect: (record: RecordView) => void;
+  onSelect: (record: RecordView, trigger?: HTMLElement) => void;
 };
 
 const columns: Array<{ key: SortKey; label: string; className?: string }> = [
@@ -69,7 +69,13 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
         <thead>
           <tr>
             {columns.map((column) => (
-              <th className={column.className} key={column.key}>
+              <th
+                aria-sort={
+                  sort.key === column.key ? (sort.direction === "asc" ? "ascending" : "descending") : "none"
+                }
+                className={column.className}
+                key={column.key}
+              >
                 <button type="button" onClick={() => onSort(column.key)}>
                   {column.label}
                   <SortIcon sort={sort} columnKey={column.key} />
@@ -81,20 +87,25 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
         </thead>
         <tbody>
           {records.map((record) => (
-            <tr key={record.prediction_id} onClick={() => onSelect(record)}>
+            <tr
+              aria-label={`打开 ${record.prediction_id} 详情`}
+              key={record.prediction_id}
+              onClick={(event) => onSelect(record, event.currentTarget)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onSelect(record, event.currentTarget);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+            >
               <td>
-                <button
-                  className="row-open"
-                  type="button"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onSelect(record);
-                  }}
-                >
+                <div className="row-open">
                   <span className="ticker">{record.ticker}</span>
                   <span>{record.company}</span>
                   <small>{record.sector}</small>
-                </button>
+                </div>
               </td>
               <td>
                 <span className="mono">{record.decision_date}</span>
@@ -125,7 +136,9 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
           ))}
         </tbody>
       </table>
-      {records.length === 0 ? <div className="empty-state">没有匹配的快照记录。</div> : null}
+      {records.length === 0 ? (
+        <div className="empty-state">没有匹配的快照记录。请调整搜索词、状态、方向或标的筛选。</div>
+      ) : null}
     </div>
   );
 }
