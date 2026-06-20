@@ -37,6 +37,18 @@ and not investment advice.
 - GitHub public PRs, commits, and raw documentation.
 - Hand-curated public-safe datasets with explicit provenance.
 
+For a future Phase 5 dataset expansion, additional records may be collected only
+from public sources:
+
+- `amanayayatu-tech/gotra` public GitHub raw docs.
+- `amanayayatu-tech/gotra` public PRs.
+- `amanayayatu-tech/gotra` public commits.
+- Public JSON/CSV files with explicit provenance.
+
+That work must be separate from the Phase 4.2 frontend polish. It needs a clear
+ingestion script or documented manual inventory, per-row provenance, and an
+audit showing no local/private run artifacts entered the public dataset.
+
 Replacement datasets may use non-demo `metadata.source.type` and
 `record.provenance.source` values. They must not falsify zip provenance. Resolved
 records must include numeric `actual_change_pct` and `error`; pending records

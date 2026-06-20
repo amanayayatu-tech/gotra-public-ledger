@@ -43,7 +43,7 @@ function DirectionBadge({ direction }: { direction: RecordView["direction"] }) {
 }
 
 function formatErrorText(value: number | null): string {
-  return value === null ? "误差暂无" : `误差 ${formatNumber(value)} 点`;
+  return value === null ? "误差暂无" : `误差 ${formatNumber(Math.abs(value))} 点`;
 }
 
 function StatusBadge({ status }: { status: LedgerStatus }) {
@@ -125,7 +125,7 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
           ))}
         </tbody>
       </table>
-      {records.length === 0 ? <div className="empty-state">没有匹配的演示记录。</div> : null}
+      {records.length === 0 ? <div className="empty-state">没有匹配的快照记录。</div> : null}
     </div>
   );
 }

@@ -72,3 +72,18 @@ The Phase 4 frontend uses the existing frozen public-safe demo records only.
 Ticker descriptions in `src/data/companyProfiles.ts` are hand-curated display
 metadata for readability; they do not replace record provenance and do not add
 new outcome evidence.
+
+## Phase 5 Public Expansion Boundary
+
+The current Phase 4.2 PR does not expand the dataset. If a later task needs more
+public display records, it may inspect only:
+
+- `amanayayatu-tech/gotra` public GitHub raw docs.
+- `amanayayatu-tech/gotra` public PRs.
+- `amanayayatu-tech/gotra` public commits.
+- Public JSON/CSV files with explicit provenance.
+
+The later task must not read or import local GOTRA experiment outputs, provider
+raw responses, private run ledgers, databases, `.env*`, paper trading data, or
+Stage8/Stage9 local artifacts. The output should include a public-source
+inventory and provenance fields before the frontend consumes the rows.

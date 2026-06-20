@@ -27,6 +27,16 @@ They visualize frozen demo records and derived demo metrics; they do not prove
 learning, superiority, OOS validity, public science claims, tradable returns, or
 investment usefulness.
 
+Phase 4.2 visual/product polish has the same boundary. A clearer hero, more
+human-readable trust strip, charts, screenshots, or successful local/Pages builds
+are evidence that the frontend communicates better. They are not additional
+research evidence.
+
+Future Phase 5 public-safe dataset expansion may improve coverage only if it
+uses public GitHub raw docs, public PRs, public commits, or public JSON/CSV with
+explicit provenance. More public rows still do not by themselves prove OOS,
+science/public acceptance, trading performance, or investment usefulness.
+
 ## direct_llm Caveat
 
 If `direct_llm` is mentioned, write it as `direct_llm_parametric_memory_control`.

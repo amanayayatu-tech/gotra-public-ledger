@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertCircle, RefreshCw, Search } from "lucide-react";
+import { BoundaryPanel } from "./components/BoundaryPanel";
 import { CognitionDashboard } from "./components/CognitionDashboard";
 import { DetailDrawer } from "./components/DetailDrawer";
+import { Hero } from "./components/Hero";
+import { HowItWorks } from "./components/HowItWorks";
 import { LedgerTable, type SortKey, type SortState } from "./components/LedgerTable";
+import { SiteFooter } from "./components/SiteFooter";
+import { TrustStrip } from "./components/TrustStrip";
 import { buildTickerList } from "./data/cognition";
 import { computeSummary, toRecordView, type LedgerStatus, type RecordView } from "./data/metrics";
 import { loadLedgerDataset, type LedgerDataset } from "./data/schema";
@@ -118,35 +123,53 @@ function App() {
           </span>
           <div>
             <strong>GOTRA Public Ledger</strong>
-            <span>认知演化 · 冻结演示快照</span>
+            <span>公开预测账本 · 错误也留痕</span>
           </div>
         </div>
         <div className="topbar-meta" aria-label="Dataset boundary">
-          <span title={`snapshot_date ${dataset.metadata.snapshot_date}`}>冻结快照日期 {dataset.metadata.snapshot_date}</span>
-          <span title="Research information only">研究信息展示</span>
-          <span title="Not investment advice">不是投资建议</span>
+          <a href="#how-it-works">方法</a>
+          <a href="#ledger-proof">证据</a>
+          <a href="#full-ledger">账本</a>
+          <a href="#method-boundary">边界</a>
         </div>
       </header>
 
       <main className="page-shell">
+        <Hero dataset={dataset} metrics={metrics} records={views} />
+        <HowItWorks />
+        <TrustStrip records={views} />
         <CognitionDashboard
           dataset={dataset}
           records={views}
-          metrics={metrics}
           tickers={tickers}
           selectedTicker={activeTicker}
           onTickerChange={setSelectedTicker}
           onSelectRecord={setSelectedRecord}
         />
 
-        <section className="ledger-section" aria-label="Ledger table">
+        <section className="ledger-section" id="full-ledger" aria-labelledby="full-ledger-title">
           <div className="ledger-panel">
             <div className="ledger-toolbar">
               <div>
-                <h2>公开账本明细</h2>
+                <span className="section-index">S5 · Full ledger</span>
+                <h2 id="full-ledger-title">完整公开账本</h2>
                 <p>
-                  当前显示 {filteredRecords.length} / {views.length} 条记录
+                  这是全部 {views.length} 条公开判断，任你搜索、筛选、逐条核对；它不是荐股列表。
                 </p>
+                <div className="status-legend" aria-label="Ledger status legend">
+                  <span>
+                    <i className="legend-dot resolved" />
+                    已结算
+                  </span>
+                  <span>
+                    <i className="legend-dot frozen_pending" />
+                    冻结待判定
+                  </span>
+                  <span>
+                    <i className="legend-dot pending" />
+                    待判定
+                  </span>
+                </div>
               </div>
               <div className="filters">
                 <label className="search-box">
@@ -183,10 +206,16 @@ function App() {
                 </label>
               </div>
             </div>
+            <div className="ledger-count-line">
+              当前显示 {filteredRecords.length} / {views.length} 条快照数据；统计口径只把已结算记录纳入命中率与误差。
+            </div>
 
             <LedgerTable records={filteredRecords} sort={sort} onSort={handleSort} onSelect={setSelectedRecord} />
           </div>
         </section>
+
+        <BoundaryPanel metadata={dataset.metadata} />
+        <SiteFooter metadata={dataset.metadata} />
       </main>
 
       <DetailDrawer record={selectedRecord} metadata={dataset.metadata} onClose={() => setSelectedRecord(null)} />

@@ -1,19 +1,10 @@
 import {
   Activity,
   AlertTriangle,
-  BarChart3,
   CalendarDays,
-  CheckCircle2,
-  CircleDot,
-  Clock3,
-  Database,
-  Gauge,
   LineChart as LineChartIcon,
   ListTree,
-  ShieldCheck,
-  Target,
 } from "lucide-react";
-import type { ReactNode } from "react";
 import {
   CartesianGrid,
   ComposedChart,
@@ -35,21 +26,12 @@ import {
   type CognitionPoint,
 } from "../data/cognition";
 import { getCompanyProfile } from "../data/companyProfiles";
-import {
-  formatNumber,
-  formatPercent,
-  formatSignedPercent,
-  type RecordView,
-  type SummaryMetrics,
-} from "../data/metrics";
+import { formatNumber, formatPercent, formatSignedPercent, type RecordView } from "../data/metrics";
 import type { LedgerDataset } from "../data/schema";
-import { BoundaryPills } from "./BoundaryPanel";
-import { GlossaryStrip, TermTip } from "./TermTip";
 
 type CognitionDashboardProps = {
   dataset: LedgerDataset;
   records: RecordView[];
-  metrics: SummaryMetrics;
   tickers: string[];
   selectedTicker: string;
   onTickerChange: (ticker: string) => void;
@@ -61,20 +43,6 @@ type ChartTooltipPayload = Array<{
   value?: number | string | null;
   payload?: CognitionPoint;
 }>;
-
-function datasetDisplayLabel(value: string): string {
-  if (value === "frozen_demo_snapshot/public_safe_demo") {
-    return "公开安全演示数据";
-  }
-  return value;
-}
-
-function sourceDisplayLabel(value: string): string {
-  if (value === "zip_demo_rebuilt_public_safe_dataset") {
-    return "demo zip 重建数据";
-  }
-  return value;
-}
 
 function formatPointValue(value: number | null): string {
   return value === null ? "暂无" : `${formatNumber(value)} 点`;
@@ -132,31 +100,6 @@ function CustomDot(props: { cx?: number; cy?: number; payload?: CognitionPoint }
   return <circle className={`outcome-dot ${statusTone(payload)}`} cx={cx} cy={cy} r={5} />;
 }
 
-function MetricTile({
-  icon,
-  label,
-  value,
-  note,
-}: {
-  icon: ReactNode;
-  label: ReactNode;
-  value: string;
-  note: string;
-}) {
-  return (
-    <div className="metric-tile">
-      <div className="metric-icon" aria-hidden="true">
-        {icon}
-      </div>
-      <div>
-        <p>{label}</p>
-        <strong>{value}</strong>
-        <span>{note}</span>
-      </div>
-    </div>
-  );
-}
-
 function TickerChips({
   tickers,
   records,
@@ -197,10 +140,8 @@ function PredictionOutcomeChart({ points }: { points: CognitionPoint[] }) {
     <section className="chart-card main-chart-card" aria-labelledby="prediction-chart-title">
       <div className="chart-card-header">
         <div>
-          <h2 id="prediction-chart-title">
-            <TermTip term="expected_change_pct" compact /> vs <TermTip term="actual_change_pct" compact />
-          </h2>
-          <p>绿色点代表方向判对，红色点代表判错，中性点代表 pending 或 frozen_pending。</p>
+          <h2 id="prediction-chart-title">系统当时预期 vs 后来真实表现</h2>
+          <p>蓝线是当时预测，绿/红/灰点分别代表方向判对、判错、待判定或冻结待判定。</p>
         </div>
         <LineChartIcon aria-hidden="true" size={20} />
       </div>
@@ -250,10 +191,8 @@ function EvolutionChart({ points }: { points: CognitionPoint[] }) {
     <section className="chart-card" aria-labelledby="evolution-chart-title">
       <div className="chart-card-header">
         <div>
-          <h2 id="evolution-chart-title">
-            <TermTip term="cumulative_accuracy" compact /> & <TermTip term="average_error" compact />
-          </h2>
-          <p>右轴为平均误差（越低越好），左轴为累计方向准确率。</p>
+          <h2 id="evolution-chart-title">方向命中与误差如何变化</h2>
+          <p>只用已结算记录计算；待判定与冻结待判定不进入命中率和误差分母。</p>
         </div>
         <Activity aria-hidden="true" size={20} />
       </div>
@@ -317,7 +256,7 @@ function EvidenceTimeline({
       <div className="chart-card-header">
         <div>
           <h2 id="timeline-title">证据/来源时间线</h2>
-          <p>每条记录保留来源数量、来源标签和结果状态。</p>
+          <p>每条判断都保留时间、来源数量和结果状态，便于逐条追责。</p>
         </div>
         <ListTree aria-hidden="true" size={20} />
       </div>
@@ -348,7 +287,7 @@ function ErrorReview({ record }: { record: RecordView | null }) {
       <div className="chart-card-header">
         <div>
           <h2 id="review-title">错误复盘</h2>
-      <p>只解释历史偏差，不生成任何交易建议。</p>
+          <p>只解释历史偏差，不生成任何交易建议。</p>
         </div>
         <AlertTriangle aria-hidden="true" size={20} />
       </div>
@@ -378,7 +317,6 @@ function ErrorReview({ record }: { record: RecordView | null }) {
 export function CognitionDashboard({
   dataset,
   records,
-  metrics,
   tickers,
   selectedTicker,
   onTickerChange,
@@ -388,62 +326,26 @@ export function CognitionDashboard({
   const latest = cognition.latestRecord;
 
   return (
-    <>
-      <section className="hero-workbench" aria-labelledby="page-title">
-        <div className="hero-copy">
-          <div className="section-kicker">
-            <Database aria-hidden="true" size={15} />
-            {datasetDisplayLabel(dataset.metadata.dataset_type)}
-          </div>
-          <h1 id="page-title">认知演化视图</h1>
-          <p>
-            GOTRA Public Ledger 把历史预测、实际结果、方向判对/判错和误差变化放在同一个公开账本里。
-          </p>
-        </div>
-        <div className="snapshot-card">
-          <div>
-            <span>冻结快照日期</span>
-            <strong title={`snapshot_date ${dataset.metadata.snapshot_date}`}>{dataset.metadata.snapshot_date}</strong>
-          </div>
-          <div>
-            <span>来源</span>
-            <strong title={`source.type ${dataset.metadata.source.type}`}>
-              {sourceDisplayLabel(dataset.metadata.source.type)}
-            </strong>
-          </div>
-          <BoundaryPills labels={dataset.metadata.claim_boundary} />
-        </div>
-      </section>
+    <section className="ticker-workbench" id="ledger-proof" aria-labelledby="ledger-proof-title">
+      <div className="section-heading proof-heading">
+        <span>S4 · Ledger proof</span>
+        <h2 id="ledger-proof-title">挑一只股票，看 GOTRA 对它的判断是怎么一步步演化的</h2>
+        <p>
+          默认选中记录最多的标的；当前数据中是 {selectedTicker}。所有图表来自 snapshot_date{" "}
+          {dataset.metadata.snapshot_date} 的公开安全快照。
+        </p>
+      </div>
 
-      <section className="metric-grid" aria-label="Global cognition overview">
-        <MetricTile icon={<Target size={18} />} label="总记录数" value={String(metrics.total)} note="演示记录" />
-        <MetricTile icon={<CheckCircle2 size={18} />} label="已结算" value={String(metrics.resolved)} note="仅已结算记录" />
-        <MetricTile
-          icon={<Gauge size={18} />}
-          label={<TermTip term="direction_hit_rate" compact />}
-          value={formatPercent(metrics.directionHitRate)}
-          note="仅演示数据中的已结算记录"
-        />
-        <MetricTile
-          icon={<BarChart3 size={18} />}
-          label={<TermTip term="average_error" compact />}
-          value={formatPointValue(metrics.averageAbsoluteError)}
-          note="越低越好"
-        />
-        <MetricTile
-          icon={<Clock3 size={18} />}
-          label="待判定 / 冻结"
-          value={`${metrics.pending} / ${metrics.frozenPending}`}
-          note="不回填后验结果"
-        />
-        <MetricTile icon={<CircleDot size={18} />} label="覆盖股票" value={String(metrics.tickerCoverage)} note="可切换单标的" />
-      </section>
-
-      <section className="ticker-workbench" aria-label="Single ticker cognition workbench">
+      <div className="ticker-workbench-inner">
         <div className="ticker-header">
           <div>
             <h2>{cognition.profile.displayName}</h2>
-            <p>{cognition.profile.description}</p>
+            <p>
+              {cognition.profile.description}
+              GOTRA 对{cognition.profile.shortName}做了 {cognition.records.length} 次判断，
+              {cognition.resolvedCount} 次已结算，方向命中 {formatPercent(cognition.hitRate)}，平均误差{" "}
+              {formatPointValue(cognition.averageError)}。
+            </p>
           </div>
           <div className="ticker-stat-row">
             <span>{cognition.records.length} 条记录</span>
@@ -482,23 +384,7 @@ export function CognitionDashboard({
           <EvidenceTimeline records={cognition.records} onSelectRecord={onSelectRecord} />
           <ErrorReview record={cognition.largestErrorRecord} />
         </div>
-      </section>
-
-      <section className="boundary-footer" aria-label="Boundary and glossary">
-        <div>
-          <h2>
-            <ShieldCheck aria-hidden="true" size={18} />
-            边界与术语
-          </h2>
-          <p>
-            页面是前端 UX/smoke evidence only；图表展示冻结演示快照，不是 OOS、science/public proof、formal acceptance、trading signal 或投资建议。
-          </p>
-          <p>
-            direct_llm 只按 direct_llm_parametric_memory_control 理解：现代 LLM 参数记忆不能按 decision_date 截断，可能含历史后验市场叙事，不是 clean no-future baseline。
-          </p>
-        </div>
-        <GlossaryStrip />
-      </section>
-    </>
+      </div>
+    </section>
   );
 }
