@@ -2408,6 +2408,26 @@ h1 {
   color: var(--red);
 }
 
+.retry-button {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  font-weight: 850;
+}
+
+.edge-state-note {
+  padding: 12px 14px;
+  border: 1px solid rgba(242, 190, 99, 0.45);
+  border-radius: 8px;
+  background: var(--amber-soft);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -90,16 +90,23 @@ function App() {
   const [selectedRecord, setSelectedRecord] = useState<RecordView | null>(null);
   const [selectedTicker, setSelectedTicker] = useState("");
   const [dashboardRequested, setDashboardRequested] = useState(false);
+  const [missingPredictionId, setMissingPredictionId] = useState<string | null>(null);
   const dashboardLoadRef = useRef<HTMLElement | null>(null);
   const lastRecordTriggerRef = useRef<HTMLElement | null>(null);
 
-  useEffect(() => {
+  const loadDataset = useCallback(() => {
+    setError(null);
+    setDataset(null);
     loadLedgerDataset()
       .then(setDataset)
       .catch((reason: unknown) => {
         setError(reason instanceof Error ? reason.message : "Unknown ledger load error");
       });
   }, []);
+
+  useEffect(() => {
+    loadDataset();
+  }, [loadDataset]);
 
   const views = useMemo(() => {
     if (!dataset) {
@@ -143,6 +150,7 @@ function App() {
 
   const openRecord = useCallback((record: RecordView, trigger?: HTMLElement) => {
     lastRecordTriggerRef.current = trigger ?? null;
+    setMissingPredictionId(null);
     setSelectedRecord(record);
     trackEvent("ledger_detail_open", { prediction_id: record.prediction_id });
     const nextUrl = new URL(window.location.href);
@@ -165,15 +173,21 @@ function App() {
 
     const predictionId = new URLSearchParams(window.location.search).get("prediction_id");
     if (!predictionId) {
+      setMissingPredictionId(null);
       return;
     }
 
     const linkedRecord = views.find((record) => record.prediction_id === predictionId);
     if (linkedRecord) {
+      setMissingPredictionId(null);
       setSelectedRecord(linkedRecord);
       trackEvent("ledger_detail_open", { prediction_id: linkedRecord.prediction_id });
       window.setTimeout(() => document.getElementById("full-ledger")?.scrollIntoView({ block: "start" }), 0);
+      return;
     }
+
+    setMissingPredictionId(predictionId);
+    window.setTimeout(() => document.getElementById("full-ledger")?.scrollIntoView({ block: "start" }), 0);
   }, [selectedRecord, views]);
 
   const filteredRecords = useMemo(() => {
@@ -208,6 +222,9 @@ function App() {
         <AlertCircle aria-hidden="true" size={24} />
         <h1>Ledger data failed to load</h1>
         <p>{error}</p>
+        <button className="retry-button" type="button" onClick={loadDataset}>
+          重试加载
+        </button>
       </main>
     );
   }
@@ -325,6 +342,12 @@ function App() {
             <div className="ledger-count-line">
               当前显示 {filteredRecords.length} / {views.length} 条快照数据；统计口径只把已结算记录纳入命中率与误差。
             </div>
+            {missingPredictionId ? (
+              <div className="edge-state-note" role="status">
+                未找到该记录：<span className="mono">{missingPredictionId}</span>。请检查 prediction_id，或使用下方搜索和筛选浏览当前
+                public-safe demo 快照。
+              </div>
+            ) : null}
 
             <LedgerTable records={filteredRecords} sort={sort} onSort={handleSort} onSelect={openRecord} />
           </div>

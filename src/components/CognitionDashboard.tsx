@@ -158,13 +158,20 @@ function PredictionOutcomeChart({ points }: { points: CognitionPoint[] }) {
     ...point,
     pendingPredicted: point.status === "resolved" ? null : point.predicted,
   }));
+  const hasActual = chartPoints.some((point) => typeof point.actual === "number");
+  const hasResolved = chartPoints.some((point) => point.status === "resolved");
+  const hasPending = chartPoints.some((point) => point.status !== "resolved");
 
   return (
     <section className="chart-card main-chart-card" aria-labelledby="prediction-chart-title">
       <div className="chart-card-header">
         <div>
           <h2 id="prediction-chart-title">系统当时预期 vs 后来真实表现</h2>
-          <p>蓝线是当时预测，绿/红/灰点分别代表方向判对、判错、待判定或冻结待判定。</p>
+          <p>
+            {hasActual
+              ? "蓝线是当时预测，绿/红/灰点分别代表方向判对、判错、待判定或冻结待判定。"
+              : "暂无实际：当前标的尚无 resolved 记录；图表只显示预测线，不回填 actual/error。"}
+          </p>
           <span className="chart-boundary-label">public-safe demo · 非 OOS</span>
         </div>
         <LineChartIcon aria-hidden="true" size={20} />
@@ -192,28 +199,32 @@ function PredictionOutcomeChart({ points }: { points: CognitionPoint[] }) {
               activeDot={{ r: 6 }}
               connectNulls
             />
-            <Line
-              type="monotone"
-              dataKey="actual"
-              name="实际涨跌幅"
-              stroke="#0f766e"
-              strokeWidth={2}
-              strokeDasharray="5 4"
-              dot={<CustomDot />}
-              activeDot={{ r: 6 }}
-              connectNulls={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="pendingPredicted"
-              name="待判定/冻结"
-              stroke="#8a97a3"
-              strokeWidth={2}
-              strokeDasharray="2 5"
-              dot={<PendingDot />}
-              activeDot={{ r: 6 }}
-              connectNulls={false}
-            />
+            {hasActual ? (
+              <Line
+                type="monotone"
+                dataKey="actual"
+                name="实际涨跌幅"
+                stroke="#0f766e"
+                strokeWidth={2}
+                strokeDasharray="5 4"
+                dot={<CustomDot />}
+                activeDot={{ r: 6 }}
+                connectNulls={false}
+              />
+            ) : null}
+            {hasResolved && hasPending ? (
+              <Line
+                type="monotone"
+                dataKey="pendingPredicted"
+                name="待判定/冻结"
+                stroke="#8a97a3"
+                strokeWidth={2}
+                strokeDasharray="2 5"
+                dot={<PendingDot />}
+                activeDot={{ r: 6 }}
+                connectNulls={false}
+              />
+            ) : null}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
