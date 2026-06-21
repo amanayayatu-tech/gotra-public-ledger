@@ -8,6 +8,7 @@ import { DetailDrawer } from "./components/DetailDrawer";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { LedgerTable, type SortKey, type SortState } from "./components/LedgerTable";
+import { SeoHead } from "./components/SeoHead";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
 import { Subscribe } from "./components/Subscribe";
@@ -168,6 +169,7 @@ function App() {
   return (
     <div className="app-shell">
       <AnalyticsProvider />
+      <SeoHead dataset={dataset} records={views} activeRecord={selectedRecord} />
       <SiteHeader />
 
       <main className="page-shell">
