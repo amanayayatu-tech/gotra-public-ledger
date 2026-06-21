@@ -25,7 +25,7 @@ type LedgerTableProps = {
   records: RecordView[];
   sort: SortState;
   onSort: (key: SortKey) => void;
-  onSelect: (record: RecordView) => void;
+  onSelect: (record: RecordView, trigger?: HTMLElement) => void;
 };
 
 const columns: Array<{ key: SortKey; label: string; className?: string }> = [
@@ -69,26 +69,37 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
         <thead>
           <tr>
             {columns.map((column) => (
-              <th className={column.className} key={column.key}>
+              <th
+                aria-sort={
+                  sort.key === column.key ? (sort.direction === "asc" ? "ascending" : "descending") : "none"
+                }
+                className={column.className}
+                key={column.key}
+                scope="col"
+              >
                 <button type="button" onClick={() => onSort(column.key)}>
                   {column.label}
                   <SortIcon sort={sort} columnKey={column.key} />
                 </button>
               </th>
             ))}
-            <th>状态</th>
+            <th scope="col">状态</th>
           </tr>
         </thead>
         <tbody>
           {records.map((record) => (
-            <tr key={record.prediction_id} onClick={() => onSelect(record)}>
+            <tr
+              key={record.prediction_id}
+              onClick={(event) => onSelect(record, event.currentTarget)}
+            >
               <td>
                 <button
-                  className="row-open"
                   type="button"
+                  className="row-open-button"
+                  aria-label={`打开 ${record.prediction_id} 详情`}
                   onClick={(event) => {
                     event.stopPropagation();
-                    onSelect(record);
+                    onSelect(record, event.currentTarget);
                   }}
                 >
                   <span className="ticker">{record.ticker}</span>
@@ -125,7 +136,9 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
           ))}
         </tbody>
       </table>
-      {records.length === 0 ? <div className="empty-state">没有匹配的快照记录。</div> : null}
+      {records.length === 0 ? (
+        <div className="empty-state">没有匹配的快照记录。请调整搜索词、状态、方向或标的筛选。</div>
+      ) : null}
     </div>
   );
 }

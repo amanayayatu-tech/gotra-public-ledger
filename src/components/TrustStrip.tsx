@@ -16,6 +16,19 @@ function getLargestErrorRecord(records: RecordView[]): RecordView | null {
   );
 }
 
+function attributionSummary(record: RecordView | null): string {
+  if (!record) {
+    return "暂无已结算记录可归因。";
+  }
+
+  const error = formatNumber(Math.abs(record.error ?? 0));
+  if (record.direction_correct === false) {
+    return `归因摘要：错在方向。该窗口预测方向与实际走势相反，最大误差 ${error}pp。`;
+  }
+
+  return `归因摘要：错在幅度。方向一致，但预测幅度与实际变化相差 ${error}pp。`;
+}
+
 export function TrustStrip({ records }: TrustStripProps) {
   const settled = records.filter((record) => record.status === "resolved");
   const frozenPending = records.filter((record) => record.status === "frozen_pending");
@@ -49,31 +62,60 @@ export function TrustStrip({ records }: TrustStripProps) {
         <div>
           <AlertTriangle aria-hidden="true" size={22} />
           <span>公开错误数</span>
-          <strong>{misses.length}</strong>
+          <strong>{misses.length > 0 ? misses.length : "暂无"}</strong>
           <small>在 {settled.length} 条已结算记录中公开保留</small>
         </div>
         <div>
           <Zap aria-hidden="true" size={22} />
           <span>最大单次误差</span>
-          <strong className="red-value">
+          <strong className="trust-danger-value">
             {largestErrorRecord ? `${formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp` : "暂无"}
           </strong>
           <small>
             {largestErrorRecord
-              ? `${largestErrorRecord.ticker} ${largestErrorRecord.decision_date}`
+              ? `${largestErrorRecord.ticker} · ${largestErrorRecord.decision_date}`
               : "暂无已结算记录"}
           </small>
         </div>
       </div>
 
-      {largestErrorRecord ? (
-        <p className="trust-footnote">
-          最大误差记录：{largestErrorRecord.ticker} 预测{" "}
-          {formatSignedPercent(largestErrorRecord.expected_change_pct)}，实际{" "}
-          {formatSignedPercent(largestErrorRecord.actual_change_pct)}，误差{" "}
-          {formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp。该记录仍保留在公开账本中。
-        </p>
-      ) : null}
+      <article className="mistake-card">
+        <div>
+          <span>这是我们错得最离谱的一次，我们留着它。</span>
+          <h3>
+            {largestErrorRecord
+              ? `${largestErrorRecord.ticker} · ${largestErrorRecord.company}`
+              : "暂无已结算错误记录"}
+          </h3>
+        </div>
+        {largestErrorRecord ? (
+          <dl>
+            <div>
+              <dt>预测</dt>
+              <dd>{formatSignedPercent(largestErrorRecord.expected_change_pct)}</dd>
+            </div>
+            <div>
+              <dt>实际</dt>
+              <dd>{formatSignedPercent(largestErrorRecord.actual_change_pct)}</dd>
+            </div>
+            <div>
+              <dt>误差</dt>
+              <dd className="trust-danger-value">{formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp</dd>
+            </div>
+          </dl>
+        ) : null}
+        <div>
+          <p>{attributionSummary(largestErrorRecord)}</p>
+          {largestErrorRecord ? (
+            <p>
+              最大误差明细：{largestErrorRecord.ticker} 预测{" "}
+              {formatSignedPercent(largestErrorRecord.expected_change_pct)}，实际{" "}
+              {formatSignedPercent(largestErrorRecord.actual_change_pct)}，误差{" "}
+              {formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp，仍保留在公开账本中。
+            </p>
+          ) : null}
+        </div>
+      </article>
     </section>
   );
 }

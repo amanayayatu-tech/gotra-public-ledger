@@ -1,4 +1,5 @@
 import { Github, ShieldCheck } from "lucide-react";
+import packageJson from "../../package.json";
 import type { LedgerMetadata } from "../data/schema";
 
 type SiteFooterProps = {
@@ -6,6 +7,8 @@ type SiteFooterProps = {
 };
 
 export function SiteFooter({ metadata }: SiteFooterProps) {
+  const version = packageJson.version;
+
   return (
     <footer className="site-footer" id="site-footer" aria-labelledby="footer-title">
       <div>
@@ -35,7 +38,7 @@ export function SiteFooter({ metadata }: SiteFooterProps) {
           <ShieldCheck aria-hidden="true" size={14} />
           research information only · not investment advice
         </span>
-        <span>version 0.1.0</span>
+        <span>version {version}</span>
         <span>snapshot_date {metadata.snapshot_date}</span>
       </div>
     </footer>

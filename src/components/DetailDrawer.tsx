@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { CalendarDays, FileText, Scale, ShieldAlert, X } from "lucide-react";
 import {
   formatNumber,
@@ -38,7 +38,30 @@ function ResultText({ record }: { record: RecordView }) {
   );
 }
 
+function directionLabel(direction: RecordView["direction"]): string {
+  if (direction === "up") {
+    return "看涨";
+  }
+  if (direction === "down") {
+    return "看跌";
+  }
+  return "中性";
+}
+
+function formatErrorDetail(record: RecordView): string {
+  return record.error === null ? "误差暂无" : `${formatNumber(Math.abs(record.error))} 点`;
+}
+
+function recordDeepLink(record: RecordView): string {
+  const url = new URL(window.location.href);
+  url.searchParams.set("prediction_id", record.prediction_id);
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
 export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
+  const drawerRef = useRef<HTMLElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
   useEffect(() => {
     if (!record) {
       return;
@@ -47,11 +70,43 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
     const handleKeydown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const drawer = drawerRef.current;
+      if (!drawer) {
+        return;
+      }
+
+      const focusable = Array.from(
+        drawer.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => element.getAttribute("aria-hidden") !== "true");
+
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (!first || !last) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
     document.body.classList.add("drawer-open");
     window.addEventListener("keydown", handleKeydown);
+    window.setTimeout(() => closeButtonRef.current?.focus(), 0);
     return () => {
       document.body.classList.remove("drawer-open");
       window.removeEventListener("keydown", handleKeydown);
@@ -62,26 +117,39 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
     return null;
   }
 
+  const deepLink = recordDeepLink(record);
+
   return (
-    <div className="drawer-root" role="dialog" aria-modal="true" aria-label="Ledger record detail">
+    <div className="drawer-root" role="dialog" aria-modal="true" aria-labelledby="detail-drawer-title">
       <button className="drawer-backdrop" aria-label="Close detail" onClick={onClose} />
-      <aside className="detail-drawer">
+      <aside className="detail-drawer" ref={drawerRef}>
         <header className="drawer-header">
           <div>
             <div className="drawer-title-line">
-              <strong>{record.ticker}</strong>
+              <h2 id="detail-drawer-title" className="drawer-record-title">
+                {record.ticker}
+              </h2>
               <span>{record.company}</span>
               <span className={`status-badge ${record.status}`}>{statusLabel(record.status)}</span>
             </div>
             <p>{record.prediction_id}</p>
           </div>
-          <button className="icon-button" type="button" aria-label="Close detail" onClick={onClose}>
-            <X aria-hidden="true" size={18} />
-          </button>
+          <div className="drawer-actions">
+            <a className="deep-link-button" href={deepLink}>
+              深链
+            </a>
+            <button className="icon-button" type="button" aria-label="Close detail" onClick={onClose} ref={closeButtonRef}>
+              <X aria-hidden="true" size={18} />
+            </button>
+          </div>
         </header>
 
         <div className="drawer-body">
           <section className="detail-metrics" aria-label="Prediction and outcome">
+            <div>
+              <span>prediction_id</span>
+              <strong>{record.prediction_id}</strong>
+            </div>
             <div>
               <span>决策日期</span>
               <strong>{record.decision_date}</strong>
@@ -95,6 +163,10 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
               <strong>{formatPercent(record.confidence, 0)}</strong>
             </div>
             <div>
+              <span>方向</span>
+              <strong>{directionLabel(record.direction)}</strong>
+            </div>
+            <div>
               <span>预测涨跌幅</span>
               <strong>{formatSignedPercent(record.expected_change_pct)}</strong>
             </div>
@@ -104,7 +176,7 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
             </div>
             <div>
               <span>误差</span>
-              <strong>{formatNumber(record.error)}</strong>
+              <strong>{formatErrorDetail(record)}</strong>
             </div>
           </section>
 

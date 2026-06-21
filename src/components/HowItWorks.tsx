@@ -27,7 +27,7 @@ const steps = [
   },
   {
     title: "认知更新",
-    text: "错误知识被隔离和复盘，后续判断在同一账本中继续留下痕迹。",
+    text: "同一标的的后续判断继续在同一账本留痕，形成可追溯的持续迭代。",
     icon: BrainCircuit,
     href: "#method-boundary",
   },
@@ -38,8 +38,8 @@ export function HowItWorks() {
     <section className="story-section" id="how-it-works" aria-labelledby="how-title">
       <div className="section-heading">
         <span>S2 · How it works</span>
-        <h2 id="how-title">我们的工作机制（公开、可验证、可迭代）</h2>
-        <p>大多数金融内容只在事后解释；GOTRA 在事前留痕，然后把验证和复盘也放到同一条链上。</p>
+        <h2 id="how-title">我们的工作机制</h2>
+        <p>事前留痕 vs 事后解释：GOTRA 把研究、记录、对照、归因和后续更新放在同一条公开链路里。</p>
       </div>
 
       <ol className="workflow-list">
@@ -60,11 +60,6 @@ export function HowItWorks() {
           );
         })}
       </ol>
-      <div className="workflow-loop" aria-hidden="true">
-        <span />
-        <strong>持续迭代，减少未来错误</strong>
-        <span />
-      </div>
     </section>
   );
 }

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://amanayayatu-tech.github.io/gotra-public-ledger/sitemap.xml
