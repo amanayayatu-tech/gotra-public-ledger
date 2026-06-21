@@ -133,14 +133,15 @@ p {
   align-items: center;
   gap: 11px;
   min-width: 0;
+  min-height: 44px;
 }
 
 .brand-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border: 1px solid rgba(117, 216, 143, 0.45);
   border-radius: 8px;
   background: linear-gradient(135deg, rgba(117, 216, 143, 0.22), rgba(105, 167, 255, 0.12));
@@ -172,8 +173,8 @@ p {
   display: none;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -2513,7 +2514,7 @@ h1 {
 
   .primary-action,
   .secondary-action {
-    min-height: 42px;
+    min-height: 44px;
   }
 
   .workflow-list,
@@ -2676,7 +2677,7 @@ h1 {
 
   .primary-action,
   .secondary-action {
-    min-height: 40px;
+    min-height: 44px;
   }
 
   .chart-frame,
