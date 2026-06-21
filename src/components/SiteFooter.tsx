@@ -10,7 +10,7 @@ export function SiteFooter({ metadata }: SiteFooterProps) {
   const version = packageJson.version;
 
   return (
-    <footer className="site-footer" aria-labelledby="footer-title">
+    <footer className="site-footer" id="site-footer" aria-labelledby="footer-title">
       <div>
         <span className="brand-mark footer-mark" aria-hidden="true">
           GL

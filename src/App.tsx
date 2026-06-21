@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, RefreshCw, Search } from "lucide-react";
+import { AnalyticsProvider, trackEvent } from "./analytics";
 import { BoundaryPanel } from "./components/BoundaryPanel";
 import { CognitionDashboard } from "./components/CognitionDashboard";
 import { CredibilityDashboard } from "./components/CredibilityDashboard";
@@ -77,6 +78,7 @@ function App() {
   const openRecord = useCallback((record: RecordView, trigger?: HTMLElement) => {
     lastRecordTriggerRef.current = trigger ?? null;
     setSelectedRecord(record);
+    trackEvent("ledger_detail_open", { prediction_id: record.prediction_id });
     const nextUrl = new URL(window.location.href);
     nextUrl.searchParams.set("prediction_id", record.prediction_id);
     window.history.replaceState({}, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
@@ -103,6 +105,7 @@ function App() {
     const linkedRecord = views.find((record) => record.prediction_id === predictionId);
     if (linkedRecord) {
       setSelectedRecord(linkedRecord);
+      trackEvent("ledger_detail_open", { prediction_id: linkedRecord.prediction_id });
       window.setTimeout(() => document.getElementById("full-ledger")?.scrollIntoView({ block: "start" }), 0);
     }
   }, [selectedRecord, views]);
@@ -164,6 +167,7 @@ function App() {
 
   return (
     <div className="app-shell">
+      <AnalyticsProvider />
       <SiteHeader />
 
       <main className="page-shell">
@@ -176,7 +180,7 @@ function App() {
           tickers={tickers}
           selectedTicker={activeTicker}
           onTickerChange={setSelectedTicker}
-          onSelectRecord={setSelectedRecord}
+          onSelectRecord={openRecord}
         />
 
         <section className="ledger-section" id="full-ledger" aria-labelledby="full-ledger-title">
