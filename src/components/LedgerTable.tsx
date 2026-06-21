@@ -75,6 +75,7 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
                 }
                 className={column.className}
                 key={column.key}
+                scope="col"
               >
                 <button type="button" onClick={() => onSort(column.key)}>
                   {column.label}
@@ -82,30 +83,29 @@ export function LedgerTable({ records, sort, onSort, onSelect }: LedgerTableProp
                 </button>
               </th>
             ))}
-            <th>状态</th>
+            <th scope="col">状态</th>
           </tr>
         </thead>
         <tbody>
           {records.map((record) => (
             <tr
-              aria-label={`打开 ${record.prediction_id} 详情`}
               key={record.prediction_id}
               onClick={(event) => onSelect(record, event.currentTarget)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  onSelect(record, event.currentTarget);
-                }
-              }}
-              role="button"
-              tabIndex={0}
             >
               <td>
-                <div className="row-open">
+                <button
+                  type="button"
+                  className="row-open-button"
+                  aria-label={`打开 ${record.prediction_id} 详情`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onSelect(record, event.currentTarget);
+                  }}
+                >
                   <span className="ticker">{record.ticker}</span>
                   <span>{record.company}</span>
                   <small>{record.sector}</small>
-                </div>
+                </button>
               </td>
               <td>
                 <span className="mono">{record.decision_date}</span>

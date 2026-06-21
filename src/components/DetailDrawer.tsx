@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { CalendarDays, FileText, Scale, ShieldAlert, X } from "lucide-react";
 import {
   formatNumber,
@@ -59,6 +59,9 @@ function recordDeepLink(record: RecordView): string {
 }
 
 export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
+  const drawerRef = useRef<HTMLElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
   useEffect(() => {
     if (!record) {
       return;
@@ -67,11 +70,43 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
     const handleKeydown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const drawer = drawerRef.current;
+      if (!drawer) {
+        return;
+      }
+
+      const focusable = Array.from(
+        drawer.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => element.getAttribute("aria-hidden") !== "true");
+
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (!first || !last) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
     document.body.classList.add("drawer-open");
     window.addEventListener("keydown", handleKeydown);
+    window.setTimeout(() => closeButtonRef.current?.focus(), 0);
     return () => {
       document.body.classList.remove("drawer-open");
       window.removeEventListener("keydown", handleKeydown);
@@ -85,13 +120,15 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
   const deepLink = recordDeepLink(record);
 
   return (
-    <div className="drawer-root" role="dialog" aria-modal="true" aria-label="Ledger record detail">
+    <div className="drawer-root" role="dialog" aria-modal="true" aria-labelledby="detail-drawer-title">
       <button className="drawer-backdrop" aria-label="Close detail" onClick={onClose} />
-      <aside className="detail-drawer">
+      <aside className="detail-drawer" ref={drawerRef}>
         <header className="drawer-header">
           <div>
             <div className="drawer-title-line">
-              <strong>{record.ticker}</strong>
+              <h2 id="detail-drawer-title" className="drawer-record-title">
+                {record.ticker}
+              </h2>
               <span>{record.company}</span>
               <span className={`status-badge ${record.status}`}>{statusLabel(record.status)}</span>
             </div>
@@ -101,7 +138,7 @@ export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {
             <a className="deep-link-button" href={deepLink}>
               深链
             </a>
-            <button className="icon-button" type="button" aria-label="Close detail" onClick={onClose}>
+            <button className="icon-button" type="button" aria-label="Close detail" onClick={onClose} ref={closeButtonRef}>
               <X aria-hidden="true" size={18} />
             </button>
           </div>

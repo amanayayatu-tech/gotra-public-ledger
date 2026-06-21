@@ -126,7 +126,7 @@ function MiniProofCard({ records }: { records: RecordView[] }) {
   const latestSettled = getLatestSettledRecord(records);
 
   return (
-    <aside className="hero-proof" aria-label="公开账本即时证据">
+    <div className="hero-proof" aria-label="公开账本即时证据">
       <div className="proof-head">
         <span>公开账本即时证据</span>
         <strong>prediction ledger</strong>
@@ -160,7 +160,7 @@ function MiniProofCard({ records }: { records: RecordView[] }) {
         </strong>
         <p>{describeLargestError(largestErrorRecord)}</p>
       </div>
-    </aside>
+    </div>
   );
 }
 
