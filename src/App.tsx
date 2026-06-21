@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, RefreshCw, Search } from "lucide-react";
+import { Suspense, lazy, type Ref, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AlertCircle, Search } from "lucide-react";
 import { AnalyticsProvider, trackEvent } from "./analytics";
 import { BoundaryPanel } from "./components/BoundaryPanel";
-import { CognitionDashboard } from "./components/CognitionDashboard";
 import { CredibilityDashboard } from "./components/CredibilityDashboard";
 import { DetailDrawer } from "./components/DetailDrawer";
 import { Hero } from "./components/Hero";
@@ -16,6 +15,10 @@ import { TrustStrip } from "./components/TrustStrip";
 import { buildTickerList } from "./data/cognition";
 import { computeSummary, toRecordView, type LedgerStatus, type RecordView } from "./data/metrics";
 import { loadLedgerDataset, type LedgerDataset } from "./data/schema";
+
+const CognitionDashboard = lazy(() =>
+  import("./components/CognitionDashboard").then((module) => ({ default: module.CognitionDashboard })),
+);
 
 type StatusFilter = "all" | LedgerStatus;
 type DirectionFilter = "all" | RecordView["direction"];
@@ -39,6 +42,42 @@ function compareRecord(a: RecordView, b: RecordView, key: SortKey): number {
   return String(left).localeCompare(String(right), "en");
 }
 
+function LedgerLoadingSkeleton() {
+  return (
+    <main className="loading-screen" aria-busy="true" aria-label="Loading ledger demo data">
+      <div className="loading-shell">
+        <div className="skeleton-line wide" />
+        <div className="skeleton-line" />
+        <div className="skeleton-grid" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+          <span />
+        </div>
+      </div>
+      <span>Loading ledger.demo.json</span>
+    </main>
+  );
+}
+
+function ChartLoadingSkeleton({ containerRef }: { containerRef?: Ref<HTMLElement> }) {
+  return (
+    <section
+      className="ticker-workbench chart-skeleton"
+      id="ledger-proof"
+      aria-label="Loading cognition dashboard"
+      ref={containerRef}
+    >
+      <div className="skeleton-line wide" />
+      <div className="skeleton-grid" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+    </section>
+  );
+}
+
 function App() {
   const [dataset, setDataset] = useState<LedgerDataset | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +89,8 @@ function App() {
   const [sort, setSort] = useState<SortState>({ key: "decision_date", direction: "desc" });
   const [selectedRecord, setSelectedRecord] = useState<RecordView | null>(null);
   const [selectedTicker, setSelectedTicker] = useState("");
+  const [dashboardRequested, setDashboardRequested] = useState(false);
+  const dashboardLoadRef = useRef<HTMLElement | null>(null);
   const lastRecordTriggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -75,6 +116,30 @@ function App() {
     const timeout = window.setTimeout(() => setDebouncedQuery(query), 150);
     return () => window.clearTimeout(timeout);
   }, [query]);
+
+  useEffect(() => {
+    if (dashboardRequested || !activeTicker) {
+      return;
+    }
+
+    const element = dashboardLoadRef.current;
+    if (!element || !("IntersectionObserver" in window)) {
+      setDashboardRequested(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setDashboardRequested(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "240px 0px" },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [activeTicker, dashboardRequested]);
 
   const openRecord = useCallback((record: RecordView, trigger?: HTMLElement) => {
     lastRecordTriggerRef.current = trigger ?? null;
@@ -148,12 +213,7 @@ function App() {
   }
 
   if (!dataset || !metrics) {
-    return (
-      <main className="loading-screen">
-        <RefreshCw aria-hidden="true" size={22} />
-        <span>Loading ledger.demo.json</span>
-      </main>
-    );
+    return <LedgerLoadingSkeleton />;
   }
 
   if (!activeTicker) {
@@ -176,14 +236,20 @@ function App() {
         <Hero dataset={dataset} metrics={metrics} records={views} />
         <HowItWorks />
         <TrustStrip records={views} />
-        <CognitionDashboard
-          dataset={dataset}
-          records={views}
-          tickers={tickers}
-          selectedTicker={activeTicker}
-          onTickerChange={setSelectedTicker}
-          onSelectRecord={openRecord}
-        />
+        {dashboardRequested ? (
+          <Suspense fallback={<ChartLoadingSkeleton />}>
+            <CognitionDashboard
+              dataset={dataset}
+              records={views}
+              tickers={tickers}
+              selectedTicker={activeTicker}
+              onTickerChange={setSelectedTicker}
+              onSelectRecord={openRecord}
+            />
+          </Suspense>
+        ) : (
+          <ChartLoadingSkeleton containerRef={dashboardLoadRef} />
+        )}
 
         <section className="ledger-section" id="full-ledger" aria-labelledby="full-ledger-title">
           <div className="ledger-panel">
