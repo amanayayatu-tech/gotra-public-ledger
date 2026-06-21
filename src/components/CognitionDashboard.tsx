@@ -239,6 +239,7 @@ function EvolutionChart({ points }: { points: CognitionPoint[] }) {
         <div>
           <h2 id="evolution-chart-title">方向命中与误差如何变化</h2>
           <p>只用已结算记录计算；待判定与冻结待判定不进入命中率和误差分母。</p>
+          <span className="chart-boundary-label">public-safe demo · 非 OOS</span>
         </div>
         <Activity aria-hidden="true" size={20} />
       </div>
@@ -333,7 +334,7 @@ function ErrorReview({ record }: { record: RecordView | null }) {
       <div className="chart-card-header">
         <div>
           <h2 id="review-title">错误复盘</h2>
-          <p>只解释历史偏差，不生成任何交易建议。</p>
+          <p>只解释历史偏差，不生成任何行动指令。</p>
         </div>
         <AlertTriangle aria-hidden="true" size={20} />
       </div>
@@ -378,7 +379,7 @@ export function CognitionDashboard({
         <h2 id="ledger-proof-title">挑一只股票，看 GOTRA 对它的判断是怎么一步步演化的</h2>
         <p>
           默认选中记录最多的标的；当前数据中是 {selectedTicker}。所有图表来自 snapshot_date{" "}
-          {dataset.metadata.snapshot_date} 的公开安全快照。
+          {dataset.metadata.snapshot_date} 的 public-safe demo 快照，非 OOS。
         </p>
       </div>
 
@@ -390,7 +391,7 @@ export function CognitionDashboard({
               {cognition.profile.description}
               GOTRA 对{cognition.profile.shortName}做了 {cognition.records.length} 次判断，
               {cognition.resolvedCount} 次已结算，方向命中 {formatPercent(cognition.hitRate)}，平均误差{" "}
-              {formatPointValue(cognition.averageError)}。
+              {formatPointValue(cognition.averageError)}；public-safe demo · 非 OOS。
             </p>
           </div>
           <div className="ticker-stat-row">

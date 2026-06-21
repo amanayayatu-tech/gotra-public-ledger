@@ -25,7 +25,7 @@ export function SummaryCards({ metrics }: SummaryCardsProps) {
     {
       label: "已结算",
       value: String(metrics.resolved),
-      detail: "用于命中和误差计算",
+      detail: "public-safe demo · 非 OOS",
       icon: CheckCircle2,
     },
     {
@@ -38,13 +38,13 @@ export function SummaryCards({ metrics }: SummaryCardsProps) {
     {
       label: "方向命中率",
       value: formatPercent(metrics.directionHitRate),
-      detail: "仅演示数据中的已结算记录",
+      detail: "public-safe demo · 非 OOS",
       icon: Target,
     },
     {
       label: "平均绝对误差",
       value: formatNumber(metrics.averageAbsoluteError),
-      detail: "单位：百分点",
+      detail: "public-safe demo · 非 OOS",
       icon: Ruler,
     },
     {

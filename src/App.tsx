@@ -275,7 +275,7 @@ function App() {
                 <span className="section-index">S5 · Full ledger</span>
                 <h2 id="full-ledger-title">完整公开账本</h2>
                 <p>
-                  这是全部 {views.length} 条公开判断，任你搜索、筛选、逐条核对；它不是荐股列表。
+                  这是全部 {views.length} 条公开判断，任你搜索、筛选、逐条核对；它不是投资行动指令。
                 </p>
                 <div className="status-legend" aria-label="Ledger status legend">
                   <span>

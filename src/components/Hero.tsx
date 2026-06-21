@@ -173,7 +173,7 @@ export function Hero({ dataset, metrics, records }: HeroProps) {
       <div className="hero-copy">
         <div className="hero-boundary-note">
           <ShieldCheck aria-hidden="true" size={16} />
-          研究信息展示 / 非投资建议 / public-safe demo
+          research information only · not investment advice / public-safe demo
         </div>
         <p className="hero-brand-motif">别人制造注意力，GOTRA 制造信用</p>
         <h1 id="page-title">一个会公开承认错误的 AI 股票研究系统</h1>
@@ -222,7 +222,7 @@ export function Hero({ dataset, metrics, records }: HeroProps) {
         <HeroMiniChart records={records} />
         <p className="hero-data-note">
           包含 {metrics.pending + metrics.frozenPending} 条未公开 outcome 的 pending/frozen_pending 记录；本页面不回填后验结果。
-          <span> snapshot_date {dataset.metadata.snapshot_date}</span>
+          <span> public-safe demo · 非 OOS · snapshot_date {dataset.metadata.snapshot_date}</span>
         </p>
         <MiniProofCard records={records} />
       </div>

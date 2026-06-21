@@ -56,7 +56,7 @@ export function BoundaryPanel({ metadata }: BoundaryPanelProps) {
           <h3>方法论简述</h3>
           <p>
             页面展示固定股票池中的公开预测记录。方向命中率、平均误差与错误公开率只用已结算记录计算；
-            pending 和 frozen_pending 不进入分母，也不会被补写实际结果。
+            pending 和 frozen_pending 不进入分母，也不会被补写实际结果。上述统计均为 public-safe demo 读数，非 OOS。
           </p>
           <p>
             每条记录保留 prediction_id、decision_date、prediction_window、reasoning、evidence 和 provenance，

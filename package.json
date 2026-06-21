@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "generate:og": "node scripts/generate-og-image.mjs",
+    "compliance:scan": "node scripts/check-compliance.mjs",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": {
