@@ -17,7 +17,12 @@ This project is **Research information only**. It is **Not investment advice**, 
 - A rebuild of the demo dataset from `gotra 公开预测账本 (1).zip`.
 - A maintainable source project, not a committed build artifact.
 
-The included dataset is a frozen demo snapshot with `snapshot_date=2026-02-10`. As of the boundary review date `2026-06-20`, the six records marked `pending` in the source bundle have outcome dates in the past. The UI preserves them as `frozen_pending` and does not invent outcomes.
+The included dataset is a Phase 5 public-safe expansion with
+`snapshot_date=2026-06-20`. It preserves the original 54 frozen demo rows and
+adds public-protocol-derived pending skeleton rows from `amanayayatu-tech/gotra`
+`PREREGISTERED.md` at commit `d42492cd9d1016aaf87581765a2c8d119776c0e0`.
+These skeleton rows are not resolved model predictions and do not invent
+outcomes.
 
 ## Product Structure
 
@@ -35,8 +40,8 @@ Global and per-ticker metrics include total records, resolved records, demo dire
   hit rate, average absolute error, pending/frozen pending, and ticker coverage.
 
 Chart metrics are derived only from `public/data/ledger.demo.json`. Direction
-hit rate and average error use resolved demo rows only; `frozen_pending` rows
-remain visible but are not backfilled.
+hit rate and average error use resolved demo rows only; `pending` and
+`frozen_pending` rows remain visible but are not backfilled.
 
 ## Run Locally
 
@@ -86,15 +91,15 @@ Allowed data sources for the current app dataset:
 - Public GitHub PR, commit, or raw documentation data.
 - Hand-curated public-safe datasets with explicit provenance.
 
-Future Phase 5 dataset expansion may inspect only public sources, especially:
+This Phase 5 dataset expansion adopted only:
 
-- `amanayayatu-tech/gotra` public GitHub raw docs.
-- `amanayayatu-tech/gotra` public PRs.
-- `amanayayatu-tech/gotra` public commits.
-- Public JSON/CSV files with explicit provenance.
+- Existing `gotra-public-ledger` public-safe JSON.
+- `amanayayatu-tech/gotra` public GitHub raw docs at locked commit
+  `d42492cd9d1016aaf87581765a2c8d119776c0e0`.
 
-Any Phase 5 ingestion must be a separate public-safe data task. It must not
-silently mix local GOTRA experiment artifacts into this frontend snapshot.
+It did not find or import additional public prediction-row JSON/CSV with real
+outcomes. The extra rows are pending skeleton records derived from the public
+protocol universe and monthly 30-day window only.
 
 For the Phase 4 public-source inventory, see `docs/PUBLIC_DATA_INVENTORY.md`.
 
@@ -134,3 +139,12 @@ npm run build
 
 CI runs install, lint, and build. GitHub Pages deploy runs only from `main` push
 or manual dispatch.
+
+## Rebuild Public Dataset
+
+```bash
+python3 scripts/build_public_dataset.py
+```
+
+The script is deterministic, locks public GOTRA source provenance by commit SHA,
+and rewrites `public/data/ledger.demo.json` plus `public/data/evidence-index.json`.

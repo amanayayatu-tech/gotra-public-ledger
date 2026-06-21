@@ -2,19 +2,30 @@
 
 ## Dataset In This MVP
 
-`public/data/ledger.demo.json` is a rebuilt public-safe dataset from the demo zip:
+`public/data/ledger.demo.json` is a Phase 5 public-safe expanded dataset. It
+combines the original rebuilt public-safe dataset from the demo zip:
 
 `gotra 公开预测账本 (1).zip`
+
+with pending skeleton records derived only from the public GOTRA preregistration
+protocol:
+
+`amanayayatu-tech/gotra@d42492cd9d1016aaf87581765a2c8d119776c0e0:data/backtest/PREREGISTERED.md`
 
 The zip is a build artifact, not source code. It was used only to recover demo records, field names, and visual interaction references. The production source in this repository is Vite + React + TypeScript.
 
 Dataset metadata:
 
-- `snapshot_date=2026-02-10`
-- `dataset_type=frozen_demo_snapshot/public_safe_demo`
-- `source=zip_demo_rebuilt_public_safe_dataset`
+- `snapshot_date=2026-06-20`
+- `dataset_type=frozen_demo_plus_public_protocol_pending_skeleton/public_safe_demo`
+- `source=zip_demo_rebuilt_plus_public_preregistered_protocol`
+- `record_count=294`
+- `resolved_count=48`
+- `pending/frozen_pending without public outcomes=246`
 
-As of the boundary review date `2026-06-20`, all six source records marked `pending` have `outcome_availability_date` in the past. They remain `frozen_pending` in this MVP because the frozen source bundle does not contain actual outcomes for them.
+As of the boundary review date `2026-06-20`, records without public-safe outcomes
+remain `pending` or `frozen_pending`. The frontend does not invent
+`actual_change_pct`, `error`, or direction correctness for them.
 
 ## Derived Frontend Metrics
 
@@ -37,17 +48,15 @@ and not investment advice.
 - GitHub public PRs, commits, and raw documentation.
 - Hand-curated public-safe datasets with explicit provenance.
 
-For a future Phase 5 dataset expansion, additional records may be collected only
-from public sources:
+The Phase 5 expansion collected additional pending skeleton rows only from:
 
 - `amanayayatu-tech/gotra` public GitHub raw docs.
-- `amanayayatu-tech/gotra` public PRs.
-- `amanayayatu-tech/gotra` public commits.
-- Public JSON/CSV files with explicit provenance.
+- The locked public commit `d42492cd9d1016aaf87581765a2c8d119776c0e0`.
+- `data/backtest/PREREGISTERED.md` as the source of the 10-stock universe and
+  monthly 30-day protocol.
 
-That work must be separate from the Phase 4.2 frontend polish. It needs a clear
-ingestion script or documented manual inventory, per-row provenance, and an
-audit showing no local/private run artifacts entered the public dataset.
+No additional public prediction-row JSON/CSV with real outcomes was found in the
+allowed source scan. Therefore the expansion does not add resolved outcomes.
 
 Replacement datasets may use non-demo `metadata.source.type` and
 `record.provenance.source` values. They must not falsify zip provenance. Resolved
@@ -67,10 +76,12 @@ must keep those outcome fields empty (`null` or omitted).
 
 ## Evidence Index
 
-`public/data/evidence-index.json` is derived from `ledger.demo.json`. It contains source labels and dates from the frozen demo data only. It is not live source retrieval, not raw provider evidence, and not a private research artifact.
+`public/data/evidence-index.json` is derived from `ledger.demo.json`. It contains
+source labels and dates from the frozen demo data plus public protocol citations
+for pending skeleton rows. It is not live source retrieval, not raw provider
+evidence, and not a private research artifact.
 
 ## Public Source Inventory
 
 `docs/PUBLIC_DATA_INVENTORY.md` records the public GitHub source check used for
-the Phase 4 redesign. The current frontend did not adopt additional public
-prediction rows beyond the existing frozen demo dataset.
+the Phase 5 dataset expansion, including adopted and rejected sources.
