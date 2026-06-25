@@ -3939,6 +3939,12 @@ h1::after {
   gap: 22px;
 }
 
+.system-shell > section,
+.system-shell .table-scroll {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .system-summary-grid,
 .system-output-grid {
   display: grid;
