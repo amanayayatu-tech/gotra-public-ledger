@@ -24,6 +24,7 @@ export function SiteFooter({ metadata }: SiteFooterProps) {
       </div>
       <nav aria-label="Footer links">
         <a href={routeHref("/ledger")}>Ledger</a>
+        <a href={routeHref("/system")}>System</a>
         <a href={routeHref("/methodology")}>Methodology</a>
         <a href={routeHref("/sources")}>Sources</a>
         <a href="https://github.com/amanayayatu-tech/gotra-public-ledger" target="_blank" rel="noreferrer">
