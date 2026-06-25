@@ -77,7 +77,7 @@ Do not export:
 - SQLite/DB files
 - local absolute paths
 - private run logs
-- local `data/backtest/runs/*`
+- local GOTRA experiment run directories
 - Stage8/Stage9 private artifacts
 - `.tar.gz` or `.bundle`
 - auth files
