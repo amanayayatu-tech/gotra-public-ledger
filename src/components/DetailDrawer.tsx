@@ -8,6 +8,7 @@ import {
   type RecordView,
 } from "../data/metrics";
 import type { LedgerMetadata } from "../data/schema";
+import { predictionRouteHref } from "../routes/hashRouter";
 import { BoundaryPills } from "./BoundaryPanel";
 
 type DetailDrawerProps = {
@@ -53,9 +54,7 @@ function formatErrorDetail(record: RecordView): string {
 }
 
 function recordDeepLink(record: RecordView): string {
-  const url = new URL(window.location.href);
-  url.searchParams.set("prediction_id", record.prediction_id);
-  return `${url.pathname}${url.search}${url.hash}`;
+  return predictionRouteHref(record.prediction_id);
 }
 
 export function DetailDrawer({ record, metadata, onClose }: DetailDrawerProps) {

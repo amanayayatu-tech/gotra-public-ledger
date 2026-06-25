@@ -1,9 +1,17 @@
 import { Suspense, lazy, type Ref, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, Search } from "lucide-react";
+import {
+  AlertCircle,
+  BarChart3,
+  BookOpenCheck,
+  Database,
+  FileText,
+  Search,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
 import { AnalyticsProvider, trackEvent } from "./analytics";
 import { BoundaryPanel } from "./components/BoundaryPanel";
 import { CredibilityDashboard } from "./components/CredibilityDashboard";
-import { DetailDrawer } from "./components/DetailDrawer";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { LedgerTable, type SortKey, type SortState } from "./components/LedgerTable";
@@ -13,8 +21,20 @@ import { SiteHeader } from "./components/SiteHeader";
 import { Subscribe } from "./components/Subscribe";
 import { TrustStrip } from "./components/TrustStrip";
 import { buildTickerList } from "./data/cognition";
-import { computeSummary, toRecordView, type LedgerStatus, type RecordView } from "./data/metrics";
+import { contentItems, findContentItem } from "./data/content";
+import {
+  computeSummary,
+  formatNumber,
+  formatPercent,
+  formatSignedPercent,
+  toRecordView,
+  type LedgerStatus,
+  type RecordView,
+} from "./data/metrics";
+import { latestPaperPortfolioSnapshot } from "./data/portfolio";
+import type { ContentItem, PaperPortfolioSnapshot } from "./data/publicContract";
 import { loadLedgerDataset, type LedgerDataset } from "./data/schema";
+import { noteRouteHref, parseHashRoute, predictionRouteHref, routeHref, type AppRoute } from "./routes/hashRouter";
 
 const CognitionDashboard = lazy(() =>
   import("./components/CognitionDashboard").then((module) => ({ default: module.CognitionDashboard })),
@@ -78,7 +98,518 @@ function ChartLoadingSkeleton({ containerRef }: { containerRef?: Ref<HTMLElement
   );
 }
 
+function routeActivePath(route: AppRoute): string {
+  if (route.name === "prediction") {
+    return "/ledger";
+  }
+  if (route.name === "note") {
+    return "/notes";
+  }
+  return route.path;
+}
+
+function PageIntro({
+  eyebrow,
+  title,
+  body,
+  icon: Icon,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  icon: LucideIcon;
+}) {
+  return (
+    <section className="route-intro" aria-labelledby={`${eyebrow.replace(/\W+/g, "-")}-title`}>
+      <div>
+        <span className="section-index">{eyebrow}</span>
+        <h1 id={`${eyebrow.replace(/\W+/g, "-")}-title`}>{title}</h1>
+        <p>{body}</p>
+      </div>
+      <Icon aria-hidden="true" size={26} />
+    </section>
+  );
+}
+
+function formatCurrency(value: number, currency = "USD"): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function PerformancePage({
+  ledgerMetrics,
+  snapshot,
+}: {
+  ledgerMetrics: ReturnType<typeof computeSummary>;
+  snapshot: PaperPortfolioSnapshot;
+}) {
+  const latestEquity = snapshot.equity_curve.at(-1);
+
+  return (
+    <>
+      <PageIntro
+        eyebrow="Performance"
+        title="Hypothetical paper tracking"
+        body="这里展示按 portfolio_policy_v1 机械生成的 public-safe paper portfolio snapshot。它不是 live trading、不是 investment advice，也不是 performance proof。"
+        icon={BarChart3}
+      />
+      <section className="route-panel performance-shell" aria-labelledby="performance-policy-title">
+        <div className="boundary-banner">
+          <ShieldCheck aria-hidden="true" size={18} />
+          Hypothetical paper tracking only. Not live trading, not investment advice, not a trading signal,
+          not performance proof, and no guarantee of future performance.
+        </div>
+        {snapshot.small_sample_warning ? (
+          <div className="boundary-banner warning">
+            <AlertCircle aria-hidden="true" size={18} />
+            {snapshot.small_sample_warning}
+          </div>
+        ) : null}
+        <div className="policy-grid">
+          <article>
+            <span>policy_version</span>
+            <strong>{snapshot.policy_version}</strong>
+            <p>{snapshot.policy_boundary.shorting === "disabled" ? "Long-only / long-cash. Shorting is disabled." : "See policy boundary."}</p>
+          </article>
+          <article>
+            <span>benchmarks</span>
+            <strong>{snapshot.benchmark_ids.join(" · ")}</strong>
+            <p>Benchmark series is deterministic fixture data in equity_curve.benchmark_equity.</p>
+          </article>
+          <article>
+            <span>sample_size</span>
+            <strong>{snapshot.metrics.sample_size} settled paper trade</strong>
+            <p>Current public ledger still has {ledgerMetrics.resolved} resolved demo rows outside this paper snapshot.</p>
+          </article>
+        </div>
+        <div className="portfolio-metric-grid" aria-label="Paper portfolio metrics">
+          <div>
+            <span>Cumulative return</span>
+            <strong>{formatSignedPercent(snapshot.metrics.cumulative_return_pct)}</strong>
+          </div>
+          <div>
+            <span>Benchmark return</span>
+            <strong>{formatSignedPercent(snapshot.metrics.benchmark_return_pct)}</strong>
+          </div>
+          <div>
+            <span>Excess return</span>
+            <strong>{formatSignedPercent(snapshot.metrics.excess_return_pct)}</strong>
+          </div>
+          <div>
+            <span>Max drawdown</span>
+            <strong>{formatSignedPercent(snapshot.metrics.max_drawdown_pct)}</strong>
+          </div>
+          <div>
+            <span>Win rate</span>
+            <strong>{formatPercent(snapshot.metrics.win_rate)}</strong>
+          </div>
+          <div>
+            <span>Average exposure</span>
+            <strong>{formatPercent(snapshot.metrics.average_exposure)}</strong>
+          </div>
+          <div>
+            <span>Turnover</span>
+            <strong>{formatNumber(snapshot.metrics.turnover, 2)}</strong>
+          </div>
+          <div>
+            <span>Cost-adjusted return</span>
+            <strong>{formatSignedPercent(snapshot.metrics.transaction_cost_adjusted_return_pct ?? null)}</strong>
+          </div>
+        </div>
+        <div className="portfolio-grid">
+          <section aria-labelledby="equity-curve-title">
+            <h2 id="equity-curve-title">Equity curve</h2>
+            <div className="equity-strip" aria-label="Paper equity and benchmark equity">
+              {snapshot.equity_curve.map((point) => (
+                <div key={point.date}>
+                  <span>{point.date}</span>
+                  <strong>{formatCurrency(point.equity, snapshot.currency)}</strong>
+                  <small>Benchmark {formatCurrency(point.benchmark_equity, snapshot.currency)}</small>
+                </div>
+              ))}
+            </div>
+            {latestEquity ? (
+              <p className="portfolio-footnote">
+                Latest paper equity {formatCurrency(latestEquity.equity, snapshot.currency)} vs benchmark{" "}
+                {formatCurrency(latestEquity.benchmark_equity, snapshot.currency)}.
+              </p>
+            ) : null}
+          </section>
+          <section aria-labelledby="cost-policy-title">
+            <h2 id="cost-policy-title">Cost assumptions</h2>
+            <dl className="cost-list">
+              <div>
+                <dt>commission_bps</dt>
+                <dd>{snapshot.cost_assumptions.commission_bps}</dd>
+              </div>
+              <div>
+                <dt>slippage_bps</dt>
+                <dd>{snapshot.cost_assumptions.slippage_bps}</dd>
+              </div>
+              <div>
+                <dt>fx_cost_bps</dt>
+                <dd>{snapshot.cost_assumptions.fx_cost_bps}</dd>
+              </div>
+            </dl>
+          </section>
+        </div>
+        <section className="portfolio-table-shell" aria-labelledby="paper-trades-title">
+          <h2 id="paper-trades-title">Paper trades and positions</h2>
+          <div className="table-scroll">
+            <table className="portfolio-table">
+              <thead>
+                <tr>
+                  <th>prediction_id</th>
+                  <th>Ticker</th>
+                  <th>Side</th>
+                  <th>Weight</th>
+                  <th>Entry</th>
+                  <th>Exit</th>
+                  <th>Net return</th>
+                  <th>Benchmark</th>
+                </tr>
+              </thead>
+              <tbody>
+                {snapshot.trades.map((trade) => {
+                  const position = snapshot.positions.find((item) => item.prediction_id === trade.prediction_id);
+                  return (
+                    <tr key={trade.trade_id}>
+                      <td className="mono">{trade.prediction_id}</td>
+                      <td>{trade.ticker}</td>
+                      <td>{position?.side ?? "long"}</td>
+                      <td>{formatPercent(trade.weight)}</td>
+                      <td>{trade.entry_date}</td>
+                      <td>{trade.exit_date}</td>
+                      <td>{formatSignedPercent(trade.net_return_pct)}</td>
+                      <td>{trade.benchmark_id}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </>
+  );
+}
+
+function MethodologyPage({ dataset, records }: { dataset: LedgerDataset; records: RecordView[] }) {
+  return (
+    <>
+      <PageIntro
+        eyebrow="Methodology"
+        title="Fixed rules before interpretation"
+        body="方法页把 universe、horizon、resolver、portfolio 和数据边界放在结果之前，防止上线后口径漂移。"
+        icon={BookOpenCheck}
+      />
+      <BoundaryPanel metadata={dataset.metadata} />
+      <CredibilityDashboard records={records} />
+    </>
+  );
+}
+
+function SourcesPage({ dataset }: { dataset: LedgerDataset }) {
+  return (
+    <>
+      <PageIntro
+        eyebrow="Sources"
+        title="Public-safe provenance"
+        body="来源页只展示 public-safe dataset、manifest 和 evidence-index 口径；不会公开 private GOTRA raw artifacts。"
+        icon={Database}
+      />
+      <section className="route-panel" aria-labelledby="sources-title">
+        <h2 id="sources-title">Data contract surface</h2>
+        <dl className="source-grid">
+          <div>
+            <dt>dataset_id</dt>
+            <dd>{dataset.metadata.dataset_id}</dd>
+          </div>
+          <div>
+            <dt>snapshot_date</dt>
+            <dd>{dataset.metadata.snapshot_date}</dd>
+          </div>
+          <div>
+            <dt>dataset_type</dt>
+            <dd>{dataset.metadata.dataset_type}</dd>
+          </div>
+          <div>
+            <dt>record_count</dt>
+            <dd>{dataset.metadata.record_count}</dd>
+          </div>
+          <div>
+            <dt>manifest</dt>
+            <dd>public/data/manifest.json</dd>
+          </div>
+          <div>
+            <dt>evidence_index</dt>
+            <dd>public/data/evidence-index.json</dd>
+          </div>
+        </dl>
+      </section>
+    </>
+  );
+}
+
+function contentTypeLabel(type: ContentItem["type"]): string {
+  switch (type) {
+    case "method_note":
+      return "Method Note";
+    case "weekly_review":
+      return "Weekly Ledger Update";
+    case "error_review":
+      return "Error Review";
+    case "monthly_transparency":
+      return "Transparency Note";
+  }
+}
+
+function BoundaryChips({ item }: { item: ContentItem }) {
+  return (
+    <div className="boundary-chip-row" aria-label="Claim boundary">
+      {item.claim_boundary.map((boundary) => (
+        <span key={boundary}>{boundary}</span>
+      ))}
+    </div>
+  );
+}
+
+function RelatedPredictionLinks({ ids }: { ids: string[] }) {
+  if (ids.length === 0) {
+    return <p className="muted">related_prediction_ids: []</p>;
+  }
+
+  return (
+    <div className="related-prediction-list">
+      {ids.map((predictionId) => (
+        <a className="mono" href={predictionRouteHref(predictionId)} key={predictionId}>
+          {predictionId}
+        </a>
+      ))}
+    </div>
+  );
+}
+
+function NotesPage() {
+  return (
+    <>
+      <PageIntro
+        eyebrow="Notes"
+        title="Research notes and transparency reports"
+        body="Notes 是持续运营入口。这里读取 public/content/articles/index.json，展示 public-safe 内容、边界、正文来源和 related predictions。"
+        icon={FileText}
+      />
+      <section className="route-panel notes-shell" aria-labelledby="notes-title">
+        <div className="boundary-banner">
+          <ShieldCheck aria-hidden="true" size={18} />
+          Research information only. Not investment advice. Not a trading signal. No performance proof.
+        </div>
+        <h2 id="notes-title">Initial public-safe articles</h2>
+        <div className="content-card-grid">
+          {contentItems.map((item) => (
+            <article className="content-card" key={item.slug}>
+              <div className="content-card-meta">
+                <span>{contentTypeLabel(item.type)}</span>
+                <time dateTime={item.published_at}>{item.published_at.slice(0, 10)}</time>
+              </div>
+              <h3>
+                <a href={noteRouteHref(item.slug)}>{item.title}</a>
+              </h3>
+              <p>{item.summary}</p>
+              <div className="tag-row">
+                {item.tags.map((tag) => (
+                  <span key={tag}>{tag}</span>
+                ))}
+              </div>
+              <BoundaryChips item={item} />
+              <RelatedPredictionLinks ids={item.related_prediction_ids} />
+              <a className="secondary-action" href={noteRouteHref(item.slug)}>
+                Read note
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function NoteDetailPage({ item }: { item: ContentItem | null }) {
+  if (!item) {
+    return (
+      <>
+        <PageIntro
+          eyebrow="Notes"
+          title="Note not found"
+          body="当前 content index 中没有该 slug；页面不会伪造缺失内容。"
+          icon={AlertCircle}
+        />
+        <section className="route-panel edge-state-note">
+          返回 <a href={routeHref("/notes")}>Notes</a> 查看当前 public-safe 内容索引。
+        </section>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <PageIntro eyebrow={contentTypeLabel(item.type)} title={item.title} body={item.summary} icon={FileText} />
+      <article className="route-panel note-detail" aria-labelledby="note-detail-title">
+        <div className="boundary-banner">
+          <ShieldCheck aria-hidden="true" size={18} />
+          Research information only. Not investment advice. Not a trading signal. No performance proof.
+        </div>
+        <h2 id="note-detail-title">Structured article metadata</h2>
+        <dl className="source-grid">
+          <div>
+            <dt>published_at</dt>
+            <dd>{item.published_at}</dd>
+          </div>
+          <div>
+            <dt>type</dt>
+            <dd>{item.type}</dd>
+          </div>
+          <div>
+            <dt>body_source</dt>
+            <dd>{item.body_source}</dd>
+          </div>
+        </dl>
+        <section>
+          <h3>Tags</h3>
+          <div className="tag-row">
+            {item.tags.map((tag) => (
+              <span key={tag}>{tag}</span>
+            ))}
+          </div>
+        </section>
+        <section>
+          <h3>Claim boundary</h3>
+          <BoundaryChips item={item} />
+        </section>
+        <section>
+          <h3>Related predictions</h3>
+          <RelatedPredictionLinks ids={item.related_prediction_ids} />
+        </section>
+        <section>
+          <h3>Internal routes</h3>
+          <div className="related-prediction-list">
+            <a href={routeHref("/ledger")}>#/ledger</a>
+            <a href={routeHref("/methodology")}>#/methodology</a>
+            <a href={routeHref("/performance")}>#/performance</a>
+          </div>
+        </section>
+        <p>
+          Full markdown body is stored at <span className="mono">{item.body_source}</span> and validated by local
+          content checks for boundary text and internal route links.
+        </p>
+      </article>
+    </>
+  );
+}
+
+function PredictionDetailPage({
+  record,
+  missingPredictionId,
+  dataset,
+}: {
+  record: RecordView | null;
+  missingPredictionId: string | null;
+  dataset: LedgerDataset;
+}) {
+  if (!record) {
+    return (
+      <>
+        <PageIntro
+          eyebrow="Prediction detail"
+          title="Prediction not found"
+          body="当前 public-safe demo 快照中没有找到该 prediction_id；页面不会回填或伪造缺失记录。"
+          icon={AlertCircle}
+        />
+        <section className="route-panel edge-state-note">
+          未找到该记录：<span className="mono">{missingPredictionId ?? "unknown"}</span>。返回{" "}
+          <a href={routeHref("/ledger")}>Ledger</a> 浏览当前快照。
+        </section>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <PageIntro
+        eyebrow="Prediction detail"
+        title={`${record.ticker} · ${record.company}`}
+        body="单条记录页只展示当前 public-safe 快照中已有的 prediction、outcome 和 provenance；pending/frozen_pending 不补写实际结果。"
+        icon={FileText}
+      />
+      <section className="route-panel prediction-detail-page" aria-labelledby="prediction-detail-title">
+        <div className="drawer-title-line">
+          <h2 id="prediction-detail-title" className="drawer-record-title">
+            {record.prediction_id}
+          </h2>
+          <span className={`status-badge ${record.status}`}>{record.status}</span>
+        </div>
+        <div className="detail-metrics">
+          <div>
+            <span>decision_date</span>
+            <strong>{record.decision_date}</strong>
+          </div>
+          <div>
+            <span>prediction_window</span>
+            <strong>{record.prediction_window}</strong>
+          </div>
+          <div>
+            <span>expected_change_pct</span>
+            <strong>{record.expected_change_pct}%</strong>
+          </div>
+          <div>
+            <span>actual_change_pct</span>
+            <strong>{record.actual_change_pct === null ? "暂无" : `${record.actual_change_pct}%`}</strong>
+          </div>
+          <div>
+            <span>error</span>
+            <strong>{record.error === null ? "暂无" : `${record.error}pp`}</strong>
+          </div>
+          <div>
+            <span>evidence_count</span>
+            <strong>{record.evidence_count}</strong>
+          </div>
+        </div>
+        <section className="detail-section">
+          <h3>Reasoning summary</h3>
+          <p>{record.reasoning}</p>
+        </section>
+        <section className="detail-section">
+          <h3>Evidence / provenance</h3>
+          <ul className="evidence-list">
+            {record.evidence.map((item) => (
+              <li key={`${item.source}-${item.date}`}>
+                <span>{item.source}</span>
+                <span className="mono">{item.date}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="muted">
+            dataset_id: <span className="mono">{record.provenance.dataset_id}</span> · source:{" "}
+            <span className="mono">{record.provenance.source}</span>
+          </p>
+        </section>
+        <section className="detail-section">
+          <h3>Claim boundary</h3>
+          <p>{dataset.metadata.claim_boundary.join(" · ")}</p>
+        </section>
+        <a className="secondary-action" href={routeHref("/ledger")}>
+          返回 Ledger
+        </a>
+      </section>
+    </>
+  );
+}
+
 function App() {
+  const [route, setRoute] = useState<AppRoute>(() => parseHashRoute(window.location.hash));
   const [dataset, setDataset] = useState<LedgerDataset | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -87,12 +618,20 @@ function App() {
   const [directionFilter, setDirectionFilter] = useState<DirectionFilter>("all");
   const [tickerFilter, setTickerFilter] = useState("all");
   const [sort, setSort] = useState<SortState>({ key: "decision_date", direction: "desc" });
-  const [selectedRecord, setSelectedRecord] = useState<RecordView | null>(null);
   const [selectedTicker, setSelectedTicker] = useState("");
   const [dashboardRequested, setDashboardRequested] = useState(false);
   const [missingPredictionId, setMissingPredictionId] = useState<string | null>(null);
   const dashboardLoadRef = useRef<HTMLElement | null>(null);
-  const lastRecordTriggerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setRoute(parseHashRoute(window.location.hash));
+      window.scrollTo({ top: 0, behavior: "auto" });
+    };
+
+    window.addEventListener("hashchange", handleRouteChange);
+    return () => window.removeEventListener("hashchange", handleRouteChange);
+  }, []);
 
   const loadDataset = useCallback(() => {
     setError(null);
@@ -118,6 +657,18 @@ function App() {
   const metrics = useMemo(() => (dataset ? computeSummary(dataset) : null), [dataset]);
   const tickers = useMemo(() => buildTickerList(views), [views]);
   const activeTicker = selectedTicker && tickers.includes(selectedTicker) ? selectedTicker : tickers[0] ?? "";
+  const routeRecord = useMemo(() => {
+    if (route.name !== "prediction") {
+      return null;
+    }
+    return views.find((record) => record.prediction_id === route.predictionId) ?? null;
+  }, [route, views]);
+  const activeNote = useMemo(() => {
+    if (route.name !== "note") {
+      return null;
+    }
+    return findContentItem(route.slug);
+  }, [route]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => setDebouncedQuery(query), 150);
@@ -148,47 +699,34 @@ function App() {
     return () => observer.disconnect();
   }, [activeTicker, dashboardRequested]);
 
-  const openRecord = useCallback((record: RecordView, trigger?: HTMLElement) => {
-    lastRecordTriggerRef.current = trigger ?? null;
+  const openRecord = useCallback((record: RecordView) => {
     setMissingPredictionId(null);
-    setSelectedRecord(record);
     trackEvent("ledger_detail_open", { prediction_id: record.prediction_id });
-    const nextUrl = new URL(window.location.href);
-    nextUrl.searchParams.set("prediction_id", record.prediction_id);
-    window.history.replaceState({}, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
-  }, []);
-
-  const closeRecord = useCallback(() => {
-    setSelectedRecord(null);
-    const nextUrl = new URL(window.location.href);
-    nextUrl.searchParams.delete("prediction_id");
-    window.history.replaceState({}, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
-    window.setTimeout(() => lastRecordTriggerRef.current?.focus(), 0);
+    window.location.hash = predictionRouteHref(record.prediction_id).slice(1);
   }, []);
 
   useEffect(() => {
-    if (views.length === 0 || selectedRecord) {
+    if (views.length === 0) {
       return;
     }
 
     const predictionId = new URLSearchParams(window.location.search).get("prediction_id");
     if (!predictionId) {
-      setMissingPredictionId(null);
       return;
     }
 
-    const linkedRecord = views.find((record) => record.prediction_id === predictionId);
-    if (linkedRecord) {
-      setMissingPredictionId(null);
-      setSelectedRecord(linkedRecord);
-      trackEvent("ledger_detail_open", { prediction_id: linkedRecord.prediction_id });
-      window.setTimeout(() => document.getElementById("full-ledger")?.scrollIntoView({ block: "start" }), 0);
+    const nextHash = predictionRouteHref(predictionId);
+    window.history.replaceState({}, "", `${window.location.pathname}${nextHash}`);
+    setRoute(parseHashRoute(nextHash));
+  }, [views]);
+
+  useEffect(() => {
+    if (route.name === "prediction" && views.length > 0 && !routeRecord) {
+      setMissingPredictionId(route.predictionId);
       return;
     }
-
-    setMissingPredictionId(predictionId);
-    window.setTimeout(() => document.getElementById("full-ledger")?.scrollIntoView({ block: "start" }), 0);
-  }, [selectedRecord, views]);
+    setMissingPredictionId(null);
+  }, [route, routeRecord, views.length]);
 
   const filteredRecords = useMemo(() => {
     const normalizedQuery = debouncedQuery.trim().toLowerCase();
@@ -246,29 +784,42 @@ function App() {
   return (
     <div className="app-shell">
       <AnalyticsProvider />
-      <SeoHead dataset={dataset} records={views} activeRecord={selectedRecord} />
-      <SiteHeader />
+      <SeoHead dataset={dataset} records={views} activeRecord={routeRecord} />
+      <SiteHeader activePath={routeActivePath(route)} />
 
       <main className="page-shell">
-        <Hero dataset={dataset} metrics={metrics} records={views} />
-        <HowItWorks />
-        <TrustStrip records={views} />
-        {dashboardRequested ? (
-          <Suspense fallback={<ChartLoadingSkeleton />}>
-            <CognitionDashboard
-              dataset={dataset}
-              records={views}
-              tickers={tickers}
-              selectedTicker={activeTicker}
-              onTickerChange={setSelectedTicker}
-              onSelectRecord={openRecord}
-            />
-          </Suspense>
-        ) : (
-          <ChartLoadingSkeleton containerRef={dashboardLoadRef} />
-        )}
+        {route.name === "home" ? (
+          <>
+            <Hero dataset={dataset} metrics={metrics} records={views} />
+            <HowItWorks />
+            <TrustStrip records={views} />
+            {dashboardRequested ? (
+              <Suspense fallback={<ChartLoadingSkeleton />}>
+                <CognitionDashboard
+                  dataset={dataset}
+                  records={views}
+                  tickers={tickers}
+                  selectedTicker={activeTicker}
+                  onTickerChange={setSelectedTicker}
+                  onSelectRecord={openRecord}
+                />
+              </Suspense>
+            ) : (
+              <ChartLoadingSkeleton containerRef={dashboardLoadRef} />
+            )}
+            <CredibilityDashboard records={views} />
+          </>
+        ) : null}
 
-        <section className="ledger-section" id="full-ledger" aria-labelledby="full-ledger-title">
+        {route.name === "ledger" ? (
+          <>
+            <PageIntro
+              eyebrow="Ledger"
+              title="Complete public prediction ledger"
+              body="完整账本保留当前 demo 的搜索、筛选、排序和逐条 detail URL。pending 与 frozen_pending 不进入 resolved-only 指标。"
+              icon={Database}
+            />
+            <section className="ledger-section" id="full-ledger" aria-labelledby="full-ledger-title">
           <div className="ledger-panel">
             <div className="ledger-toolbar">
               <div>
@@ -351,16 +902,25 @@ function App() {
 
             <LedgerTable records={filteredRecords} sort={sort} onSort={handleSort} onSelect={openRecord} />
           </div>
-        </section>
+            </section>
+          </>
+        ) : null}
 
-        <CredibilityDashboard records={views} />
+        {route.name === "prediction" ? (
+          <PredictionDetailPage record={routeRecord} missingPredictionId={missingPredictionId} dataset={dataset} />
+        ) : null}
 
-        <BoundaryPanel metadata={dataset.metadata} />
-        <Subscribe />
+        {route.name === "performance" ? (
+          <PerformancePage ledgerMetrics={metrics} snapshot={latestPaperPortfolioSnapshot} />
+        ) : null}
+        {route.name === "methodology" ? <MethodologyPage dataset={dataset} records={views} /> : null}
+        {route.name === "sources" ? <SourcesPage dataset={dataset} /> : null}
+        {route.name === "notes" ? <NotesPage /> : null}
+        {route.name === "note" ? <NoteDetailPage item={activeNote} /> : null}
+
+        {route.name === "home" || route.name === "notes" || route.name === "note" ? <Subscribe /> : null}
         <SiteFooter metadata={dataset.metadata} />
       </main>
-
-      <DetailDrawer record={selectedRecord} metadata={dataset.metadata} onClose={closeRecord} />
     </div>
   );
 }

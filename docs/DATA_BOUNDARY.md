@@ -63,9 +63,38 @@ Replacement datasets may use non-demo `metadata.source.type` and
 records must include numeric `actual_change_pct` and `error`; pending records
 must keep those outcome fields empty (`null` or omitted).
 
+## Public Alpha v1 Data Boundary
+
+Public Alpha v1 may add new public-safe data families only through an allowlist
+export or hand-curated public-source process:
+
+- prediction summaries
+- outcome summaries
+- hypothetical paper portfolio derived summaries
+- public source manifests
+- public evidence indexes
+- validation summaries
+- redaction reports
+- manifest/hash metadata
+
+The public repo must keep the data layers separate:
+
+- `ledger` records immutable prediction facts.
+- `outcome` records fixed-rule resolution facts.
+- `portfolio` records derived hypothetical paper tracking.
+- `content` may cite ledger records but must not rewrite them.
+
+Pending or blocked records must not be counted as resolved. Missing prices,
+symbol changes, corporate-action conflicts, and public-source gaps must become
+`blocked_*`, `needs_review`, or remain pending; they must not be filled with
+fabricated outcomes.
+
+Every public export should include manifest hashes, record counts, source ids,
+and redaction evidence sufficient for review.
+
 ## Forbidden Sources
 
-- `/Users/peachy/Documents/gotra/data/backtest/runs/*`
+- Private local GOTRA backtest run directories.
 - Local GOTRA experiment repository data.
 - `.env*`
 - API keys.

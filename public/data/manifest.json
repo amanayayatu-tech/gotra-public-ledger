@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "gotra_public_alpha_contract_2026_06_25",
+  "dataset_type": "public_safe_demo_plus_contract_fixture",
+  "snapshot_date": "2026-06-25",
+  "generated_at": "2026-06-25T10:00:00+08:00",
+  "exporter_version": "public_export_v1",
+  "source_commit": null,
+  "record_counts": {
+    "predictions": 294,
+    "outcomes": 48,
+    "portfolio_snapshots": 1,
+    "content_items": 4
+  },
+  "files": [
+    {
+      "path": "data/ledger.demo.json",
+      "sha256": "sha256:9956e58ba617d9149317f4b07f3106586cdc1e1b5aa782183b54b84ed67d78e1",
+      "bytes": 439603,
+      "record_count": 294,
+      "category": "legacy_ledger"
+    },
+    {
+      "path": "data/evidence-index.json",
+      "sha256": "sha256:89e6290fcaa7223a3168ec74b92b90d5effff492ebcecb2ba1fe0bb162238709",
+      "bytes": 21444,
+      "record_count": 18,
+      "category": "evidence_index"
+    },
+    {
+      "path": "data/fixtures/public-contract.fixture.json",
+      "sha256": "sha256:a741fb96b164fd9aa690106dba91a2ee034122c8e4d41e2f7cee01128bd106ff",
+      "bytes": 4871,
+      "record_count": 4,
+      "category": "contract_fixture"
+    },
+    {
+      "path": "data/paper-portfolio.latest.json",
+      "sha256": "sha256:67a4b9522ea0e4797ecaa929392f7959a21a7bfb4e9a6d998918a576be4fcb8f",
+      "bytes": 2592,
+      "record_count": 1,
+      "category": "portfolio"
+    },
+    {
+      "path": "content/articles/index.json",
+      "sha256": "sha256:1cfd83bd4c4282f378d98c361d773f477db36cd58bcbff7a1fdb57d9b846c011",
+      "bytes": 5192,
+      "record_count": 4,
+      "category": "content"
+    }
+  ],
+  "claim_boundary": [
+    "research_information_only",
+    "not_investment_advice",
+    "hypothetical_paper_performance",
+    "not_live_trading",
+    "not_trading_signal",
+    "not_personalized_recommendation",
+    "no_guarantee_of_future_performance",
+    "demo_public_safe_dataset",
+    "not_oos",
+    "not_science_public_proof"
+  ],
+  "data_boundary": [
+    "public_safe_allowlist_export_only",
+    "no_private_gotra_raw_artifacts",
+    "no_provider_outputs",
+    "no_prompts_or_completions",
+    "no_scorer_transcripts",
+    "no_db_or_secrets",
+    "pending_not_counted_as_resolved",
+    "outcomes_are_separate_from_predictions"
+  ],
+  "redaction": {
+    "status": "not_applicable_for_demo_fixture",
+    "report_required_for_private_export": true,
+    "forbidden_fields_dropped": [
+      "raw_prompt",
+      "raw_completion",
+      "provider_response",
+      "scorer_transcript",
+      "scorer_rationale"
+    ]
+  },
+  "public_pr_gate": {
+    "schema_validation": "required",
+    "manifest_hash_validation": "required",
+    "forbidden_source_scan": "required",
+    "secret_scan": "required",
+    "claim_boundary_scan": "required",
+    "reviewer_signoff": "required"
+  }
+}

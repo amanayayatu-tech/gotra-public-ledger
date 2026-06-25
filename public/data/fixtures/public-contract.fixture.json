@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "gotra_public_alpha_fixture_2026_06_25",
+  "snapshot_date": "2026-06-25",
+  "predictions": [
+    {
+      "prediction_id": "pred_fixture_20260625_nvda_7d_001",
+      "schema_version": "1.0",
+      "ticker": "NVDA",
+      "asset_id": "US:NVDA",
+      "market": "US",
+      "company": "NVIDIA",
+      "decision_at": "2026-06-25T09:00:00+08:00",
+      "decision_date": "2026-06-25",
+      "view": "bullish",
+      "direction": "up",
+      "confidence": 0.62,
+      "horizon": "7D",
+      "horizon_days": 7,
+      "expected_change_pct": 2.5,
+      "scenario_summary": "Synthetic public-safe fixture for the v1 prediction schema.",
+      "risk_factors": ["valuation compression", "macro rate volatility"],
+      "evidence_refs": [
+        {
+          "source_id": "src_fixture_public_note_20260625",
+          "label": "fixture_public_note",
+          "date": "2026-06-25",
+          "public_url": "https://example.com/gotra-public-ledger-fixture"
+        }
+      ],
+      "model_or_method": "gotra_public_alpha_fixture_v1",
+      "provenance": {
+        "source_repo": "gotra-public-ledger",
+        "source_commit": null,
+        "source_dataset_id": "gotra_public_alpha_fixture_2026_06_25",
+        "source_record_index": 0,
+        "exporter_version": "public_export_v1",
+        "exported_at": "2026-06-25T10:00:00+08:00",
+        "source_url_or_id": "public/data/fixtures/public-contract.fixture.json",
+        "notes": "Synthetic public-safe fixture. No provider output, raw prompt, completion, scorer transcript, secret, DB, or private run artifact."
+      },
+      "claim_boundary": [
+        "research_information_only",
+        "not_investment_advice",
+        "not_trading_signal",
+        "demo_public_safe_dataset"
+      ]
+    }
+  ],
+  "outcomes": [
+    {
+      "prediction_id": "pred_fixture_20260625_nvda_7d_001",
+      "schema_version": "1.0",
+      "resolution_status": "resolved",
+      "resolution_date": "2026-07-02",
+      "window_start": "2026-06-26",
+      "window_end": "2026-07-02",
+      "start_price": 100,
+      "end_price": 103,
+      "price_source_id": "fixture_adjusted_close_v1",
+      "actual_change_pct": 3,
+      "direction_correct": true,
+      "error_pp": 0.5,
+      "abs_error_pp": 0.5,
+      "resolver_version": "outcome_resolver_v1",
+      "resolution_notes": "Synthetic fixture values for schema validation only.",
+      "claim_boundary": [
+        "research_information_only",
+        "not_investment_advice",
+        "not_trading_signal"
+      ]
+    }
+  ],
+  "portfolio_snapshots": [
+    {
+      "portfolio_id": "gotra_shadow_long_only_fixture_v1",
+      "schema_version": "1.0",
+      "policy_version": "portfolio_policy_v1",
+      "as_of_date": "2026-07-02",
+      "currency": "USD",
+      "initial_capital": 100000,
+      "cost_assumptions": {
+        "commission_bps": 0,
+        "slippage_bps": 5,
+        "fx_cost_bps": 10
+      },
+      "benchmark_ids": ["SPY", "QQQ", "HSTECH"],
+      "policy_boundary": {
+        "shorting": "disabled",
+        "live_trading": false,
+        "personalized_advice": false,
+        "post_hoc_rule_change_allowed": false
+      },
+      "metrics": {
+        "cumulative_return_pct": 0,
+        "benchmark_return_pct": 0,
+        "excess_return_pct": 0,
+        "max_drawdown_pct": 0,
+        "volatility_pct": 0,
+        "win_rate": null,
+        "turnover": 0,
+        "average_exposure": 0,
+        "sample_size": 0
+      },
+      "equity_curve": [
+        {
+          "date": "2026-06-25",
+          "equity": 100000,
+          "benchmark_equity": 100000,
+          "drawdown_pct": 0
+        }
+      ],
+      "positions": [],
+      "trades": [],
+      "claim_boundary": [
+        "research_information_only",
+        "not_investment_advice",
+        "hypothetical_paper_performance",
+        "not_live_trading",
+        "not_trading_signal"
+      ]
+    }
+  ],
+  "content_items": [
+    {
+      "slug": "method-note-fixture",
+      "schema_version": "1.0",
+      "title": "Fixture Method Note",
+      "published_at": "2026-06-25T10:00:00+08:00",
+      "type": "method_note",
+      "tags": ["method", "fixture"],
+      "summary": "Synthetic public-safe content fixture for validating content metadata.",
+      "body_source": "public/content/articles/method-note-fixture.md",
+      "related_prediction_ids": ["pred_fixture_20260625_nvda_7d_001"],
+      "provenance": {
+        "source_repo": "gotra-public-ledger",
+        "source_commit": null,
+        "source_dataset_id": "gotra_public_alpha_fixture_2026_06_25",
+        "exporter_version": "public_export_v1",
+        "exported_at": "2026-06-25T10:00:00+08:00",
+        "source_url_or_id": "public/data/fixtures/public-contract.fixture.json"
+      },
+      "claim_boundary": [
+        "research_information_only",
+        "not_investment_advice",
+        "not_trading_signal"
+      ]
+    }
+  ]
+}

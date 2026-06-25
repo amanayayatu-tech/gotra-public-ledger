@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { formatNumber, formatSignedPercent, type RecordView } from "../data/metrics";
 import type { LedgerDataset } from "../data/schema";
+import { predictionRouteHref } from "../routes/hashRouter";
 
 type SeoHeadProps = {
   dataset: LedgerDataset;
@@ -124,7 +125,7 @@ export function SeoHead({ dataset, records, activeRecord }: SeoHeadProps) {
     const record = activeRecord ?? findQueryRecord(records);
     const title = record ? `${record.ticker} ${record.company} | GOTRA 可审计预测记录` : defaultTitle;
     const description = record ? recordDescription(record) : defaultDescription;
-    const url = record ? `${siteUrl}?prediction_id=${encodeURIComponent(record.prediction_id)}` : siteUrl;
+    const url = record ? `${siteUrl}${predictionRouteHref(record.prediction_id)}` : siteUrl;
 
     document.title = title;
     setNamedMeta("description", description);

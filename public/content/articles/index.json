@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "gotra_public_alpha_content_2026_06_25",
+  "snapshot_date": "2026-06-25",
+  "items": [
+    {
+      "slug": "method-note-public-ledger-v1",
+      "schema_version": "1.0",
+      "title": "Method Note: Public Ledger v1 Boundaries",
+      "published_at": "2026-06-25T10:00:00+08:00",
+      "type": "method_note",
+      "tags": ["methodology", "data-boundary", "public-ledger"],
+      "summary": "Explains how Public Alpha v1 separates predictions, outcomes, paper portfolio snapshots, and claim boundaries before interpretation.",
+      "body_source": "public/content/articles/method-note-public-ledger-v1.md",
+      "related_prediction_ids": [],
+      "provenance": {
+        "source_repo": "gotra-public-ledger",
+        "source_commit": null,
+        "source_dataset_id": "gotra_public_alpha_content_2026_06_25",
+        "source_record_index": 0,
+        "exporter_version": "content_ops_v1",
+        "exported_at": "2026-06-25T10:00:00+08:00",
+        "source_url_or_id": "public/content/articles/index.json",
+        "notes": "Synthetic public-safe content seed. No private raw GOTRA artifacts."
+      },
+      "claim_boundary": [
+        "research_information_only",
+        "not_investment_advice",
+        "not_trading_signal",
+        "no_guarantee_of_future_performance"
+      ]
+    },
+    {
+      "slug": "weekly-ledger-update-2026-06-25",
+      "schema_version": "1.0",
+      "title": "Weekly Ledger Update: First Public Alpha Seed",
+      "published_at": "2026-06-25T10:15:00+08:00",
+      "type": "weekly_review",
+      "tags": ["weekly-review", "ledger", "pending-records"],
+      "summary": "Summarizes the first public-safe ledger routes, pending records, and why unresolved rows are kept out of resolved metrics.",
+      "body_source": "public/content/articles/weekly-ledger-update-2026-06-25.md",
+      "related_prediction_ids": ["PRED-20260203-TSM-0054", "PRED-20260122-NVDA-0052"],
+      "provenance": {
+        "source_repo": "gotra-public-ledger",
+        "source_commit": null,
+        "source_dataset_id": "gotra_public_alpha_content_2026_06_25",
+        "source_record_index": 1,
+        "exporter_version": "content_ops_v1",
+        "exported_at": "2026-06-25T10:15:00+08:00",
+        "source_url_or_id": "public/content/articles/index.json",
+        "notes": "Synthetic public-safe content seed. Related prediction ids are from public/data/ledger.demo.json."
+      },
+      "claim_boundary": [
+        "research_information_only",
+        "not_investment_advice",
+        "not_trading_signal",
+        "demo_public_safe_dataset"
+      ]
+    },
+    {
+      "slug": "error-review-first-public-snapshot",
+      "schema_version": "1.0",
+      "title": "Error Review: What The First Snapshot Does Not Prove",
+      "published_at": "2026-06-25T10:30:00+08:00",
+      "type": "error_review",
+      "tags": ["error-review", "limitations", "resolved-only"],
+      "summary": "Reviews visible limitations, pending rows, blocked-state rules, and why local checks are not formal acceptance.",
+      "body_source": "public/content/articles/error-review-first-public-snapshot.md",
+      "related_prediction_ids": ["PRED-20260203-TSM-0054"],
+      "provenance": {
+        "source_repo": "gotra-public-ledger",
+        "source_commit": null,
+        "source_dataset_id": "gotra_public_alpha_content_2026_06_25",
+        "source_record_index": 2,
+        "exporter_version": "content_ops_v1",
+        "exported_at": "2026-06-25T10:30:00+08:00",
+        "source_url_or_id": "public/content/articles/index.json",
+        "notes": "Synthetic public-safe content seed. Error discussion is methodological, not private scorer output."
+      },
+      "claim_boundary": [
+        "research_information_only",
+        "not_investment_advice",
+        "not_trading_signal",
+        "not_science_public_proof"
+      ]
+    },
+    {
+      "slug": "alpha-transparency-note-2026-06",
+      "schema_version": "1.0",
+      "title": "Alpha Transparency Note: Sample Size And Operations",
+      "published_at": "2026-06-25T10:45:00+08:00",
+      "type": "monthly_transparency",
+      "tags": ["transparency", "paper-portfolio", "operations"],
+      "summary": "Documents the small sample warning, local-checks evidence layer, static subscribe CTA, and content operations boundaries.",
+      "body_source": "public/content/articles/alpha-transparency-note-2026-06.md",
+      "related_prediction_ids": [],
+      "provenance": {
+        "source_repo": "gotra-public-ledger",
+        "source_commit": null,
+        "source_dataset_id": "gotra_public_alpha_content_2026_06_25",
+        "source_record_index": 3,
+        "exporter_version": "content_ops_v1",
+        "exported_at": "2026-06-25T10:45:00+08:00",
+        "source_url_or_id": "public/content/articles/index.json",
+        "notes": "Synthetic public-safe content seed. Transparency note references only public-safe local artifacts."
+      },
+      "claim_boundary": [
+        "research_information_only",
+        "not_investment_advice",
+        "hypothetical_paper_performance",
+        "not_live_trading",
+        "not_trading_signal",
+        "no_guarantee_of_future_performance"
+      ]
+    }
+  ]
+}

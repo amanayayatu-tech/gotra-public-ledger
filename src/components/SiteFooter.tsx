@@ -1,6 +1,7 @@
 import { Github, ShieldCheck } from "lucide-react";
 import packageJson from "../../package.json";
 import type { LedgerMetadata } from "../data/schema";
+import { routeHref } from "../routes/hashRouter";
 
 type SiteFooterProps = {
   metadata: LedgerMetadata;
@@ -22,6 +23,9 @@ export function SiteFooter({ metadata }: SiteFooterProps) {
         </p>
       </div>
       <nav aria-label="Footer links">
+        <a href={routeHref("/ledger")}>Ledger</a>
+        <a href={routeHref("/methodology")}>Methodology</a>
+        <a href={routeHref("/sources")}>Sources</a>
         <a href="https://github.com/amanayayatu-tech/gotra-public-ledger" target="_blank" rel="noreferrer">
           <Github aria-hidden="true" size={16} />
           GitHub repo

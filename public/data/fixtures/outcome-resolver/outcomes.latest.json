@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "gotra_outcome_resolver_existing_fixture_2026_06_25",
+  "snapshot_date": "2026-06-25",
+  "outcomes": [
+    {
+      "prediction_id": "pred_resolve_up_001",
+      "schema_version": "1.0",
+      "resolution_status": "pending",
+      "resolution_date": null,
+      "resolver_version": "outcome_resolver_v1",
+      "resolution_notes": "Awaiting public-safe price fixture.",
+      "claim_boundary": ["research_information_only", "not_investment_advice", "not_trading_signal"]
+    },
+    {
+      "prediction_id": "pred_resolve_down_002",
+      "schema_version": "1.0",
+      "resolution_status": "frozen_pending",
+      "resolution_date": null,
+      "resolver_version": "outcome_resolver_v1",
+      "resolution_notes": "Matured but not resolved before this fixture run.",
+      "claim_boundary": ["research_information_only", "not_investment_advice", "not_trading_signal"]
+    },
+    {
+      "prediction_id": "pred_resolve_direction_only_009",
+      "schema_version": "1.0",
+      "resolution_status": "pending",
+      "resolution_date": null,
+      "resolver_version": "outcome_resolver_v1",
+      "resolution_notes": "Awaiting public-safe price fixture; expected change is intentionally unavailable.",
+      "claim_boundary": ["research_information_only", "not_investment_advice", "not_trading_signal"]
+    },
+    {
+      "prediction_id": "pred_not_eligible_003",
+      "schema_version": "1.0",
+      "resolution_status": "pending",
+      "resolution_date": null,
+      "resolver_version": "outcome_resolver_v1",
+      "resolution_notes": "Not yet matured.",
+      "claim_boundary": ["research_information_only", "not_investment_advice", "not_trading_signal"]
+    },
+    {
+      "prediction_id": "pred_missing_price_004",
+      "schema_version": "1.0",
+      "resolution_status": "pending",
+      "resolution_date": null,
+      "resolver_version": "outcome_resolver_v1",
+      "resolution_notes": "Awaiting public-safe price fixture.",
+      "claim_boundary": ["research_information_only", "not_investment_advice", "not_trading_signal"]
+    },
+    {
+      "prediction_id": "pred_symbol_change_005",
+      "schema_version": "1.0",
+      "resolution_status": "pending",
+      "resolution_date": null,
+      "resolver_version": "outcome_resolver_v1",
+      "resolution_notes": "Awaiting public-safe source check.",
+      "claim_boundary": ["research_information_only", "not_investment_advice", "not_trading_signal"]
+    },
+    {
+      "prediction_id": "pred_market_holiday_006",
+      "schema_version": "1.0",
+      "resolution_status": "pending",
+      "resolution_date": null,
+      "resolver_version": "outcome_resolver_v1",
+      "resolution_notes": "Awaiting public-safe source check.",
+      "claim_boundary": ["research_information_only", "not_investment_advice", "not_trading_signal"]
+    },
+    {
+      "prediction_id": "pred_corporate_action_007",
+      "schema_version": "1.0",
+      "resolution_status": "pending",
+      "resolution_date": null,
+      "resolver_version": "outcome_resolver_v1",
+      "resolution_notes": "Awaiting public-safe source check.",
+      "claim_boundary": ["research_information_only", "not_investment_advice", "not_trading_signal"]
+    },
+    {
+      "prediction_id": "pred_needs_review_008",
+      "schema_version": "1.0",
+      "resolution_status": "pending",
+      "resolution_date": null,
+      "resolver_version": "outcome_resolver_v1",
+      "resolution_notes": "Awaiting public-safe source check.",
+      "claim_boundary": ["research_information_only", "not_investment_advice", "not_trading_signal"]
+    }
+  ]
+}

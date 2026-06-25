@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "resolver_version": "outcome_resolver_v1",
+  "policy_version": "outcome_resolver_v1",
+  "as_of_date": "2026-07-10",
+  "neutral_threshold": 0.5,
+  "input_hashes": {
+    "predictions": "sha256:19fa6c9b42948c6f25df9cfd9e678b4c68417362483acaaa149178fe81aefd08",
+    "price_source": "sha256:09c20e3cd406375aeb48d745f8da3a7e3bf3e7b4a2e3b08ec84984dd3f5767f9",
+    "existing_outcomes": "sha256:74eb33f96e44a7ffbfe215ae7500b6d49cd1deeb5232cdc147020bfa41b5b5ed"
+  },
+  "output_hash": "sha256:014bf26c49f80c4f89914941ce245c1f032fa0e439fdcf2c539e8b0df69c7c1d",
+  "processed_count": 9,
+  "resolved_count": 3,
+  "blocked_count_by_reason": {
+    "blocked_missing_price": 1,
+    "blocked_symbol_change": 1,
+    "blocked_market_holiday_conflict": 1,
+    "blocked_corporate_action_conflict": 1
+  },
+  "skipped_count_by_reason": {
+    "skipped_not_yet_eligible": 1
+  },
+  "price_source_ids": ["fixture_adjusted_close_v1"],
+  "warnings": [],
+  "review_items": ["pred_needs_review_008"]
+}

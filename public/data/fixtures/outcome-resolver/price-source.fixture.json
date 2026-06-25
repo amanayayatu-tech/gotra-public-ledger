@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "source_id": "fixture_adjusted_close_v1",
+  "policy_version": "outcome_resolver_v1",
+  "as_of_date": "2026-07-10",
+  "neutral_threshold": 0.5,
+  "price_rule": {
+    "start_price": "next_tradable_close_after_decision_date",
+    "end_price": "first_tradable_close_on_or_after_outcome_availability_date",
+    "adjusted_close": "preferred_when_available",
+    "market_currency": "preserve_source_market_currency"
+  },
+  "prices": [
+    {
+      "asset_id": "US:UPCO",
+      "ticker": "UPCO",
+      "market": "US",
+      "currency": "USD",
+      "date": "2026-06-26",
+      "close": 100,
+      "adjusted_close": 100,
+      "tradable": true
+    },
+    {
+      "asset_id": "US:UPCO",
+      "ticker": "UPCO",
+      "market": "US",
+      "currency": "USD",
+      "date": "2026-07-02",
+      "close": 103,
+      "adjusted_close": 103,
+      "tradable": true
+    },
+    {
+      "asset_id": "US:DOWN",
+      "ticker": "DOWN",
+      "market": "US",
+      "currency": "USD",
+      "date": "2026-06-26",
+      "close": 50,
+      "adjusted_close": 50,
+      "tradable": true
+    },
+    {
+      "asset_id": "US:DOWN",
+      "ticker": "DOWN",
+      "market": "US",
+      "currency": "USD",
+      "date": "2026-07-02",
+      "close": 48.5,
+      "adjusted_close": 48.5,
+      "tradable": true
+    },
+    {
+      "asset_id": "US:NULL",
+      "ticker": "NULL",
+      "market": "US",
+      "currency": "USD",
+      "date": "2026-06-26",
+      "close": 200,
+      "adjusted_close": 200,
+      "tradable": true
+    },
+    {
+      "asset_id": "US:NULL",
+      "ticker": "NULL",
+      "market": "US",
+      "currency": "USD",
+      "date": "2026-07-02",
+      "close": 200.6,
+      "adjusted_close": 200.6,
+      "tradable": true
+    }
+  ],
+  "conflicts": [
+    {
+      "prediction_id": "pred_symbol_change_005",
+      "type": "symbol_change",
+      "resolution_status": "blocked_symbol_change",
+      "note": "Synthetic fixture symbol identity changed before the resolution window; manual public-source review required."
+    },
+    {
+      "prediction_id": "pred_market_holiday_006",
+      "type": "market_holiday_conflict",
+      "resolution_status": "blocked_market_holiday_conflict",
+      "note": "Synthetic fixture has conflicting holiday calendars for the target end date."
+    },
+    {
+      "prediction_id": "pred_corporate_action_007",
+      "type": "corporate_action",
+      "resolution_status": "blocked_corporate_action_conflict",
+      "note": "Synthetic fixture reports a split/dividend adjustment conflict."
+    },
+    {
+      "prediction_id": "pred_needs_review_008",
+      "type": "source_conflict",
+      "resolution_status": "needs_review",
+      "note": "Synthetic HK source currency and close source disagree; reviewer classification required."
+    }
+  ]
+}

@@ -1,17 +1,13 @@
 import { FormEvent, useId, useState } from "react";
-import { ArrowUpRight, CheckCircle2, Github, Mail, ShieldCheck, Users } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, FileText, Mail, ShieldCheck, Users } from "lucide-react";
 
-const communityUrl = "https://github.com/amanayayatu-tech/gotra-public-ledger";
-const premiumUrl = "https://github.com/sponsors/amanayayatu-tech";
+const notesUrl = "#/notes";
+const sourcesUrl = "#/sources";
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
 function emitSubscribeSubmit() {
   window.dispatchEvent(new CustomEvent("subscribe_submit", { detail: { channel: "email" } }));
-}
-
-function emitPremiumClick() {
-  window.dispatchEvent(new CustomEvent("cta_click", { detail: { target: "premium" } }));
 }
 
 function isValidEmail(value: string): boolean {
@@ -22,7 +18,7 @@ export function Subscribe() {
   const emailId = useId();
   const [email, setEmail] = useState("");
   const [state, setState] = useState<SubmitState>("idle");
-  const [message, setMessage] = useState("每周一次接收 public-safe demo 更新摘要。");
+  const [message, setMessage] = useState("Local CTA only. No mailing-list backend or production write.");
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -36,17 +32,17 @@ export function Subscribe() {
 
     emitSubscribeSubmit();
     setState("submitting");
-    setMessage("正在提交订阅请求...");
+    setMessage("Local demo event emitted. No external mailing-list write.");
 
     window.setTimeout(() => {
       if (nextEmail.toLowerCase().includes("fail")) {
         setState("error");
-        setMessage("演示提交失败：请稍后重试或通过 GitHub 关注更新。");
+        setMessage("Local demo validation failed. No external service was called.");
         return;
       }
 
       setState("success");
-      setMessage("订阅已记录在本地演示流程中；正式投递需接入外部邮件服务。");
+      setMessage("Local CTA complete. No email was stored and no production integration was called.");
       setEmail("");
     }, 450);
   };
@@ -58,12 +54,12 @@ export function Subscribe() {
           <span className="section-index">S6.5 · Subscribe</span>
           <h2 id="subscribe-title">关注公开账本更新</h2>
           <p>
-            获取 GOTRA Public Ledger 的研究信息更新、错误复盘与账本变更提醒。
-            本区块只提供研究信息，非投资建议。
+            获取 GOTRA Public Ledger 的 research notes、error reviews 与账本变更提醒。
+            This CTA is local/static only and does not write to a mailing-list backend.
           </p>
           <div className="subscribe-boundary">
             <ShieldCheck aria-hidden="true" size={16} />
-            研究信息 · 非投资建议 · public-safe demo
+            Research information only · Not investment advice · Not a trading signal
           </div>
         </div>
 
@@ -80,7 +76,7 @@ export function Subscribe() {
                 setEmail(event.target.value);
                 if (state !== "submitting") {
                   setState("idle");
-                  setMessage("每周一次接收 public-safe demo 更新摘要。");
+                  setMessage("Local CTA only. No mailing-list backend or production write.");
                 }
               }}
               placeholder="you@example.com"
@@ -98,11 +94,11 @@ export function Subscribe() {
       </div>
 
       <div className="subscribe-actions">
-        <a className="community-link" href={communityUrl} target="_blank" rel="noreferrer">
-          <Github aria-hidden="true" size={18} />
+        <a className="community-link" href={notesUrl}>
+          <FileText aria-hidden="true" size={18} />
           <span>
-            GitHub 关注 / 社群入口
-            <small>查看公开 issue、提交反馈、追踪账本变更</small>
+            Notes / Reports
+            <small>查看 public-safe notes、错误复盘和透明度更新</small>
           </span>
           <ArrowUpRight aria-hidden="true" size={16} />
         </a>
@@ -112,8 +108,8 @@ export function Subscribe() {
         <div className="premium-heading">
           <Users aria-hidden="true" size={18} />
           <div>
-            <h3 id="premium-title">免费 vs Premium</h3>
-            <p>Premium 是产品路线占位，引导到外部平台页；不在前端仓库保存支付密钥。</p>
+            <h3 id="premium-title">Content operations</h3>
+            <p>当前只提供 local/static CTA；没有真实邮件、社群、支付或生产写入集成。</p>
           </div>
         </div>
         <div className="premium-table-wrap">
@@ -122,7 +118,7 @@ export function Subscribe() {
               <tr>
                 <th>权益</th>
                 <th>免费</th>
-                <th>Premium</th>
+                <th>Later</th>
               </tr>
             </thead>
             <tbody>
@@ -134,29 +130,29 @@ export function Subscribe() {
                 </td>
                 <td>
                   <CheckCircle2 aria-hidden="true" size={14} />
-                  全量 demo + 更新提醒
+                  可审查的更新提醒方案
                 </td>
               </tr>
               <tr>
                 <td>错误复盘摘要</td>
                 <td>月度公开摘要</td>
-                <td>每周结构化摘要</td>
+                <td>需独立审批后再接外部服务</td>
               </tr>
               <tr>
                 <td>可下载审计材料</td>
                 <td>公开文档</td>
-                <td>优先打包与变更提醒</td>
+                <td>仍需 public export gate</td>
               </tr>
               <tr>
                 <td>价格</td>
                 <td>免费</td>
-                <td>$9 / 月，占位价格</td>
+                <td>未启用</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <a className="premium-cta" href={premiumUrl} target="_blank" rel="noreferrer" onClick={emitPremiumClick}>
-          查看 Premium 平台页
+        <a className="premium-cta" href={sourcesUrl}>
+          查看 Sources / manifest
           <ArrowUpRight aria-hidden="true" size={16} />
         </a>
       </div>
