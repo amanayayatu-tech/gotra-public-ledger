@@ -3935,13 +3935,133 @@ h1::after {
   font-size: 16px;
 }
 
+.system-shell {
+  gap: 22px;
+}
+
+.system-summary-grid,
+.system-output-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+  gap: 12px;
+}
+
+.system-summary-grid > div,
+.system-rule-card,
+.system-reason-grid article,
+.system-label-grid article,
+.system-output-grid article {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.system-summary-grid p + p {
+  margin-top: 10px;
+}
+
+.system-rule-card span {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.system-rule-card strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--text);
+  font-size: 20px;
+}
+
+.system-flow-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.system-flow-list li {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid rgba(58, 75, 89, 0.7);
+  border-radius: 8px;
+  background: rgba(105, 167, 255, 0.06);
+}
+
+.system-flow-list span {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.system-flow-list strong {
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.system-reason-grid,
+.system-label-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.system-label-grid article {
+  display: grid;
+  gap: 10px;
+}
+
+.system-label-grid h3,
+.system-output-grid h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 16px;
+}
+
+.system-output-grid {
+  margin-top: 12px;
+}
+
+.system-output-grid ul,
+.system-failure-list {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding-left: 20px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.system-table td {
+  vertical-align: top;
+}
+
 @media (max-width: 1180px) {
   .policy-grid,
   .source-grid,
   .portfolio-metric-grid,
   .portfolio-grid,
-  .content-card-grid {
+  .content-card-grid,
+  .system-summary-grid,
+  .system-output-grid,
+  .system-reason-grid,
+  .system-label-grid {
     grid-template-columns: 1fr;
+  }
+
+  .system-flow-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .equity-strip {
@@ -3969,5 +4089,9 @@ h1::after {
 
   .boundary-banner {
     width: 100%;
+  }
+
+  .system-flow-list {
+    grid-template-columns: 1fr;
   }
 }

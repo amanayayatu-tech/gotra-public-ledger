@@ -320,6 +320,7 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
       { label: "ledger", hash: "#/ledger", viewport: desktop, requiredText: ["Complete public prediction ledger", "完整公开账本"] },
       { label: "prediction_detail", hash: `#/ledger/${firstPredictionId}`, viewport: desktop, requiredText: [firstPredictionId] },
       { label: "performance", hash: "#/performance", viewport: desktop, requiredText: ["Hypothetical paper tracking", "portfolio_policy_v1", "settled paper trade"] },
+      { label: "system", hash: "#/system", viewport: desktop, requiredText: ["Weekly Research Cognition System", "Research information only", "Gate-Judge cognition layering"] },
       { label: "methodology", hash: "#/methodology", viewport: desktop, requiredText: ["Methodology", "public-safe"] },
       { label: "sources", hash: "#/sources", viewport: desktop, requiredText: ["Sources", "manifest"] },
       { label: "notes", hash: "#/notes", viewport: mobile, requiredText: ["Research notes and transparency reports", "Initial public-safe articles"] },

@@ -6,6 +6,7 @@ const navItems = [
   { href: routeHref("/"), label: "首页", path: "/" },
   { href: routeHref("/ledger"), label: "账本", path: "/ledger" },
   { href: routeHref("/performance"), label: "表现", path: "/performance" },
+  { href: routeHref("/system"), label: "系统", path: "/system" },
   { href: routeHref("/methodology"), label: "方法", path: "/methodology" },
   { href: routeHref("/sources"), label: "来源", path: "/sources" },
   { href: routeHref("/notes"), label: "Notes", path: "/notes" },

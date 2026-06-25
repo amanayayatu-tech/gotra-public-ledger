@@ -139,6 +139,253 @@ function formatCurrency(value: number, currency = "USD"): string {
   }).format(value);
 }
 
+const systemFlowSteps = [
+  "Input ticker",
+  "Identity and boundary checks",
+  "`ksana` research planning",
+  "Research prompt generation",
+  "LLM API public research",
+  "Public research packet normalization",
+  "Positive-case agent",
+  "Negative-case agent",
+  "Neutral-structure agent",
+  "Synthesis",
+  "Red-team report",
+  "Boundary and evidence gate",
+  "`alaya` cognition object",
+  "Weekly `alaya` operation",
+  "Gate-Judge cognition layering",
+];
+
+const systemReasons = [
+  "Ticker identity is resolved first so the system does not research the wrong asset or confuse an ADR, primary listing, or ambiguous symbol.",
+  "LLM output is labeled draft/unverified because public research summaries can still contain missing context, weak sourcing, or unsupported inference.",
+  "Positive, negative, and neutral agents are separated before synthesis so disagreement remains visible instead of being averaged into fake certainty.",
+  "Red-team review is mandatory because the system must actively search for overclaims, hidden assumptions, missing counterevidence, and boundary breaks.",
+  "Boundary gates run before public output or `alaya` integration so private artifacts, raw provider output, and advice-like wording cannot slip through.",
+  "Cognition layers replace confidence theater: weak evidence can stay weak, be downgraded, frozen, rejected, or sent to human review.",
+  "The system must not silently turn research into investment advice; every public object keeps a traceable next step and explicit uncertainty.",
+];
+
+const agentResponsibilities = [
+  ["`ksana`", "Turn a ticker into a structured research plan, evidence needs, horizon, and red-team focus.", "Decide the final conclusion."],
+  ["LLM Research Worker", "Gather and structure public information into a draft research packet.", "Claim verified truth or hide uncertainty."],
+  ["Positive Agent", "Build the strongest positive case from public evidence.", "Hide weaknesses or ignore risks."],
+  ["Negative Agent", "Build the strongest negative case and identify failure modes.", "Exaggerate unsupported fear."],
+  ["Neutral Agent", "Separate knowns, unknowns, decision variables, and possible prediction shape.", "Fake certainty."],
+  ["Red-Team Agent", "Find errors, overclaims, boundary issues, and promotion blockers.", "Approve weak work casually."],
+  ["Boundary Gate", "Check data, security, claim, and evidence boundaries before public output.", "Waive violations silently."],
+  ["`alaya`", "Store and operate public-safe cognition objects with traceable updates.", "Rewrite history without trace."],
+  ["Gate-Judge Agent", "Assign one cognition layer from evidence and unresolved risk.", "Act as a trading recommender."],
+] as const;
+
+const systemLabelGroups = [
+  {
+    title: "Research status labels",
+    labels: [
+      "INTAKE_PENDING",
+      "IDENTITY_PASS",
+      "KSANA_PLAN_READY",
+      "LLM_RESEARCH_READY",
+      "AGENT_ANALYSIS_READY",
+      "RED_TEAM_PASS",
+      "RED_TEAM_NEEDS_REPAIR",
+      "BOUNDARY_PASS",
+      "BOUNDARY_BLOCKED",
+      "ALAYA_OBJECT_CREATED",
+      "GATE_JUDGED",
+    ],
+  },
+  {
+    title: "Cognition layers",
+    labels: [
+      "L0_REJECTED",
+      "L1_SIGNAL",
+      "L2_HYPOTHESIS",
+      "L3_TRACEABLE_PREDICTION",
+      "L4_HUMAN_REVIEW",
+      "L5_FROZEN_WAITING",
+      "L6_POST_OUTCOME_REVIEW",
+    ],
+  },
+  {
+    title: "Evidence labels",
+    labels: [
+      "LOCAL_RESEARCH_ONLY",
+      "PUBLIC_SOURCE_SUMMARY",
+      "LOCAL_CHECKS",
+      "LOCAL_SMOKE",
+      "CI_EVIDENCE",
+      "PRODUCTION_SMOKE",
+      "FORMAL_ACCEPTANCE",
+    ],
+  },
+];
+
+const failureConditions = [
+  "Outputs buy, sell, hold, position-size, entry, or exit advice.",
+  "Claims proof from local research, local checks, or smoke evidence.",
+  "Hides red-team findings, unresolved objections, blocked states, or uncertainty.",
+  "Uses private data, private GOTRA artifacts, raw prompts, completions, provider raw output, scorer transcripts, DBs, secrets, auth/session files, or local private paths in public output.",
+  "Stores raw provider output where only public-safe summaries are allowed.",
+  "Upgrades weak evidence into a strong cognition layer.",
+  "Cannot explain why a cognition object was promoted, downgraded, frozen, rejected, or sent to human review.",
+];
+
+function SystemRulesPage() {
+  return (
+    <>
+      <PageIntro
+        eyebrow="System"
+        title="Weekly Research Cognition System"
+        body="DRAFT_PRD operating contract for a weekly research cognition factory. It describes a proposed workflow for traceable research objects, uncertainty labels, red-team critique, and cognition-layer decisions; it is not a trading machine."
+        icon={ShieldCheck}
+      />
+      <section className="route-panel system-shell" aria-labelledby="system-boundary-title">
+        <div className="boundary-banner">
+          <ShieldCheck aria-hidden="true" size={18} />
+          Research information only. Not investment advice. Not a trading signal. Not live trading. Not performance
+          proof. No guarantee of future performance.
+        </div>
+        <div className="boundary-banner warning">
+          <AlertCircle aria-hidden="true" size={18} />
+          Status: DRAFT_PRD. This page is a design target and operating contract, not evidence that the full weekly
+          system is already implemented, stable, profitable, scientifically validated, or launch-ready.
+        </div>
+
+        <section aria-labelledby="system-summary-title" className="system-summary-grid">
+          <div>
+            <h2 id="system-summary-title">Plain-language summary</h2>
+            <p>
+              A ticker enters the system, but the system does not immediately say buy or sell. It creates a research
+              job, checks identity and boundaries, asks `ksana` to plan the research, gathers public information, runs
+              positive, negative, and neutral views, red-teams the result, checks boundaries again, stores an `alaya`
+              cognition object, and assigns a cognition layer.
+            </p>
+            <p>
+              The goal is traceability, uncertainty labeling, and harder-to-fool research. Public output should explain
+              what was studied, what evidence was considered, what remains uncertain, what cognition layer was assigned,
+              and what must happen next.
+            </p>
+          </div>
+          <div className="system-rule-card">
+            <span>Research factory rule</span>
+            <strong>No immediate trading action</strong>
+            <p>
+              A ticker is a starting point for a public-safe research object. It is not a direct instruction, signal,
+              allocation, entry, exit, or guarantee.
+            </p>
+          </div>
+        </section>
+
+        <section aria-labelledby="system-flow-title">
+          <h2 id="system-flow-title">Step-by-step system flow</h2>
+          <ol className="system-flow-list">
+            {systemFlowSteps.map((step, index) => (
+              <li key={step}>
+                <span className="mono">{String(index + 1).padStart(2, "0")}</span>
+                <strong>{step}</strong>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section aria-labelledby="system-why-title">
+          <h2 id="system-why-title">Why this exists</h2>
+          <div className="system-reason-grid">
+            {systemReasons.map((reason) => (
+              <article key={reason}>
+                <p>{reason}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="system-agents-title">
+          <h2 id="system-agents-title">Agent responsibility table</h2>
+          <div className="table-scroll">
+            <table className="portfolio-table system-table">
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>Responsibility</th>
+                  <th>Must not do</th>
+                </tr>
+              </thead>
+              <tbody>
+                {agentResponsibilities.map(([agent, responsibility, mustNot]) => (
+                  <tr key={agent}>
+                    <td className="mono">{agent}</td>
+                    <td>{responsibility}</td>
+                    <td>{mustNot}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section aria-labelledby="system-labels-title">
+          <h2 id="system-labels-title">Status, layer, and evidence labels</h2>
+          <p>
+            These label families must not be mixed. Research status describes workflow progress, cognition layer
+            describes object strength and next action, and evidence label describes what proof layer currently exists.
+          </p>
+          <div className="system-label-grid">
+            {systemLabelGroups.map((group) => (
+              <article key={group.title}>
+                <h3>{group.title}</h3>
+                <div className="tag-row">
+                  {group.labels.map((label) => (
+                    <span className="mono" key={label}>
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="system-output-title">
+          <h2 id="system-output-title">Public output rule</h2>
+          <div className="system-output-grid">
+            <article>
+              <h3>Public output may show</h3>
+              <ul>
+                <li>what was studied</li>
+                <li>public evidence considered</li>
+                <li>uncertainty and unresolved questions</li>
+                <li>cognition layer</li>
+                <li>what must happen next</li>
+              </ul>
+            </article>
+            <article>
+              <h3>Public output must not show</h3>
+              <ul>
+                <li>private prompt chains</li>
+                <li>provider raw output</li>
+                <li>secret data</li>
+                <li>unredacted internal scoring</li>
+                <li>trading instructions</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section aria-labelledby="system-failures-title">
+          <h2 id="system-failures-title">Failure conditions</h2>
+          <ul className="system-failure-list">
+            {failureConditions.map((failure) => (
+              <li key={failure}>{failure}</li>
+            ))}
+          </ul>
+        </section>
+      </section>
+    </>
+  );
+}
+
 function PerformancePage({
   ledgerMetrics,
   snapshot,
@@ -913,6 +1160,7 @@ function App() {
         {route.name === "performance" ? (
           <PerformancePage ledgerMetrics={metrics} snapshot={latestPaperPortfolioSnapshot} />
         ) : null}
+        {route.name === "system" ? <SystemRulesPage /> : null}
         {route.name === "methodology" ? <MethodologyPage dataset={dataset} records={views} /> : null}
         {route.name === "sources" ? <SourcesPage dataset={dataset} /> : null}
         {route.name === "notes" ? <NotesPage /> : null}

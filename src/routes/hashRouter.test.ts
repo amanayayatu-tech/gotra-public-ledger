@@ -6,6 +6,7 @@ describe("hash router", () => {
     expect(normalizeHashPath("")).toBe("/");
     expect(normalizeHashPath("#/ledger/")).toBe("/ledger");
     expect(routeHref("/performance")).toBe("#/performance");
+    expect(parseHashRoute("#/system").name).toBe("system");
   });
 
   it("parses prediction detail routes", () => {
