@@ -3,12 +3,13 @@ export type AppRoute =
   | { name: "ledger"; path: "/ledger" }
   | { name: "prediction"; path: "/ledger/:id"; predictionId: string }
   | { name: "performance"; path: "/performance" }
+  | { name: "system"; path: "/system" }
   | { name: "methodology"; path: "/methodology" }
   | { name: "sources"; path: "/sources" }
   | { name: "notes"; path: "/notes" }
   | { name: "note"; path: "/notes/:slug"; slug: string };
 
-const corePaths = new Set(["/", "/ledger", "/performance", "/methodology", "/sources", "/notes"]);
+const corePaths = new Set(["/", "/ledger", "/performance", "/system", "/methodology", "/sources", "/notes"]);
 
 export function normalizeHashPath(hash: string): string {
   const raw = hash.startsWith("#") ? hash.slice(1) : hash;
@@ -25,6 +26,8 @@ export function parseHashRoute(hash: string): AppRoute {
         return { name: "ledger", path };
       case "/performance":
         return { name: "performance", path };
+      case "/system":
+        return { name: "system", path };
       case "/methodology":
         return { name: "methodology", path };
       case "/sources":
