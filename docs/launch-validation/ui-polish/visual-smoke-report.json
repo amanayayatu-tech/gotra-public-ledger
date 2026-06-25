@@ -1,0 +1,1165 @@
+{
+  "generated_at": "2026-06-25T17:51:55.561Z",
+  "evidence_layer": "local Chrome headless smoke only",
+  "base_url": "http://127.0.0.1:4182/gotra-public-ledger/",
+  "routes_checked": [
+    "#/",
+    "#/ledger",
+    "#/ledger/PRED-20260203-TSM-0054",
+    "#/performance",
+    "#/methodology",
+    "#/sources",
+    "#/notes",
+    "#/notes/method-note-public-ledger-v1",
+    "#/system"
+  ],
+  "screenshots": [
+    "docs/launch-validation/ui-polish/desktop-home-1440x900.png",
+    "docs/launch-validation/ui-polish/desktop-ledger-1440x900.png",
+    "docs/launch-validation/ui-polish/desktop-system-1440x900.png",
+    "docs/launch-validation/ui-polish/mobile-notes-390x844.png",
+    "docs/launch-validation/ui-polish/mobile-system-390x844.png"
+  ],
+  "console_errors": [],
+  "data_assets": {
+    "manifest_json_status": 200,
+    "ledger_demo_json_status": 200
+  },
+  "results": [
+    {
+      "route": "home",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/",
+      "h1": "一个会公开承认错误的 AI 股票研究系统",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": "page"
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "ledger",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/ledger",
+      "h1": "Complete public prediction ledger",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": "page"
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "ledger_detail",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/ledger/PRED-20260203-TSM-0054",
+      "h1": "TSM · 台积电",
+      "title": "TSM 台积电 | GOTRA 可审计预测记录",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": "page"
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "performance",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/performance",
+      "h1": "Hypothetical paper tracking",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": "page"
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "methodology",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/methodology",
+      "h1": "Fixed rules before interpretation",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": "page"
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "sources",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/sources",
+      "h1": "Public-safe provenance",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": "page"
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "notes",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/notes",
+      "h1": "Research notes and transparency reports",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": "page"
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "notes_detail",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/notes/method-note-public-ledger-v1",
+      "h1": "Method Note: Public Ledger v1 Boundaries",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": "page"
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "system",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/system",
+      "h1": "Weekly Research Cognition System",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": "page"
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": true,
+        "hasDraftPrd": true,
+        "hasBoundaryLanguage": true,
+        "hasRequiredSections": true
+      }
+    },
+    {
+      "route": "home",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/",
+      "h1": "一个会公开承认错误的 AI 股票研究系统",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": "page"
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "ledger",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/ledger",
+      "h1": "Complete public prediction ledger",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": "page"
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "ledger_detail",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/ledger/PRED-20260203-TSM-0054",
+      "h1": "TSM · 台积电",
+      "title": "TSM 台积电 | GOTRA 可审计预测记录",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": "page"
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "performance",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/performance",
+      "h1": "Hypothetical paper tracking",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": "page"
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "methodology",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/methodology",
+      "h1": "Fixed rules before interpretation",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": "page"
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "sources",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/sources",
+      "h1": "Public-safe provenance",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": "page"
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "notes",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/notes",
+      "h1": "Research notes and transparency reports",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": "page"
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "notes_detail",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/notes/method-note-public-ledger-v1",
+      "h1": "Method Note: Public Ledger v1 Boundaries",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": null
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": "page"
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": false,
+        "hasDraftPrd": false,
+        "hasBoundaryLanguage": false,
+        "hasRequiredSections": false
+      }
+    },
+    {
+      "route": "system",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4182/gotra-public-ledger/#/system",
+      "h1": "Weekly Research Cognition System",
+      "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "navLinks": [
+        {
+          "text": "首页",
+          "href": "#/",
+          "current": null
+        },
+        {
+          "text": "账本",
+          "href": "#/ledger",
+          "current": null
+        },
+        {
+          "text": "表现",
+          "href": "#/performance",
+          "current": null
+        },
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": "page"
+        },
+        {
+          "text": "方法",
+          "href": "#/methodology",
+          "current": null
+        },
+        {
+          "text": "来源",
+          "href": "#/sources",
+          "current": null
+        },
+        {
+          "text": "Notes",
+          "href": "#/notes",
+          "current": null
+        }
+      ],
+      "activeNav": [
+        {
+          "text": "系统",
+          "href": "#/system",
+          "current": "page"
+        }
+      ],
+      "system": {
+        "hasTitle": true,
+        "hasDraftPrd": true,
+        "hasBoundaryLanguage": true,
+        "hasRequiredSections": true
+      }
+    }
+  ],
+  "summary": {
+    "route_count": 9,
+    "viewport_count": 2,
+    "max_horizontal_overflow_px": 0,
+    "visible_overflow_total": 0,
+    "system_route_desktop_pass": {
+      "hasTitle": true,
+      "hasDraftPrd": true,
+      "hasBoundaryLanguage": true,
+      "hasRequiredSections": true
+    },
+    "system_route_mobile_pass": {
+      "hasTitle": true,
+      "hasDraftPrd": true,
+      "hasBoundaryLanguage": true,
+      "hasRequiredSections": true
+    },
+    "blocking_console_error_count": 0
+  }
+}
