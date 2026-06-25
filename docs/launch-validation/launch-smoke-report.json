@@ -1,0 +1,145 @@
+{
+  "status": "pass",
+  "base_url": "http://127.0.0.1:4179/gotra-public-ledger/",
+  "started_at": "2026-06-25T15:54:18.371Z",
+  "http_checks": {
+    "index_html": {
+      "ok": true,
+      "has_root_asset_reference": false
+    },
+    "data_files": {
+      "selected_urls": {
+        "ledger": "http://127.0.0.1:4179/gotra-public-ledger/data/ledger.demo.json",
+        "manifest": "http://127.0.0.1:4179/gotra-public-ledger/data/manifest.json",
+        "portfolio": "http://127.0.0.1:4179/gotra-public-ledger/data/paper-portfolio.latest.json",
+        "content": "http://127.0.0.1:4179/gotra-public-ledger/content/articles/index.json"
+      },
+      "ledger_records": 294,
+      "manifest_files": 5,
+      "portfolio_id": "gotra_shadow_long_only_equal_weight_fixture_v1",
+      "content_items": 4
+    }
+  },
+  "browser_smoke": {
+    "status": "pass",
+    "routes": [
+      {
+        "route": "home",
+        "hash": "#/",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "mobile": false
+        },
+        "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+        "missing": [],
+        "horizontalOverflow": 0,
+        "bodyLength": 2728
+      },
+      {
+        "route": "ledger",
+        "hash": "#/ledger",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "mobile": false
+        },
+        "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+        "missing": [],
+        "horizontalOverflow": 0,
+        "bodyLength": 19477
+      },
+      {
+        "route": "prediction_detail",
+        "hash": "#/ledger/PRED-20260203-TSM-0054",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "mobile": false
+        },
+        "title": "TSM 台积电 | GOTRA 可审计预测记录",
+        "missing": [],
+        "horizontalOverflow": 0,
+        "bodyLength": 1062
+      },
+      {
+        "route": "performance",
+        "hash": "#/performance",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "mobile": false
+        },
+        "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+        "missing": [],
+        "horizontalOverflow": 0,
+        "bodyLength": 1726
+      },
+      {
+        "route": "methodology",
+        "hash": "#/methodology",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "mobile": false
+        },
+        "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+        "missing": [],
+        "horizontalOverflow": 0,
+        "bodyLength": 1970
+      },
+      {
+        "route": "sources",
+        "hash": "#/sources",
+        "viewport": {
+          "width": 1440,
+          "height": 900,
+          "mobile": false
+        },
+        "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+        "missing": [],
+        "horizontalOverflow": 0,
+        "bodyLength": 757
+      },
+      {
+        "route": "notes",
+        "hash": "#/notes",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "mobile": true
+        },
+        "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+        "missing": [],
+        "horizontalOverflow": 0,
+        "bodyLength": 2736
+      },
+      {
+        "route": "note_detail",
+        "hash": "#/notes/method-note-public-ledger-v1",
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "mobile": true
+        },
+        "title": "GOTRA Public Ledger | AI股票研究公开预测账本",
+        "missing": [],
+        "horizontalOverflow": 0,
+        "bodyLength": 1775
+      }
+    ],
+    "ledger_interaction": {
+      "ok": true,
+      "searchValue": "TSM",
+      "statusValue": "resolved",
+      "directionValue": "up",
+      "containsCountLine": true
+    },
+    "console_errors": [],
+    "screenshots": [
+      "docs/launch-validation/screenshots/desktop-home.png",
+      "docs/launch-validation/screenshots/mobile-notes.png"
+    ]
+  },
+  "completed_at": "2026-06-25T15:54:25.689Z"
+}

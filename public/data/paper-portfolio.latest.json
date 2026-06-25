@@ -1,0 +1,99 @@
+{
+  "portfolio_id": "gotra_shadow_long_only_equal_weight_fixture_v1",
+  "schema_version": "1.0",
+  "policy_version": "portfolio_policy_v1",
+  "policy_id": "gotra_shadow_long_only_equal_weight_v1",
+  "as_of_date": "2026-07-10",
+  "currency": "USD",
+  "initial_capital": 100000,
+  "cost_assumptions": {
+    "commission_bps": 0,
+    "slippage_bps": 5,
+    "fx_cost_bps": 10
+  },
+  "benchmark_ids": ["SPY", "QQQ", "HSTECH"],
+  "policy_boundary": {
+    "shorting": "disabled",
+    "live_trading": false,
+    "personalized_advice": false,
+    "post_hoc_rule_change_allowed": false
+  },
+  "metrics": {
+    "cumulative_return_pct": 0.29,
+    "benchmark_return_pct": 0.8,
+    "excess_return_pct": -0.51,
+    "max_drawdown_pct": 0,
+    "volatility_pct": 0,
+    "win_rate": 1,
+    "turnover": 0.2,
+    "average_exposure": 0.1,
+    "concentration": 0.1,
+    "transaction_cost_adjusted_return_pct": 0.29,
+    "average_win_pct": 2.9,
+    "average_loss_pct": null,
+    "sample_size": 1
+  },
+  "equity_curve": [
+    {
+      "date": "2026-06-25",
+      "equity": 100000,
+      "benchmark_equity": 100000,
+      "drawdown_pct": 0
+    },
+    {
+      "date": "2026-06-26",
+      "equity": 100000,
+      "benchmark_equity": 100000,
+      "drawdown_pct": 0
+    },
+    {
+      "date": "2026-07-10",
+      "equity": 100290,
+      "benchmark_equity": 100800,
+      "drawdown_pct": 0
+    }
+  ],
+  "positions": [
+    {
+      "prediction_id": "pred_resolve_up_001",
+      "ticker": "UPCO",
+      "market": "US",
+      "side": "long",
+      "status": "closed",
+      "entry_date": "2026-06-26",
+      "exit_date": "2026-07-02",
+      "entry_price": 100,
+      "exit_price": 103,
+      "quantity": 100,
+      "notional": 10000,
+      "weight": 0.1,
+      "currency": "USD"
+    }
+  ],
+  "trades": [
+    {
+      "trade_id": "trade_pred_resolve_up_001",
+      "prediction_id": "pred_resolve_up_001",
+      "ticker": "UPCO",
+      "market": "US",
+      "entry_date": "2026-06-26",
+      "exit_date": "2026-07-02",
+      "entry_price": 100,
+      "exit_price": 103,
+      "weight": 0.1,
+      "gross_return_pct": 3,
+      "net_return_pct": 2.9,
+      "transaction_cost_pct": 0.1,
+      "benchmark_id": "SPY"
+    }
+  ],
+  "small_sample_warning": "Sample size is small. This hypothetical paper performance is early-stage tracking and should not be interpreted as statistically reliable or investment advice.",
+  "claim_boundary": [
+    "research_information_only",
+    "not_investment_advice",
+    "hypothetical_paper_performance",
+    "not_live_trading",
+    "not_trading_signal",
+    "no_guarantee_of_future_performance"
+  ]
+}

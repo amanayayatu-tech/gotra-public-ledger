@@ -84,7 +84,7 @@ rows were added.
 No local GOTRA experiment data was read or adopted. In particular, this phase
 does not use:
 
-- `/Users/peachy/Documents/gotra/data/backtest/runs/*`
+- local GOTRA experiment run directories
 - provider raw responses
 - local databases
 - paper trading artifacts

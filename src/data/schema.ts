@@ -225,12 +225,36 @@ function recoverDataset(payload: unknown, reason: z.ZodError): LedgerDataset {
 
 export async function loadLedgerDataset(): Promise<LedgerDataset> {
   const baseUrl = import.meta.env?.BASE_URL ?? "/";
-  const response = await fetch(`${baseUrl}data/ledger.demo.json`);
-  if (!response.ok) {
-    throw new Error(`Unable to load ledger.demo.json: ${response.status}`);
+  const candidateUrls = [`${baseUrl}data/ledger.demo.json`];
+  if (baseUrl !== "/") {
+    candidateUrls.push("/data/ledger.demo.json");
   }
 
-  const payload: unknown = await response.json();
+  let payload: unknown;
+  const failures: string[] = [];
+  for (const url of candidateUrls) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        failures.push(`${url}: ${response.status}`);
+        continue;
+      }
+      const contentType = response.headers.get("content-type") ?? "";
+      if (!contentType.includes("application/json")) {
+        failures.push(`${url}: non-json ${contentType || "unknown content-type"}`);
+        continue;
+      }
+      payload = await response.json();
+      break;
+    } catch (error) {
+      failures.push(`${url}: ${error instanceof Error ? error.message : "unknown error"}`);
+    }
+  }
+
+  if (payload === undefined) {
+    throw new Error(`Unable to load ledger.demo.json: ${failures.join("; ")}`);
+  }
+
   const parsedResult = ledgerDatasetSchema.safeParse(payload);
   const parsed = parsedResult.success ? parsedResult.data : recoverDataset(payload, parsedResult.error);
 

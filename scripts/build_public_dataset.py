@@ -6,7 +6,7 @@ Allowed sources:
 - amanayayatu-tech/gotra public GitHub raw docs at the locked commit below.
 
 Forbidden sources:
-- /Users/peachy/Documents/gotra/data/backtest/runs/* or local GOTRA experiment outputs.
+- local GOTRA experiment run directories or local GOTRA experiment outputs.
 - provider raw responses, local databases, paper trading artifacts, Stage8/Stage9 local artifacts.
 - .env*, API keys, auth files, secrets, private run logs, zip/tar/bundle artifacts.
 

@@ -37,6 +37,57 @@ uses public GitHub raw docs, public PRs, public commits, or public JSON/CSV with
 explicit provenance. More public rows still do not by themselves prove OOS,
 science/public acceptance, trading performance, or investment usefulness.
 
+## Public Alpha v1 Boundary
+
+Public Alpha v1 may describe GOTRA as:
+
+- a public AI research ledger
+- a fixed-window outcome tracking product
+- a public-safe error review surface
+- a hypothetical paper performance tracker under fixed rules
+
+Public Alpha v1 must continue to state:
+
+- Research information only.
+- Not investment advice.
+- Hypothetical paper performance.
+- Not live trading.
+- Not a trading signal.
+- Not personalized recommendation.
+- No guarantee of future performance.
+
+Local checks, compliance scans, screenshots, browser smoke, Pages availability,
+paper portfolio charts, and public-safe data expansion remain below OOS,
+science/public proof, trading-performance proof, or formal launch acceptance
+unless the relevant formal gates are separately satisfied.
+
+## Public Alpha v1 Forbidden Wording
+
+Forbidden wording includes:
+
+- Forbidden: `建议买入`
+- Forbidden: `建议卖出`
+- Forbidden: `荐股`
+- Forbidden: `交易信号`
+- Forbidden: `AI 选股`
+- Forbidden: `稳定 alpha`
+- Forbidden: `OOS passed`
+- Forbidden: `科学证明`
+- Forbidden: `公开证明`
+- Forbidden: `跑赢市场`
+- Forbidden: `稳定收益`
+- Forbidden: `实盘收益`
+- Forbidden: `年化收益`
+- Forbidden: `保本`
+- Forbidden: `稳赚`
+- Forbidden: `预测能力被证明`
+- Forbidden: `越来越准`
+- Forbidden: `目标价`
+- Forbidden: `仓位建议`
+- Forbidden: `止损`
+- Forbidden: `止盈`
+- Forbidden: `跟单`
+
 ## direct_llm Caveat
 
 If `direct_llm` is mentioned, write it as `direct_llm_parametric_memory_control`.

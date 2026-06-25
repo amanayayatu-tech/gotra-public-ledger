@@ -105,7 +105,7 @@ For the Phase 4 public-source inventory, see `docs/PUBLIC_DATA_INVENTORY.md`.
 
 Forbidden data sources:
 
-- Local `data/backtest/runs/*`.
+- Local GOTRA experiment run directories.
 - `.env*`, API keys, provider raw responses, databases, bundles, paper trading data, Stage8/Stage9 local artifacts, auth files, or secrets.
 - Private GOTRA experiment repositories or local experiment data.
 
