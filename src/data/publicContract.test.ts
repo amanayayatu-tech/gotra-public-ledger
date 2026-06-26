@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   adaptLedgerDatasetToPublicContract,
+  contentIndexSchema,
+  contentItemSchema,
   outcomeRecordSchema,
   predictionRecordSchema,
   publicContractFixtureSchema,
+  type ContentItem,
   type OutcomeRecord,
 } from "./publicContract";
 import type { LedgerDataset, LedgerRecord } from "./schema";
@@ -90,6 +93,152 @@ describe("public contract adapter", () => {
 });
 
 describe("public contract schemas", () => {
+  const reportContentItem: ContentItem = {
+    slug: "morning-brief-fixture",
+    schema_version: "1.1",
+    title: "Morning Brief Fixture",
+    published_at: "2026-06-25T10:15:00+08:00",
+    type: "daily_morning_brief",
+    tags: ["fixture"],
+    summary: "Synthetic report fixture.",
+    body_source: "public/content/articles/morning-brief-fixture.md",
+    related_prediction_ids: ["PRED-FIXTURE-RESOLVED"],
+    report: {
+      report_kind: "daily_morning_brief",
+      report_date: "2026-06-25",
+      status: "demo_format",
+      tldr: "Synthetic report fixture.",
+      watched_scope: [
+        {
+          label: "Fixture watched row",
+          prediction_id: "PRED-FIXTURE-RESOLVED",
+          why_watched: "Fixture report scope.",
+          layer: "background_and_evidence",
+          resolution_status: "resolved",
+        },
+      ],
+      ledger_changes: ["No fixture ledger change."],
+      evidence_updates: [{ topic: "Fixture", update: "No new public evidence.", evidence_layer: "no_new_evidence" }],
+      conclusion_change: { status: "no_new_evidence", summary: "No judgement update in fixture." },
+      why_or_why_not: ["No new public evidence was added."],
+      next_watch_queue: [{ item: "Fixture queue", next_check: "Fixture source check.", reason: "Keep queue explicit." }],
+      boundary_note:
+        "Research information only. Not investment advice. Not a trading signal. No performance proof. No guarantee of future performance. Market move alone cannot be prediction correctness evidence.",
+    },
+    provenance: {
+      source_repo: "gotra-public-ledger",
+      exporter_version: "public_export_v1",
+      exported_at: "2026-06-25T10:15:00+08:00",
+    },
+    claim_boundary: ["research_information_only", "not_investment_advice"],
+  };
+
+  it("requires schema 1.1 for report content items", () => {
+    expect(contentItemSchema.safeParse({ ...reportContentItem, schema_version: "1.0" }).success).toBe(false);
+  });
+
+  it("requires report payloads for report content types", () => {
+    const missingReport: Partial<ContentItem> = { ...reportContentItem };
+    delete missingReport.report;
+
+    expect(contentItemSchema.safeParse(missingReport).success).toBe(false);
+  });
+
+  it("requires report_kind to match the report content type", () => {
+    const mismatchedResearchRecap = {
+      ...reportContentItem,
+      slug: "research-recap-fixture",
+      type: "research_recap",
+      report: { ...reportContentItem.report!, report_kind: "daily_morning_brief" },
+    };
+
+    expect(contentItemSchema.safeParse(mismatchedResearchRecap).success).toBe(false);
+  });
+
+  it("accepts content index schema 1.1 for report-aware content", () => {
+    const index = {
+      schema_version: "1.1",
+      dataset_id: "content_fixture",
+      snapshot_date: "2026-06-25",
+      items: [
+        reportContentItem,
+        {
+          ...reportContentItem,
+          slug: "evening-fixture",
+          type: "daily_evening_review",
+          report: { ...reportContentItem.report!, report_kind: "daily_evening_review" },
+        },
+        {
+          ...reportContentItem,
+          slug: "recap-fixture",
+          type: "research_recap",
+          report: { ...reportContentItem.report!, report_kind: "research_recap" },
+        },
+        {
+          slug: "method-note-fixture",
+          schema_version: "1.0",
+          title: "Fixture Method Note",
+          published_at: "2026-06-25T10:00:00+08:00",
+          type: "method_note",
+          tags: ["method"],
+          summary: "Synthetic public-safe content fixture.",
+          body_source: "public/content/articles/method-note-fixture.md",
+          related_prediction_ids: ["PRED-FIXTURE-RESOLVED"],
+          provenance: {
+            source_repo: "gotra-public-ledger",
+            exporter_version: "public_export_v1",
+            exported_at: "2026-06-25T10:00:00+08:00",
+          },
+          claim_boundary: ["research_information_only", "not_investment_advice"],
+        },
+      ],
+    };
+
+    expect(contentIndexSchema.safeParse(index).success).toBe(true);
+  });
+
+  it("rejects content index schema 1.0 when report-aware items are present", () => {
+    const index = {
+      schema_version: "1.0",
+      dataset_id: "content_fixture",
+      snapshot_date: "2026-06-25",
+      items: [
+        reportContentItem,
+        {
+          ...reportContentItem,
+          slug: "evening-fixture",
+          type: "daily_evening_review",
+          report: { ...reportContentItem.report!, report_kind: "daily_evening_review" },
+        },
+        {
+          ...reportContentItem,
+          slug: "recap-fixture",
+          type: "research_recap",
+          report: { ...reportContentItem.report!, report_kind: "research_recap" },
+        },
+        {
+          slug: "method-note-fixture",
+          schema_version: "1.0",
+          title: "Fixture Method Note",
+          published_at: "2026-06-25T10:00:00+08:00",
+          type: "method_note",
+          tags: ["method"],
+          summary: "Synthetic public-safe content fixture.",
+          body_source: "public/content/articles/method-note-fixture.md",
+          related_prediction_ids: ["PRED-FIXTURE-RESOLVED"],
+          provenance: {
+            source_repo: "gotra-public-ledger",
+            exporter_version: "public_export_v1",
+            exported_at: "2026-06-25T10:00:00+08:00",
+          },
+          claim_boundary: ["research_information_only", "not_investment_advice"],
+        },
+      ],
+    };
+
+    expect(contentIndexSchema.safeParse(index).success).toBe(false);
+  });
+
   it("rejects resolved outcomes without an actual result", () => {
     const invalidOutcome: OutcomeRecord = {
       prediction_id: "PRED-FIXTURE-BAD",
