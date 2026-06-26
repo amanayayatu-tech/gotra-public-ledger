@@ -139,6 +139,270 @@ function formatCurrency(value: number, currency = "USD"): string {
   }).format(value);
 }
 
+function formatReaderDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value.slice(0, 10);
+  }
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  }).format(date);
+}
+
+function reportStatusLabel(status: string): string {
+  switch (status) {
+    case "demo_format":
+      return "Demo operating format";
+    case "published":
+      return "Published";
+    case "draft":
+      return "Draft";
+    default:
+      return status.replaceAll("_", " ");
+  }
+}
+
+function conclusionChangeLabel(status: string): string {
+  switch (status) {
+    case "unchanged":
+      return "Unchanged";
+    case "strengthened":
+      return "Strengthened";
+    case "weakened":
+      return "Weakened";
+    case "conflict_found":
+      return "Conflict found";
+    case "needs_review":
+      return "Needs review";
+    case "no_new_evidence":
+      return "No new public evidence";
+    default:
+      return status.replaceAll("_", " ");
+  }
+}
+
+function evidenceLayerLabel(layer: string): string {
+  switch (layer) {
+    case "no_new_evidence":
+      return "No new public evidence";
+    case "public_safe_demo":
+      return "Public-safe demo";
+    case "local_checks":
+      return "Local checks";
+    default:
+      return layer.replaceAll("_", " ");
+  }
+}
+
+function scopeLayerLabel(layer: string): string {
+  switch (layer) {
+    case "background":
+      return "Background layer";
+    case "evidence":
+      return "Evidence layer";
+    case "background_and_evidence":
+      return "Background + evidence";
+    default:
+      return layer.replaceAll("_", " ");
+  }
+}
+
+function ledgerStatusReaderLabel(status: string): string {
+  switch (status) {
+    case "resolved":
+      return "Resolved";
+    case "pending":
+      return "Pending";
+    case "frozen_pending":
+      return "Frozen pending";
+    default:
+      return status.replaceAll("_", " ");
+  }
+}
+
+function DataBar({
+  label,
+  value,
+  max,
+  tone = "default",
+}: {
+  label: string;
+  value: number;
+  max: number;
+  tone?: "default" | "blue" | "amber" | "red";
+}) {
+  const width = max > 0 ? Math.max(4, (value / max) * 100) : 0;
+  return (
+    <div className={`data-bar-row ${tone}`}>
+      <div className="data-bar-label">
+        <span>{label}</span>
+        <strong>{value}</strong>
+      </div>
+      <div className="data-bar-track" aria-hidden="true">
+        <i style={{ width: `${width}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function LedgerStatusChart({ metrics }: { metrics: ReturnType<typeof computeSummary> }) {
+  const rows = [
+    { label: "Resolved", value: metrics.resolved, tone: "default" as const },
+    { label: "Pending", value: metrics.pending, tone: "blue" as const },
+    { label: "Frozen pending", value: metrics.frozenPending, tone: "amber" as const },
+  ];
+  const max = Math.max(...rows.map((row) => row.value), 1);
+
+  return (
+    <section className="reader-chart" aria-labelledby="ledger-status-chart-title">
+      <div>
+        <span className="section-index">Actual repo data</span>
+        <h2 id="ledger-status-chart-title">Ledger status distribution</h2>
+        <p>Counts come from the current public ledger snapshot. Pending and frozen rows remain outside resolved-only metrics.</p>
+      </div>
+      <div className="data-bar-list">
+        {rows.map((row) => (
+          <DataBar key={row.label} {...row} max={max} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ContentTypeChart() {
+  const counts = contentItems.reduce<Record<string, number>>((acc, item) => {
+    const label = contentTypeLabel(item.type);
+    acc[label] = (acc[label] ?? 0) + 1;
+    return acc;
+  }, {});
+  const rows = Object.entries(counts);
+  const max = Math.max(...rows.map(([, value]) => value), 1);
+
+  return (
+    <section className="reader-chart compact" aria-labelledby="content-chart-title">
+      <div>
+        <span className="section-index">Content index</span>
+        <h2 id="content-chart-title">Published note types</h2>
+        <p>Rendered from the public content index; file-level provenance is collapsed below.</p>
+      </div>
+      <div className="data-bar-list">
+        {rows.map(([label, value]) => (
+          <DataBar key={label} label={label} value={value} max={max} tone="blue" />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PortfolioComparisonBars({ snapshot }: { snapshot: PaperPortfolioSnapshot }) {
+  const values = [
+    { label: "Paper cumulative", value: snapshot.metrics.cumulative_return_pct },
+    { label: "Benchmark", value: snapshot.metrics.benchmark_return_pct },
+    { label: "Excess", value: snapshot.metrics.excess_return_pct },
+  ];
+  const max = Math.max(...values.map((row) => Math.abs(row.value)), 1);
+
+  return (
+    <section className="reader-chart compact" aria-labelledby="portfolio-bars-title">
+      <div>
+        <span className="section-index">Policy-bound snapshot</span>
+        <h2 id="portfolio-bars-title">Return comparison</h2>
+        <p>These bars use the deterministic paper portfolio snapshot, not live market data.</p>
+      </div>
+      <div className="signed-bar-list">
+        {values.map((row) => {
+          const width = Math.max(4, (Math.abs(row.value) / max) * 100);
+          return (
+            <div className="signed-bar-row" key={row.label}>
+              <span>{row.label}</span>
+              <div className="signed-bar-track" aria-hidden="true">
+                <i className={row.value < 0 ? "negative" : "positive"} style={{ width: `${width}%` }} />
+              </div>
+              <strong>{formatSignedPercent(row.value)}</strong>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function EvidenceLoopDiagram() {
+  const steps = ["Morning brief", "Evidence check", "Gate/Judge", "Ledger update", "Evening review"];
+  return (
+    <section className="process-strip" aria-labelledby="evidence-loop-title">
+      <div className="process-strip-head">
+        <span className="section-index">Daily research loop</span>
+        <h2 id="evidence-loop-title">Morning brief to evening review</h2>
+        <p>Visual operating pattern only: it lowers reading cost and does not add evidence or performance claims.</p>
+      </div>
+      <ol>
+        {steps.map((step, index) => (
+          <li key={step}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <strong>{step}</strong>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function SystemFlowDiagram() {
+  const groups = [
+    { title: "1. Intake", body: "Ticker identity, boundary checks, and research job creation." },
+    { title: "2. Research", body: "`ksana` plan, public research packet, and separated positive/negative/neutral views." },
+    { title: "3. Critique", body: "Synthesis, red-team report, and evidence/boundary gate before public output." },
+    { title: "4. Cognition", body: "`alaya` object, weekly operation, and Gate-Judge cognition layering." },
+  ];
+  return (
+    <section className="system-flow-diagram" aria-labelledby="system-diagram-title">
+      <div className="process-strip-head">
+        <span className="section-index">Research cognition factory</span>
+        <h2 id="system-diagram-title">From ticker to cognition layer</h2>
+        <p>No buy/sell path exists in this diagram; every output passes through evidence and boundary gates.</p>
+      </div>
+      <ol>
+        {groups.map((group) => (
+          <li key={group.title}>
+            <strong>{group.title}</strong>
+            <p>{group.body}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function MethodologyProcessGraphic() {
+  const steps = [
+    ["Public ledger", "Predictions stay separate from outcomes."],
+    ["Resolver", "Expired eligible rows can resolve only with public-safe price evidence."],
+    ["Paper portfolio", "Long-only hypothetical mapping under fixed policy."],
+    ["Reports", "Notes explain uncertainty, changes, next watch queue, and boundaries."],
+  ] as const;
+  return (
+    <section className="process-strip methodology-process" aria-labelledby="method-process-title">
+      <div className="process-strip-head">
+        <span className="section-index">Method surface</span>
+        <h2 id="method-process-title">Interpretation order</h2>
+        <p>The product reads left to right: record first, outcome second, policy-bound paper view third, report last.</p>
+      </div>
+      <ol>
+        {steps.map(([title, body], index) => (
+          <li key={title}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <strong>{title}</strong>
+            <small>{body}</small>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
 const systemFlowSteps = [
   "Input ticker",
   "Identity and boundary checks",
@@ -244,8 +508,7 @@ function SystemRulesPage() {
       <section className="route-panel system-shell" aria-labelledby="system-boundary-title">
         <div className="boundary-banner">
           <ShieldCheck aria-hidden="true" size={18} />
-          Research information only. Not investment advice. Not a trading signal. Not live trading. Not performance
-          proof. No guarantee of future performance.
+          Research information only. Not investment advice. Not a trading signal. Not live trading. Not performance proof. No performance proof. No guarantee of future performance.
         </div>
         <div className="boundary-banner warning">
           <AlertCircle aria-hidden="true" size={18} />
@@ -278,8 +541,11 @@ function SystemRulesPage() {
           </div>
         </section>
 
-        <section aria-labelledby="system-flow-title">
-          <h2 id="system-flow-title">Step-by-step system flow</h2>
+        <SystemFlowDiagram />
+        <EvidenceLoopDiagram />
+
+        <details className="audit-details system-steps-detail">
+          <summary>Full operating steps</summary>
           <ol className="system-flow-list">
             {systemFlowSteps.map((step, index) => (
               <li key={step}>
@@ -288,7 +554,7 @@ function SystemRulesPage() {
               </li>
             ))}
           </ol>
-        </section>
+        </details>
 
         <section aria-labelledby="system-why-title">
           <h2 id="system-why-title">Why this exists</h2>
@@ -466,6 +732,7 @@ function PerformancePage({
             <strong>{formatSignedPercent(snapshot.metrics.transaction_cost_adjusted_return_pct ?? null)}</strong>
           </div>
         </div>
+        <PortfolioComparisonBars snapshot={snapshot} />
         <div className="portfolio-grid">
           <section aria-labelledby="equity-curve-title">
             <h2 id="equity-curve-title">Equity curve</h2>
@@ -553,6 +820,7 @@ function MethodologyPage({ dataset, records }: { dataset: LedgerDataset; records
         body="方法页把 universe、horizon、resolver、portfolio 和数据边界放在结果之前，防止上线后口径漂移。"
         icon={BookOpenCheck}
       />
+      <MethodologyProcessGraphic />
       <BoundaryPanel metadata={dataset.metadata} />
       <CredibilityDashboard records={records} />
     </>
@@ -569,33 +837,50 @@ function SourcesPage({ dataset }: { dataset: LedgerDataset }) {
         icon={Database}
       />
       <section className="route-panel" aria-labelledby="sources-title">
-        <h2 id="sources-title">Data contract surface</h2>
-        <dl className="source-grid">
+        <h2 id="sources-title">What public data can be inspected</h2>
+        <p>
+          The visible source layer is intentionally small: current demo ledger, evidence index, manifest, content index,
+          and generated public-safe snapshots. Technical file paths are available below only as audit details.
+        </p>
+        <ContentTypeChart />
+        <div className="source-reader-grid" aria-label="Public-safe data surfaces">
           <div>
-            <dt>dataset_id</dt>
-            <dd>{dataset.metadata.dataset_id}</dd>
+            <span>Ledger snapshot</span>
+            <strong>{dataset.metadata.record_count} records</strong>
+            <p>Public-safe demo records with prediction, status, evidence summary, and boundary metadata.</p>
           </div>
           <div>
-            <dt>snapshot_date</dt>
-            <dd>{dataset.metadata.snapshot_date}</dd>
+            <span>Snapshot date</span>
+            <strong>{dataset.metadata.snapshot_date}</strong>
+            <p>Reader-facing date for the current public data cut.</p>
           </div>
           <div>
-            <dt>dataset_type</dt>
-            <dd>{dataset.metadata.dataset_type}</dd>
+            <span>Content index</span>
+            <strong>{contentItems.length} notes</strong>
+            <p>Public notes and reports with claim boundaries and related prediction links.</p>
           </div>
-          <div>
-            <dt>record_count</dt>
-            <dd>{dataset.metadata.record_count}</dd>
-          </div>
-          <div>
-            <dt>manifest</dt>
-            <dd>public/data/manifest.json</dd>
-          </div>
-          <div>
-            <dt>evidence_index</dt>
-            <dd>public/data/evidence-index.json</dd>
-          </div>
-        </dl>
+        </div>
+        <details className="audit-details">
+          <summary>Technical provenance</summary>
+          <dl className="source-grid">
+            <div>
+              <dt>dataset_id</dt>
+              <dd>{dataset.metadata.dataset_id}</dd>
+            </div>
+            <div>
+              <dt>dataset_type</dt>
+              <dd>{dataset.metadata.dataset_type}</dd>
+            </div>
+            <div>
+              <dt>manifest</dt>
+              <dd>public/data/manifest.json</dd>
+            </div>
+            <div>
+              <dt>evidence_index</dt>
+              <dd>public/data/evidence-index.json</dd>
+            </div>
+          </dl>
+        </details>
       </section>
     </>
   );
@@ -604,13 +889,40 @@ function SourcesPage({ dataset }: { dataset: LedgerDataset }) {
 function contentTypeLabel(type: ContentItem["type"]): string {
   switch (type) {
     case "method_note":
-      return "Method Note";
+      return "Method note";
     case "weekly_review":
-      return "Weekly Ledger Update";
+      return "Weekly ledger update";
     case "error_review":
-      return "Error Review";
+      return "Error review";
     case "monthly_transparency":
-      return "Transparency Note";
+      return "Transparency note";
+    case "daily_morning_brief":
+      return "Morning brief";
+    case "daily_evening_review":
+      return "Evening review";
+    case "research_recap":
+      return "Research recap";
+  }
+}
+
+function boundaryLabel(boundary: string): string {
+  switch (boundary) {
+    case "research_information_only":
+      return "Research information only";
+    case "not_investment_advice":
+      return "Not investment advice";
+    case "not_trading_signal":
+      return "Not a trading signal";
+    case "no_guarantee_of_future_performance":
+      return "No guarantee of future performance";
+    case "no_performance_proof":
+      return "No performance proof";
+    case "not_science_public_proof":
+      return "Not scientific proof";
+    case "demo_public_safe_dataset":
+      return "Demo public-safe dataset";
+    default:
+      return boundary.replaceAll("_", " ");
   }
 }
 
@@ -618,7 +930,7 @@ function BoundaryChips({ item }: { item: ContentItem }) {
   return (
     <div className="boundary-chip-row" aria-label="Claim boundary">
       {item.claim_boundary.map((boundary) => (
-        <span key={boundary}>{boundary}</span>
+        <span key={boundary}>{boundaryLabel(boundary)}</span>
       ))}
     </div>
   );
@@ -626,7 +938,7 @@ function BoundaryChips({ item }: { item: ContentItem }) {
 
 function RelatedPredictionLinks({ ids }: { ids: string[] }) {
   if (ids.length === 0) {
-    return <p className="muted">related_prediction_ids: []</p>;
+    return <p className="muted">No directly related public prediction.</p>;
   }
 
   return (
@@ -640,19 +952,176 @@ function RelatedPredictionLinks({ ids }: { ids: string[] }) {
   );
 }
 
+function NoteReportDetail({ item }: { item: ContentItem }) {
+  const report = item.report;
+  if (!report) {
+    return null;
+  }
+
+  return (
+    <section className="note-report" aria-labelledby="note-report-title">
+      <div className="note-report-header">
+        <div>
+          <span className="section-index">{contentTypeLabel(item.type)}</span>
+          <h2 id="note-report-title">Reader report</h2>
+        </div>
+        <dl>
+          <div>
+            <dt>Report date</dt>
+            <dd>{formatReaderDate(report.report_date)}</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd>{reportStatusLabel(report.status)}</dd>
+          </div>
+          <div>
+            <dt>Conclusion</dt>
+            <dd>{conclusionChangeLabel(report.conclusion_change.status)}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <section className="report-four-question" aria-label="Four question report summary">
+        <article>
+          <span>1</span>
+          <strong>What was watched</strong>
+          <p>{report.watched_scope.map((scope) => scope.ticker ?? scope.company ?? scope.label).join(" · ")}</p>
+        </article>
+        <article>
+          <span>2</span>
+          <strong>Did conclusion change</strong>
+          <p>{conclusionChangeLabel(report.conclusion_change.status)}</p>
+        </article>
+        <article>
+          <span>3</span>
+          <strong>Why / why not</strong>
+          <p>{report.why_or_why_not[0]}</p>
+        </article>
+        <article>
+          <span>4</span>
+          <strong>What to watch next</strong>
+          <p>{report.next_watch_queue.map((item) => item.item).join(" · ")}</p>
+        </article>
+      </section>
+
+      <section className="report-callout" aria-labelledby="report-tldr-title">
+        <h3 id="report-tldr-title">TLDR</h3>
+        <p>{report.tldr}</p>
+      </section>
+
+      <section aria-labelledby="report-watched-title">
+        <h3 id="report-watched-title">Today watched / Reviewed scope</h3>
+        <div className="report-watch-grid">
+          {report.watched_scope.map((scope) => (
+            <article key={`${scope.label}-${scope.prediction_id ?? scope.ticker ?? scope.company}`}>
+              <div className="content-card-meta">
+                <span>{scopeLayerLabel(scope.layer)}</span>
+                {scope.resolution_status ? <span>{ledgerStatusReaderLabel(scope.resolution_status)}</span> : null}
+              </div>
+              <h4>{scope.label}</h4>
+              <dl>
+                {scope.ticker ? (
+                  <div>
+                    <dt>Ticker</dt>
+                    <dd className="mono">{scope.ticker}</dd>
+                  </div>
+                ) : null}
+                {scope.company ? (
+                  <div>
+                    <dt>Company</dt>
+                    <dd>{scope.company}</dd>
+                  </div>
+                ) : null}
+                {scope.prediction_id ? (
+                  <div>
+                    <dt>Prediction</dt>
+                    <dd>
+                      <a className="mono" href={predictionRouteHref(scope.prediction_id)}>
+                        {scope.prediction_id}
+                      </a>
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+              <p>{scope.why_watched}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="report-two-column" aria-label="Ledger and evidence update">
+        <div>
+          <h3>Ledger changes</h3>
+          <ul>
+            {report.ledger_changes.map((change) => (
+              <li key={change}>{change}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3>Evidence update</h3>
+          <div className="report-evidence-list">
+            {report.evidence_updates.map((update) => (
+              <article key={`${update.topic}-${update.evidence_layer}`}>
+                <span>{evidenceLayerLabel(update.evidence_layer)}</span>
+                <strong>{update.topic}</strong>
+                <p>{update.update}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="report-two-column" aria-label="Conclusion change and rationale">
+        <div className="report-callout">
+          <h3>Conclusion change</h3>
+          <strong>{conclusionChangeLabel(report.conclusion_change.status)}</strong>
+          <p>{report.conclusion_change.summary}</p>
+        </div>
+        <div>
+          <h3>Why / why not</h3>
+          <ul>
+            {report.why_or_why_not.map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section aria-labelledby="report-next-title">
+        <h3 id="report-next-title">Next watch queue</h3>
+        <div className="report-queue-grid">
+          {report.next_watch_queue.map((queueItem) => (
+            <article key={`${queueItem.item}-${queueItem.next_check}`}>
+              <strong>{queueItem.item}</strong>
+              <p>{queueItem.next_check}</p>
+              <small>{queueItem.reason}</small>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="report-callout warning" aria-labelledby="report-boundary-title">
+        <h3 id="report-boundary-title">Boundary / what this does not prove</h3>
+        <p>{report.boundary_note}</p>
+      </section>
+    </section>
+  );
+}
+
 function NotesPage() {
   return (
     <>
       <PageIntro
         eyebrow="Notes"
         title="Research notes and transparency reports"
-        body="Notes 是持续运营入口。这里读取 public/content/articles/index.json，展示 public-safe 内容、边界、正文来源和 related predictions。"
+        body="Notes 是持续运营入口。这里展示 public-safe 内容、边界、报告结论和 related predictions；技术来源默认收起在审计区。"
         icon={FileText}
       />
       <section className="route-panel notes-shell" aria-labelledby="notes-title">
         <div className="boundary-banner">
           <ShieldCheck aria-hidden="true" size={18} />
-          Research information only. Not investment advice. Not a trading signal. No performance proof.
+          Research information only. Not investment advice. Not a trading signal. No performance proof. No guarantee of future performance.
         </div>
         <h2 id="notes-title">Initial public-safe articles</h2>
         <div className="content-card-grid">
@@ -666,6 +1135,18 @@ function NotesPage() {
                 <a href={noteRouteHref(item.slug)}>{item.title}</a>
               </h3>
               <p>{item.summary}</p>
+              {item.report ? (
+                <dl className="report-card-summary">
+                  <div>
+                    <dt>Conclusion</dt>
+                    <dd>{conclusionChangeLabel(item.report.conclusion_change.status)}</dd>
+                  </div>
+                  <div>
+                    <dt>Report date</dt>
+                    <dd>{formatReaderDate(item.report.report_date)}</dd>
+                  </div>
+                </dl>
+              ) : null}
               <div className="tag-row">
                 {item.tags.map((tag) => (
                   <span key={tag}>{tag}</span>
@@ -707,23 +1188,26 @@ function NoteDetailPage({ item }: { item: ContentItem | null }) {
       <article className="route-panel note-detail" aria-labelledby="note-detail-title">
         <div className="boundary-banner">
           <ShieldCheck aria-hidden="true" size={18} />
-          Research information only. Not investment advice. Not a trading signal. No performance proof.
+          Research information only. Not investment advice. Not a trading signal. No performance proof. No guarantee of future performance.
         </div>
-        <h2 id="note-detail-title">Structured article metadata</h2>
-        <dl className="source-grid">
+        <div className="note-reader-head">
           <div>
-            <dt>published_at</dt>
-            <dd>{item.published_at}</dd>
+            <span className="section-index">Reader first</span>
+            <h2 id="note-detail-title">{item.report ? "Morning/evening report view" : "Readable note view"}</h2>
+            <p>
+              Published {formatReaderDate(item.published_at)} as {contentTypeLabel(item.type)}. Technical provenance is
+              available below, but the default view starts with reader conclusions, evidence, next steps, and boundary.
+            </p>
           </div>
-          <div>
-            <dt>type</dt>
-            <dd>{item.type}</dd>
-          </div>
-          <div>
-            <dt>body_source</dt>
-            <dd>{item.body_source}</dd>
-          </div>
-        </dl>
+          <BoundaryChips item={item} />
+        </div>
+        <NoteReportDetail item={item} />
+        {!item.report ? (
+          <section className="report-callout" aria-labelledby="note-summary-title">
+            <h3 id="note-summary-title">Summary</h3>
+            <p>{item.summary}</p>
+          </section>
+        ) : null}
         <section>
           <h3>Tags</h3>
           <div className="tag-row">
@@ -740,18 +1224,38 @@ function NoteDetailPage({ item }: { item: ContentItem | null }) {
           <h3>Related predictions</h3>
           <RelatedPredictionLinks ids={item.related_prediction_ids} />
         </section>
-        <section>
-          <h3>Internal routes</h3>
+        <details className="audit-details">
+          <summary>Audit details / technical provenance</summary>
+          <dl className="source-grid">
+            <div>
+              <dt>published_at</dt>
+              <dd>{item.published_at}</dd>
+            </div>
+            <div>
+              <dt>type</dt>
+              <dd>{item.type}</dd>
+            </div>
+            <div>
+              <dt>body_source</dt>
+              <dd>{item.body_source}</dd>
+            </div>
+            {item.report ? (
+              <div>
+                <dt>report_kind</dt>
+                <dd>{item.report.report_kind}</dd>
+              </div>
+            ) : null}
+          </dl>
           <div className="related-prediction-list">
             <a href={routeHref("/ledger")}>#/ledger</a>
             <a href={routeHref("/methodology")}>#/methodology</a>
             <a href={routeHref("/performance")}>#/performance</a>
           </div>
-        </section>
-        <p>
-          Full markdown body is stored at <span className="mono">{item.body_source}</span> and validated by local
-          content checks for boundary text and internal route links.
-        </p>
+          <p>
+            Full markdown body is stored at <span className="mono">{item.body_source}</span> and validated by local
+            content checks for boundary text and internal route links.
+          </p>
+        </details>
       </article>
     </>
   );
@@ -1066,6 +1570,7 @@ function App() {
               body="完整账本保留当前 demo 的搜索、筛选、排序和逐条 detail URL。pending 与 frozen_pending 不进入 resolved-only 指标。"
               icon={Database}
             />
+            <LedgerStatusChart metrics={metrics} />
             <section className="ledger-section" id="full-ledger" aria-labelledby="full-ledger-title">
           <div className="ledger-panel">
             <div className="ledger-toolbar">

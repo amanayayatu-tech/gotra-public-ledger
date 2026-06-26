@@ -274,11 +274,83 @@ export const contentItemSchema = z
     schema_version: z.literal("1.0"),
     title: z.string().min(1),
     published_at: isoDateTimeSchema,
-    type: z.enum(["method_note", "weekly_review", "monthly_transparency", "error_review"]),
+    type: z.enum([
+      "method_note",
+      "weekly_review",
+      "monthly_transparency",
+      "error_review",
+      "daily_morning_brief",
+      "daily_evening_review",
+      "research_recap",
+    ]),
     tags: z.array(z.string()),
     summary: z.string().min(1),
     body_source: z.string().min(1),
     related_prediction_ids: z.array(z.string()),
+    report: z
+      .object({
+        report_kind: z.enum(["daily_morning_brief", "daily_evening_review", "research_recap"]),
+        report_date: isoDateSchema,
+        status: z.enum(["demo_format", "draft_public_safe", "published_public_safe"]),
+        tldr: z.string().min(1),
+        watched_scope: z
+          .array(
+            z
+              .object({
+                label: z.string().min(1),
+                ticker: z.string().min(1).optional(),
+                company: z.string().min(1).optional(),
+                prediction_id: z.string().min(1).optional(),
+                why_watched: z.string().min(1),
+                layer: z.enum(["background", "evidence", "background_and_evidence"]),
+                resolution_status: z
+                  .enum(["pending", "frozen_pending", "resolved", "needs_review", "blocked", "not_applicable"])
+                  .optional(),
+              })
+              .strict(),
+          )
+          .min(1),
+        ledger_changes: z.array(z.string().min(1)).min(1),
+        evidence_updates: z
+          .array(
+            z
+              .object({
+                topic: z.string().min(1),
+                update: z.string().min(1),
+                evidence_layer: z.enum(["background", "public_safe_demo", "local_checks", "no_new_evidence"]),
+              })
+              .strict(),
+          )
+          .min(1),
+        conclusion_change: z
+          .object({
+            status: z.enum([
+              "unchanged",
+              "strengthened",
+              "weakened",
+              "conflict_found",
+              "needs_review",
+              "no_new_evidence",
+            ]),
+            summary: z.string().min(1),
+          })
+          .strict(),
+        why_or_why_not: z.array(z.string().min(1)).min(1),
+        next_watch_queue: z
+          .array(
+            z
+              .object({
+                item: z.string().min(1),
+                next_check: z.string().min(1),
+                reason: z.string().min(1),
+              })
+              .strict(),
+          )
+          .min(1),
+        boundary_note: z.string().min(1),
+      })
+      .strict()
+      .optional(),
     provenance: publicProvenanceSchema,
     claim_boundary: z.array(publicClaimBoundarySchema).min(1),
   })

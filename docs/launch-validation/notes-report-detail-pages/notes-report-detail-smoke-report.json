@@ -1,0 +1,281 @@
+{
+  "generated_at": "2026-06-26T03:27:43.248Z",
+  "evidence_layer": "local browser smoke",
+  "base_url": "http://127.0.0.1:4183/gotra-public-ledger/",
+  "routes_checked": [
+    "#/notes",
+    "#/notes/weekly-ledger-update-2026-06-25",
+    "#/notes/error-review-first-public-snapshot"
+  ],
+  "screenshots": [
+    "docs/launch-validation/notes-report-detail-pages/desktop-notes-list-1440x900.png",
+    "docs/launch-validation/notes-report-detail-pages/desktop-morning-brief-detail-1440x900.png",
+    "docs/launch-validation/notes-report-detail-pages/desktop-evening-review-detail-1440x900.png",
+    "docs/launch-validation/notes-report-detail-pages/mobile-notes-list-390x844.png",
+    "docs/launch-validation/notes-report-detail-pages/mobile-report-detail-390x844.png"
+  ],
+  "console_errors": [],
+  "network_failures": [],
+  "navigation": {
+    "read_note_to_morning_detail": true
+  },
+  "results": [
+    {
+      "route": "notes_list",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4183/gotra-public-ledger/#/notes",
+      "h1": "Research notes and transparency reports",
+      "h2": [
+        "Initial public-safe articles",
+        "关注公开账本更新",
+        "大多数金融内容制造注意力，GOTRA 制造信用。"
+      ],
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "readLinks": [
+        {
+          "text": "Read note",
+          "href": "#/notes/method-note-public-ledger-v1"
+        },
+        {
+          "text": "Read note",
+          "href": "#/notes/weekly-ledger-update-2026-06-25"
+        },
+        {
+          "text": "Read note",
+          "href": "#/notes/error-review-first-public-snapshot"
+        },
+        {
+          "text": "Read note",
+          "href": "#/notes/alpha-transparency-note-2026-06"
+        }
+      ],
+      "hasMorningCard": true,
+      "hasEveningCard": true,
+      "fourQuestions": {
+        "watched": false,
+        "conclusion": false,
+        "why": false,
+        "next": false
+      },
+      "reportBoundary": false,
+      "reportSpecific": {
+        "hasNoNewEvidence": true,
+        "hasUnchanged": true,
+        "hasPendingBoundary": false,
+        "hasMarketMoveBoundary": false
+      }
+    },
+    {
+      "route": "morning_detail",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4183/gotra-public-ledger/#/notes/weekly-ledger-update-2026-06-25",
+      "h1": "Morning Brief: Public Alpha Watch Queue",
+      "h2": [
+        "Structured article metadata",
+        "Readable report detail",
+        "关注公开账本更新",
+        "大多数金融内容制造注意力，GOTRA 制造信用。"
+      ],
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "readLinks": [],
+      "hasMorningCard": false,
+      "hasEveningCard": false,
+      "fourQuestions": {
+        "watched": true,
+        "conclusion": true,
+        "why": true,
+        "next": true
+      },
+      "reportBoundary": true,
+      "reportSpecific": {
+        "hasNoNewEvidence": true,
+        "hasUnchanged": false,
+        "hasPendingBoundary": true,
+        "hasMarketMoveBoundary": true
+      }
+    },
+    {
+      "route": "evening_detail",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 900,
+      "url": "http://127.0.0.1:4183/gotra-public-ledger/#/notes/error-review-first-public-snapshot",
+      "h1": "Evening Review: First Public Snapshot Limits",
+      "h2": [
+        "Structured article metadata",
+        "Readable report detail",
+        "关注公开账本更新",
+        "大多数金融内容制造注意力，GOTRA 制造信用。"
+      ],
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "readLinks": [],
+      "hasMorningCard": false,
+      "hasEveningCard": false,
+      "fourQuestions": {
+        "watched": true,
+        "conclusion": true,
+        "why": true,
+        "next": true
+      },
+      "reportBoundary": true,
+      "reportSpecific": {
+        "hasNoNewEvidence": true,
+        "hasUnchanged": true,
+        "hasPendingBoundary": true,
+        "hasMarketMoveBoundary": true
+      }
+    },
+    {
+      "route": "notes_list",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4183/gotra-public-ledger/#/notes",
+      "h1": "Research notes and transparency reports",
+      "h2": [
+        "Initial public-safe articles",
+        "关注公开账本更新",
+        "大多数金融内容制造注意力，GOTRA 制造信用。"
+      ],
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "readLinks": [
+        {
+          "text": "Read note",
+          "href": "#/notes/method-note-public-ledger-v1"
+        },
+        {
+          "text": "Read note",
+          "href": "#/notes/weekly-ledger-update-2026-06-25"
+        },
+        {
+          "text": "Read note",
+          "href": "#/notes/error-review-first-public-snapshot"
+        },
+        {
+          "text": "Read note",
+          "href": "#/notes/alpha-transparency-note-2026-06"
+        }
+      ],
+      "hasMorningCard": true,
+      "hasEveningCard": true,
+      "fourQuestions": {
+        "watched": false,
+        "conclusion": false,
+        "why": false,
+        "next": false
+      },
+      "reportBoundary": false,
+      "reportSpecific": {
+        "hasNoNewEvidence": true,
+        "hasUnchanged": true,
+        "hasPendingBoundary": false,
+        "hasMarketMoveBoundary": false
+      }
+    },
+    {
+      "route": "morning_detail",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4183/gotra-public-ledger/#/notes/weekly-ledger-update-2026-06-25",
+      "h1": "Morning Brief: Public Alpha Watch Queue",
+      "h2": [
+        "Structured article metadata",
+        "Readable report detail",
+        "关注公开账本更新",
+        "大多数金融内容制造注意力，GOTRA 制造信用。"
+      ],
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "readLinks": [],
+      "hasMorningCard": false,
+      "hasEveningCard": false,
+      "fourQuestions": {
+        "watched": true,
+        "conclusion": true,
+        "why": true,
+        "next": true
+      },
+      "reportBoundary": true,
+      "reportSpecific": {
+        "hasNoNewEvidence": true,
+        "hasUnchanged": false,
+        "hasPendingBoundary": true,
+        "hasMarketMoveBoundary": true
+      }
+    },
+    {
+      "route": "evening_detail",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "url": "http://127.0.0.1:4183/gotra-public-ledger/#/notes/error-review-first-public-snapshot",
+      "h1": "Evening Review: First Public Snapshot Limits",
+      "h2": [
+        "Structured article metadata",
+        "Readable report detail",
+        "关注公开账本更新",
+        "大多数金融内容制造注意力，GOTRA 制造信用。"
+      ],
+      "horizontalOverflowPx": 0,
+      "visibleOverflowCount": 0,
+      "visibleOverflows": [],
+      "readLinks": [],
+      "hasMorningCard": false,
+      "hasEveningCard": false,
+      "fourQuestions": {
+        "watched": true,
+        "conclusion": true,
+        "why": true,
+        "next": true
+      },
+      "reportBoundary": true,
+      "reportSpecific": {
+        "hasNoNewEvidence": true,
+        "hasUnchanged": true,
+        "hasPendingBoundary": true,
+        "hasMarketMoveBoundary": true
+      }
+    }
+  ],
+  "summary": {
+    "route_count": 3,
+    "viewport_count": 2,
+    "max_horizontal_overflow_px": 0,
+    "visible_overflow_total": 0,
+    "blocking_console_error_count": 0,
+    "network_failure_count": 0,
+    "morning_four_questions": {
+      "watched": true,
+      "conclusion": true,
+      "why": true,
+      "next": true
+    },
+    "evening_four_questions": {
+      "watched": true,
+      "conclusion": true,
+      "why": true,
+      "next": true
+    },
+    "mobile_report_four_questions": {
+      "watched": true,
+      "conclusion": true,
+      "why": true,
+      "next": true
+    },
+    "navigation_pass": true
+  }
+}
