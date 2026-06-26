@@ -1,0 +1,57 @@
+{
+  "status": "needs_review",
+  "generated_at": "2026-06-27T00:43:00Z",
+  "base_url": "https://amanayayatu-tech.github.io/gotra-public-ledger/",
+  "method": "playwright_cli_screenshot_fallback",
+  "attempt_reason": "Fallback after launch-smoke.mjs CDP tool timeout",
+  "result": "route_screenshot_and_http_checks_passed_not_full_dom_console",
+  "http_checks": {
+    "/#/": 200,
+    "#/ledger": 200,
+    "#/notes": 200,
+    "#/notes/weekly-ledger-update-2026-06-25": 200,
+    "#/notes/error-review-first-public-snapshot": 200,
+    "#/system": 200,
+    "#/performance": 200,
+    "#/methodology": 200,
+    "#/sources": 200
+  },
+  "public_data_files": {
+    "manifest": 200,
+    "content_articles_index": 200,
+    "ledger_demo": 200,
+    "portfolio": 200
+  },
+  "screenshots": [
+    "screenshots/desktop-home-1440x900.png",
+    "screenshots/desktop-ledger-1440x900.png",
+    "screenshots/desktop-system-1440x900.png",
+    "screenshots/desktop-morning-detail-1440x900.png",
+    "screenshots/desktop-evening-detail-1440x900.png",
+    "screenshots/mobile-notesweekly-ledger-update-2026-06-25.png",
+    "screenshots/mobile-noteserror-review-first-public-snapshot.png"
+  ],
+  "coverage": {
+    "desktop_home": true,
+    "desktop_ledger": true,
+    "desktop_system": true,
+    "desktop_notes": true,
+    "desktop_methodology": true,
+    "desktop_performance": true,
+    "desktop_sources": true,
+    "mobile_notes_morning": true,
+    "mobile_notes_evening": true
+  },
+  "limitations": {
+    "blocked_by_tooling": "original launch-smoke.mjs requires Chrome DevTools endpoint and timed out",
+    "console_error_check": "not_run",
+    "overflow_check": "not_run",
+    "text_assertions": "not_run_without DOM script"
+  },
+  "accessibility": {
+    "status": "run",
+    "tool": "lighthouse",
+    "artifact": "lighthouse-home.json",
+    "score": 1
+  }
+}

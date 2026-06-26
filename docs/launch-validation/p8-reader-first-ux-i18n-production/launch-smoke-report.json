@@ -1,0 +1,96 @@
+{
+  "status": "pass_with_limitation",
+  "base_url": "https://amanayayatu-tech.github.io/gotra-public-ledger/",
+  "method": "cdp_with_playwright_fallback",
+  "started_at": "2026-06-26T16:59:18.727Z",
+  "limitations": [
+    {
+      "phase": "cdp_primary",
+      "message": "App did not finish loading within timeout"
+    },
+    {
+      "phase": "playwright_fallback",
+      "message": "Used Playwright CLI fallback; DOM/console/overflow checks were not completed in this mode."
+    }
+  ],
+  "http_checks": {
+    "index_html": {
+      "ok": true,
+      "has_root_asset_reference": false,
+      "has_github_pages_base": true
+    },
+    "data_files": {
+      "selected_urls": {
+        "ledger": "https://amanayayatu-tech.github.io/gotra-public-ledger/data/ledger.demo.json",
+        "manifest": "https://amanayayatu-tech.github.io/gotra-public-ledger/data/manifest.json",
+        "portfolio": "https://amanayayatu-tech.github.io/gotra-public-ledger/data/paper-portfolio.latest.json",
+        "content": "https://amanayayatu-tech.github.io/gotra-public-ledger/content/articles/index.json"
+      },
+      "ledger_records": 294,
+      "manifest_files": 5,
+      "portfolio_id": "gotra_shadow_long_only_equal_weight_fixture_v1",
+      "content_items": 4
+    }
+  },
+  "browser_smoke": {
+    "routeResults": [
+      {
+        "route": "home",
+        "hash": "#/",
+        "file": "desktop-home-1440x900.png"
+      },
+      {
+        "route": "ledger",
+        "hash": "#/ledger",
+        "file": "desktop-ledger-1440x900.png"
+      },
+      {
+        "route": "system",
+        "hash": "#/system",
+        "file": "desktop-system-1440x900.png"
+      },
+      {
+        "route": "notes",
+        "hash": "#/notes",
+        "file": "mobile-notes-390x844.png"
+      },
+      {
+        "route": "system_mobile",
+        "hash": "#/system",
+        "file": "mobile-system-390x844.png"
+      }
+    ],
+    "consoleErrors": [],
+    "limitations": "cdp_path_timed_out_or_failed",
+    "screenshots": [
+      {
+        "route": "home",
+        "hash": "#/",
+        "file": "desktop-home-1440x900.png"
+      },
+      {
+        "route": "ledger",
+        "hash": "#/ledger",
+        "file": "desktop-ledger-1440x900.png"
+      },
+      {
+        "route": "system",
+        "hash": "#/system",
+        "file": "desktop-system-1440x900.png"
+      },
+      {
+        "route": "notes",
+        "hash": "#/notes",
+        "file": "mobile-notes-390x844.png"
+      },
+      {
+        "route": "system_mobile",
+        "hash": "#/system",
+        "file": "mobile-system-390x844.png"
+      }
+    ],
+    "method": "playwright_fallback"
+  },
+  "notes": {},
+  "completed_at": "2026-06-26T17:00:09.852Z"
+}
