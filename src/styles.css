@@ -3738,6 +3738,252 @@ h1::after {
   margin: 0;
 }
 
+.reader-chart,
+.process-strip,
+.system-flow-diagram,
+.audit-details {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.reader-chart {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.78fr) minmax(0, 1.25fr);
+  gap: 16px;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.reader-chart.compact {
+  margin-top: 0;
+}
+
+.reader-chart h2,
+.process-strip h2,
+.system-flow-diagram h2 {
+  margin-top: 7px;
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.reader-chart p,
+.process-strip p,
+.system-flow-diagram p {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.data-bar-list,
+.signed-bar-list {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.data-bar-row {
+  display: grid;
+  gap: 7px;
+}
+
+.data-bar-label,
+.signed-bar-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.data-bar-label span,
+.signed-bar-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.data-bar-label strong,
+.signed-bar-row strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.data-bar-track,
+.signed-bar-track {
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(58, 75, 89, 0.72);
+  border-radius: 999px;
+  background: rgba(7, 12, 16, 0.52);
+}
+
+.data-bar-track i,
+.signed-bar-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
+}
+
+.data-bar-row.blue .data-bar-track i {
+  background: var(--blue);
+}
+
+.data-bar-row.amber .data-bar-track i {
+  background: var(--amber);
+}
+
+.data-bar-row.red .data-bar-track i,
+.signed-bar-track i.negative {
+  background: var(--red);
+}
+
+.signed-bar-row {
+  grid-template-columns: minmax(130px, 0.8fr) minmax(0, 1fr) auto;
+}
+
+.signed-bar-track i.positive {
+  background: var(--green);
+}
+
+.process-strip {
+  display: grid;
+  gap: 14px;
+}
+
+.process-strip-head {
+  max-width: 860px;
+}
+
+.process-strip ol,
+.system-flow-diagram ol {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.process-strip ol {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.system-flow-diagram ol {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.process-strip li,
+.system-flow-diagram li {
+  position: relative;
+  min-width: 0;
+  min-height: 118px;
+  padding: 13px;
+  border: 1px solid rgba(58, 75, 89, 0.72);
+  border-radius: 8px;
+  background: rgba(105, 167, 255, 0.055);
+}
+
+.process-strip li:not(:last-child)::after,
+.system-flow-diagram li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: -8px;
+  top: 50%;
+  width: 14px;
+  height: 1px;
+  background: rgba(117, 216, 143, 0.55);
+}
+
+.process-strip li span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(117, 216, 143, 0.34);
+  border-radius: 8px;
+  color: var(--green);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.process-strip li strong,
+.system-flow-diagram li strong {
+  display: block;
+  margin-top: 9px;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.28;
+}
+
+.process-strip li small,
+.system-flow-diagram li p {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.source-reader-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.source-reader-grid > div {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(58, 75, 89, 0.72);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.source-reader-grid span {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.source-reader-grid strong {
+  display: block;
+  margin-top: 7px;
+  color: var(--text);
+  font-size: 20px;
+}
+
+.source-reader-grid p {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.audit-details {
+  display: block;
+}
+
+.audit-details summary {
+  cursor: pointer;
+  color: #d5e4f5;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.audit-details[open] {
+  background: rgba(105, 167, 255, 0.055);
+}
+
+.audit-details > :not(summary) {
+  margin-top: 12px;
+}
+
 .prediction-detail-page {
   max-width: 980px;
 }
@@ -3993,6 +4239,27 @@ h1::after {
   max-width: 1120px;
 }
 
+.note-reader-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+  gap: 14px;
+  align-items: start;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.note-reader-head h2 {
+  margin-top: 7px;
+}
+
+.note-reader-head p {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
 .note-detail h3 {
   margin: 0 0 10px;
   font-size: 16px;
@@ -4019,6 +4286,49 @@ h1::after {
 
 .note-report-header dl {
   grid-template-columns: repeat(3, minmax(160px, 1fr));
+}
+
+.report-four-question {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.report-four-question article {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid rgba(117, 216, 143, 0.24);
+  border-radius: 8px;
+  background: rgba(117, 216, 143, 0.06);
+}
+
+.report-four-question span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  border: 1px solid rgba(117, 216, 143, 0.34);
+  border-radius: 8px;
+  color: var(--green);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.report-four-question strong {
+  display: block;
+  margin-top: 9px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.28;
+}
+
+.report-four-question p {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .note-report-header div,
@@ -4249,10 +4559,14 @@ h1::after {
 @media (max-width: 1180px) {
   .policy-grid,
   .source-grid,
+  .source-reader-grid,
+  .reader-chart,
   .portfolio-metric-grid,
   .portfolio-grid,
   .content-card-grid,
+  .note-reader-head,
   .note-report-header,
+  .report-four-question,
   .report-watch-grid,
   .report-two-column,
   .report-queue-grid,
@@ -4265,6 +4579,16 @@ h1::after {
 
   .system-flow-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .process-strip ol,
+  .system-flow-diagram ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .process-strip li:not(:last-child)::after,
+  .system-flow-diagram li:not(:last-child)::after {
+    display: none;
   }
 
   .equity-strip {
@@ -4301,7 +4625,28 @@ h1::after {
     grid-template-columns: 1fr;
   }
 
-  .system-flow-list {
+  .system-flow-list,
+  .process-strip ol,
+  .system-flow-diagram ol,
+  .signed-bar-row {
     grid-template-columns: 1fr;
+  }
+
+  .reader-chart,
+  .process-strip,
+  .system-flow-diagram,
+  .audit-details {
+    padding: 12px;
+  }
+
+  .premium-table {
+    min-width: 0;
+    table-layout: fixed;
+  }
+
+  .premium-table th,
+  .premium-table td {
+    padding: 9px 7px;
+    overflow-wrap: anywhere;
   }
 }
