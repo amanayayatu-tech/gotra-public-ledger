@@ -179,6 +179,7 @@ function validateContentIndex(contentIndex, ledger, resolverPredictions) {
     "Not a trading signal",
     "No performance proof",
   ];
+  const reportRequiredBoundaries = [...requiredBoundaries, "No guarantee of future performance"];
 
   parsed.data.items.forEach((item) => {
     if (slugs.has(item.slug)) {
@@ -196,6 +197,37 @@ function validateContentIndex(contentIndex, ledger, resolverPredictions) {
         fail("content article missing required boundary text", { slug: item.slug, boundary });
       }
     });
+    if (item.report) {
+      reportRequiredBoundaries.forEach((boundary) => {
+        if (!body.includes(boundary)) {
+          fail("content report article missing required boundary text", { slug: item.slug, boundary });
+        }
+      });
+      if (item.report.report_kind !== item.type && item.type !== "research_recap") {
+        fail("content report kind must match report content type", {
+          slug: item.slug,
+          type: item.type,
+          report_kind: item.report.report_kind,
+        });
+      }
+      if (
+        item.report.watched_scope.length === 0 ||
+        item.report.ledger_changes.length === 0 ||
+        item.report.evidence_updates.length === 0 ||
+        item.report.why_or_why_not.length === 0 ||
+        item.report.next_watch_queue.length === 0
+      ) {
+        fail("content report must answer watched/conclusion/why/next queue fields", { slug: item.slug });
+      }
+      if (/continue watching/i.test(item.report.conclusion_change.summary)) {
+        fail("content report conclusion_change must be explicit, not only continue watching", { slug: item.slug });
+      }
+      if (!item.report.boundary_note.toLowerCase().includes("market move alone")) {
+        fail("content report boundary_note must state market move alone is not correctness evidence", {
+          slug: item.slug,
+        });
+      }
+    }
     if (!/#\/(?:ledger|methodology|performance|sources|notes)/.test(body)) {
       fail("content article must include at least one internal route reference", { slug: item.slug });
     }
@@ -212,6 +244,7 @@ function validateContentIndex(contentIndex, ledger, resolverPredictions) {
   return {
     items: parsed.data.items.length,
     body_sources: parsed.data.items.length,
+    report_items: parsed.data.items.filter((item) => item.report).length,
     empty_related_prediction_items: parsed.data.items.filter((item) => item.related_prediction_ids.length === 0).length,
   };
 }

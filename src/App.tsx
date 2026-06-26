@@ -611,6 +611,12 @@ function contentTypeLabel(type: ContentItem["type"]): string {
       return "Error Review";
     case "monthly_transparency":
       return "Transparency Note";
+    case "daily_morning_brief":
+      return "Morning Brief";
+    case "daily_evening_review":
+      return "Evening Review";
+    case "research_recap":
+      return "Research Recap";
   }
 }
 
@@ -640,6 +646,140 @@ function RelatedPredictionLinks({ ids }: { ids: string[] }) {
   );
 }
 
+function NoteReportDetail({ item }: { item: ContentItem }) {
+  const report = item.report;
+  if (!report) {
+    return null;
+  }
+
+  return (
+    <section className="note-report" aria-labelledby="note-report-title">
+      <div className="note-report-header">
+        <div>
+          <span className="section-index">{contentTypeLabel(item.type)}</span>
+          <h2 id="note-report-title">Readable report detail</h2>
+        </div>
+        <dl>
+          <div>
+            <dt>report_date</dt>
+            <dd>{report.report_date}</dd>
+          </div>
+          <div>
+            <dt>status</dt>
+            <dd>{report.status}</dd>
+          </div>
+          <div>
+            <dt>conclusion_change</dt>
+            <dd className="mono">{report.conclusion_change.status}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <section className="report-callout" aria-labelledby="report-tldr-title">
+        <h3 id="report-tldr-title">TLDR</h3>
+        <p>{report.tldr}</p>
+      </section>
+
+      <section aria-labelledby="report-watched-title">
+        <h3 id="report-watched-title">Today watched / Reviewed scope</h3>
+        <div className="report-watch-grid">
+          {report.watched_scope.map((scope) => (
+            <article key={`${scope.label}-${scope.prediction_id ?? scope.ticker ?? scope.company}`}>
+              <div className="content-card-meta">
+                <span>{scope.layer}</span>
+                {scope.resolution_status ? <span>{scope.resolution_status}</span> : null}
+              </div>
+              <h4>{scope.label}</h4>
+              <dl>
+                {scope.ticker ? (
+                  <div>
+                    <dt>ticker</dt>
+                    <dd className="mono">{scope.ticker}</dd>
+                  </div>
+                ) : null}
+                {scope.company ? (
+                  <div>
+                    <dt>company</dt>
+                    <dd>{scope.company}</dd>
+                  </div>
+                ) : null}
+                {scope.prediction_id ? (
+                  <div>
+                    <dt>prediction_id</dt>
+                    <dd>
+                      <a className="mono" href={predictionRouteHref(scope.prediction_id)}>
+                        {scope.prediction_id}
+                      </a>
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+              <p>{scope.why_watched}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="report-two-column" aria-label="Ledger and evidence update">
+        <div>
+          <h3>Ledger changes</h3>
+          <ul>
+            {report.ledger_changes.map((change) => (
+              <li key={change}>{change}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3>Evidence update</h3>
+          <div className="report-evidence-list">
+            {report.evidence_updates.map((update) => (
+              <article key={`${update.topic}-${update.evidence_layer}`}>
+                <span className="mono">{update.evidence_layer}</span>
+                <strong>{update.topic}</strong>
+                <p>{update.update}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="report-two-column" aria-label="Conclusion change and rationale">
+        <div className="report-callout">
+          <h3>Conclusion change</h3>
+          <strong className="mono">{report.conclusion_change.status}</strong>
+          <p>{report.conclusion_change.summary}</p>
+        </div>
+        <div>
+          <h3>Why / why not</h3>
+          <ul>
+            {report.why_or_why_not.map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section aria-labelledby="report-next-title">
+        <h3 id="report-next-title">Next watch queue</h3>
+        <div className="report-queue-grid">
+          {report.next_watch_queue.map((queueItem) => (
+            <article key={`${queueItem.item}-${queueItem.next_check}`}>
+              <strong>{queueItem.item}</strong>
+              <p>{queueItem.next_check}</p>
+              <small>{queueItem.reason}</small>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="report-callout warning" aria-labelledby="report-boundary-title">
+        <h3 id="report-boundary-title">Boundary / what this does not prove</h3>
+        <p>{report.boundary_note}</p>
+      </section>
+    </section>
+  );
+}
+
 function NotesPage() {
   return (
     <>
@@ -666,6 +806,18 @@ function NotesPage() {
                 <a href={noteRouteHref(item.slug)}>{item.title}</a>
               </h3>
               <p>{item.summary}</p>
+              {item.report ? (
+                <dl className="report-card-summary">
+                  <div>
+                    <dt>conclusion_change</dt>
+                    <dd className="mono">{item.report.conclusion_change.status}</dd>
+                  </div>
+                  <div>
+                    <dt>report_date</dt>
+                    <dd>{item.report.report_date}</dd>
+                  </div>
+                </dl>
+              ) : null}
               <div className="tag-row">
                 {item.tags.map((tag) => (
                   <span key={tag}>{tag}</span>
@@ -723,7 +875,14 @@ function NoteDetailPage({ item }: { item: ContentItem | null }) {
             <dt>body_source</dt>
             <dd>{item.body_source}</dd>
           </div>
+          {item.report ? (
+            <div>
+              <dt>report_kind</dt>
+              <dd>{item.report.report_kind}</dd>
+            </div>
+          ) : null}
         </dl>
+        <NoteReportDetail item={item} />
         <section>
           <h3>Tags</h3>
           <div className="tag-row">

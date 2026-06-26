@@ -33,13 +33,88 @@
     {
       "slug": "weekly-ledger-update-2026-06-25",
       "schema_version": "1.0",
-      "title": "Weekly Ledger Update: First Public Alpha Seed",
+      "title": "Morning Brief: Public Alpha Watch Queue",
       "published_at": "2026-06-25T10:15:00+08:00",
-      "type": "weekly_review",
-      "tags": ["weekly-review", "ledger", "pending-records"],
-      "summary": "Summarizes the first public-safe ledger routes, pending records, and why unresolved rows are kept out of resolved metrics.",
+      "type": "daily_morning_brief",
+      "tags": ["morning-brief", "watch-queue", "ledger", "pending-records"],
+      "summary": "Demo morning brief format for what the public ledger watches today, what changed, why judgement did or did not change, and what enters the next watch queue.",
       "body_source": "public/content/articles/weekly-ledger-update-2026-06-25.md",
-      "related_prediction_ids": ["PRED-20260203-TSM-0054", "PRED-20260122-NVDA-0052"],
+      "related_prediction_ids": ["PRED-20260203-TSM-0054", "PRED-20260122-NVDA-0052", "PRED-20260127-3690HK-0053"],
+      "report": {
+        "report_kind": "daily_morning_brief",
+        "report_date": "2026-06-25",
+        "status": "demo_format",
+        "tldr": "Today watch TSM as a resolved reference row and NVDA / 3690.HK as pending public-safe queue examples. No conclusion is upgraded because this demo brief has no fresh external source check.",
+        "watched_scope": [
+          {
+            "label": "Resolved reference row",
+            "ticker": "TSM",
+            "company": "台积电",
+            "prediction_id": "PRED-20260203-TSM-0054",
+            "why_watched": "Used as a known resolved row to show how morning reports separate ledger state from new evidence.",
+            "layer": "background_and_evidence",
+            "resolution_status": "resolved"
+          },
+          {
+            "label": "Pending semiconductor queue",
+            "ticker": "NVDA",
+            "company": "英伟达",
+            "prediction_id": "PRED-20260122-NVDA-0052",
+            "why_watched": "Kept in the queue because outcome fields are still pending in the public demo ledger.",
+            "layer": "background",
+            "resolution_status": "pending"
+          },
+          {
+            "label": "Pending Hong Kong consumer queue",
+            "ticker": "3690.HK",
+            "company": "美团",
+            "prediction_id": "PRED-20260127-3690HK-0053",
+            "why_watched": "Included to show non-US watch scope and currency/market separation without forcing a result.",
+            "layer": "background",
+            "resolution_status": "pending"
+          }
+        ],
+        "ledger_changes": [
+          "No new outcome is written in this demo morning brief.",
+          "Pending and frozen_pending rows remain outside resolved-only metrics.",
+          "The TSM row is watched only as an already-resolved reference, not as a new proof point."
+        ],
+        "evidence_updates": [
+          {
+            "topic": "Public source check",
+            "update": "No live external source check was performed for this demo report format.",
+            "evidence_layer": "no_new_evidence"
+          },
+          {
+            "topic": "Ledger state",
+            "update": "The watched ids come from the public-safe demo ledger and do not include private GOTRA artifacts.",
+            "evidence_layer": "public_safe_demo"
+          }
+        ],
+        "conclusion_change": {
+          "status": "no_new_evidence",
+          "summary": "No judgement update is made because this morning brief introduces no fresh public evidence."
+        },
+        "why_or_why_not": [
+          "The report uses existing public ledger rows only.",
+          "No new public filing, market data source, or company update was checked in this demo format.",
+          "Pending and frozen_pending is not success or failure.",
+          "Market move alone cannot be prediction correctness evidence."
+        ],
+        "next_watch_queue": [
+          {
+            "item": "NVDA pending row",
+            "next_check": "Public price/source resolver input and outcome availability date.",
+            "reason": "The row remains pending until resolver rules have required public-safe evidence."
+          },
+          {
+            "item": "3690.HK pending row",
+            "next_check": "HK market source availability and corporate-action conflict status.",
+            "reason": "Non-US records need explicit source and market handling before resolution."
+          }
+        ],
+        "boundary_note": "Research information only. Not investment advice. Not a trading signal. No performance proof. No guarantee of future performance. Market move alone cannot be prediction correctness evidence."
+      },
       "provenance": {
         "source_repo": "gotra-public-ledger",
         "source_commit": null,
@@ -54,19 +129,95 @@
         "research_information_only",
         "not_investment_advice",
         "not_trading_signal",
-        "demo_public_safe_dataset"
+        "demo_public_safe_dataset",
+        "no_guarantee_of_future_performance"
       ]
     },
     {
       "slug": "error-review-first-public-snapshot",
       "schema_version": "1.0",
-      "title": "Error Review: What The First Snapshot Does Not Prove",
+      "title": "Evening Review: First Public Snapshot Limits",
       "published_at": "2026-06-25T10:30:00+08:00",
-      "type": "error_review",
-      "tags": ["error-review", "limitations", "resolved-only"],
-      "summary": "Reviews visible limitations, pending rows, blocked-state rules, and why local checks are not formal acceptance.",
+      "type": "daily_evening_review",
+      "tags": ["evening-review", "limitations", "resolved-only", "needs-review"],
+      "summary": "Demo evening review format for ledger changes, evidence gaps, conclusion-change status, and the next watch queue after a public-safe day.",
       "body_source": "public/content/articles/error-review-first-public-snapshot.md",
-      "related_prediction_ids": ["PRED-20260203-TSM-0054"],
+      "related_prediction_ids": ["PRED-20260203-TSM-0054", "PRED-20251219-MSFT-0048", "PRED-20260122-NVDA-0052"],
+      "report": {
+        "report_kind": "daily_evening_review",
+        "report_date": "2026-06-25",
+        "status": "demo_format",
+        "tldr": "Evening review finds no new judgement update. The public demo shows one resolved reference, one visible error row, and pending rows that must stay unresolved until source and resolver requirements are met.",
+        "watched_scope": [
+          {
+            "label": "Resolved reference",
+            "ticker": "TSM",
+            "company": "台积电",
+            "prediction_id": "PRED-20260203-TSM-0054",
+            "why_watched": "Reviewed as an example of an already-settled row with traceable error fields.",
+            "layer": "evidence",
+            "resolution_status": "resolved"
+          },
+          {
+            "label": "Visible error review row",
+            "ticker": "MSFT",
+            "company": "微软",
+            "prediction_id": "PRED-20251219-MSFT-0048",
+            "why_watched": "Included to keep error review visible instead of hiding incorrect settled rows.",
+            "layer": "evidence",
+            "resolution_status": "resolved"
+          },
+          {
+            "label": "Pending queue row",
+            "ticker": "NVDA",
+            "company": "英伟达",
+            "prediction_id": "PRED-20260122-NVDA-0052",
+            "why_watched": "Kept open because the public demo ledger has no resolved outcome fields for this row.",
+            "layer": "background",
+            "resolution_status": "pending"
+          }
+        ],
+        "ledger_changes": [
+          "No new result fields are added by this evening review.",
+          "Resolved rows can be discussed as historical ledger state, while pending rows remain unresolved.",
+          "The review flags that a visible error row is not a product failure; hiding it would be the failure."
+        ],
+        "evidence_updates": [
+          {
+            "topic": "Contradictory or missing evidence",
+            "update": "No new public-safe source packet was attached, so the review records an evidence gap rather than changing a judgement.",
+            "evidence_layer": "no_new_evidence"
+          },
+          {
+            "topic": "Resolved-only metric boundary",
+            "update": "Resolved-only metrics must not count pending or frozen_pending records.",
+            "evidence_layer": "local_checks"
+          }
+        ],
+        "conclusion_change": {
+          "status": "unchanged",
+          "summary": "The conclusion remains unchanged because no new public evidence packet or resolver output was added."
+        },
+        "why_or_why_not": [
+          "The evening review can describe ledger state, but it cannot convert unresolved rows into results.",
+          "No judgement update is made without a new public source, resolver event, or boundary-reviewed evidence packet.",
+          "Pending and frozen_pending is not success or failure.",
+          "Market move alone cannot be prediction correctness evidence."
+        ],
+        "next_watch_queue": [
+          {
+            "item": "NVDA pending row",
+            "next_check": "Outcome availability and public-safe adjusted close input.",
+            "reason": "Needs resolver evidence before any correctness field can be written."
+          },
+          {
+            "item": "Daily error review queue",
+            "next_check": "Rows with large absolute error and their public-safe evidence trail.",
+            "reason": "The report should make error surfaces auditable instead of promotional."
+          }
+        ],
+        "boundary_note": "Research information only. Not investment advice. Not a trading signal. No performance proof. No guarantee of future performance. Market move alone cannot be prediction correctness evidence."
+      },
       "provenance": {
         "source_repo": "gotra-public-ledger",
         "source_commit": null,
@@ -81,7 +232,8 @@
         "research_information_only",
         "not_investment_advice",
         "not_trading_signal",
-        "not_science_public_proof"
+        "not_science_public_proof",
+        "no_guarantee_of_future_performance"
       ]
     },
     {

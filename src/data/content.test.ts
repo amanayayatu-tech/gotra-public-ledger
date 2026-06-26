@@ -11,10 +11,10 @@ describe("content index", () => {
     expect(contentIndexSchema.safeParse(contentIndex).success).toBe(true);
     expect(contentItems).toHaveLength(4);
     expect(contentItems.map((item) => item.type).sort()).toEqual([
-      "error_review",
+      "daily_evening_review",
+      "daily_morning_brief",
       "method_note",
       "monthly_transparency",
-      "weekly_review",
     ]);
   });
 
@@ -39,5 +39,20 @@ describe("content index", () => {
     expect(method?.related_prediction_ids).toEqual([]);
     expect(weekly?.related_prediction_ids).toContain("PRED-20260203-TSM-0054");
     expect(findContentItem("missing-note")).toBeNull();
+  });
+
+  it("loads morning and evening reports with the four required report answers", () => {
+    const morning = findContentItem("weekly-ledger-update-2026-06-25");
+    const evening = findContentItem("error-review-first-public-snapshot");
+
+    [morning, evening].forEach((item) => {
+      expect(item?.report?.watched_scope.length).toBeGreaterThan(0);
+      expect(item?.report?.conclusion_change.status).toMatch(
+        /unchanged|strengthened|weakened|conflict_found|needs_review|no_new_evidence/,
+      );
+      expect(item?.report?.why_or_why_not.length).toBeGreaterThan(0);
+      expect(item?.report?.next_watch_queue.length).toBeGreaterThan(0);
+      expect(item?.report?.boundary_note).toContain("Market move alone cannot be prediction correctness evidence");
+    });
   });
 });

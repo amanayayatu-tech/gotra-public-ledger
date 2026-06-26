@@ -20,6 +20,8 @@ describe("hash router", () => {
     const route = parseHashRoute("#/notes/weekly-ledger-update-2026-06-25");
     expect(route.name).toBe("note");
     expect(route.name === "note" ? route.slug : "").toBe("weekly-ledger-update-2026-06-25");
+    const eveningRoute = parseHashRoute("#/notes/error-review-first-public-snapshot");
+    expect(eveningRoute.name === "note" ? eveningRoute.slug : "").toBe("error-review-first-public-snapshot");
     expect(noteRouteHref("alpha note")).toBe("#/notes/alpha%20note");
   });
 
