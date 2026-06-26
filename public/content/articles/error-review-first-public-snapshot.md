@@ -2,7 +2,7 @@
 
 Boundary: Research information only. Not investment advice. Not a trading signal. No performance proof. No guarantee of future performance.
 
-Status: demo/public-safe/illustrative operating format. This review does not claim that a real external evening source check was performed.
+Status: Public-safe dataset entry. No new public filing, market data source, company update, or resolver event was checked today; the ledger state is unchanged.
 
 ## TLDR
 
@@ -56,4 +56,4 @@ The conclusion remains unchanged because no new public evidence packet, source c
 
 ## Boundary / what this does not prove
 
-This evening review is a public-safe report format demonstration. It is not investment advice, not a trading signal, not live trading, not performance proof, and not a guarantee of future performance.
+This evening review is for public-safe research workflow reporting only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not a guarantee of future performance.

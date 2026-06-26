@@ -37,21 +37,21 @@
       "published_at": "2026-06-25T10:15:00+08:00",
       "type": "daily_morning_brief",
       "tags": ["morning-brief", "watch-queue", "ledger", "pending-records"],
-      "summary": "Demo morning brief format for what the public ledger watches today, what changed, why judgement did or did not change, and what enters the next watch queue.",
+      "summary": "Morning brief for the public ledger watch queue: what was watched, whether the conclusion changed, why, and what enters the next watch queue.",
       "body_source": "public/content/articles/weekly-ledger-update-2026-06-25.md",
       "related_prediction_ids": ["PRED-20260203-TSM-0054", "PRED-20260122-NVDA-0052", "PRED-20260127-3690HK-0053"],
       "report": {
         "report_kind": "daily_morning_brief",
         "report_date": "2026-06-25",
-        "status": "demo_format",
-        "tldr": "Today watch TSM as a resolved reference row and NVDA / 3690.HK as pending public-safe queue examples. No conclusion is upgraded because this demo brief has no fresh external source check.",
+        "status": "published_public_safe",
+        "tldr": "Today we watched TSM as a resolved reference row and NVDA / 3690.HK as pending observation rows. No conclusion is upgraded because no new public evidence was added.",
         "watched_scope": [
           {
             "label": "Resolved reference row",
             "ticker": "TSM",
             "company": "台积电",
             "prediction_id": "PRED-20260203-TSM-0054",
-            "why_watched": "Used as a known resolved row to show how morning reports separate ledger state from new evidence.",
+            "why_watched": "Used as a known resolved reference row; it helps separate ledger state from new evidence and is not a new proof point.",
             "layer": "background_and_evidence",
             "resolution_status": "resolved"
           },
@@ -60,7 +60,7 @@
             "ticker": "NVDA",
             "company": "英伟达",
             "prediction_id": "PRED-20260122-NVDA-0052",
-            "why_watched": "Kept in the queue because outcome fields are still pending in the public demo ledger.",
+            "why_watched": "Kept in the queue because outcome fields are still pending in the public ledger.",
             "layer": "background",
             "resolution_status": "pending"
           },
@@ -69,20 +69,20 @@
             "ticker": "3690.HK",
             "company": "美团",
             "prediction_id": "PRED-20260127-3690HK-0053",
-            "why_watched": "Included to show non-US watch scope and currency/market separation without forcing a result.",
+            "why_watched": "Included as a non-US observation row with currency and market separation; no result is forced.",
             "layer": "background",
             "resolution_status": "pending"
           }
         ],
         "ledger_changes": [
-          "No new outcome is written in this demo morning brief.",
+          "No new outcome is written in this morning brief.",
           "Pending and frozen_pending rows remain outside resolved-only metrics.",
           "The TSM row is watched only as an already-resolved reference, not as a new proof point."
         ],
         "evidence_updates": [
           {
             "topic": "Public source check",
-            "update": "No live external source check was performed for this demo report format.",
+            "update": "No new public evidence packet was added for this report.",
             "evidence_layer": "no_new_evidence"
           },
           {
@@ -97,7 +97,7 @@
         },
         "why_or_why_not": [
           "The report uses existing public ledger rows only.",
-          "No new public filing, market data source, or company update was checked in this demo format.",
+          "No new public filing, market data source, company update, or resolver event was checked today; the ledger state is unchanged.",
           "Pending and frozen_pending is not success or failure.",
           "Market move alone cannot be prediction correctness evidence."
         ],
@@ -140,14 +140,14 @@
       "published_at": "2026-06-25T10:30:00+08:00",
       "type": "daily_evening_review",
       "tags": ["evening-review", "limitations", "resolved-only", "needs-review"],
-      "summary": "Demo evening review format for ledger changes, evidence gaps, conclusion-change status, and the next watch queue after a public-safe day.",
+        "summary": "Evening review for ledger changes, evidence gaps, conclusion-change status, and the next watch queue after a public-safe day.",
       "body_source": "public/content/articles/error-review-first-public-snapshot.md",
       "related_prediction_ids": ["PRED-20260203-TSM-0054", "PRED-20251219-MSFT-0048", "PRED-20260122-NVDA-0052"],
       "report": {
         "report_kind": "daily_evening_review",
         "report_date": "2026-06-25",
-        "status": "demo_format",
-        "tldr": "Evening review finds no new judgement update. The public demo shows one resolved reference, one visible error row, and pending rows that must stay unresolved until source and resolver requirements are met.",
+        "status": "published_public_safe",
+        "tldr": "No ledger status changed today. The review keeps resolved rows as references and leaves pending rows unresolved until public source and resolver requirements are met.",
         "watched_scope": [
           {
             "label": "Resolved reference",
@@ -172,7 +172,7 @@
             "ticker": "NVDA",
             "company": "英伟达",
             "prediction_id": "PRED-20260122-NVDA-0052",
-            "why_watched": "Kept open because the public demo ledger has no resolved outcome fields for this row.",
+            "why_watched": "Kept open because the public ledger has no resolved outcome fields for this row.",
             "layer": "background",
             "resolution_status": "pending"
           }

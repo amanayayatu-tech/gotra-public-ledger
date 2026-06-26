@@ -7,11 +7,14 @@ import {
   type SummaryMetrics,
 } from "../data/metrics";
 import type { LedgerDataset } from "../data/schema";
+import type { Language } from "../i18n/language";
+import { boundarySentence, copy } from "../i18n/language";
 
 type HeroProps = {
   dataset: LedgerDataset;
   metrics: SummaryMetrics;
   records: RecordView[];
+  language: Language;
 };
 
 function getLargestErrorRecord(records: RecordView[]): RecordView | null {
@@ -68,18 +71,18 @@ function toPolyline(values: number[], min: number, max: number): string {
     .join(" ");
 }
 
-function HeroMiniChart({ records }: { records: RecordView[] }) {
+function HeroMiniChart({ records, language }: { records: RecordView[]; language: Language }) {
   const series = buildMiniSeries(records);
   const latest = series.at(-1);
 
   if (!latest || series.length === 0) {
     return (
-      <div className="hero-mini-chart empty" aria-label="预测 vs 实际迷你图">
+      <div className="hero-mini-chart empty" aria-label={copy(language, "预测 vs 实际迷你图", "Prediction vs actual mini chart")}>
         <div className="proof-head">
-          <span>预测 vs 实际</span>
-          <strong>暂无</strong>
+          <span>{copy(language, "预测 vs 实际", "Prediction vs actual")}</span>
+          <strong>{copy(language, "暂无", "None")}</strong>
         </div>
-        <p>暂无已结算记录可绘制折线。</p>
+        <p>{copy(language, "暂无已结算记录可绘制折线。", "No resolved records are available for this line chart.")}</p>
       </div>
     );
   }
@@ -89,9 +92,9 @@ function HeroMiniChart({ records }: { records: RecordView[] }) {
   const max = Math.max(1, ...values);
 
   return (
-    <div className="hero-mini-chart" aria-label="预测 vs 实际迷你图">
+    <div className="hero-mini-chart" aria-label={copy(language, "预测 vs 实际迷你图", "Prediction vs actual mini chart")}>
       <div className="proof-head">
-        <span>预测 vs 实际</span>
+        <span>{copy(language, "预测 vs 实际", "Prediction vs actual")}</span>
         <strong>
           {latest.ticker} · {latest.prediction_window}
         </strong>
@@ -106,11 +109,11 @@ function HeroMiniChart({ records }: { records: RecordView[] }) {
       <div className="chart-legend" aria-hidden="true">
         <span>
           <i className="predicted" />
-          预测
+          {copy(language, "预测", "Predicted")}
         </span>
         <span>
           <i className="actual" />
-          实际
+          {copy(language, "实际", "Actual")}
         </span>
       </div>
     </div>
@@ -121,42 +124,42 @@ function reportCtaClick(target: "full-ledger") {
   window.dispatchEvent(new CustomEvent("cta_click", { detail: { target } }));
 }
 
-function MiniProofCard({ records }: { records: RecordView[] }) {
+function MiniProofCard({ records, language }: { records: RecordView[]; language: Language }) {
   const largestErrorRecord = getLargestErrorRecord(records);
   const latestSettled = getLatestSettledRecord(records);
 
   return (
-    <div className="hero-proof" aria-label="公开账本即时证据">
+    <div className="hero-proof" aria-label={copy(language, "公开账本即时证据", "Public ledger evidence")}>
       <div className="proof-head">
-        <span>公开账本即时证据</span>
+        <span>{copy(language, "账本现状", "Ledger state")}</span>
         <strong>prediction ledger</strong>
       </div>
       <div className="proof-row">
-        <span>最新已结算记录</span>
+        <span>{copy(language, "最新已结算记录", "Latest resolved ledger record")}</span>
         <strong>
-          {latestSettled ? `${latestSettled.ticker} · ${latestSettled.decision_date}` : "暂无已结算记录"}
+          {latestSettled ? `${latestSettled.ticker} · ${latestSettled.decision_date}` : copy(language, "暂无已结算记录", "No resolved record")}
         </strong>
       </div>
       <div className="proof-grid">
         <div>
-          <span>预测</span>
-          <strong>{latestSettled ? formatSignedPercent(latestSettled.expected_change_pct) : "暂无"}</strong>
+          <span>{copy(language, "预测", "Prediction")}</span>
+          <strong>{latestSettled ? formatSignedPercent(latestSettled.expected_change_pct) : copy(language, "暂无", "None")}</strong>
         </div>
         <div>
-          <span>实际</span>
-          <strong>{latestSettled ? formatSignedPercent(latestSettled.actual_change_pct) : "暂无"}</strong>
+          <span>{copy(language, "实际", "Actual")}</span>
+          <strong>{latestSettled ? formatSignedPercent(latestSettled.actual_change_pct) : copy(language, "暂无", "None")}</strong>
         </div>
         <div>
-          <span>误差</span>
-          <strong>{latestSettled ? `${formatNumber(Math.abs(latestSettled.error ?? 0))}pp` : "暂无"}</strong>
+          <span>{copy(language, "误差", "Error")}</span>
+          <strong>{latestSettled ? `${formatNumber(Math.abs(latestSettled.error ?? 0))}pp` : copy(language, "暂无", "None")}</strong>
         </div>
       </div>
       <div className="proof-error">
-        <span>我们也公开最大错误</span>
+        <span>{copy(language, "最大公开错误", "Largest visible error")}</span>
         <strong>
           {largestErrorRecord
             ? `${largestErrorRecord.ticker} · ${formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp`
-            : "暂无"}
+            : copy(language, "暂无", "None")}
         </strong>
         <p>{describeLargestError(largestErrorRecord)}</p>
       </div>
@@ -164,30 +167,54 @@ function MiniProofCard({ records }: { records: RecordView[] }) {
   );
 }
 
-export function Hero({ dataset, metrics, records }: HeroProps) {
+export function Hero({ dataset, metrics, records, language }: HeroProps) {
   const openMistakes = getOpenMistakeCount(records);
   const largestErrorRecord = getLargestErrorRecord(records);
+  const latestNoteSlug = "weekly-ledger-update-2026-06-25";
 
   return (
     <section className="hero-section" id="hero" aria-labelledby="page-title">
       <div className="hero-copy">
         <div className="hero-boundary-note">
           <ShieldCheck aria-hidden="true" size={16} />
-          research information only · not investment advice / public-safe demo
+          {shortBoundary(language)}
         </div>
-        <p className="hero-brand-motif">别人制造注意力，GOTRA 制造信用</p>
-        <h1 id="page-title">一个会公开承认错误的 AI 股票研究系统</h1>
+        <p className="hero-brand-motif">{copy(language, "公开研究账本，不是交易机器", "Public research ledger, not a trading machine")}</p>
+        <h1 id="page-title">{copy(language, "先看今天研究了什么，再看证据和边界", "See what was watched, then the evidence and boundary")}</h1>
         <p>
-          GOTRA 每天对一批美股/港股形成判断，并把每一次预测带时间戳写入公开账本。窗口到期后与真实走势对照：
-          对就是对，错就是错；public-safe demo 只展示研究信息，不构成 OOS 验证或投资建议。
+          {copy(language, "GOTRA Public Ledger 展示 public-safe 研究记录、结算状态、错误和下一步观察。它帮助读者理解研究过程，而不是给出买卖、仓位或收益承诺。", "GOTRA Public Ledger shows public-safe research records, resolution state, errors, and next watch steps. It helps readers understand the research process, not buy/sell, sizing, or return promises.")}
         </p>
+        <div className="home-priority-grid" aria-label={copy(language, "首页信息优先级", "Home information priority")}>
+          <article>
+            <span>{copy(language, "它是什么", "What it is")}</span>
+            <strong>{copy(language, "公开研究账本", "Public research ledger")}</strong>
+            <p>{copy(language, "记录研究对象、公开证据、结论变化和错误。", "Tracks research subjects, public evidence, conclusion changes, and errors.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "它不是什么", "What it is not")}</span>
+            <strong>{copy(language, "不是投资建议", "Not investment advice")}</strong>
+            <p>{copy(language, "不是交易信号、实时交易或业绩证明。", "Not a trading signal, live trading, or performance proof.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "最新简报", "Latest note")}</span>
+            <strong>{copy(language, "晨间观察队列", "Morning watch queue")}</strong>
+            <p>
+              <a href={`#/notes/${latestNoteSlug}`}>{copy(language, "阅读最新简报", "Read latest note")}</a>
+            </p>
+          </article>
+          <article>
+            <span>{copy(language, "快照日期", "Snapshot date")}</span>
+            <strong>{dataset.metadata.snapshot_date}</strong>
+            <p>{copy(language, "与最新简报、最新已结算记录分开定义。", "Distinct from latest note and latest resolved record.")}</p>
+          </article>
+        </div>
         <div className="hero-actions" aria-label="Page shortcuts">
           <a className="primary-action" href="#full-ledger" onClick={() => reportCtaClick("full-ledger")}>
-            浏览公开预测
+            {copy(language, "浏览公开账本", "Browse ledger")}
             <ArrowDown aria-hidden="true" size={16} />
           </a>
           <a className="secondary-action" href="#method-boundary">
-            查看方法与边界
+            {copy(language, "查看方法与边界", "View method and boundary")}
           </a>
         </div>
       </div>
@@ -196,36 +223,40 @@ export function Hero({ dataset, metrics, records }: HeroProps) {
         <div className="hero-stat-grid" aria-label="Dataset summary">
           <div>
             <Database aria-hidden="true" size={18} />
-            <span>已公开预测</span>
+            <span>{copy(language, "已公开预测", "Public records")}</span>
             <strong>{metrics.total}</strong>
           </div>
           <div>
             <AlertTriangle aria-hidden="true" size={18} />
-            <span>公开承认错误</span>
+            <span>{copy(language, "公开错误", "Visible errors")}</span>
             <strong>{openMistakes}</strong>
           </div>
           <div>
             <CheckCircle2 aria-hidden="true" size={18} />
-            <span>已结算记录</span>
+            <span>{copy(language, "已结算记录", "Resolved records")}</span>
             <strong>{metrics.resolved}</strong>
           </div>
           <div>
             <AlertTriangle aria-hidden="true" size={18} />
-            <span>最大误差记录</span>
+            <span>{copy(language, "最大误差记录", "Largest error record")}</span>
             <strong>
               {largestErrorRecord
                 ? `${largestErrorRecord.ticker} · ${formatNumber(Math.abs(largestErrorRecord.error ?? 0))}pp`
-                : "暂无"}
+                : copy(language, "暂无", "None")}
             </strong>
           </div>
         </div>
-        <HeroMiniChart records={records} />
+        <HeroMiniChart records={records} language={language} />
         <p className="hero-data-note">
-          包含 {metrics.pending + metrics.frozenPending} 条未公开 outcome 的 pending/frozen_pending 记录；本页面不回填后验结果。
-          <span> public-safe demo · 非 OOS · snapshot_date {dataset.metadata.snapshot_date}</span>
+          {copy(language, `包含 ${metrics.pending + metrics.frozenPending} 条未公开 outcome 的 pending/frozen_pending 记录；本页面不回填后验结果。`, `Contains ${metrics.pending + metrics.frozenPending} pending/frozen_pending records without public outcomes; this page does not backfill hindsight results.`)}
+          <span> public-safe demo · not OOS · snapshot_date {dataset.metadata.snapshot_date}</span>
         </p>
-        <MiniProofCard records={records} />
+        <MiniProofCard records={records} language={language} />
       </div>
     </section>
   );
+}
+
+function shortBoundary(language: Language): string {
+  return boundarySentence(language).replaceAll(". ", " · ").replaceAll("。", " · ").replace(/ · $/, "");
 }
