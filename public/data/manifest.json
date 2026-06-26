@@ -43,8 +43,8 @@
     },
     {
       "path": "content/articles/index.json",
-      "sha256": "sha256:3b80a1ee6e5b6929f5272afb5438af26827e6ab2ff9d21245b7bc7941f06a5e5",
-      "bytes": 12959,
+      "sha256": "sha256:c7e91012868b5fca19dafb792b9a19f180637081e29fe9239d1ee6bb3bcc389a",
+      "bytes": 12884,
       "record_count": 4,
       "category": "content"
     }

@@ -43,7 +43,7 @@ describe("content index", () => {
     expect(findContentItem("missing-note")).toBeNull();
   });
 
-  it("loads morning and evening reports with the four required report answers", () => {
+  it("loads morning and evening reports with the five required report answers", () => {
     const morning = findContentItem("weekly-ledger-update-2026-06-25");
     const evening = findContentItem("error-review-first-public-snapshot");
 
@@ -55,6 +55,9 @@ describe("content index", () => {
       expect(item?.report?.why_or_why_not.length).toBeGreaterThan(0);
       expect(item?.report?.next_watch_queue.length).toBeGreaterThan(0);
       expect(item?.report?.boundary_note).toContain("Market move alone cannot be prediction correctness evidence");
+      expect(item?.report?.boundary_note).toContain("Not investment advice");
+      expect(item?.summary.toLowerCase()).not.toContain("demo morning brief format");
+      expect(item?.summary.toLowerCase()).not.toContain("demo evening review format");
     });
   });
 });

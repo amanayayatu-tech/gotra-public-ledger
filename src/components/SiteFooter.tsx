@@ -1,13 +1,16 @@
 import { Github, ShieldCheck } from "lucide-react";
 import packageJson from "../../package.json";
 import type { LedgerMetadata } from "../data/schema";
+import type { Language } from "../i18n/language";
+import { copy, shortBoundarySentence } from "../i18n/language";
 import { routeHref } from "../routes/hashRouter";
 
 type SiteFooterProps = {
   metadata: LedgerMetadata;
+  language: Language;
 };
 
-export function SiteFooter({ metadata }: SiteFooterProps) {
+export function SiteFooter({ metadata, language }: SiteFooterProps) {
   const version = packageJson.version;
 
   return (
@@ -16,10 +19,9 @@ export function SiteFooter({ metadata }: SiteFooterProps) {
         <span className="brand-mark footer-mark" aria-hidden="true">
           <span />
         </span>
-        <h2 id="footer-title">大多数金融内容制造注意力，GOTRA 制造信用。</h2>
+        <h2 id="footer-title">{copy(language, "GOTRA Public Ledger 公开研究过程，也公开错误。", "GOTRA Public Ledger shows the research process and the errors.")}</h2>
         <p>
-          GOTRA Public Ledger 当前展示的是 public-safe frozen demo snapshot。它是前端 UX/product narrative evidence，
-          不是研究结论、交易信号或投资建议。
+          {copy(language, "当前展示的是 public-safe frozen demo snapshot。它是产品与研究流程展示，不是交易信号、投资建议、科学证明或业绩证明。", "The current surface is a public-safe frozen demo snapshot. It is product and research-process evidence, not a trading signal, investment advice, scientific proof, or performance proof.")}
         </p>
       </div>
       <nav aria-label="Footer links">
@@ -32,16 +34,16 @@ export function SiteFooter({ metadata }: SiteFooterProps) {
           GitHub repo
         </a>
         <a href="https://github.com/amanayayatu-tech/gotra-public-ledger/blob/main/docs/DATA_BOUNDARY.md" target="_blank" rel="noreferrer">
-          数据边界
+          {copy(language, "数据边界", "Data boundary")}
         </a>
         <a href="https://github.com/amanayayatu-tech/gotra-public-ledger/blob/main/docs/CLAIM_BOUNDARY.md" target="_blank" rel="noreferrer">
-          claim boundary
+          {copy(language, "声明边界", "Claim boundary")}
         </a>
       </nav>
       <div className="footer-meta">
         <span>
           <ShieldCheck aria-hidden="true" size={14} />
-          research information only · not investment advice
+          {shortBoundarySentence(language)}
         </span>
         <span>version {version}</span>
         <span>snapshot_date {metadata.snapshot_date}</span>
