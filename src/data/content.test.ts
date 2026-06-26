@@ -46,18 +46,71 @@ describe("content index", () => {
   it("loads morning and evening reports with the five required report answers", () => {
     const morning = findContentItem("weekly-ledger-update-2026-06-25");
     const evening = findContentItem("error-review-first-public-snapshot");
+    expect(morning?.report).toBeDefined();
+    expect(evening?.report).toBeDefined();
 
     [morning, evening].forEach((item) => {
-      expect(item?.report?.watched_scope.length).toBeGreaterThan(0);
-      expect(item?.report?.conclusion_change.status).toMatch(
+      const itemReport = item?.report;
+      expect(itemReport).toBeDefined();
+      expect(itemReport?.watched_scope.length).toBeGreaterThan(0);
+      expect(itemReport?.conclusion_change.status).toMatch(
         /unchanged|strengthened|weakened|conflict_found|needs_review|no_new_evidence/,
       );
-      expect(item?.report?.why_or_why_not.length).toBeGreaterThan(0);
-      expect(item?.report?.next_watch_queue.length).toBeGreaterThan(0);
-      expect(item?.report?.boundary_note).toContain("Market move alone cannot be prediction correctness evidence");
-      expect(item?.report?.boundary_note).toContain("Not investment advice");
+      expect(itemReport?.why_or_why_not.length).toBeGreaterThan(0);
+      expect(itemReport?.next_watch_queue.length).toBeGreaterThan(0);
+      expect(itemReport?.boundary_note).toContain("Market move alone cannot be prediction correctness evidence");
+      expect(itemReport?.boundary_note).toContain("Not investment advice");
       expect(item?.summary.toLowerCase()).not.toContain("demo morning brief format");
       expect(item?.summary.toLowerCase()).not.toContain("demo evening review format");
+    });
+  });
+
+  it("rejects report self-description phrases intended for internal templates", () => {
+    const forbiddenDemoSelfExplanation = [
+      /this demo format/i,
+      /demo report format/i,
+      /demo morning brief format/i,
+      /demo evening review format/i,
+      /report format demonstration/i,
+      /演示格式/i,
+      /用于展示/i,
+    ];
+
+    contentItems.forEach((item) => {
+      const body = fs.readFileSync(path.join(repoRoot, item.body_source), "utf8");
+      const report = item.report;
+      const userVisible = [
+        item.title,
+        item.summary,
+        report?.tldr ?? "",
+        ...(report?.watched_scope ?? []).flatMap((scope) => [
+          scope.label,
+          scope.ticker,
+          scope.company,
+          scope.prediction_id ?? "",
+          scope.why_watched,
+        ]),
+        ...(report?.ledger_changes ?? []),
+        ...(report?.evidence_updates ?? []).flatMap((update) => [
+          update.topic,
+          update.update,
+        ]),
+        report?.conclusion_change?.summary ?? "",
+        ...(report?.why_or_why_not ?? []),
+        ...(report?.next_watch_queue ?? []).flatMap((queue) => [
+          queue.item,
+          queue.next_check,
+          queue.reason,
+        ]),
+        report?.boundary_note ?? "",
+        body,
+      ]
+        .filter((value): value is string => typeof value === "string")
+        .join("\n");
+
+      for (const pattern of forbiddenDemoSelfExplanation) {
+        expect(userVisible).not.toMatch(pattern);
+      }
     });
   });
 });

@@ -2,7 +2,7 @@
 
 Boundary: Research information only. Not investment advice. Not a trading signal. No performance proof. No guarantee of future performance.
 
-Status: demo/public-safe/illustrative operating format. This brief does not claim that a real external morning source check was performed.
+Status: Public-safe dataset entry. No new public filing, market data source, company update, or resolver event was checked today; the ledger state is unchanged.
 
 ## TLDR
 
@@ -24,7 +24,7 @@ Open the related records on [Ledger](#/ledger), including [PRED-20260203-TSM-005
 
 ## Evidence update
 
-- Public source check: no live external source check was performed for this demo report format.
+- Public source check: No new public filing, market data source, company update, or resolver event was checked today; the ledger state is unchanged.
 - Ledger state: watched ids come from the public-safe demo ledger, not private GOTRA artifacts.
 - Boundary check: market move alone cannot be prediction correctness evidence.
 
@@ -37,7 +37,7 @@ No judgement update is made because the report introduces no fresh public eviden
 ## Why / why not
 
 - The report uses existing public ledger rows only.
-- No new public filing, market data source, company update, or resolver event was checked in this demo format.
+- No new public filing, market data source, company update, or resolver event was checked today; the ledger state is unchanged.
 - `pending` and `frozen_pending` are not success or failure states.
 - A market move by itself does not prove whether a prediction was correct.
 
@@ -55,4 +55,4 @@ No judgement update is made because the report introduces no fresh public eviden
 
 ## Boundary / what this does not prove
 
-This morning brief is a report format demonstration. It is not investment advice, not a trading signal, not live trading, not performance proof, and not a guarantee of future performance.
+This morning brief is for public-safe research workflow reporting only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not a guarantee of future performance.

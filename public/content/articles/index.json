@@ -97,7 +97,7 @@
         },
         "why_or_why_not": [
           "The report uses existing public ledger rows only.",
-          "No new public filing, market data source, or company update was checked in this demo format.",
+          "No new public filing, market data source, company update, or resolver event was checked today; the ledger state is unchanged.",
           "Pending and frozen_pending is not success or failure.",
           "Market move alone cannot be prediction correctness evidence."
         ],
