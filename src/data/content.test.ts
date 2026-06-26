@@ -9,6 +9,8 @@ const repoRoot = process.cwd();
 describe("content index", () => {
   it("loads exactly four public-safe content items", () => {
     expect(contentIndexSchema.safeParse(contentIndex).success).toBe(true);
+    expect(contentIndex.schema_version).toBe("1.1");
+    expect(contentItems.every((item) => item.schema_version === "1.1")).toBe(true);
     expect(contentItems).toHaveLength(4);
     expect(contentItems.map((item) => item.type).sort()).toEqual([
       "daily_evening_review",

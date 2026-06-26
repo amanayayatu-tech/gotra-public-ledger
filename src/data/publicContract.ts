@@ -271,7 +271,7 @@ export const paperPortfolioSnapshotSchema = z
 export const contentItemSchema = z
   .object({
     slug: z.string().min(1),
-    schema_version: z.literal("1.0"),
+    schema_version: z.enum(["1.0", "1.1"]),
     title: z.string().min(1),
     published_at: isoDateTimeSchema,
     type: z.enum([
@@ -354,16 +354,69 @@ export const contentItemSchema = z
     provenance: publicProvenanceSchema,
     claim_boundary: z.array(publicClaimBoundarySchema).min(1),
   })
-  .strict();
+  .strict()
+  .superRefine((item, context) => {
+    const reportKindByType = {
+      daily_morning_brief: "daily_morning_brief",
+      daily_evening_review: "daily_evening_review",
+      research_recap: "research_recap",
+    } as const;
+    const expectedReportKind = reportKindByType[item.type as keyof typeof reportKindByType];
+
+    if (item.schema_version === "1.0" && (expectedReportKind || item.report)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "content report items require schema_version 1.1",
+        path: ["schema_version"],
+      });
+    }
+
+    if (expectedReportKind && !item.report) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "daily report and research recap items require report payloads",
+        path: ["report"],
+      });
+      return;
+    }
+
+    if (!expectedReportKind && item.report) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "report payloads are only valid for report content types",
+        path: ["report"],
+      });
+      return;
+    }
+
+    if (item.report && item.report.report_kind !== expectedReportKind) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "content report kind must match report content type",
+        path: ["report", "report_kind"],
+      });
+    }
+  });
 
 export const contentIndexSchema = z
   .object({
-    schema_version: z.literal("1.0"),
+    schema_version: z.enum(["1.0", "1.1"]),
     dataset_id: z.string().min(1),
     snapshot_date: isoDateSchema,
     items: z.array(contentItemSchema).length(4),
   })
-  .strict();
+  .strict()
+  .superRefine((index, context) => {
+    const requiresSchemaV11 = index.items.some((item) => item.schema_version === "1.1" || item.report);
+
+    if (requiresSchemaV11 && index.schema_version !== "1.1") {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "content index with report-aware items requires schema_version 1.1",
+        path: ["schema_version"],
+      });
+    }
+  });
 
 export const manifestFileSchema = z
   .object({

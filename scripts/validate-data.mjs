@@ -180,6 +180,11 @@ function validateContentIndex(contentIndex, ledger, resolverPredictions) {
     "No performance proof",
   ];
   const reportRequiredBoundaries = [...requiredBoundaries, "No guarantee of future performance"];
+  const reportKindByType = {
+    daily_morning_brief: "daily_morning_brief",
+    daily_evening_review: "daily_evening_review",
+    research_recap: "research_recap",
+  };
 
   parsed.data.items.forEach((item) => {
     if (slugs.has(item.slug)) {
@@ -197,13 +202,26 @@ function validateContentIndex(contentIndex, ledger, resolverPredictions) {
         fail("content article missing required boundary text", { slug: item.slug, boundary });
       }
     });
+    const expectedReportKind = reportKindByType[item.type];
+    if (expectedReportKind && !item.report) {
+      fail("report content item must include structured report payload", {
+        slug: item.slug,
+        type: item.type,
+      });
+    }
+    if (!expectedReportKind && item.report) {
+      fail("non-report content item must not include structured report payload", {
+        slug: item.slug,
+        type: item.type,
+      });
+    }
     if (item.report) {
       reportRequiredBoundaries.forEach((boundary) => {
         if (!body.includes(boundary)) {
           fail("content report article missing required boundary text", { slug: item.slug, boundary });
         }
       });
-      if (item.report.report_kind !== item.type && item.type !== "research_recap") {
+      if (item.report.report_kind !== expectedReportKind) {
         fail("content report kind must match report content type", {
           slug: item.slug,
           type: item.type,

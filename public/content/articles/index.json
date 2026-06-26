@@ -1,11 +1,11 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "dataset_id": "gotra_public_alpha_content_2026_06_25",
   "snapshot_date": "2026-06-25",
   "items": [
     {
       "slug": "method-note-public-ledger-v1",
-      "schema_version": "1.0",
+      "schema_version": "1.1",
       "title": "Method Note: Public Ledger v1 Boundaries",
       "published_at": "2026-06-25T10:00:00+08:00",
       "type": "method_note",
@@ -32,7 +32,7 @@
     },
     {
       "slug": "weekly-ledger-update-2026-06-25",
-      "schema_version": "1.0",
+      "schema_version": "1.1",
       "title": "Morning Brief: Public Alpha Watch Queue",
       "published_at": "2026-06-25T10:15:00+08:00",
       "type": "daily_morning_brief",
@@ -135,7 +135,7 @@
     },
     {
       "slug": "error-review-first-public-snapshot",
-      "schema_version": "1.0",
+      "schema_version": "1.1",
       "title": "Evening Review: First Public Snapshot Limits",
       "published_at": "2026-06-25T10:30:00+08:00",
       "type": "daily_evening_review",
@@ -238,7 +238,7 @@
     },
     {
       "slug": "alpha-transparency-note-2026-06",
-      "schema_version": "1.0",
+      "schema_version": "1.1",
       "title": "Alpha Transparency Note: Sample Size And Operations",
       "published_at": "2026-06-25T10:45:00+08:00",
       "type": "monthly_transparency",
