@@ -4957,17 +4957,13 @@ h1::after {
 }
 
 .hero-section .hero-title {
-  max-width: min(100%, 11.5em);
-  font-size: clamp(44px, 4.35vw, 58px);
-  line-height: 1.08;
+  max-width: min(100%, 9.4em);
+  font-size: clamp(38px, 3.65vw, 48px);
+  line-height: 1.12;
   overflow-wrap: anywhere;
   text-wrap: balance;
-  word-break: normal;
-}
-
-.hero-section .hero-title span {
-  display: block;
-  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .hero-asset-frame,
@@ -5198,7 +5194,8 @@ h1::after {
 
 @media (max-width: 760px) {
   .hero-section .hero-title {
-    font-size: clamp(28px, 8.8vw, 34px);
+    max-width: 100%;
+    font-size: clamp(27px, 7.8vw, 31px);
     line-height: 1.14;
   }
 

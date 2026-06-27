@@ -184,8 +184,9 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
         <h1 id="page-title" className="hero-title">
           {language === "zh" ? (
             <>
-              <span>把研究过程</span>
-              <span>变成可审计资产</span>
+              把研究过程
+              <br />
+              变成可审计资产
             </>
           ) : (
             "Turn the research process into an auditable asset"
