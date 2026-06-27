@@ -317,11 +317,43 @@ function detectForbiddenPhrases(text) {
 
 function runPlaywrightFallback(args) {
   const routes = [
-    { label: "home", hash: "#/", file: "desktop-home-1440x900.png", viewport: "1440,900" },
-    { label: "ledger", hash: "#/ledger", file: "desktop-ledger-1440x900.png", viewport: "1440,900" },
-    { label: "system", hash: "#/system", file: "desktop-system-1440x900.png", viewport: "1440,900" },
-    { label: "notes", hash: "#/notes", file: "mobile-notes-390x844.png", viewport: "390,844", mobile: true },
-    { label: "system_mobile", hash: "#/system", file: "mobile-system-390x844.png", viewport: "390,844", mobile: true },
+    {
+      label: "home",
+      route: "#/",
+      file: "desktop-home-1440x900.png",
+      viewport: "1440,900",
+      waitForSelector: "#page-title",
+    },
+    {
+      label: "ledger",
+      route: "#/ledger",
+      file: "desktop-ledger-1440x900.png",
+      viewport: "1440,900",
+      waitForSelector: "#full-ledger-title",
+    },
+    {
+      label: "system",
+      route: "#/system",
+      file: "desktop-system-1440x900.png",
+      viewport: "1440,900",
+      waitForSelector: "#system-diagram-title",
+    },
+    {
+      label: "notes",
+      route: "#/notes",
+      file: "mobile-notes-390x844.png",
+      viewport: "390,844",
+      waitForSelector: "#notes-title",
+      mobile: true,
+    },
+    {
+      label: "system_mobile",
+      route: "#/system",
+      file: "mobile-system-390x844.png",
+      viewport: "390,844",
+      waitForSelector: "#system-diagram-title",
+      mobile: true,
+    },
   ];
 
   const check = spawnSync(FALLBACK_BROWSER, ["--version"], { encoding: "utf8", stdio: "pipe" });
@@ -330,29 +362,65 @@ function runPlaywrightFallback(args) {
   }
 
   const screenshots = [];
+  const routeResults = [];
+  const limitations = [];
+  const maxAttempts = 2;
+
   for (const route of routes) {
     const output = path.join(args.outDir, route.file);
-    const screenshotArgs = [
-      "screenshot",
-      `${args.baseUrl}${route.hash}`,
-      output,
-      "--device=Desktop Chrome",
-      `--viewport-size=${route.viewport}`,
-      "--full-page",
-      "--timeout=120000",
-      "--wait-for-timeout=500",
-    ];
-    const result = spawnSync(FALLBACK_BROWSER, screenshotArgs, { encoding: "utf8", stdio: "pipe" });
-    if (result.status !== 0) {
-      return {
-        status: "fail",
-        reason: `playwright screenshot failed for ${route.label}: ${String(result.stderr || result.stdout || "unknown")}`,
-      };
+    let attempt = 0;
+    let captured = false;
+    let lastError = "not_attempted";
+
+    while (attempt < maxAttempts && !captured) {
+      attempt += 1;
+      const screenshotArgs = [
+        "screenshot",
+        `${args.baseUrl}${route.route}`,
+        output,
+        "--full-page",
+        `--viewport-size=${route.viewport}`,
+        "--timeout=120000",
+        `--wait-for-selector=${route.waitForSelector}`,
+        "--wait-for-timeout=10000",
+      ];
+      screenshotArgs.splice(2, 0, "--device=Desktop Chrome");
+      const result = spawnSync(FALLBACK_BROWSER, screenshotArgs, { encoding: "utf8", stdio: "pipe" });
+      if (result.status === 0) {
+        captured = true;
+        break;
+      }
+      lastError = `attempt ${attempt} failed: ${String(result.stderr || result.stdout || "unknown")}`.slice(0, 600);
     }
-    screenshots.push({ route: route.label, hash: route.hash, file: route.file });
+
+    routeResults.push({
+      route: route.label,
+      hash: route.route,
+      file: route.file,
+      status: captured ? "captured" : "not_captured",
+      attempts: attempt,
+      reason: captured ? "ok" : lastError,
+    });
+
+    if (captured) {
+      screenshots.push({ route: route.label, hash: route.route, file: route.file, status: "captured" });
+      continue;
+    }
+
+    limitations.push({
+      route: route.label,
+      hash: route.route,
+      message: lastError,
+    });
   }
 
-  return { status: "pass", screenshots };
+  return {
+    status: limitations.length === 0 ? "pass" : "needs_review",
+    screenshots,
+    routeResults,
+    limitations,
+    attempts: maxAttempts,
+  };
 }
 
 async function runBrowserSmoke(args, ledger, contentIndex) {
@@ -362,6 +430,12 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
     screenshots: [],
     limitations: [],
     notes: {},
+    checks: {
+      routeCheckRequired: 0,
+      routeCheckCompleted: 0,
+      domConsoleOverflowChecked: false,
+      auditDetailsChecked: false,
+    },
   };
   const chromeState = await startChrome(args.chromePath);
   let client;
@@ -398,12 +472,14 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
       { label: "prediction_detail", hash: `#/ledger/${firstPredictionId ?? ""}`, viewport: desktop, requiredText: [firstPredictionId ?? "prediction"] },
       { label: "performance", hash: "#/performance", viewport: desktop, requiredText: ["paper", "Portfolio"] },
       { label: "system", hash: "#/system", viewport: desktop, requiredText: ["Weekly Research Cognition System", "DRAFT_PRD", "Gate-Judge"] },
+      { label: "system_mobile", hash: "#/system", viewport: mobile, requiredText: ["Weekly Research Cognition System", "DRAFT_PRD", "Gate-Judge"] },
       { label: "methodology", hash: "#/methodology", viewport: desktop, requiredText: ["methodology", "Boundary", "claim boundary"] },
       { label: "sources", hash: "#/sources", viewport: desktop, requiredText: ["Sources", "manifest", "public-safe"] },
       { label: "notes", hash: "#/notes", viewport: mobile, requiredText: ["Notes"] },
       { label: "morning", hash: `#/notes/${firstNoteSlug || "weekly-ledger-update-2026-06-25"}`, viewport: mobile, requiredText: [] },
       { label: "evening", hash: "#/notes/error-review-first-public-snapshot", viewport: mobile, requiredText: [] },
     ];
+    report.checks.routeCheckRequired = routes.length;
 
     for (const route of routes) {
       await navigate(client, `${args.baseUrl}${route.hash}`, route.viewport);
@@ -413,6 +489,7 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
         hash: route.hash,
         ...inspection,
       });
+      report.checks.routeCheckCompleted += 1;
       assert(inspection.missing.length === 0, `Route missing required text: ${route.label}`, {
         route: route.label,
         missing: inspection.missing,
@@ -440,13 +517,13 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
         await captureScreenshot(client, shot);
         report.screenshots.push(shot);
       }
-      if (route.label === "notes") {
-        const shot = path.join(args.outDir, "mobile-notes-390x844.png");
+      if (route.label === "system_mobile") {
+        const shot = path.join(args.outDir, "mobile-system-390x844.png");
         await captureScreenshot(client, shot);
         report.screenshots.push(shot);
       }
-      if (route.label === "evening") {
-        const shot = path.join(args.outDir, "mobile-system-390x844.png");
+      if (route.label === "notes") {
+        const shot = path.join(args.outDir, "mobile-notes-390x844.png");
         await captureScreenshot(client, shot);
         report.screenshots.push(shot);
       }
@@ -469,7 +546,13 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
     );
     report.audit_defaults_collapsed = auditDetails.every((item) => item.open === false);
 
+    report.checks.domConsoleOverflowChecked = report.routeResults.every((item) => item.missing.length === 0 && item.overflow <= 2);
+    report.checks.auditDetailsChecked = report.routeResults.every((item) => {
+      return item.auditDetails.length === 0 || item.auditDetails.every((detail) => typeof detail === "object");
+    });
+
     assert(report.consoleErrors.length === 0, "Browser console produced blocking errors", report.consoleErrors);
+
 
     return { status: "pass", report };
   } finally {
@@ -531,6 +614,13 @@ async function main() {
       const browserResult = await runBrowserSmoke(args, ledger, content);
       report.status = browserResult.status;
       report.browser_smoke = browserResult.report;
+      if (!browserResult.report.checks.domConsoleOverflowChecked || !browserResult.report.checks.auditDetailsChecked) {
+        report.status = "pass_with_limitation";
+        report.limitations.push({
+          phase: "cdp_primary",
+          message: "CDP smoke checks did not fully complete DOM/console/overflow assertions.",
+        });
+      }
     } catch (error) {
       report.status = "pass_with_limitation";
       report.limitations.push({
@@ -539,18 +629,30 @@ async function main() {
         details: error.details,
       });
       const fallback = runPlaywrightFallback(args);
-      if (fallback.status === "pass") {
+      if (fallback.status === "pass" || fallback.status === "needs_review") {
         report.browser_smoke = {
           routeResults: fallback.screenshots,
           consoleErrors: [],
           limitations: "cdp_path_timed_out_or_failed",
           screenshots: fallback.screenshots,
+          screenshotRouteResults: fallback.routeResults,
+          attempts: fallback.attempts,
           method: "playwright_fallback",
         };
+        report.status = "pass_with_limitation";
         report.limitations.push({
           phase: "playwright_fallback",
           message: "Used Playwright CLI fallback; DOM/console/overflow checks were not completed in this mode.",
         });
+        if (fallback.limitations?.length > 0) {
+          report.limitations.push(...fallback.limitations.map((item) => ({
+            phase: "playwright_fallback_route_capture",
+            ...item,
+          })));
+        }
+        if (fallback.status === "needs_review") {
+          report.status = "needs_review";
+        }
       } else {
         report.status = "fail";
         report.error = {

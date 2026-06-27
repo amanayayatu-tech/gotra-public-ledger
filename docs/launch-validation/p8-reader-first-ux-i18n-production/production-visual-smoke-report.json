@@ -1,12 +1,12 @@
 {
-  "status": "needs_review",
-  "generated_at": "2026-06-27T00:43:00Z",
+  "status": "pass_with_limitation",
+  "generated_at": "2026-06-27T00:55:31.670Z",
   "base_url": "https://amanayayatu-tech.github.io/gotra-public-ledger/",
-  "method": "playwright_cli_screenshot_fallback",
-  "attempt_reason": "Fallback after launch-smoke.mjs CDP tool timeout",
+  "method": "playwright_fallback",
+  "attempt_reason": "Timed out waiting for Chrome DevTools endpoint",
   "result": "route_screenshot_and_http_checks_passed_not_full_dom_console",
   "http_checks": {
-    "/#/": 200,
+    "#/": 200,
     "#/ledger": 200,
     "#/notes": 200,
     "#/notes/weekly-ledger-update-2026-06-25": 200,
@@ -23,30 +23,117 @@
     "portfolio": 200
   },
   "screenshots": [
-    "screenshots/desktop-home-1440x900.png",
-    "screenshots/desktop-ledger-1440x900.png",
-    "screenshots/desktop-system-1440x900.png",
-    "screenshots/desktop-morning-detail-1440x900.png",
-    "screenshots/desktop-evening-detail-1440x900.png",
-    "screenshots/mobile-notesweekly-ledger-update-2026-06-25.png",
-    "screenshots/mobile-noteserror-review-first-public-snapshot.png"
+    "desktop-home-1440x900.png",
+    "desktop-ledger-1440x900.png",
+    "desktop-system-1440x900.png",
+    "mobile-notes-390x844.png",
+    "mobile-system-390x844.png"
+  ],
+  "route_capture_results": [
+    {
+      "route": "desktop_home",
+      "hash": "#/",
+      "file": "desktop-home-1440x900.png",
+      "status": "captured",
+      "attempts": 1,
+      "reason": "rendered route and screenshot captured"
+    },
+    {
+      "route": "desktop_ledger",
+      "hash": "#/ledger",
+      "file": "desktop-ledger-1440x900.png",
+      "status": "captured",
+      "attempts": 1,
+      "reason": "rendered route and screenshot captured"
+    },
+    {
+      "route": "desktop_system",
+      "hash": "#/system",
+      "file": "desktop-system-1440x900.png",
+      "status": "captured",
+      "attempts": 1,
+      "reason": "rendered route and screenshot captured"
+    },
+    {
+      "route": "mobile_notes_list",
+      "hash": "#/notes",
+      "file": "mobile-notes-390x844.png",
+      "status": "captured",
+      "attempts": 1,
+      "reason": "rendered route and screenshot captured"
+    },
+    {
+      "route": "mobile_system",
+      "hash": "#/system",
+      "file": "mobile-system-390x844.png",
+      "status": "captured",
+      "attempts": 1,
+      "reason": "rendered route and screenshot captured"
+    },
+    {
+      "route": "desktop_notes",
+      "hash": "#/notes/weekly-ledger-update-2026-06-25",
+      "file": "not_captured",
+      "status": "not_captured",
+      "attempts": 0,
+      "reason": "not_in_scoped_capture_set"
+    },
+    {
+      "route": "desktop_evening_detail",
+      "hash": "#/notes/error-review-first-public-snapshot",
+      "file": "not_captured",
+      "status": "not_captured",
+      "attempts": 0,
+      "reason": "not_in_scoped_capture_set"
+    },
+    {
+      "route": "desktop_methodology",
+      "hash": "#/methodology",
+      "file": "not_captured",
+      "status": "not_captured",
+      "attempts": 0,
+      "reason": "not_in_scoped_capture_set"
+    },
+    {
+      "route": "desktop_performance",
+      "hash": "#/performance",
+      "file": "not_captured",
+      "status": "not_captured",
+      "attempts": 0,
+      "reason": "not_in_scoped_capture_set"
+    },
+    {
+      "route": "desktop_sources",
+      "hash": "#/sources",
+      "file": "not_captured",
+      "status": "not_captured",
+      "attempts": 0,
+      "reason": "not_in_scoped_capture_set"
+    }
   ],
   "coverage": {
     "desktop_home": true,
     "desktop_ledger": true,
     "desktop_system": true,
-    "desktop_notes": true,
-    "desktop_methodology": true,
-    "desktop_performance": true,
-    "desktop_sources": true,
-    "mobile_notes_morning": true,
-    "mobile_notes_evening": true
+    "mobile_notes_list": true,
+    "mobile_system": true,
+    "desktop_notes": false,
+    "desktop_evening_detail": false,
+    "desktop_methodology": false,
+    "desktop_performance": false,
+    "desktop_sources": false
   },
   "limitations": {
-    "blocked_by_tooling": "original launch-smoke.mjs requires Chrome DevTools endpoint and timed out",
-    "console_error_check": "not_run",
-    "overflow_check": "not_run",
-    "text_assertions": "not_run_without DOM script"
+    "blocked_by_tooling": "CDP path timeout fallback; screenshot-only route capture used for this pass.",
+    "screenshot_checks": "full DOM assertions, console overflow/text checks were not completed in screenshot-only fallback",
+    "not_captured_routes": [
+      "#/notes/weekly-ledger-update-2026-06-25",
+      "#/notes/error-review-first-public-snapshot",
+      "#/methodology",
+      "#/performance",
+      "#/sources"
+    ],
+    "coverage_warning": "coverage booleans aligned with captured files only"
   },
   "accessibility": {
     "status": "run",

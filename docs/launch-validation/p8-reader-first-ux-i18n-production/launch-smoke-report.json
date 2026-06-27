@@ -2,11 +2,11 @@
   "status": "pass_with_limitation",
   "base_url": "https://amanayayatu-tech.github.io/gotra-public-ledger/",
   "method": "cdp_with_playwright_fallback",
-  "started_at": "2026-06-26T16:59:18.727Z",
+  "started_at": "2026-06-27T01:10:17.275Z",
   "limitations": [
     {
       "phase": "cdp_primary",
-      "message": "App did not finish loading within timeout"
+      "message": "Timed out waiting for Chrome DevTools endpoint"
     },
     {
       "phase": "playwright_fallback",
@@ -37,27 +37,32 @@
       {
         "route": "home",
         "hash": "#/",
-        "file": "desktop-home-1440x900.png"
+        "file": "desktop-home-1440x900.png",
+        "status": "captured"
       },
       {
         "route": "ledger",
         "hash": "#/ledger",
-        "file": "desktop-ledger-1440x900.png"
+        "file": "desktop-ledger-1440x900.png",
+        "status": "captured"
       },
       {
         "route": "system",
         "hash": "#/system",
-        "file": "desktop-system-1440x900.png"
+        "file": "desktop-system-1440x900.png",
+        "status": "captured"
       },
       {
         "route": "notes",
         "hash": "#/notes",
-        "file": "mobile-notes-390x844.png"
+        "file": "mobile-notes-390x844.png",
+        "status": "captured"
       },
       {
         "route": "system_mobile",
         "hash": "#/system",
-        "file": "mobile-system-390x844.png"
+        "file": "mobile-system-390x844.png",
+        "status": "captured"
       }
     ],
     "consoleErrors": [],
@@ -66,31 +71,79 @@
       {
         "route": "home",
         "hash": "#/",
-        "file": "desktop-home-1440x900.png"
+        "file": "desktop-home-1440x900.png",
+        "status": "captured"
       },
       {
         "route": "ledger",
         "hash": "#/ledger",
-        "file": "desktop-ledger-1440x900.png"
+        "file": "desktop-ledger-1440x900.png",
+        "status": "captured"
       },
       {
         "route": "system",
         "hash": "#/system",
-        "file": "desktop-system-1440x900.png"
+        "file": "desktop-system-1440x900.png",
+        "status": "captured"
       },
       {
         "route": "notes",
         "hash": "#/notes",
-        "file": "mobile-notes-390x844.png"
+        "file": "mobile-notes-390x844.png",
+        "status": "captured"
       },
       {
         "route": "system_mobile",
         "hash": "#/system",
-        "file": "mobile-system-390x844.png"
+        "file": "mobile-system-390x844.png",
+        "status": "captured"
       }
     ],
+    "screenshotRouteResults": [
+      {
+        "route": "home",
+        "hash": "#/",
+        "file": "desktop-home-1440x900.png",
+        "status": "captured",
+        "attempts": 1,
+        "reason": "ok"
+      },
+      {
+        "route": "ledger",
+        "hash": "#/ledger",
+        "file": "desktop-ledger-1440x900.png",
+        "status": "captured",
+        "attempts": 1,
+        "reason": "ok"
+      },
+      {
+        "route": "system",
+        "hash": "#/system",
+        "file": "desktop-system-1440x900.png",
+        "status": "captured",
+        "attempts": 1,
+        "reason": "ok"
+      },
+      {
+        "route": "notes",
+        "hash": "#/notes",
+        "file": "mobile-notes-390x844.png",
+        "status": "captured",
+        "attempts": 1,
+        "reason": "ok"
+      },
+      {
+        "route": "system_mobile",
+        "hash": "#/system",
+        "file": "mobile-system-390x844.png",
+        "status": "captured",
+        "attempts": 1,
+        "reason": "ok"
+      }
+    ],
+    "attempts": 2,
     "method": "playwright_fallback"
   },
   "notes": {},
-  "completed_at": "2026-06-26T17:00:09.852Z"
+  "completed_at": "2026-06-27T01:11:30.752Z"
 }
