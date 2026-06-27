@@ -37,14 +37,79 @@
       "published_at": "2026-06-25T10:15:00+08:00",
       "type": "daily_morning_brief",
       "tags": ["morning-brief", "watch-queue", "ledger", "pending-records"],
-      "summary": "Morning brief for the public ledger watch queue: what was watched, whether the conclusion changed, why, and what enters the next watch queue.",
+      "summary": "Morning brief for the public ledger watch queue: targets, why they matter today, current system view, positive and opposing views, evidence gaps, observation triggers, and boundary.",
       "body_source": "public/content/articles/weekly-ledger-update-2026-06-25.md",
       "related_prediction_ids": ["PRED-20260203-TSM-0054", "PRED-20260122-NVDA-0052", "PRED-20260127-3690HK-0053"],
       "report": {
         "report_kind": "daily_morning_brief",
         "report_date": "2026-06-25",
         "status": "published_public_safe",
-        "tldr": "Today we watched TSM as a resolved reference row and NVDA / 3690.HK as pending observation rows. No conclusion is upgraded because no new public evidence was added.",
+        "tldr": "Today we watched TSM as a resolved reference row and NVDA / 3690.HK as pending observation rows. No conclusion is upgraded because no new public evidence was added; the useful takeaway is which evidence would be needed before the system can update.",
+        "reading_time_minutes": 4,
+        "targets": ["TSM", "NVDA", "3690.HK"],
+        "today_change": "No ledger status changed and no new public source packet was added.",
+        "evidence_status": "No new public filing, market data source, company update, or resolver event was checked today; only current public-safe ledger rows are used.",
+        "main_risks": [
+          "Resolved reference rows may be mistaken for fresh proof if the boundary is not visible.",
+          "Pending rows can invite hindsight interpretation before resolver evidence exists.",
+          "US and HK records need separate source, calendar, and currency handling."
+        ],
+        "why_today_matters": "The morning queue shows how the system separates an already resolved reference row from unresolved observation rows before any public source update exists.",
+        "background_context": [
+          "TSM is present as an already resolved semiconductor reference row with public result fields, useful for explaining prediction versus outcome separation.",
+          "NVDA remains in the semiconductor queue with unresolved outcome fields, so it is an observation object rather than a success or failure case.",
+          "3690.HK keeps the Hong Kong market handling visible: source availability, market calendar, currency, and corporate-action checks must stay explicit."
+        ],
+        "recent_changes": [
+          "No new public filing, price source packet, company update, or resolver event was added to this report.",
+          "The public ledger state is unchanged for the watched rows.",
+          "No same-day price move is used as correctness evidence."
+        ],
+        "positive_view": [
+          "The system can show a resolved example and unresolved rows side by side, making the audit trail easier to inspect.",
+          "Keeping NVDA and 3690.HK pending preserves the rule that unresolved rows are not backfilled into success or failure.",
+          "The watch queue gives readers concrete next evidence conditions instead of a generic continue-watching note."
+        ],
+        "opposing_view": [
+          "反方审查：without new public evidence, the brief should not imply that the system has learned a new market fact today.",
+          "反方审查：a resolved reference row can anchor the reader, but it cannot prove broader accuracy or commercial value by itself.",
+          "反方审查：HK source and corporate-action conflicts can block resolution; the brief must keep that risk visible."
+        ],
+        "observation_triggers": [
+          "NVDA reaches outcome availability and has public-safe adjusted close inputs.",
+          "3690.HK has HK market source availability plus no symbol, holiday, or corporate-action conflict.",
+          "A future resolver event changes a watched row from pending or frozen_pending to resolved."
+        ],
+        "risks_uncertainty": [
+          "No fresh source packet means the morning view is operational, not evidentiary.",
+          "Pending and frozen_pending rows may stay unresolved for reasons that are data-boundary honest, not product failure.",
+          "Market movement alone cannot make the unresolved rows comparable."
+        ],
+        "reader_takeaways": [
+          "Use this brief to understand what the system is watching and what evidence would change the view.",
+          "Do not treat the targets as buy/sell/hold instructions.",
+          "The main value is traceability: watched object, evidence gap, next trigger, and boundary are visible before any conclusion update."
+        ],
+        "comparability": [
+          "TSM can be shown as a resolved reference row because actual_change_pct and error fields exist.",
+          "NVDA and 3690.HK are not comparable yet because public outcome fields are absent.",
+          "Resolved rows and pending rows are presented in different evidence layers."
+        ],
+        "error_attribution": [
+          "No new error attribution is made in the morning brief.",
+          "The resolved TSM row is used to explain field structure, not to claim system proof.",
+          "Future attribution requires a resolved outcome and public-safe source trace."
+        ],
+        "system_learning": [
+          "The system keeps reference, observation, and evidence layers separate before updating a view.",
+          "Weak or missing evidence stays weak instead of being upgraded into a stronger cognition layer.",
+          "The next update must cite a concrete public source or resolver event."
+        ],
+        "tomorrow_watch": [
+          "Check whether NVDA has become eligible for public-safe resolver processing.",
+          "Check whether HK source constraints for 3690.HK are still clean.",
+          "Review any newly resolved row for direction, magnitude, and attribution rather than only status."
+        ],
         "watched_scope": [
           {
             "label": "Resolved reference row",
@@ -140,14 +205,79 @@
       "published_at": "2026-06-25T10:30:00+08:00",
       "type": "daily_evening_review",
       "tags": ["evening-review", "limitations", "resolved-only", "needs-review"],
-        "summary": "Evening review for ledger changes, evidence gaps, conclusion-change status, and the next watch queue after a public-safe day.",
+      "summary": "Evening review for ledger state changes, comparable versus non-comparable rows, visible errors, pending reasons, what the system learned, and tomorrow's watch queue.",
       "body_source": "public/content/articles/error-review-first-public-snapshot.md",
       "related_prediction_ids": ["PRED-20260203-TSM-0054", "PRED-20251219-MSFT-0048", "PRED-20260122-NVDA-0052"],
       "report": {
         "report_kind": "daily_evening_review",
         "report_date": "2026-06-25",
         "status": "published_public_safe",
-        "tldr": "No ledger status changed today. The review keeps resolved rows as references and leaves pending rows unresolved until public source and resolver requirements are met.",
+        "tldr": "No ledger status changed today. The review keeps resolved rows as references, keeps the visible MSFT error in the audit trail, and leaves pending rows unresolved until public source and resolver requirements are met.",
+        "reading_time_minutes": 5,
+        "targets": ["TSM", "MSFT", "NVDA"],
+        "today_change": "No new result fields were written; no pending row was converted into a resolved outcome.",
+        "evidence_status": "No new public-safe source packet or resolver output was attached, so the review records an evidence gap rather than a judgement update.",
+        "main_risks": [
+          "Readers may overread a visible error row as a product failure instead of an audit object.",
+          "Pending rows may be incorrectly counted as hits or misses before resolver evidence exists.",
+          "A status-only day can look uninformative unless the evidence gaps and next checks are explicit."
+        ],
+        "why_today_matters": "The evening review demonstrates the closeout discipline: when nothing resolves, the ledger says so, keeps errors visible, and explains why unresolved rows remain unresolved.",
+        "background_context": [
+          "TSM is an already settled reference row with traceable result and error fields.",
+          "MSFT is included because public error review must keep misses visible instead of hiding them.",
+          "NVDA is still a pending observation row; no public outcome fields are available in this snapshot."
+        ],
+        "recent_changes": [
+          "No new resolver output was added for the watched rows.",
+          "No public-safe source packet changed the judgement state.",
+          "Resolved-only metric boundaries remain unchanged."
+        ],
+        "positive_view": [
+          "The review makes the absence of status change explicit, which prevents silent backfill.",
+          "Keeping MSFT's visible error in the report shows that the ledger exposes mistakes rather than only successes.",
+          "Pending reasons and next checks help turn a quiet day into an auditable queue."
+        ],
+        "opposing_view": [
+          "反方审查：a quiet ledger day has limited research signal; the report must not present it as a new conclusion.",
+          "反方审查：error visibility improves auditability, but one visible error does not prove system calibration.",
+          "反方审查：if future resolver inputs are missing or conflicted, the honest output is blocked or needs_review rather than forced resolution."
+        ],
+        "observation_triggers": [
+          "A pending row reaches outcome availability with public-safe adjusted close data.",
+          "A symbol-change, corporate-action, or market-holiday conflict appears and must be marked blocked or needs_review.",
+          "A large absolute error row is selected for attribution review with its public evidence trail."
+        ],
+        "risks_uncertainty": [
+          "No source packet means no new judgement update.",
+          "Visible errors can be misunderstood without error attribution and boundary language.",
+          "Outcome comparability requires both prediction fields and public-safe result fields."
+        ],
+        "reader_takeaways": [
+          "A no-change day is still useful when it explains what did not happen and why.",
+          "The ledger is designed to expose mistakes and pending states, not to create action instructions.",
+          "Tomorrow's useful question is whether a public resolver event or conflict appears, not whether a price moved."
+        ],
+        "comparability": [
+          "TSM and MSFT are comparable as resolved reference rows because public result fields exist.",
+          "NVDA is not comparable yet because the public ledger has no resolved outcome fields.",
+          "Prediction versus actual can only be discussed for resolved rows."
+        ],
+        "error_attribution": [
+          "MSFT remains visible as an error-review row so incorrect settled records are not hidden.",
+          "No new attribution is added today because no new source packet or resolver event was attached.",
+          "Future attribution should separate direction error, magnitude error, evidence gap, and process lesson."
+        ],
+        "system_learning": [
+          "The system learned no new market fact today; it reinforced that unresolved rows must stay unresolved.",
+          "Visible errors feed future process review by staying linked to public-safe evidence trails.",
+          "The correct evening output can be no status change when evidence is absent."
+        ],
+        "tomorrow_watch": [
+          "Check whether NVDA becomes resolver-eligible with public adjusted close inputs.",
+          "Review large-error resolved rows for direction, magnitude, and attribution.",
+          "Confirm any new source packet passes data, claim, and security boundaries before updating a conclusion."
+        ],
         "watched_scope": [
           {
             "label": "Resolved reference",

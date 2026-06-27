@@ -29,15 +29,15 @@ export const labelMap = {
   },
   frozen_demo_snapshot: {
     label: "冻结演示快照",
-    help: "冻结的 public-safe demo 数据，不是 live feed。",
+    help: "冻结的公开安全演示数据，不是实时数据流。",
   },
   oos: {
     label: "OOS",
-    help: "out-of-sample validation；本页面不声称已证明 OOS。",
+    help: "样本外验证的缩写；本页面不声称已完成或证明样本外验证。",
   },
   direct_llm_parametric_memory_control: {
     label: "direct_llm_parametric_memory_control",
-    help: "现代 LLM 参数记忆对照组，不是 clean no-future baseline。",
+    help: "现代大模型参数记忆对照组，不是干净的无未来信息基线。",
   },
 } as const;
 

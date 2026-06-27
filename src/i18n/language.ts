@@ -53,8 +53,8 @@ export function statusText(language: Language, status: string): string {
     blocked_corporate_action_conflict: { zh: "公司行动冲突", en: "Blocked: corporate action conflict" },
     needs_review: { zh: "待复核", en: "Needs review" },
     published: { zh: "已发布", en: "Published" },
-    published_public_safe: { zh: "已发布 · public-safe", en: "Published · public-safe" },
-    draft_public_safe: { zh: "草稿 · public-safe", en: "Draft · public-safe" },
+    published_public_safe: { zh: "已发布 · 公开安全", en: "Published · public-safe" },
+    draft_public_safe: { zh: "草稿 · 公开安全", en: "Draft · public-safe" },
     demo_format: { zh: "演示格式", en: "Demo format" },
     unchanged_no_evidence: { zh: "未变化 · 无新增公开证据", en: "Unchanged · no new public evidence" },
     unchanged_evidence_reviewed: { zh: "未变化 · 已复核证据", en: "Unchanged · evidence reviewed" },
@@ -106,7 +106,7 @@ export function layerText(language: Language, layer: string): string {
     evidence: { zh: "证据层", en: "Evidence layer" },
     background_and_evidence: { zh: "背景 + 证据层", en: "Background + evidence" },
     no_new_evidence: { zh: "无新增公开证据", en: "No new public evidence" },
-    public_safe_demo: { zh: "public-safe 演示数据", en: "Public-safe demo" },
+    public_safe_demo: { zh: "公开安全演示数据", en: "Public-safe demo" },
     local_checks: { zh: "本地检查", en: "Local checks" },
   };
   const label = labels[layer];

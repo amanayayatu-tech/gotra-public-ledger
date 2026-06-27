@@ -293,6 +293,23 @@ export const contentItemSchema = z
         report_date: isoDateSchema,
         status: z.enum(["demo_format", "draft_public_safe", "published_public_safe"]),
         tldr: z.string().min(1),
+        reading_time_minutes: z.number().int().positive(),
+        targets: z.array(z.string().min(1)).min(1),
+        today_change: z.string().min(1),
+        evidence_status: z.string().min(1),
+        main_risks: z.array(z.string().min(1)).min(1),
+        why_today_matters: z.string().min(1),
+        background_context: z.array(z.string().min(1)).min(1),
+        recent_changes: z.array(z.string().min(1)).min(1),
+        positive_view: z.array(z.string().min(1)).min(1),
+        opposing_view: z.array(z.string().min(1)).min(1),
+        observation_triggers: z.array(z.string().min(1)).min(1),
+        risks_uncertainty: z.array(z.string().min(1)).min(1),
+        reader_takeaways: z.array(z.string().min(1)).min(1),
+        comparability: z.array(z.string().min(1)).min(1),
+        error_attribution: z.array(z.string().min(1)).min(1),
+        system_learning: z.array(z.string().min(1)).min(1),
+        tomorrow_watch: z.array(z.string().min(1)).min(1),
         watched_scope: z
           .array(
             z

@@ -171,6 +171,7 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
   const openMistakes = getOpenMistakeCount(records);
   const largestErrorRecord = getLargestErrorRecord(records);
   const latestNoteSlug = "weekly-ledger-update-2026-06-25";
+  const heroAsset = `${import.meta.env.BASE_URL}images/p9-commercial-ux/research-ledger-system.svg`;
 
   return (
     <section className="hero-section" id="hero" aria-labelledby="page-title">
@@ -179,16 +180,22 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
           <ShieldCheck aria-hidden="true" size={16} />
           {shortBoundary(language)}
         </div>
-        <p className="hero-brand-motif">{copy(language, "公开研究账本，不是交易机器", "Public research ledger, not a trading machine")}</p>
-        <h1 id="page-title">{copy(language, "先看今天研究了什么，再看证据和边界", "See what was watched, then the evidence and boundary")}</h1>
+        <p className="hero-brand-motif">{copy(language, "AI 股票研究认知系统 · 不是交易机器", "AI stock research cognition system · not a trading machine")}</p>
+        <h1 id="page-title">{copy(language, "把研究过程变成可审计资产", "Turn the research process into an auditable asset")}</h1>
         <p>
-          {copy(language, "GOTRA Public Ledger 展示 public-safe 研究记录、结算状态、错误和下一步观察。它帮助读者理解研究过程，而不是给出买卖、仓位或收益承诺。", "GOTRA Public Ledger shows public-safe research records, resolution state, errors, and next watch steps. It helps readers understand the research process, not buy/sell, sizing, or return promises.")}
+          {copy(language, "GOTRA Public Ledger 公开留痕 AI 股票研究：前置记录、事后对照、错误归因、反方审查、证据链和边界管理。它帮助读者理解研究如何持续校准，而不是给出买卖、仓位或收益承诺。", "GOTRA Public Ledger records AI stock research publicly: prior records, after-the-fact comparison, error attribution, opposing review, evidence chain, and boundary management. It helps readers understand continuous calibration, not buy/sell, sizing, or return promises.")}
         </p>
+        <div className="hero-mechanism-strip" aria-label={copy(language, "机制价值", "Mechanism value")}>
+          <span>{copy(language, "先记录", "Record first")}</span>
+          <span>{copy(language, "再对照", "Compare after")}</span>
+          <span>{copy(language, "公开错误", "Expose errors")}</span>
+          <span>{copy(language, "持续校准", "Calibrate continuously")}</span>
+        </div>
         <div className="home-priority-grid" aria-label={copy(language, "首页信息优先级", "Home information priority")}>
           <article>
             <span>{copy(language, "它是什么", "What it is")}</span>
-            <strong>{copy(language, "公开研究账本", "Public research ledger")}</strong>
-            <p>{copy(language, "记录研究对象、公开证据、结论变化和错误。", "Tracks research subjects, public evidence, conclusion changes, and errors.")}</p>
+            <strong>{copy(language, "公开研究认知系统", "Public research cognition system")}</strong>
+            <p>{copy(language, "记录研究对象、证据、结论变化、错误和下一步观察。", "Tracks research subjects, evidence, conclusion changes, errors, and next watch steps.")}</p>
           </article>
           <article>
             <span>{copy(language, "它不是什么", "What it is not")}</span>
@@ -220,6 +227,9 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
       </div>
 
       <div className="hero-side">
+        <figure className="hero-asset-frame">
+          <img src={heroAsset} alt={copy(language, "公开研究账本、证据链和错误复盘的抽象视觉", "Abstract visual of public research ledger, evidence chain, and error review")} />
+        </figure>
         <div className="hero-stat-grid" aria-label="Dataset summary">
           <div>
             <Database aria-hidden="true" size={18} />
@@ -248,8 +258,8 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
         </div>
         <HeroMiniChart records={records} language={language} />
         <p className="hero-data-note">
-          {copy(language, `包含 ${metrics.pending + metrics.frozenPending} 条未公开 outcome 的 pending/frozen_pending 记录；本页面不回填后验结果。`, `Contains ${metrics.pending + metrics.frozenPending} pending/frozen_pending records without public outcomes; this page does not backfill hindsight results.`)}
-          <span> public-safe demo · not OOS · snapshot_date {dataset.metadata.snapshot_date}</span>
+          {copy(language, `包含 ${metrics.pending + metrics.frozenPending} 条未公开结果字段的待判定 / 冻结待判定记录；本页面不回填后验结果。`, `Contains ${metrics.pending + metrics.frozenPending} pending/frozen_pending records without public outcomes; this page does not backfill hindsight results.`)}
+          <span>{copy(language, `公开安全演示数据 · 非 OOS 证明 · 快照日期 ${dataset.metadata.snapshot_date}`, `public-safe demo · not OOS · snapshot_date ${dataset.metadata.snapshot_date}`)}</span>
         </p>
         <MiniProofCard records={records} language={language} />
       </div>

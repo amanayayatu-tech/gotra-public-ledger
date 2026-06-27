@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-label="Abstract cognition pipeline visual">
+  <defs>
+    <linearGradient id="g0" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#0f1921"/>
+      <stop offset="1" stop-color="#05080b"/>
+    </linearGradient>
+    <linearGradient id="flow" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#75d88f"/>
+      <stop offset=".52" stop-color="#69a7ff"/>
+      <stop offset="1" stop-color="#f2be63"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="760" rx="36" fill="url(#g0)"/>
+  <path d="M120 392c110-170 240-214 390-126 112 66 204 68 294 4 92-66 178-48 276 92" fill="none" stroke="url(#flow)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M126 418c110 126 240 158 390 78 108-58 220-52 328 24 84 58 150 46 224-38" fill="none" stroke="#284b5d" stroke-width="3" stroke-linecap="round"/>
+  <g fill="#101c25" stroke="#365363" stroke-width="2">
+    <rect x="92" y="246" width="174" height="112" rx="18"/>
+    <rect x="308" y="176" width="190" height="124" rx="18"/>
+    <rect x="548" y="240" width="188" height="132" rx="18"/>
+    <rect x="786" y="164" width="198" height="128" rx="18"/>
+    <rect x="920" y="410" width="190" height="126" rx="18"/>
+    <rect x="632" y="494" width="208" height="132" rx="18"/>
+    <rect x="320" y="456" width="196" height="126" rx="18"/>
+  </g>
+  <g fill="#75d88f">
+    <circle cx="179" cy="302" r="20"/>
+    <circle cx="403" cy="238" r="22"/>
+    <circle cx="642" cy="306" r="22"/>
+  </g>
+  <g fill="#69a7ff">
+    <circle cx="885" cy="228" r="24"/>
+    <circle cx="1015" cy="474" r="22"/>
+    <circle cx="736" cy="560" r="24"/>
+  </g>
+  <circle cx="418" cy="520" r="24" fill="#ff7f87"/>
+  <g stroke="#d6e5ec" stroke-width="9" stroke-linecap="round" opacity=".68">
+    <path d="M130 270h92M130 304h70M344 204h106M344 242h80M586 270h98M586 310h70M824 194h112M824 234h72M960 440h106M960 480h74M672 526h110M672 568h82M358 486h106M358 528h68"/>
+  </g>
+  <g opacity=".34" fill="none" stroke="#75d88f" stroke-width="2">
+    <circle cx="600" cy="380" r="226"/>
+    <circle cx="600" cy="380" r="298"/>
+  </g>
+</svg>

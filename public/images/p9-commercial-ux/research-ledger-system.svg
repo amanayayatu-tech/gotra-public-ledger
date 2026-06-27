@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-label="Abstract public research ledger visual">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#111c24"/>
+      <stop offset="1" stop-color="#060a0e"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#1f3440"/>
+      <stop offset="1" stop-color="#0d151c"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="24" stdDeviation="28" flood-color="#000" flood-opacity=".38"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="760" rx="36" fill="url(#bg)"/>
+  <g opacity=".24">
+    <path d="M80 150h1040M80 280h1040M80 410h1040M80 540h1040" stroke="#355162" stroke-width="1"/>
+    <path d="M190 80v600M380 80v600M570 80v600M760 80v600M950 80v600" stroke="#263d4a" stroke-width="1"/>
+  </g>
+  <g filter="url(#soft)">
+    <rect x="94" y="112" width="300" height="178" rx="18" fill="url(#panel)" stroke="#375463"/>
+    <rect x="454" y="78" width="292" height="238" rx="20" fill="url(#panel)" stroke="#3f6c72"/>
+    <rect x="806" y="140" width="286" height="170" rx="18" fill="url(#panel)" stroke="#375463"/>
+    <rect x="142" y="446" width="252" height="174" rx="18" fill="url(#panel)" stroke="#604044"/>
+    <rect x="462" y="420" width="276" height="214" rx="20" fill="url(#panel)" stroke="#4d7559"/>
+    <rect x="810" y="452" width="250" height="166" rx="18" fill="url(#panel)" stroke="#3b5572"/>
+  </g>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M394 202c42-12 54-24 60-38" stroke="#77d58f" stroke-width="5"/>
+    <path d="M746 202c42 8 52 22 60 44" stroke="#69a7ff" stroke-width="5"/>
+    <path d="M600 316c0 46-8 74-40 104" stroke="#77d58f" stroke-width="5"/>
+    <path d="M738 530c34-8 50-2 72 16" stroke="#69a7ff" stroke-width="5"/>
+    <path d="M394 530c34 8 50 2 68-22" stroke="#ff7f87" stroke-width="5"/>
+  </g>
+  <g opacity=".9">
+    <circle cx="244" cy="202" r="32" fill="#77d58f"/>
+    <circle cx="600" cy="198" r="44" fill="#69a7ff"/>
+    <circle cx="948" cy="226" r="30" fill="#77d58f"/>
+    <circle cx="268" cy="536" r="28" fill="#ff7f87"/>
+    <circle cx="600" cy="528" r="40" fill="#77d58f"/>
+    <circle cx="936" cy="536" r="28" fill="#69a7ff"/>
+  </g>
+  <g opacity=".72" fill="#d7e5eb">
+    <rect x="138" y="156" width="190" height="12" rx="6"/>
+    <rect x="138" y="184" width="140" height="10" rx="5"/>
+    <rect x="138" y="214" width="210" height="10" rx="5"/>
+    <rect x="502" y="138" width="188" height="12" rx="6"/>
+    <rect x="502" y="170" width="134" height="10" rx="5"/>
+    <rect x="502" y="206" width="168" height="10" rx="5"/>
+    <rect x="850" y="188" width="170" height="12" rx="6"/>
+    <rect x="850" y="222" width="128" height="10" rx="5"/>
+    <rect x="186" y="488" width="146" height="12" rx="6"/>
+    <rect x="186" y="522" width="104" height="10" rx="5"/>
+    <rect x="516" y="472" width="172" height="12" rx="6"/>
+    <rect x="516" y="506" width="132" height="10" rx="5"/>
+    <rect x="516" y="540" width="180" height="10" rx="5"/>
+    <rect x="854" y="494" width="150" height="12" rx="6"/>
+    <rect x="854" y="528" width="112" height="10" rx="5"/>
+  </g>
+</svg>
