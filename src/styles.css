@@ -4956,6 +4956,20 @@ h1::after {
   text-align: center;
 }
 
+.hero-section .hero-title {
+  max-width: min(100%, 11.5em);
+  font-size: clamp(44px, 4.35vw, 58px);
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  word-break: normal;
+}
+
+.hero-section .hero-title span {
+  display: block;
+  max-width: 100%;
+}
+
 .hero-asset-frame,
 .system-asset-frame {
   margin: 0;
@@ -5183,6 +5197,11 @@ h1::after {
 }
 
 @media (max-width: 760px) {
+  .hero-section .hero-title {
+    font-size: clamp(28px, 8.8vw, 34px);
+    line-height: 1.14;
+  }
+
   .hero-mechanism-strip,
   .report-preview dl {
     grid-template-columns: 1fr;

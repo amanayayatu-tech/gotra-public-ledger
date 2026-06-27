@@ -181,7 +181,16 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
           {shortBoundary(language)}
         </div>
         <p className="hero-brand-motif">{copy(language, "AI 股票研究认知系统 · 不是交易机器", "AI stock research cognition system · not a trading machine")}</p>
-        <h1 id="page-title">{copy(language, "把研究过程变成可审计资产", "Turn the research process into an auditable asset")}</h1>
+        <h1 id="page-title" className="hero-title">
+          {language === "zh" ? (
+            <>
+              <span>把研究过程</span>
+              <span>变成可审计资产</span>
+            </>
+          ) : (
+            "Turn the research process into an auditable asset"
+          )}
+        </h1>
         <p>
           {copy(language, "GOTRA Public Ledger 公开留痕 AI 股票研究：前置记录、事后对照、错误归因、反方审查、证据链和边界管理。它帮助读者理解研究如何持续校准，而不是给出买卖、仓位或收益承诺。", "GOTRA Public Ledger records AI stock research publicly: prior records, after-the-fact comparison, error attribution, opposing review, evidence chain, and boundary management. It helps readers understand continuous calibration, not buy/sell, sizing, or return promises.")}
         </p>

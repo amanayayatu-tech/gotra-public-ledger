@@ -1,182 +1,161 @@
 {
-  "status": "pass",
-  "generated_at": "2026-06-27T02:36:37.633Z",
-  "base_url": "http://127.0.0.1:4193/",
-  "method": "one-off Chrome CDP script via system Chrome, no added dependency",
+  "status": "pass_with_limitation",
+  "generated_at": "2026-06-27T04:23:23.108Z",
+  "goal_id": "GPL-MVP-P9-HOME-H1-RESPONSIVE-REPAIR",
+  "base_url": "http://127.0.0.1:4194/#/",
+  "evidence_layer": "local browser smoke only",
   "routes_checked": [
-    {
-      "name": "desktop_home_zh",
-      "path": "#/",
-      "language": "zh",
-      "viewport": "1440x900",
-      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-home-zh-1440x900.png"
-    },
-    {
-      "name": "desktop_home_en",
-      "path": "#/",
-      "language": "en",
-      "viewport": "1440x900",
-      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-home-en-1440x900.png"
-    },
-    {
-      "name": "desktop_notes_list_zh",
-      "path": "#/notes",
-      "language": "zh",
-      "viewport": "1440x900",
-      "screenshot": null
-    },
-    {
-      "name": "read_note_navigation",
-      "screenshot": null
-    },
-    {
-      "name": "desktop_morning_detail_zh",
-      "path": "#/notes/weekly-ledger-update-2026-06-25",
-      "language": "zh",
-      "viewport": "1440x900",
-      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-notes-morning-zh-1440x900.png"
-    },
-    {
-      "name": "desktop_evening_detail_zh",
-      "path": "#/notes/error-review-first-public-snapshot",
-      "language": "zh",
-      "viewport": "1440x900",
-      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-notes-evening-zh-1440x900.png"
-    },
-    {
-      "name": "desktop_system_zh",
-      "path": "#/system",
-      "language": "zh",
-      "viewport": "1440x900",
-      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-system-commercial-zh-1440x900.png"
-    },
-    {
-      "name": "desktop_ledger_zh",
-      "path": "#/ledger",
-      "language": "zh",
-      "viewport": "1440x900",
-      "screenshot": null
-    },
-    {
-      "name": "desktop_methodology_zh",
-      "path": "#/methodology",
-      "language": "zh",
-      "viewport": "1440x900",
-      "screenshot": null
-    },
-    {
-      "name": "desktop_sources_zh",
-      "path": "#/sources",
-      "language": "zh",
-      "viewport": "1440x900",
-      "screenshot": null
-    },
-    {
-      "name": "mobile_home_zh",
-      "path": "#/",
-      "language": "zh",
-      "viewport": "390x844",
-      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/mobile-home-zh-390x844.png"
-    },
-    {
-      "name": "mobile_ledger_zh",
-      "path": "#/ledger",
-      "language": "zh",
-      "viewport": "390x844",
-      "screenshot": null
-    },
-    {
-      "name": "mobile_notes_detail_zh",
-      "path": "#/notes/weekly-ledger-update-2026-06-25",
-      "language": "zh",
-      "viewport": "390x844",
-      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/mobile-notes-detail-zh-390x844.png"
-    },
-    {
-      "name": "mobile_system_zh",
-      "path": "#/system",
-      "language": "zh",
-      "viewport": "390x844",
-      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/mobile-system-commercial-zh-390x844.png"
-    }
+    "#/"
   ],
-  "screenshots": {
-    "desktop-home-zh-1440x900": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-home-zh-1440x900.png",
-    "desktop-home-en-1440x900": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-home-en-1440x900.png",
-    "desktop-notes-morning-zh-1440x900": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-notes-morning-zh-1440x900.png",
-    "desktop-notes-evening-zh-1440x900": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-notes-evening-zh-1440x900.png",
-    "desktop-system-commercial-zh-1440x900": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-system-commercial-zh-1440x900.png",
-    "mobile-home-zh-390x844": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/mobile-home-zh-390x844.png",
-    "mobile-notes-detail-zh-390x844": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/mobile-notes-detail-zh-390x844.png",
-    "mobile-system-commercial-zh-390x844": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/mobile-system-commercial-zh-390x844.png"
-  },
-  "console_errors": [],
-  "network_failures": [],
-  "horizontal_overflow_routes": [],
-  "layout_heuristic_notes": [
-    {
-      "name": "desktop_ledger_zh",
-      "clipping": [
+  "checks": {
+    "desktop_home_h1": {
+      "checks": {
+        "h1InsideCopy": true,
+        "h1InsideViewport": true,
+        "hasCompleteChinese": true,
+        "languageTogglePresent": true,
+        "navPresent": true,
+        "noHorizontalOverflow": true,
+        "noParagraphOverlap": true,
+        "sampleOcclusionOk": true,
+        "sectionInViewport": true,
+        "spansInsideH1": true,
+        "visible": true
+      },
+      "copyRect": {
+        "left": 133,
+        "right": 759.5703125,
+        "width": 626.5703125
+      },
+      "h1Rect": {
+        "bottom": 497.75,
+        "height": 187.8984375,
+        "left": 133,
+        "right": 751.5703125,
+        "top": 309.8515625,
+        "width": 618.5703125
+      },
+      "label": "desktop-home-zh-1440x900",
+      "pass": true,
+      "spanRects": [
         {
-          "tag": "SPAN",
-          "cls": "sr-only",
-          "text": "搜索账本"
-        }
-      ]
-    },
-    {
-      "name": "mobile_home_zh",
-      "clipping": [
-        {
-          "tag": "DIV",
-          "cls": "ticker-chip-row",
-          "text": "NVDA · 英伟达41 条TSM · 台积电31 条1211.HK · 比亚迪29 条AAPL · 苹果29 条1810.HK · 小米集团28 条3690.HK · 美团28 条9988.HK ·"
-        }
-      ]
-    },
-    {
-      "name": "mobile_ledger_zh",
-      "clipping": [
-        {
-          "tag": "SPAN",
-          "cls": "sr-only",
-          "text": "搜索账本"
-        }
-      ]
-    },
-    {
-      "name": "mobile_system_zh",
-      "clipping": [
-        {
-          "tag": "DIV",
-          "cls": "table-scroll",
-          "text": "维度普通股票观点文黑箱 AI传统投研报告GOTRA Public Ledger是否前置留痕通常不固定少量展示多在报告内公开记录 prediction_id 与时间是否公开错误少见通常隐藏常在后续报告中"
+          "bottom": 372.484375,
+          "height": 62.6328125,
+          "left": 133,
+          "right": 751.5703125,
+          "text": "把研究过程",
+          "top": 309.8515625,
+          "width": 618.5703125
         },
         {
-          "tag": "DIV",
-          "cls": "table-scroll",
-          "text": "智能体责任不得做`ksana`把标的变成结构化研究计划、证据需求、时间窗口和反方审查重点。不得直接决定最终结论。LLM 研究工人把公开信息整理成草稿研究包。不得声称已验证事实或隐藏不确定性。正方智能体"
+          "bottom": 435.1171875,
+          "height": 62.6328125,
+          "left": 133,
+          "right": 751.5703125,
+          "text": "变成可审计资产",
+          "top": 372.484375,
+          "width": 618.5703125
         }
-      ]
-    }
+      ],
+      "text": "把研究过程变成可审计资产",
+      "toggles": [
+        "中文",
+        "EN",
+        "订阅邮件更新"
+      ],
+      "viewport": {
+        "height": 900,
+        "scrollWidth": 1440,
+        "width": 1440
+      },
+      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-home-zh-1440x900.png"
+    },
+    "mobile_home_h1": {
+      "checks": {
+        "h1InsideCopy": true,
+        "h1InsideViewport": true,
+        "hasCompleteChinese": true,
+        "languageTogglePresent": true,
+        "navPresent": true,
+        "noHorizontalOverflow": true,
+        "noParagraphOverlap": true,
+        "sampleOcclusionOk": true,
+        "sectionInViewport": true,
+        "spansInsideH1": true,
+        "visible": true
+      },
+      "copyRect": {
+        "left": 27,
+        "right": 363,
+        "width": 336
+      },
+      "h1Rect": {
+        "bottom": 330.171875,
+        "height": 116.2734375,
+        "left": 27,
+        "right": 355,
+        "top": 213.8984375,
+        "width": 328
+      },
+      "label": "mobile-home-zh-390x844",
+      "pass": true,
+      "spanRects": [
+        {
+          "bottom": 252.65625,
+          "height": 38.7578125,
+          "left": 27,
+          "right": 355,
+          "text": "把研究过程",
+          "top": 213.8984375,
+          "width": 328
+        },
+        {
+          "bottom": 291.4140625,
+          "height": 38.7578125,
+          "left": 27,
+          "right": 355,
+          "text": "变成可审计资产",
+          "top": 252.65625,
+          "width": 328
+        }
+      ],
+      "text": "把研究过程变成可审计资产",
+      "toggles": [
+        "中文",
+        "EN",
+        "订阅邮件更新"
+      ],
+      "viewport": {
+        "height": 844,
+        "scrollWidth": 390,
+        "width": 390
+      },
+      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/mobile-home-zh-390x844.png"
+    },
+    "nav_language_toggle": {
+      "dom_presence_pass": true,
+      "visible_controls": [
+        "中文",
+        "EN",
+        "mobile nav toggle"
+      ],
+      "mobile_menu_opened": true,
+      "interaction_status": "tool_limited_not_completed",
+      "limitation": "In-app Browser locator/DOM click APIs timed out or exposed non-clickable wrapper objects during this bounded repair. Source/DOM showed the controls present, and mobile menu visibility was observed, but automated language toggle click verification was not completed in this run."
+    },
+    "blocking_console_errors": 0,
+    "console_collection": "ok"
+  },
+  "screenshots": {
+    "desktop_home_zh_1440x900": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-home-zh-1440x900.png",
+    "mobile_home_zh_390x844": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/mobile-home-zh-390x844.png"
+  },
+  "limitations": [
+    "Language toggle click verification was not completed because the in-app Browser click APIs were unavailable/unstable in this bounded run. H1 desktop/mobile DOM geometry, screenshots, nav/toggle DOM presence, mobile nav visibility, and blocking console checks completed."
   ],
-  "unreviewed_clipping_routes": [],
-  "read_note_navigation": {
-    "name": "read_note_navigation",
-    "clicked": true,
-    "url": "http://127.0.0.1:4193/#/notes/method-note-public-ledger-v1"
-  },
-  "language_persistence": {
-    "before": "en",
-    "after_route": "en",
-    "after_reload": "en",
-    "pass": true
-  },
-  "audit_expand_collapse": {
-    "initiallyClosed": true,
-    "opened": true
-  },
-  "forbidden_demo_self_explanation_visible": [],
-  "claim_boundary": "research information only / not investment advice / not trading signal / not live trading / not performance proof retained",
-  "limitations": []
+  "repair_focus": {
+    "h1_desktop_1440x900": "pass",
+    "h1_mobile_390x844": "pass",
+    "evidence_scope": "Home H1 responsive repair only; no data, route, claim, or business logic changes."
+  }
 }
