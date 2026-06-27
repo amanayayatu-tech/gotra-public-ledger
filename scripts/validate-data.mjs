@@ -230,12 +230,28 @@ function validateContentIndex(contentIndex, ledger, resolverPredictions) {
       }
       if (
         item.report.watched_scope.length === 0 ||
+        item.report.targets.length === 0 ||
+        item.report.main_risks.length === 0 ||
+        item.report.background_context.length === 0 ||
+        item.report.recent_changes.length === 0 ||
+        item.report.positive_view.length === 0 ||
+        item.report.opposing_view.length === 0 ||
+        item.report.observation_triggers.length === 0 ||
+        item.report.risks_uncertainty.length === 0 ||
+        item.report.reader_takeaways.length === 0 ||
+        item.report.comparability.length === 0 ||
+        item.report.error_attribution.length === 0 ||
+        item.report.system_learning.length === 0 ||
+        item.report.tomorrow_watch.length === 0 ||
         item.report.ledger_changes.length === 0 ||
         item.report.evidence_updates.length === 0 ||
         item.report.why_or_why_not.length === 0 ||
         item.report.next_watch_queue.length === 0
       ) {
-        fail("content report must answer watched/conclusion/why/next queue fields", { slug: item.slug });
+        fail("content report must answer research brief fields", { slug: item.slug });
+      }
+      if (!item.report.why_today_matters || !item.report.today_change || !item.report.evidence_status) {
+        fail("content report must include reader-facing context/change/evidence fields", { slug: item.slug });
       }
       if (/continue watching/i.test(item.report.conclusion_change.summary)) {
         fail("content report conclusion_change must be explicit, not only continue watching", { slug: item.slug });

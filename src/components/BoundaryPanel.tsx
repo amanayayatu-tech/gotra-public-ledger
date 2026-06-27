@@ -21,7 +21,7 @@ function datasetDisplayLabel(value: string): string {
 }
 
 function sourceDisplayLabel(value: string): string {
-  return value === "zip_demo_rebuilt_public_safe_dataset" ? "demo zip 重建数据" : value;
+  return value === "zip_demo_rebuilt_public_safe_dataset" ? "演示压缩包重建数据" : value;
 }
 
 export function BoundaryPills({ labels }: { labels: string[] }) {
@@ -43,7 +43,7 @@ export function BoundaryPanel({ metadata }: BoundaryPanelProps) {
   return (
     <section className="boundary-panel" id="method-boundary" aria-labelledby="boundary-heading">
       <div className="section-heading">
-        <span>S6 · Method & boundary</span>
+        <span>S6 · 方法与边界</span>
         <h2 id="boundary-heading">我们主动告诉你这些限制</h2>
         <p>
           透明边界不是削弱可信度，而是让这份账本知道自己能说明什么、不能说明什么。
@@ -56,11 +56,11 @@ export function BoundaryPanel({ metadata }: BoundaryPanelProps) {
           <h3>方法论简述</h3>
           <p>
             页面展示固定股票池中的公开预测记录。方向命中率、平均误差与错误公开率只用已结算记录计算；
-            pending 和 frozen_pending 不进入分母，也不会被补写实际结果。上述统计均为 public-safe demo 读数，非 OOS。
+            待判定和冻结待判定不进入分母，也不会被补写实际结果。上述统计均为公开安全演示读数，非 OOS 验证。
           </p>
           <p>
-            每条记录保留 prediction_id、decision_date、prediction_window、reasoning、evidence 和 provenance，
-            方便从表格或抽屉逐条核对。
+            每条记录保留记录 ID、决策日期、预测窗口、推理摘要、证据和技术来源，
+            方便从表格或详情页逐条核对。
           </p>
         </div>
 
@@ -72,7 +72,7 @@ export function BoundaryPanel({ metadata }: BoundaryPanelProps) {
               <li key={boundary}>{boundary}</li>
             ))}
           </ul>
-          <p>完整 claim boundary 标签来自当前 metadata：</p>
+          <p>完整声明边界标签来自当前元数据：</p>
           <BoundaryPills labels={metadata.claim_boundary} />
         </div>
 
@@ -81,15 +81,15 @@ export function BoundaryPanel({ metadata }: BoundaryPanelProps) {
           <h3>快照来源</h3>
           <dl className="boundary-list">
             <div>
-              <dt>snapshot_date</dt>
+              <dt>快照日期</dt>
               <dd>{metadata.snapshot_date}</dd>
             </div>
             <div>
-              <dt>dataset_type</dt>
+              <dt>数据集类型</dt>
               <dd title={metadata.dataset_type}>{datasetDisplayLabel(metadata.dataset_type)}</dd>
             </div>
             <div>
-              <dt>source.type</dt>
+              <dt>来源类型</dt>
               <dd title={metadata.source.type}>{sourceDisplayLabel(metadata.source.type)}</dd>
             </div>
           </dl>

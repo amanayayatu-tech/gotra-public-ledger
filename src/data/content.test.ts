@@ -53,6 +53,23 @@ describe("content index", () => {
       const itemReport = item?.report;
       expect(itemReport).toBeDefined();
       expect(itemReport?.watched_scope.length).toBeGreaterThan(0);
+      expect(itemReport?.targets.length).toBeGreaterThan(0);
+      expect(itemReport?.reading_time_minutes).toBeGreaterThan(0);
+      expect(itemReport?.today_change).toMatch(/\S/);
+      expect(itemReport?.evidence_status).toMatch(/\S/);
+      expect(itemReport?.main_risks.length).toBeGreaterThan(0);
+      expect(itemReport?.why_today_matters).toMatch(/\S/);
+      expect(itemReport?.background_context.length).toBeGreaterThan(0);
+      expect(itemReport?.recent_changes.length).toBeGreaterThan(0);
+      expect(itemReport?.positive_view.length).toBeGreaterThan(0);
+      expect(itemReport?.opposing_view.join(" ")).toMatch(/red-team|反方审查/i);
+      expect(itemReport?.observation_triggers.length).toBeGreaterThan(0);
+      expect(itemReport?.risks_uncertainty.length).toBeGreaterThan(0);
+      expect(itemReport?.reader_takeaways.length).toBeGreaterThan(0);
+      expect(itemReport?.comparability.length).toBeGreaterThan(0);
+      expect(itemReport?.error_attribution.length).toBeGreaterThan(0);
+      expect(itemReport?.system_learning.length).toBeGreaterThan(0);
+      expect(itemReport?.tomorrow_watch.length).toBeGreaterThan(0);
       expect(itemReport?.conclusion_change.status).toMatch(
         /unchanged|strengthened|weakened|conflict_found|needs_review|no_new_evidence/,
       );

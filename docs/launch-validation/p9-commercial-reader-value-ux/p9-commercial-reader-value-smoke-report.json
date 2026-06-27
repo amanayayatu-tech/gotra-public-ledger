@@ -1,0 +1,143 @@
+{
+  "status": "pass",
+  "generated_at": "2026-06-27T04:34:00.898Z",
+  "goal_id": "GPL-MVP-P9-HOME-H1-RESPONSIVE-REPAIR",
+  "base_url": "http://127.0.0.1:4195/#/",
+  "evidence_layer": "local Chrome/CDP browser smoke only",
+  "routes_checked": [
+    "#/"
+  ],
+  "checks": {
+    "desktop_home_h1": {
+      "label": "desktop-home-zh-1440x900",
+      "text": "把研究过程变成可审计资产",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      },
+      "h1Rect": {
+        "left": 133,
+        "right": 584.19,
+        "top": 349.06,
+        "bottom": 456.56,
+        "width": 451.19,
+        "height": 107.5
+      },
+      "copyRect": {
+        "left": 133,
+        "right": 759.56,
+        "top": 248.81,
+        "bottom": 984.33,
+        "width": 626.56,
+        "height": 735.52
+      },
+      "visualRect": {
+        "left": 791.56,
+        "right": 1367,
+        "top": 118,
+        "bottom": 1115.14,
+        "width": 575.44,
+        "height": 997.14
+      },
+      "checks": {
+        "hasCompleteChinese": true,
+        "noHorizontalOverflow": true,
+        "h1InsideViewport": true,
+        "h1InsideCopy": true,
+        "noParagraphOverlap": true,
+        "noH1VisualOverlap": true,
+        "noCopyVisualOverlap": true,
+        "topElementOk": true,
+        "languageTogglePresent": true,
+        "navPresent": true,
+        "navTogglePresent": true
+      },
+      "pass": true,
+      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-home-zh-1440x900.png"
+    },
+    "mobile_home_h1": {
+      "label": "mobile-home-zh-390x844",
+      "text": "把研究过程变成可审计资产",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 390
+      },
+      "h1Rect": {
+        "left": 27,
+        "right": 355,
+        "top": 214.89,
+        "bottom": 284.23,
+        "width": 328,
+        "height": 69.34
+      },
+      "copyRect": {
+        "left": 27,
+        "right": 363,
+        "top": 106,
+        "bottom": 1283.73,
+        "width": 336,
+        "height": 1177.73
+      },
+      "visualRect": {
+        "left": 27,
+        "right": 363,
+        "top": 1315.73,
+        "bottom": 2494.66,
+        "width": 336,
+        "height": 1178.92
+      },
+      "checks": {
+        "hasCompleteChinese": true,
+        "noHorizontalOverflow": true,
+        "h1InsideViewport": true,
+        "h1InsideCopy": true,
+        "noParagraphOverlap": true,
+        "noH1VisualOverlap": true,
+        "noCopyVisualOverlap": true,
+        "topElementOk": true,
+        "languageTogglePresent": true,
+        "navPresent": true,
+        "navTogglePresent": true
+      },
+      "pass": true,
+      "screenshot": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/mobile-home-zh-390x844.png"
+    },
+    "visual_panel_occlusion": {
+      "desktop_no_h1_visual_overlap": true,
+      "desktop_no_copy_visual_overlap": true,
+      "mobile_no_h1_visual_overlap": true,
+      "mobile_no_copy_visual_overlap": true
+    },
+    "nav_language_toggle": {
+      "dom_presence_pass": true,
+      "visible_controls": [
+        "中文",
+        "EN",
+        "mobile nav toggle"
+      ],
+      "click_interaction_status": "not_rerun_per_controller_bound",
+      "limitation": "This bounded repair used independent Chrome/CDP DOM geometry and screenshots. It did not continue in-app Browser click debugging; nav/language controls were verified present in DOM."
+    },
+    "blocking_console_errors": 0,
+    "console_collection": "chrome_cdp_log_and_runtime_events",
+    "screenshot_visual_qa": {
+      "desktop_visual_review": "screenshot regenerated after second repair; H1 full text visible and no hero-side overlap by CDP geometry",
+      "mobile_visual_review": "screenshot regenerated after second repair; H1 full text visible and no hero-side overlap by CDP geometry"
+    }
+  },
+  "screenshots": {
+    "desktop_home_zh_1440x900": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/desktop-home-zh-1440x900.png",
+    "mobile_home_zh_390x844": "docs/launch-validation/p9-commercial-reader-value-ux/screenshots/mobile-home-zh-390x844.png"
+  },
+  "limitations": [
+    "Nav/language click interaction was not rerun in this H1-only repair per controller bound; DOM presence was verified. H1 geometry, hero-side non-overlap, screenshots, horizontal overflow, and blocking console events were checked by independent Chrome/CDP."
+  ],
+  "repair_focus": {
+    "intermediate_failed_commit": "f6de1cbe8179c4a293c78ab6f5fe80948786572e",
+    "h1_desktop_1440x900": "pass",
+    "h1_mobile_390x844": "pass",
+    "evidence_scope": "Home H1 responsive repair only; no data, route, claim, or business logic changes."
+  }
+}

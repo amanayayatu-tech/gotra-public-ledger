@@ -21,14 +21,14 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
         </span>
         <h2 id="footer-title">{copy(language, "GOTRA Public Ledger 公开研究过程，也公开错误。", "GOTRA Public Ledger shows the research process and the errors.")}</h2>
         <p>
-          {copy(language, "当前展示的是 public-safe frozen demo snapshot。它是产品与研究流程展示，不是交易信号、投资建议、科学证明或业绩证明。", "The current surface is a public-safe frozen demo snapshot. It is product and research-process evidence, not a trading signal, investment advice, scientific proof, or performance proof.")}
+          {copy(language, "当前展示的是公开安全的冻结演示快照。它是产品与研究流程展示，不是交易信号、投资建议、科学证明或业绩证明。", "The current surface is a public-safe frozen demo snapshot. It is product and research-process evidence, not a trading signal, investment advice, scientific proof, or performance proof.")}
         </p>
       </div>
       <nav aria-label="Footer links">
-        <a href={routeHref("/ledger")}>Ledger</a>
-        <a href={routeHref("/system")}>System</a>
-        <a href={routeHref("/methodology")}>Methodology</a>
-        <a href={routeHref("/sources")}>Sources</a>
+        <a href={routeHref("/ledger")}>{copy(language, "账本", "Ledger")}</a>
+        <a href={routeHref("/system")}>{copy(language, "系统", "System")}</a>
+        <a href={routeHref("/methodology")}>{copy(language, "方法", "Methodology")}</a>
+        <a href={routeHref("/sources")}>{copy(language, "来源", "Sources")}</a>
         <a href="https://github.com/amanayayatu-tech/gotra-public-ledger" target="_blank" rel="noreferrer">
           <Github aria-hidden="true" size={16} />
           GitHub repo
@@ -45,8 +45,8 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
           <ShieldCheck aria-hidden="true" size={14} />
           {shortBoundarySentence(language)}
         </span>
-        <span>version {version}</span>
-        <span>snapshot_date {metadata.snapshot_date}</span>
+        <span>{copy(language, "版本", "version")} {version}</span>
+        <span>{copy(language, "快照日期", "snapshot_date")} {metadata.snapshot_date}</span>
       </div>
     </footer>
   );
