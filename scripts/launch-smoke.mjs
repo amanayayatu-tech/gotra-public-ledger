@@ -253,13 +253,32 @@ async function evaluate(client, expression) {
   return result.result.value;
 }
 
-async function waitForAppReady(client) {
+async function waitForAppReady(client, expectedUrl) {
   const started = Date.now();
-  while (Date.now() - started < 10000) {
-    const ready = await evaluate(
-      client,
-      "Boolean(document.body?.innerText && !document.body.innerText.includes('Loading ledger.demo.json'))",
-    );
+  while (Date.now() - started < 20000) {
+    let ready = false;
+    try {
+      ready = await evaluate(
+        client,
+        `(() => {
+          const bodyText = document.body?.innerText || "";
+          const expected = ${JSON.stringify(expectedUrl)};
+          const current = window.location.href;
+          return Boolean(
+            document.readyState !== "loading"
+            && current === expected
+            && document.querySelector("#root")?.children.length
+            && bodyText.trim().length > 80
+            && !bodyText.includes("Loading ledger.demo.json")
+            && !bodyText.includes("Ledger data failed to load")
+          );
+        })()`,
+      );
+    } catch (error) {
+      if (!String(error.message).includes("Execution context was destroyed")) {
+        throw error;
+      }
+    }
     if (ready) {
       return;
     }
@@ -275,9 +294,10 @@ async function navigate(client, url, viewport) {
     deviceScaleFactor: viewport.deviceScaleFactor ?? 1,
     mobile: Boolean(viewport.mobile),
   });
-  await client.send("Page.navigate", { url });
-  await sleep(400);
-  await waitForAppReady(client);
+  const expectedUrl = url;
+  await client.send("Page.navigate", { url: expectedUrl });
+  await waitForAppReady(client, expectedUrl);
+  await sleep(250);
 }
 
 async function captureScreenshot(client, filePath) {
@@ -504,12 +524,12 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
       { label: "home", hash: "#/", viewport: desktop, requiredText: ["GOTRA", "Public Ledger"] },
       { label: "ledger", hash: "#/ledger", viewport: desktop, requiredText: ["公开研究账本", "GOTRA", "Public Ledger"] },
       { label: "prediction_detail", hash: `#/ledger/${firstPredictionId ?? ""}`, viewport: desktop, requiredText: [firstPredictionId ?? "prediction"] },
-      { label: "performance", hash: "#/performance", viewport: desktop, requiredText: ["paper", "Portfolio"] },
+      { label: "performance", hash: "#/performance", viewport: desktop, requiredText: ["假设组合跟踪", "策略版本", "非业绩证明"] },
       { label: "system", hash: "#/system", viewport: desktop, requiredText: ["Weekly Research Cognition System", "DRAFT_PRD", "Gate-Judge"] },
       { label: "system_mobile", hash: "#/system", viewport: mobile, requiredText: ["Weekly Research Cognition System", "DRAFT_PRD", "Gate-Judge"] },
-      { label: "methodology", hash: "#/methodology", viewport: desktop, requiredText: ["methodology", "Boundary", "claim boundary"] },
-      { label: "sources", hash: "#/sources", viewport: desktop, requiredText: ["Sources", "manifest", "public-safe"] },
-      { label: "notes", hash: "#/notes", viewport: mobile, requiredText: ["Notes"] },
+      { label: "methodology", hash: "#/methodology", viewport: desktop, requiredText: ["先固定规则", "方法论简述", "数据边界"] },
+      { label: "sources", hash: "#/sources", viewport: desktop, requiredText: ["公开安全来源记录", "账本快照", "技术来源"] },
+      { label: "notes", hash: "#/notes", viewport: mobile, requiredText: ["研究简报与透明度报告", "公开简报列表"] },
       {
         label: "morning",
         hash: `#/notes/${morningItem.slug}`,
