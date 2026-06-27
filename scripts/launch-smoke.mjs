@@ -5,7 +5,6 @@ import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
 
 const defaultChromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const FALLBACK_BROWSER = "playwright";
 const FORBIDDEN_PHRASES = [
   "this demo format",
   "demo report format",
@@ -44,12 +43,36 @@ function sleep(ms) {
   });
 }
 
+class SmokeAssertionError extends Error {
+  constructor(message, details = undefined) {
+    super(message);
+    this.name = "SmokeAssertionError";
+    this.details = details;
+    this.smokeFailureKind = "assertion";
+  }
+}
+
+class BrowserToolingError extends Error {
+  constructor(message, details = undefined) {
+    super(message);
+    this.name = "BrowserToolingError";
+    this.details = details;
+    this.smokeFailureKind = "browser_tooling";
+  }
+}
+
 function assert(condition, message, details = undefined) {
   if (!condition) {
-    const error = new Error(message);
-    error.details = details;
-    throw error;
+    throw new SmokeAssertionError(message, details);
   }
+}
+
+function browserToolingError(message, details = undefined) {
+  return new BrowserToolingError(message, details);
+}
+
+function isBrowserToolingFailure(error) {
+  return error?.smokeFailureKind === "browser_tooling";
 }
 
 function normalizeText(value) {
@@ -92,7 +115,7 @@ function waitForDevTools(processHandle, timeoutMs = 10000) {
   return new Promise((resolve, reject) => {
     let buffer = "";
     const timer = setTimeout(() => {
-      reject(new Error("Timed out waiting for Chrome DevTools endpoint"));
+      reject(browserToolingError("Timed out waiting for Chrome DevTools endpoint"));
     }, timeoutMs);
 
     const handleOutput = (chunk) => {
@@ -108,13 +131,15 @@ function waitForDevTools(processHandle, timeoutMs = 10000) {
     processHandle.stderr?.on("data", handleOutput);
     processHandle.once("exit", (code) => {
       clearTimeout(timer);
-      reject(new Error(`Chrome exited before DevTools endpoint was ready: ${code}`));
+      reject(browserToolingError(`Chrome exited before DevTools endpoint was ready: ${code}`));
     });
   });
 }
 
 async function startChrome(chromePath) {
-  assert(fs.existsSync(chromePath), "Chrome binary not found", { chromePath });
+  if (!fs.existsSync(chromePath)) {
+    throw browserToolingError("Chrome binary not found", { chromePath });
+  }
   const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "gotra-launch-smoke-chrome-"));
   const chrome = spawn(chromePath, [
     "--headless=new",
@@ -203,10 +228,16 @@ class CdpClient {
 
 async function createPage(port) {
   const response = await fetch(`http://127.0.0.1:${port}/json/new?about:blank`, { method: "PUT" });
-  assert(response.ok, "Failed to create Chrome target", { status: response.status });
+  if (!response.ok) {
+    throw browserToolingError("Failed to create Chrome target", { status: response.status });
+  }
   const target = await response.json();
   const client = new CdpClient(target.webSocketDebuggerUrl);
-  await client.connect();
+  try {
+    await client.connect();
+  } catch (error) {
+    throw browserToolingError("Failed to connect to Chrome DevTools target", { message: error.message });
+  }
   return client;
 }
 
@@ -315,50 +346,42 @@ function detectForbiddenPhrases(text) {
   return FORBIDDEN_PHRASES.filter((phrase) => normalized.includes(phrase));
 }
 
-function runPlaywrightFallback(args) {
+function runChromeScreenshotFallback(args) {
   const routes = [
     {
       label: "home",
       route: "#/",
       file: "desktop-home-1440x900.png",
-      viewport: "1440,900",
-      waitForSelector: "#page-title",
+      viewport: { width: 1440, height: 900 },
     },
     {
       label: "ledger",
       route: "#/ledger",
       file: "desktop-ledger-1440x900.png",
-      viewport: "1440,900",
-      waitForSelector: "#full-ledger-title",
+      viewport: { width: 1440, height: 900 },
     },
     {
       label: "system",
       route: "#/system",
       file: "desktop-system-1440x900.png",
-      viewport: "1440,900",
-      waitForSelector: "#system-diagram-title",
+      viewport: { width: 1440, height: 900 },
     },
     {
       label: "notes",
       route: "#/notes",
       file: "mobile-notes-390x844.png",
-      viewport: "390,844",
-      waitForSelector: "#notes-title",
-      mobile: true,
+      viewport: { width: 390, height: 844 },
     },
     {
       label: "system_mobile",
       route: "#/system",
       file: "mobile-system-390x844.png",
-      viewport: "390,844",
-      waitForSelector: "#system-diagram-title",
-      mobile: true,
+      viewport: { width: 390, height: 844 },
     },
   ];
 
-  const check = spawnSync(FALLBACK_BROWSER, ["--version"], { encoding: "utf8", stdio: "pipe" });
-  if (check.status !== 0) {
-    return { status: "unavailable", reason: `playwright CLI unavailable: ${check.stderr || check.stdout || "unknown"}` };
+  if (!fs.existsSync(args.chromePath)) {
+    return { status: "unavailable", reason: `Chrome binary unavailable for screenshot fallback: ${args.chromePath}` };
   }
 
   const screenshots = [];
@@ -374,19 +397,22 @@ function runPlaywrightFallback(args) {
 
     while (attempt < maxAttempts && !captured) {
       attempt += 1;
-      const screenshotArgs = [
-        "screenshot",
+      const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "gotra-launch-smoke-fallback-"));
+      const result = spawnSync(args.chromePath, [
+        "--headless=new",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-extensions",
+        `--user-data-dir=${userDataDir}`,
+        `--window-size=${route.viewport.width},${route.viewport.height}`,
+        "--virtual-time-budget=15000",
+        `--screenshot=${output}`,
         `${args.baseUrl}${route.route}`,
-        output,
-        "--full-page",
-        `--viewport-size=${route.viewport}`,
-        "--timeout=120000",
-        `--wait-for-selector=${route.waitForSelector}`,
-        "--wait-for-timeout=10000",
-      ];
-      screenshotArgs.splice(2, 0, "--device=Desktop Chrome");
-      const result = spawnSync(FALLBACK_BROWSER, screenshotArgs, { encoding: "utf8", stdio: "pipe" });
-      if (result.status === 0) {
+      ], { encoding: "utf8", stdio: "pipe", timeout: 30000 });
+      fs.rmSync(userDataDir, { recursive: true, force: true });
+      if (result.status === 0 && fs.existsSync(output) && fs.statSync(output).size > 0) {
         captured = true;
         break;
       }
@@ -415,11 +441,12 @@ function runPlaywrightFallback(args) {
   }
 
   return {
-    status: limitations.length === 0 ? "pass" : "needs_review",
+    status: limitations.length === 0 ? "captured_with_limitations" : "needs_review",
     screenshots,
     routeResults,
     limitations,
     attempts: maxAttempts,
+    method: "chrome_screenshot_fallback",
   };
 }
 
@@ -463,7 +490,14 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
     });
 
     const firstPredictionId = ledger.records?.[0]?.prediction_id;
-    const firstNoteSlug = contentIndex.items?.[0]?.slug;
+    const morningItem = contentIndex.items?.find((item) => {
+      return item.type === "daily_morning_brief" || item.report?.report_kind === "daily_morning_brief";
+    });
+    const eveningItem = contentIndex.items?.find((item) => {
+      return item.type === "daily_evening_review" || item.report?.report_kind === "daily_evening_review";
+    });
+    assert(morningItem?.slug, "Morning brief content item not found");
+    assert(eveningItem?.slug, "Evening review content item not found");
     const desktop = { width: 1440, height: 900, mobile: false };
     const mobile = { width: 390, height: 844, mobile: true };
     const routes = [
@@ -476,8 +510,18 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
       { label: "methodology", hash: "#/methodology", viewport: desktop, requiredText: ["methodology", "Boundary", "claim boundary"] },
       { label: "sources", hash: "#/sources", viewport: desktop, requiredText: ["Sources", "manifest", "public-safe"] },
       { label: "notes", hash: "#/notes", viewport: mobile, requiredText: ["Notes"] },
-      { label: "morning", hash: `#/notes/${firstNoteSlug || "weekly-ledger-update-2026-06-25"}`, viewport: mobile, requiredText: [] },
-      { label: "evening", hash: "#/notes/error-review-first-public-snapshot", viewport: mobile, requiredText: [] },
+      {
+        label: "morning",
+        hash: `#/notes/${morningItem.slug}`,
+        viewport: mobile,
+        requiredText: ["晨间简报", "今天看了什么", "结论变了吗", "接下来看什么"],
+      },
+      {
+        label: "evening",
+        hash: `#/notes/${eveningItem.slug}`,
+        viewport: mobile,
+        requiredText: ["晚间复盘", "今天看了什么", "结论变了吗", "本日账本无状态变更"],
+      },
     ];
     report.checks.routeCheckRequired = routes.length;
 
@@ -534,22 +578,25 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
     report.ledgerInteraction = ledgerExercise;
     assert(ledgerExercise.ok && ledgerExercise.containsCountLine, "Ledger search/filter interaction failed", ledgerExercise);
 
-    const auditDetails = await evaluate(
-      client,
-      `(() => {
-        const details = Array.from(document.querySelectorAll('details'));
-        return details.map((detail) => ({
-          summaryText: (detail.querySelector('summary')?.innerText || '').trim(),
-          open: detail.open,
-        }));
-      })()`,
-    );
-    report.audit_defaults_collapsed = auditDetails.every((item) => item.open === false);
+    const auditRouteLabels = new Set(["system", "system_mobile", "sources", "morning", "evening"]);
+    report.auditDetailRoutes = report.routeResults
+      .filter((item) => auditRouteLabels.has(item.route))
+      .map((item) => ({
+        route: item.route,
+        hash: item.hash,
+        details_count: item.auditDetails.length,
+        open_count: item.auditDetails.filter((detail) => detail.open).length,
+        summaries: item.auditDetails.map((detail) => detail.summaryText).filter(Boolean),
+      }));
+    const routesWithAuditDetails = report.auditDetailRoutes.filter((item) => item.details_count > 0);
+    report.audit_defaults_collapsed = routesWithAuditDetails.length > 0
+      && routesWithAuditDetails.every((item) => item.open_count === 0);
+    assert(report.audit_defaults_collapsed, "Audit details are not collapsed by default on reader-facing routes", {
+      auditDetailRoutes: report.auditDetailRoutes,
+    });
 
     report.checks.domConsoleOverflowChecked = report.routeResults.every((item) => item.missing.length === 0 && item.overflow <= 2);
-    report.checks.auditDetailsChecked = report.routeResults.every((item) => {
-      return item.auditDetails.length === 0 || item.auditDetails.every((detail) => typeof detail === "object");
-    });
+    report.checks.auditDetailsChecked = report.audit_defaults_collapsed;
 
     assert(report.consoleErrors.length === 0, "Browser console produced blocking errors", report.consoleErrors);
 
@@ -569,7 +616,7 @@ async function main() {
   const report = {
     status: "started",
     base_url: args.baseUrl,
-    method: "cdp_with_playwright_fallback",
+    method: "cdp_with_chrome_screenshot_fallback",
     started_at: new Date().toISOString(),
     limitations: [],
     http_checks: {},
@@ -622,31 +669,34 @@ async function main() {
         });
       }
     } catch (error) {
+      if (!isBrowserToolingFailure(error)) {
+        throw error;
+      }
       report.status = "pass_with_limitation";
       report.limitations.push({
         phase: "cdp_primary",
         message: String(error.message),
         details: error.details,
       });
-      const fallback = runPlaywrightFallback(args);
-      if (fallback.status === "pass" || fallback.status === "needs_review") {
+      const fallback = runChromeScreenshotFallback(args);
+      if (fallback.status === "captured_with_limitations" || fallback.status === "needs_review") {
         report.browser_smoke = {
           routeResults: fallback.screenshots,
-          consoleErrors: [],
-          limitations: "cdp_path_timed_out_or_failed",
+          consoleErrors: "not_checked_in_fallback",
+          limitations: "cdp_path_timed_out_or_failed; chrome screenshot fallback does not perform DOM/console/overflow assertions",
           screenshots: fallback.screenshots,
           screenshotRouteResults: fallback.routeResults,
           attempts: fallback.attempts,
-          method: "playwright_fallback",
+          method: fallback.method,
         };
         report.status = "pass_with_limitation";
         report.limitations.push({
-          phase: "playwright_fallback",
-          message: "Used Playwright CLI fallback; DOM/console/overflow checks were not completed in this mode.",
+          phase: "chrome_screenshot_fallback",
+          message: "Used Chrome screenshot fallback; DOM/console/overflow checks were not completed in this mode.",
         });
         if (fallback.limitations?.length > 0) {
           report.limitations.push(...fallback.limitations.map((item) => ({
-            phase: "playwright_fallback_route_capture",
+            phase: "chrome_screenshot_fallback_route_capture",
             ...item,
           })));
         }
@@ -657,7 +707,7 @@ async function main() {
         report.status = "fail";
         report.error = {
           message: fallback.reason || String(error.message),
-          details: { phase: "playwright_fallback" },
+          details: { phase: "chrome_screenshot_fallback" },
         };
       }
     }
@@ -675,7 +725,7 @@ async function main() {
   fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report, null, 2));
 
-  if (report.status === "fail") {
+  if (report.status === "fail" || report.status === "needs_review") {
     process.exitCode = 1;
   }
 }
