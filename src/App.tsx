@@ -92,6 +92,39 @@ type ReportLoadState =
   | { kind: "loading" }
   | { kind: "ready"; status: PublicReportStatus; markdown: string }
   | { kind: "error"; message: string };
+type ReportStatusLoadState =
+  | { kind: "loading" }
+  | { kind: "ready"; status: PublicReportStatus }
+  | { kind: "error"; message: string };
+
+type ReportSchedule = {
+  key: "morning-global" | "evening-hk";
+  zh: string;
+  en: string;
+  weekdays: number[];
+  hour: number;
+  minute: number;
+};
+
+const SHANGHAI_TIME_ZONE = "Asia/Shanghai";
+const REPORT_SCHEDULES: ReportSchedule[] = [
+  {
+    key: "evening-hk",
+    zh: "港股晚报",
+    en: "HK evening",
+    weekdays: [1, 2, 3, 4, 5],
+    hour: 18,
+    minute: 30,
+  },
+  {
+    key: "morning-global",
+    zh: "全市场早报",
+    en: "Global morning",
+    weekdays: [2, 3, 4, 5, 6],
+    hour: 10,
+    minute: 30,
+  },
+];
 
 function compareRecord(a: RecordView, b: RecordView, key: SortKey): number {
   const left = a[key];
@@ -205,6 +238,90 @@ function reportAssetPath(fileName: string): string {
   return `${import.meta.env.BASE_URL}reports/${fileName}`;
 }
 
+function reportModeLabel(mode: string, language: Language): string {
+  if (mode === "morning-global") {
+    return copy(language, "全市场早报", "Global morning");
+  }
+  if (mode === "evening-hk") {
+    return copy(language, "港股晚报", "HK evening");
+  }
+  return mode;
+}
+
+function formatReportTimestamp(value: string, language: Language): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return new Intl.DateTimeFormat(language === "zh" ? "zh-CN" : "en-US", {
+    timeZone: SHANGHAI_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZoneName: "short",
+  }).format(date);
+}
+
+function shanghaiDateParts(value: Date): { year: number; month: number; day: number } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: SHANGHAI_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(value);
+  const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return {
+    year: Number(byType.year),
+    month: Number(byType.month),
+    day: Number(byType.day),
+  };
+}
+
+function shanghaiScheduledDate(parts: { year: number; month: number; day: number }, offsetDays: number, schedule: ReportSchedule): Date {
+  return new Date(Date.UTC(parts.year, parts.month - 1, parts.day + offsetDays, schedule.hour - 8, schedule.minute));
+}
+
+function nextReportRun(now = new Date()): { date: Date; schedule: ReportSchedule } {
+  const parts = shanghaiDateParts(now);
+  let next: { date: Date; schedule: ReportSchedule } | null = null;
+
+  for (let offsetDays = 0; offsetDays < 14; offsetDays += 1) {
+    for (const schedule of REPORT_SCHEDULES) {
+      const candidate = shanghaiScheduledDate(parts, offsetDays, schedule);
+      if (!schedule.weekdays.includes(candidate.getUTCDay()) || candidate.getTime() <= now.getTime()) {
+        continue;
+      }
+      if (!next || candidate.getTime() < next.date.getTime()) {
+        next = { date: candidate, schedule };
+      }
+    }
+  }
+
+  return next ?? {
+    date: shanghaiScheduledDate(parts, 1, REPORT_SCHEDULES[0]),
+    schedule: REPORT_SCHEDULES[0],
+  };
+}
+
+function formatNextReportRun(run: { date: Date; schedule: ReportSchedule }, language: Language): string {
+  const label = language === "zh" ? run.schedule.zh : run.schedule.en;
+  const time = new Intl.DateTimeFormat(language === "zh" ? "zh-CN" : "en-US", {
+    timeZone: SHANGHAI_TIME_ZONE,
+    weekday: "short",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZoneName: "short",
+  }).format(run.date);
+  return `${label} · ${time}`;
+}
+
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) {
@@ -219,6 +336,121 @@ async function fetchText(url: string): Promise<string> {
     throw new Error(`${url} returned HTTP ${response.status}`);
   }
   return response.text();
+}
+
+function HomeReportStatusCards({
+  reportStatus,
+  language,
+}: {
+  reportStatus: ReportStatusLoadState;
+  language: Language;
+}) {
+  const nextRun = useMemo(() => nextReportRun(), []);
+  const status = reportStatus.kind === "ready" ? reportStatus.status : null;
+  const hasFailures = (status?.failed_count ?? 0) > 0;
+  const isUnavailable = reportStatus.kind === "error";
+  const runStateLabel = status
+    ? hasFailures
+      ? "PARTIAL"
+      : status.ok
+        ? "OK"
+        : "CHECK"
+    : reportStatus.kind === "loading"
+      ? copy(language, "加载中", "Loading")
+      : copy(language, "未接入", "Unavailable");
+  const warningText = status
+    ? hasFailures
+      ? copy(
+          language,
+          `有 ${status.failed_count} 个标的未成功更新，需查看 /reports 详情。`,
+          `${status.failed_count} symbols failed; review /reports for details.`,
+        )
+      : status.session_status === "weekend/no-new-session"
+        ? copy(language, "周末 / 无新交易日，沿用最近完成交易日。", "Weekend / no new session; using the latest completed trading date.")
+        : copy(language, "未发现失败项；这仍只是运行证据。", "No failed symbols found; this is still runtime evidence only.")
+    : reportStatus.kind === "loading"
+      ? copy(language, "正在读取 /reports/status.json。", "Reading /reports/status.json.")
+      : copy(
+          language,
+          "当前环境没有可读的 /reports/status.json；静态站或服务器尚未部署报告产物时会出现这个状态。",
+          "This environment has no readable /reports/status.json; this can happen before report artifacts are deployed.",
+        );
+
+  const cards = [
+    {
+      label: copy(language, "最后运行", "Last run"),
+      value: status ? formatReportTimestamp(status.generated_at_utc, language) : reportStatus.kind === "loading" ? "..." : copy(language, "暂无", "None"),
+      detail: status ? `as_of_date ${status.as_of_date}` : copy(language, "等待 status.json", "Waiting for status.json"),
+    },
+    {
+      label: copy(language, "报告模式", "Mode"),
+      value: status ? reportModeLabel(status.mode, language) : reportStatus.kind === "loading" ? "..." : copy(language, "未接入", "Unavailable"),
+      detail: status?.reason ?? copy(language, "读取服务器报告状态", "Reading server report status"),
+    },
+    {
+      label: "trading_date",
+      value: status?.trading_date ?? (reportStatus.kind === "loading" ? "..." : copy(language, "暂无", "None")),
+      detail: status
+        ? (Object.entries(status.exchange_trading_dates) as Array<[PublicReportExchange, string]>)
+            .map(([exchange, date]) => `${exchange} ${date}`)
+            .join(" · ")
+        : copy(language, "按交易所显示最近完成交易日", "Shows latest completed trading date by exchange"),
+    },
+    {
+      label: copy(language, "更新覆盖", "Coverage"),
+      value: status ? `${status.success_count}/${status.universe_count}` : reportStatus.kind === "loading" ? "..." : copy(language, "暂无", "None"),
+      detail: status ? `${copy(language, "失败", "failed")} ${status.failed_count}` : copy(language, "success / failed count", "success / failed count"),
+    },
+    {
+      label: copy(language, "下一次预期", "Next expected"),
+      value: formatNextReportRun(nextRun, language),
+      detail: copy(language, "按 systemd timer 计划估算，不代表数据源已经成熟。", "Estimated from the systemd timer schedule; data maturity is separate."),
+    },
+    {
+      label: copy(language, "限制 / 警告", "Warning / limitation"),
+      value: runStateLabel,
+      detail: warningText,
+      tone: hasFailures || isUnavailable ? "warning" : "ok",
+    },
+  ];
+
+  return (
+    <section className="home-report-ops" aria-labelledby="home-report-ops-title">
+      <div className="home-report-ops-head">
+        <div>
+          <span className="section-index">{copy(language, "运行状态", "Operations")}</span>
+          <h2 id="home-report-ops-title">{copy(language, "每日股票池报告状态", "Daily stock-pool report status")}</h2>
+          <p>
+            {copy(
+              language,
+              "首页直接读取 /reports/status.json，用来确认报告产物是否在持续生成；它不是投资建议、交易信号或业绩证明。",
+              "The homepage reads /reports/status.json directly so you can see whether report artifacts are still being generated; this is not advice, a trading signal, or performance proof.",
+            )}
+          </p>
+        </div>
+        <div className="home-report-actions">
+          <span className={`status-badge ${status?.ok && !hasFailures ? "resolved" : "frozen_pending"}`}>{runStateLabel}</span>
+          <a className="secondary-action" href={routeHref("/reports")}>
+            {copy(language, "打开报告", "Open reports")}
+          </a>
+        </div>
+      </div>
+      <div className="home-report-card-grid" aria-label={copy(language, "报告运行状态卡片", "Report operation status cards")}>
+        {cards.map((card) => (
+          <article className={`home-report-card ${card.tone ?? ""}`} key={card.label}>
+            <span>{card.label}</span>
+            <strong>{card.value}</strong>
+            <p>{card.detail}</p>
+          </article>
+        ))}
+      </div>
+      {reportStatus.kind === "error" ? (
+        <div className="edge-state-note warning" role="status">
+          {copy(language, "状态读取失败：", "Status load failed:")} <span className="mono">{reportStatus.message}</span>
+        </div>
+      ) : null}
+    </section>
+  );
 }
 
 function reportStatusLabel(status: string, language: Language): string {
@@ -1878,6 +2110,7 @@ function App() {
   const [selectedTicker, setSelectedTicker] = useState("");
   const [dashboardRequested, setDashboardRequested] = useState(false);
   const [missingPredictionId, setMissingPredictionId] = useState<string | null>(null);
+  const [reportStatusState, setReportStatusState] = useState<ReportStatusLoadState>({ kind: "loading" });
   const dashboardLoadRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -1903,6 +2136,29 @@ function App() {
   useEffect(() => {
     loadDataset();
   }, [loadDataset]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchJson<PublicReportStatus>(reportAssetPath("status.json"))
+      .then((status) => {
+        if (!cancelled) {
+          setReportStatusState({ kind: "ready", status });
+        }
+      })
+      .catch((reason: unknown) => {
+        if (!cancelled) {
+          setReportStatusState({
+            kind: "error",
+            message: reason instanceof Error ? reason.message : "Unknown report status load error",
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const views = useMemo(() => {
     if (!dataset) {
@@ -2053,6 +2309,7 @@ function App() {
         {route.name === "home" ? (
           <>
             <Hero dataset={dataset} metrics={metrics} records={views} language={language} />
+            <HomeReportStatusCards reportStatus={reportStatusState} language={language} />
             <HowItWorks language={language} />
             <TrustStrip records={views} language={language} />
             {dashboardRequested ? (
