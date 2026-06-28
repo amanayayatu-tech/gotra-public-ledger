@@ -11,6 +11,7 @@ const navItems = [
   { href: routeHref("/system"), zh: "系统", en: "System", path: "/system" },
   { href: routeHref("/methodology"), zh: "方法", en: "Method", path: "/methodology" },
   { href: routeHref("/sources"), zh: "来源", en: "Sources", path: "/sources" },
+  { href: routeHref("/reports"), zh: "报告", en: "Reports", path: "/reports" },
   { href: routeHref("/notes"), zh: "简报", en: "Notes", path: "/notes" },
 ];
 
