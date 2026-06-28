@@ -401,6 +401,98 @@ h1 {
   font-weight: 850;
 }
 
+.home-report-ops {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 18px 0 4px;
+}
+
+.home-report-ops-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+}
+
+.home-report-ops-head h2 {
+  margin-top: 8px;
+  color: var(--text);
+  font-size: 26px;
+  line-height: 1.18;
+}
+
+.home-report-ops-head p {
+  max-width: 830px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.62;
+}
+
+.home-report-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 9px;
+  min-width: 190px;
+}
+
+.home-report-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.home-report-card {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  min-width: 0;
+  min-height: 132px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(16, 24, 32, 0.78);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset;
+}
+
+.home-report-card.ok {
+  border-color: rgba(117, 216, 143, 0.32);
+  background: rgba(117, 216, 143, 0.06);
+}
+
+.home-report-card.warning {
+  border-color: rgba(242, 190, 99, 0.42);
+  background: rgba(242, 190, 99, 0.08);
+}
+
+.home-report-card span {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.home-report-card strong {
+  min-width: 0;
+  color: var(--text);
+  font-family: "SFMono-Regular", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+  font-size: 18px;
+  line-height: 1.22;
+  overflow-wrap: anywhere;
+}
+
+.home-report-card p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
 .primary-action,
 .secondary-action {
   display: inline-flex;
@@ -5004,10 +5096,20 @@ h1::after {
   }
 
   .home-priority-grid,
+  .home-report-card-grid,
   .hero-stat-grid,
   .ledger-mobile-metrics,
   .report-five-question {
     grid-template-columns: 1fr;
+  }
+
+  .home-report-ops-head {
+    display: grid;
+  }
+
+  .home-report-actions {
+    justify-content: flex-start;
+    min-width: 0;
   }
 
   .ledger-table-desktop {
