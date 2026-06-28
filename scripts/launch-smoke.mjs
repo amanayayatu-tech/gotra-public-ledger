@@ -15,7 +15,7 @@ const FORBIDDEN_PHRASES = [
 
 function parseArgs(argv) {
   const args = {
-    baseUrl: "https://amanayayatu-tech.github.io/gotra-public-ledger/",
+    baseUrl: "https://gotra.me/",
     outDir: "docs/launch-validation/p8-reader-first-ux-i18n-production",
     chromePath: defaultChromePath,
   };

@@ -9,7 +9,7 @@ type SeoHeadProps = {
   activeRecord: RecordView | null;
 };
 
-const siteUrl = "https://amanayayatu-tech.github.io/gotra-public-ledger/";
+const siteUrl = "https://gotra.me/";
 const defaultTitle = "GOTRA Public Ledger | AI股票研究公开预测账本";
 const defaultDescription =
   "GOTRA Public Ledger 是可审计的 AI股票研究公开预测账本，展示 public-safe demo 数据、错误复盘与研究边界。";
@@ -131,6 +131,7 @@ export function SeoHead({ dataset, records, activeRecord }: SeoHeadProps) {
     setNamedMeta("description", description);
     setNamedMeta("keywords", "AI股票研究, 公开预测账本, 可审计, research information only, not investment advice");
     setNamedMeta("twitter:card", "summary_large_image");
+    setNamedMeta("twitter:url", url);
     setNamedMeta("twitter:title", title);
     setNamedMeta("twitter:description", description);
     setNamedMeta("twitter:image", ogImageUrl);
