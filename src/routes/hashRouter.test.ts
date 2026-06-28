@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { normalizeHashPath, noteRouteHref, parseHashRoute, predictionRouteHref, routeHref } from "./hashRouter";
+import {
+  normalizeHashPath,
+  noteRouteHref,
+  parseBrowserRoute,
+  parseHashRoute,
+  predictionRouteHref,
+  routeHref,
+} from "./hashRouter";
 
 describe("hash router", () => {
   it("normalizes empty and core hash paths", () => {
@@ -7,6 +14,7 @@ describe("hash router", () => {
     expect(normalizeHashPath("#/ledger/")).toBe("/ledger");
     expect(routeHref("/performance")).toBe("#/performance");
     expect(parseHashRoute("#/system").name).toBe("system");
+    expect(parseHashRoute("#/reports").name).toBe("reports");
   });
 
   it("parses prediction detail routes", () => {
@@ -27,5 +35,10 @@ describe("hash router", () => {
 
   it("falls unknown paths back to home", () => {
     expect(parseHashRoute("#/unknown").name).toBe("home");
+  });
+
+  it("parses browser reports route and keeps hash routes authoritative", () => {
+    expect(parseBrowserRoute("/reports", "").name).toBe("reports");
+    expect(parseBrowserRoute("/reports", "#/notes").name).toBe("notes");
   });
 });

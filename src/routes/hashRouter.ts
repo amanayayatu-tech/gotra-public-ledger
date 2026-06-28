@@ -6,10 +6,11 @@ export type AppRoute =
   | { name: "system"; path: "/system" }
   | { name: "methodology"; path: "/methodology" }
   | { name: "sources"; path: "/sources" }
+  | { name: "reports"; path: "/reports" }
   | { name: "notes"; path: "/notes" }
   | { name: "note"; path: "/notes/:slug"; slug: string };
 
-const corePaths = new Set(["/", "/ledger", "/performance", "/system", "/methodology", "/sources", "/notes"]);
+const corePaths = new Set(["/", "/ledger", "/performance", "/system", "/methodology", "/sources", "/reports", "/notes"]);
 
 export function normalizeHashPath(hash: string): string {
   const raw = hash.startsWith("#") ? hash.slice(1) : hash;
@@ -32,6 +33,8 @@ export function parseHashRoute(hash: string): AppRoute {
         return { name: "methodology", path };
       case "/sources":
         return { name: "sources", path };
+      case "/reports":
+        return { name: "reports", path };
       case "/notes":
         return { name: "notes", path };
       default:
@@ -58,6 +61,14 @@ export function parseHashRoute(hash: string): AppRoute {
   }
 
   return { name: "home", path: "/" };
+}
+
+export function parseBrowserRoute(pathname: string, hash: string): AppRoute {
+  const hashPath = normalizeHashPath(hash);
+  if (hashPath !== "/") {
+    return parseHashRoute(hash);
+  }
+  return parseHashRoute(pathname);
 }
 
 export function routeHref(path: string): string {
