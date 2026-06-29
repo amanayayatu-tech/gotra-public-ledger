@@ -83,6 +83,11 @@ function normalizeText(value) {
     .toLowerCase();
 }
 
+function expectedAssetBasePath(baseUrl) {
+  const pathname = new URL(baseUrl).pathname;
+  return pathname === "/" ? "/assets/" : `${pathname.replace(/\/$/, "")}/assets/`;
+}
+
 async function fetchText(url) {
   const response = await fetch(url);
   assert(response.ok, `HTTP check failed: ${url}`, { status: response.status });
@@ -646,13 +651,19 @@ async function main() {
 
   try {
     const indexHtml = await fetchText(args.baseUrl);
+    const expectedAssetPath = expectedAssetBasePath(args.baseUrl);
+    const expectsRootAssets = expectedAssetPath === "/assets/";
     report.http_checks.index_html = {
-      ok: indexHtml.includes("/gotra-public-ledger/assets/"),
+      ok: indexHtml.includes(expectedAssetPath),
+      expected_asset_path: expectedAssetPath,
+      asset_mode: expectsRootAssets ? "root" : "path_base",
       has_root_asset_reference: /(?:href|src)="\/assets\//.test(indexHtml),
       has_github_pages_base: indexHtml.includes('href="/gotra-public-ledger/'),
     };
-    assert(report.http_checks.index_html.ok, "Index HTML does not include GitHub Pages asset base path");
-    assert(!report.http_checks.index_html.has_root_asset_reference, "Index HTML contains root-absolute asset reference");
+    assert(report.http_checks.index_html.ok, `Index HTML does not include expected asset base path: ${expectedAssetPath}`);
+    if (!expectsRootAssets) {
+      assert(!report.http_checks.index_html.has_root_asset_reference, "Index HTML contains root-absolute asset reference");
+    }
 
     const ledgerCandidate = await fetchJsonFromCandidates(["data/ledger.demo.json", "/data/ledger.demo.json"], args.baseUrl);
     const manifestCandidate = await fetchJsonFromCandidates(["data/manifest.json", "/data/manifest.json"], args.baseUrl);
