@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildReportDeskArtifacts, normalizeReportStatus, type ReportRawStatus } from "./ReportStatusModel";
+import { REPORT_SCHEDULES, buildReportDeskArtifacts, normalizeReportStatus, type ReportRawStatus } from "./ReportStatusModel";
 
 const now = new Date("2026-06-29T03:00:00.000Z");
 
@@ -176,6 +176,35 @@ describe("normalizeReportStatus", () => {
     });
     expect(status.latestFile).toBe("latest.md");
     expect(status.statusFile).toBe("status.json");
+  });
+
+  it("recognizes every scheduled market report mode", () => {
+    const modes = REPORT_SCHEDULES.map((schedule) => schedule.key);
+
+    expect(modes).toEqual(["morning-hk", "evening-hk", "morning-us", "evening-us", "morning-global"]);
+
+    for (const schedule of REPORT_SCHEDULES) {
+      const status = normalizeReportStatus(
+        baseStatus({
+          mode: schedule.key,
+          status_file: schedule.statusFile,
+          latest_file: schedule.latestFile,
+        }),
+        { now },
+      );
+
+      expect(status.mode).toBe(schedule.key);
+      expect(status.statusFile).toBe(schedule.statusFile);
+      expect(status.latestFile).toBe(schedule.latestFile);
+      expect(status.nextExpectedRun.mode).toBe(schedule.key);
+    }
+  });
+
+  it("calculates next US evening run by Shanghai weekday rather than UTC weekday", () => {
+    const status = normalizeReportStatus(baseStatus({ mode: "evening-us" }), { now });
+
+    expect(status.nextExpectedRun.mode).toBe("evening-us");
+    expect(status.nextExpectedRun.date.toISOString()).toBe("2026-06-29T22:30:00.000Z");
   });
 });
 
