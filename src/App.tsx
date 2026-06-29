@@ -20,7 +20,9 @@ import { DailyDeskSnapshot, type DailyDeskSnapshotState } from "./components/rep
 import {
   REPORT_SCHEDULES,
   buildReportDeskArtifacts,
+  normalizeFullAnalystPilotStatus,
   normalizeReportStatus,
+  type FullAnalystPilotStatus,
   type NormalizedReportStatus,
   type ReportDeskArtifacts,
   type ReportRawStatus,
@@ -70,6 +72,8 @@ type ReportDeskLoadState =
       kind: "ready";
       lastFetchedAt: string;
       marketStatuses: ReportStatusFileResult[];
+      fullAnalystPilot: FullAnalystPilotStatus | null;
+      fullAnalystPilotError: string | null;
     } & ReportDeskArtifacts);
 
 function compareRecord(a: RecordView, b: RecordView, key: SortKey): number {
@@ -1476,13 +1480,15 @@ function ReportsPage({ language }: { language: Language }) {
   const loadReports = useCallback(async () => {
     const statusUrl = reportAssetPath("status.json");
     const markdownUrl = reportAssetPath("latest.md");
+    const fullAnalystStatusUrl = reportAssetPath("status_full_analyst_evening_hk.json");
     setIsRefreshing(true);
 
     try {
-      const [statusResult, markdownResult, marketStatusResult] = await Promise.allSettled([
+      const [statusResult, markdownResult, marketStatusResult, fullAnalystStatusResult] = await Promise.allSettled([
         fetchJson<ReportRawStatus>(statusUrl),
         fetchText(markdownUrl),
         fetchMarketReportStatuses(),
+        fetchJson<ReportRawStatus>(fullAnalystStatusUrl),
       ]);
       setLoadState({
         kind: "ready",
@@ -1491,6 +1497,16 @@ function ReportsPage({ language }: { language: Language }) {
           marketStatusResult.status === "fulfilled"
             ? marketStatusResult.value
             : marketStatusFallbacks(marketStatusResult.reason instanceof Error ? marketStatusResult.reason.message : String(marketStatusResult.reason)),
+        fullAnalystPilot:
+          fullAnalystStatusResult.status === "fulfilled"
+            ? normalizeFullAnalystPilotStatus(fullAnalystStatusResult.value)
+            : null,
+        fullAnalystPilotError:
+          fullAnalystStatusResult.status === "rejected"
+            ? fullAnalystStatusResult.reason instanceof Error
+              ? fullAnalystStatusResult.reason.message
+              : String(fullAnalystStatusResult.reason)
+            : null,
         lastFetchedAt: new Date().toISOString(),
       });
     } finally {
@@ -1510,6 +1526,8 @@ function ReportsPage({ language }: { language: Language }) {
           markdown: loadState.markdown,
           markdownError: loadState.markdownError,
           marketStatuses: loadState.marketStatuses,
+          fullAnalystPilot: loadState.fullAnalystPilot,
+          fullAnalystPilotError: loadState.fullAnalystPilotError,
           lastFetchedAt: loadState.lastFetchedAt,
         }
       : {
@@ -1518,6 +1536,8 @@ function ReportsPage({ language }: { language: Language }) {
           markdown: null,
           markdownError: null,
           marketStatuses: marketStatusFallbacks(null),
+          fullAnalystPilot: null,
+          fullAnalystPilotError: null,
           lastFetchedAt: null,
         };
 

@@ -3074,6 +3074,107 @@ h1 {
   overflow-wrap: anywhere;
 }
 
+.full-analyst-pilot-card {
+  display: grid;
+  gap: 12px;
+  margin: 0 16px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(7, 14, 20, 0.78);
+}
+
+.full-analyst-pilot-card.tone-good {
+  border-color: rgba(117, 216, 143, 0.38);
+}
+
+.full-analyst-pilot-card.tone-warning {
+  border-color: rgba(242, 190, 99, 0.42);
+}
+
+.full-analyst-pilot-card.tone-critical {
+  border-color: rgba(255, 107, 116, 0.46);
+}
+
+.full-analyst-pilot-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(360px, 7fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.full-analyst-pilot-summary {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.full-analyst-pilot-summary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.full-analyst-pilot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.full-analyst-pilot-grid div {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.full-analyst-pilot-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.full-analyst-pilot-grid strong {
+  display: block;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.full-analyst-pilot-issues {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.full-analyst-pilot-issues span {
+  min-width: 0;
+  max-width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.045);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.public-artifact-links.compact a {
+  min-height: 28px;
+  padding: 5px 8px;
+  font-size: 11px;
+}
+
 .desk-two-column {
   display: grid;
   grid-template-columns: minmax(0, 7fr) minmax(280px, 5fr);
@@ -6037,6 +6138,7 @@ h1::after {
   }
 
   .desk-market-status-grid,
+  .full-analyst-pilot-grid,
   .daily-market-report-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -6101,6 +6203,7 @@ h1::after {
   .desk-boundary-strip,
   .desk-header,
   .desk-market-status-strip,
+  .full-analyst-pilot-card,
   .desk-section,
   .desk-controls {
     margin-inline: 10px;
@@ -6108,11 +6211,13 @@ h1::after {
 
   .desk-header,
   .desk-market-status-strip,
+  .full-analyst-pilot-card,
   .desk-section {
     padding: 12px;
   }
 
   .desk-title-row,
+  .full-analyst-pilot-layout,
   .desk-two-column {
     grid-template-columns: 1fr;
   }
@@ -6130,6 +6235,7 @@ h1::after {
   .desk-meta-grid,
   .desk-kpi-matrix,
   .desk-market-status-grid,
+  .full-analyst-pilot-grid,
   .daily-market-report-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -6170,6 +6276,7 @@ h1::after {
   .desk-meta-grid,
   .desk-kpi-matrix,
   .desk-market-status-grid,
+  .full-analyst-pilot-grid,
   .daily-market-report-grid {
     grid-template-columns: 1fr;
   }
