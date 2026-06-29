@@ -15,6 +15,14 @@ import { CredibilityDashboard } from "./components/CredibilityDashboard";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { LedgerTable, type SortKey, type SortState } from "./components/LedgerTable";
+import { AnalystDesk } from "./components/reports/AnalystDesk";
+import { DailyDeskSnapshot, type DailyDeskSnapshotState } from "./components/reports/DailyDeskSnapshot";
+import {
+  buildReportDeskArtifacts,
+  normalizeReportStatus,
+  type ReportDeskArtifacts,
+  type ReportRawStatus,
+} from "./components/reports/ReportStatusModel";
 import { SeoHead } from "./components/SeoHead";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
@@ -52,79 +60,13 @@ const CognitionDashboard = lazy(() =>
 
 type StatusFilter = "all" | LedgerStatus;
 type DirectionFilter = "all" | RecordView["direction"];
-type PublicReportExchange = "HKEX" | "NASDAQ" | "NYSE";
 
-type PublicReportExchangeStatus = {
-  universe: number;
-  success: number;
-  failed: number;
-  trading_date: string;
-};
-
-type PublicReportStatus = {
-  schema: string;
-  ok: boolean;
-  mode: string;
-  as_of_date: string;
-  trading_date: string;
-  exchange_trading_dates: Record<PublicReportExchange, string>;
-  reason: string;
-  session_status: string;
-  universe_count: number;
-  success_count: number;
-  failed_count: number;
-  by_exchange: Record<PublicReportExchange, PublicReportExchangeStatus>;
-  missing_symbols: Array<{
-    exchange: PublicReportExchange;
-    symbol: string;
-    provider_ticker: string;
-    reason: string;
-  }>;
-  source: string;
-  boundary: string[];
-  generated_at_utc: string;
-  report_file: string;
-  latest_file: string;
-  status_file: string;
-};
-
-type ReportLoadState =
+type ReportDeskLoadState =
   | { kind: "loading" }
-  | { kind: "ready"; status: PublicReportStatus; markdown: string }
-  | { kind: "error"; message: string };
-type ReportStatusLoadState =
-  | { kind: "loading" }
-  | { kind: "ready"; status: PublicReportStatus }
-  | { kind: "error"; message: string };
-
-type ReportSchedule = {
-  key: "morning-global" | "evening-hk";
-  zh: string;
-  en: string;
-  weekdays: number[];
-  hour: number;
-  minute: number;
-};
-
-const SHANGHAI_TIME_ZONE = "Asia/Shanghai";
-const REPORT_SCHEDULES: ReportSchedule[] = [
-  {
-    key: "evening-hk",
-    zh: "港股晚报",
-    en: "HK evening",
-    weekdays: [1, 2, 3, 4, 5],
-    hour: 18,
-    minute: 30,
-  },
-  {
-    key: "morning-global",
-    zh: "全市场早报",
-    en: "Global morning",
-    weekdays: [2, 3, 4, 5, 6],
-    hour: 10,
-    minute: 30,
-  },
-];
+  | ({
+      kind: "ready";
+      lastFetchedAt: string;
+    } & ReportDeskArtifacts);
 
 function compareRecord(a: RecordView, b: RecordView, key: SortKey): number {
   const left = a[key];
@@ -235,91 +177,11 @@ function formatReaderDateForLanguage(value: string, language: Language): string 
 }
 
 function reportAssetPath(fileName: string): string {
-  return `${import.meta.env.BASE_URL}reports/${fileName}`;
-}
-
-function reportModeLabel(mode: string, language: Language): string {
-  if (mode === "morning-global") {
-    return copy(language, "全市场早报", "Global morning");
+  if (/^https?:\/\//i.test(fileName)) {
+    return fileName;
   }
-  if (mode === "evening-hk") {
-    return copy(language, "港股晚报", "HK evening");
-  }
-  return mode;
-}
-
-function formatReportTimestamp(value: string, language: Language): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-  return new Intl.DateTimeFormat(language === "zh" ? "zh-CN" : "en-US", {
-    timeZone: SHANGHAI_TIME_ZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-    timeZoneName: "short",
-  }).format(date);
-}
-
-function shanghaiDateParts(value: Date): { year: number; month: number; day: number } {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: SHANGHAI_TIME_ZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(value);
-  const byType = Object.fromEntries(parts.map((part) => [part.type, part.value]));
-  return {
-    year: Number(byType.year),
-    month: Number(byType.month),
-    day: Number(byType.day),
-  };
-}
-
-function shanghaiScheduledDate(parts: { year: number; month: number; day: number }, offsetDays: number, schedule: ReportSchedule): Date {
-  return new Date(Date.UTC(parts.year, parts.month - 1, parts.day + offsetDays, schedule.hour - 8, schedule.minute));
-}
-
-function nextReportRun(now = new Date()): { date: Date; schedule: ReportSchedule } {
-  const parts = shanghaiDateParts(now);
-  let next: { date: Date; schedule: ReportSchedule } | null = null;
-
-  for (let offsetDays = 0; offsetDays < 14; offsetDays += 1) {
-    for (const schedule of REPORT_SCHEDULES) {
-      const candidate = shanghaiScheduledDate(parts, offsetDays, schedule);
-      if (!schedule.weekdays.includes(candidate.getUTCDay()) || candidate.getTime() <= now.getTime()) {
-        continue;
-      }
-      if (!next || candidate.getTime() < next.date.getTime()) {
-        next = { date: candidate, schedule };
-      }
-    }
-  }
-
-  return next ?? {
-    date: shanghaiScheduledDate(parts, 1, REPORT_SCHEDULES[0]),
-    schedule: REPORT_SCHEDULES[0],
-  };
-}
-
-function formatNextReportRun(run: { date: Date; schedule: ReportSchedule }, language: Language): string {
-  const label = language === "zh" ? run.schedule.zh : run.schedule.en;
-  const time = new Intl.DateTimeFormat(language === "zh" ? "zh-CN" : "en-US", {
-    timeZone: SHANGHAI_TIME_ZONE,
-    weekday: "short",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-    timeZoneName: "short",
-  }).format(run.date);
-  return `${label} · ${time}`;
+  const normalized = fileName.replace(/^\/+/, "").replace(/^reports\//, "");
+  return `${import.meta.env.BASE_URL}reports/${normalized}`;
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -336,121 +198,6 @@ async function fetchText(url: string): Promise<string> {
     throw new Error(`${url} returned HTTP ${response.status}`);
   }
   return response.text();
-}
-
-function HomeReportStatusCards({
-  reportStatus,
-  language,
-}: {
-  reportStatus: ReportStatusLoadState;
-  language: Language;
-}) {
-  const nextRun = useMemo(() => nextReportRun(), []);
-  const status = reportStatus.kind === "ready" ? reportStatus.status : null;
-  const hasFailures = (status?.failed_count ?? 0) > 0;
-  const isUnavailable = reportStatus.kind === "error";
-  const runStateLabel = status
-    ? hasFailures
-      ? "PARTIAL"
-      : status.ok
-        ? "OK"
-        : "CHECK"
-    : reportStatus.kind === "loading"
-      ? copy(language, "加载中", "Loading")
-      : copy(language, "未接入", "Unavailable");
-  const warningText = status
-    ? hasFailures
-      ? copy(
-          language,
-          `有 ${status.failed_count} 个标的未成功更新，需查看 /reports 详情。`,
-          `${status.failed_count} symbols failed; review /reports for details.`,
-        )
-      : status.session_status === "weekend/no-new-session"
-        ? copy(language, "周末 / 无新交易日，沿用最近完成交易日。", "Weekend / no new session; using the latest completed trading date.")
-        : copy(language, "未发现失败项；这仍只是运行证据。", "No failed symbols found; this is still runtime evidence only.")
-    : reportStatus.kind === "loading"
-      ? copy(language, "正在读取 /reports/status.json。", "Reading /reports/status.json.")
-      : copy(
-          language,
-          "当前环境没有可读的 /reports/status.json；静态站或服务器尚未部署报告产物时会出现这个状态。",
-          "This environment has no readable /reports/status.json; this can happen before report artifacts are deployed.",
-        );
-
-  const cards = [
-    {
-      label: copy(language, "最后运行", "Last run"),
-      value: status ? formatReportTimestamp(status.generated_at_utc, language) : reportStatus.kind === "loading" ? "..." : copy(language, "暂无", "None"),
-      detail: status ? `as_of_date ${status.as_of_date}` : copy(language, "等待 status.json", "Waiting for status.json"),
-    },
-    {
-      label: copy(language, "报告模式", "Mode"),
-      value: status ? reportModeLabel(status.mode, language) : reportStatus.kind === "loading" ? "..." : copy(language, "未接入", "Unavailable"),
-      detail: status?.reason ?? copy(language, "读取服务器报告状态", "Reading server report status"),
-    },
-    {
-      label: "trading_date",
-      value: status?.trading_date ?? (reportStatus.kind === "loading" ? "..." : copy(language, "暂无", "None")),
-      detail: status
-        ? (Object.entries(status.exchange_trading_dates) as Array<[PublicReportExchange, string]>)
-            .map(([exchange, date]) => `${exchange} ${date}`)
-            .join(" · ")
-        : copy(language, "按交易所显示最近完成交易日", "Shows latest completed trading date by exchange"),
-    },
-    {
-      label: copy(language, "更新覆盖", "Coverage"),
-      value: status ? `${status.success_count}/${status.universe_count}` : reportStatus.kind === "loading" ? "..." : copy(language, "暂无", "None"),
-      detail: status ? `${copy(language, "失败", "failed")} ${status.failed_count}` : copy(language, "success / failed count", "success / failed count"),
-    },
-    {
-      label: copy(language, "下一次预期", "Next expected"),
-      value: formatNextReportRun(nextRun, language),
-      detail: copy(language, "按 systemd timer 计划估算，不代表数据源已经成熟。", "Estimated from the systemd timer schedule; data maturity is separate."),
-    },
-    {
-      label: copy(language, "限制 / 警告", "Warning / limitation"),
-      value: runStateLabel,
-      detail: warningText,
-      tone: hasFailures || isUnavailable ? "warning" : "ok",
-    },
-  ];
-
-  return (
-    <section className="home-report-ops" aria-labelledby="home-report-ops-title">
-      <div className="home-report-ops-head">
-        <div>
-          <span className="section-index">{copy(language, "运行状态", "Operations")}</span>
-          <h2 id="home-report-ops-title">{copy(language, "每日股票池报告状态", "Daily stock-pool report status")}</h2>
-          <p>
-            {copy(
-              language,
-              "首页直接读取 /reports/status.json，用来确认报告产物是否在持续生成；它不是投资建议、交易信号或业绩证明。",
-              "The homepage reads /reports/status.json directly so you can see whether report artifacts are still being generated; this is not advice, a trading signal, or performance proof.",
-            )}
-          </p>
-        </div>
-        <div className="home-report-actions">
-          <span className={`status-badge ${status?.ok && !hasFailures ? "resolved" : "frozen_pending"}`}>{runStateLabel}</span>
-          <a className="secondary-action" href={routeHref("/reports")}>
-            {copy(language, "打开报告", "Open reports")}
-          </a>
-        </div>
-      </div>
-      <div className="home-report-card-grid" aria-label={copy(language, "报告运行状态卡片", "Report operation status cards")}>
-        {cards.map((card) => (
-          <article className={`home-report-card ${card.tone ?? ""}`} key={card.label}>
-            <span>{card.label}</span>
-            <strong>{card.value}</strong>
-            <p>{card.detail}</p>
-          </article>
-        ))}
-      </div>
-      {reportStatus.kind === "error" ? (
-        <div className="edge-state-note warning" role="status">
-          {copy(language, "状态读取失败：", "Status load failed:")} <span className="mono">{reportStatus.message}</span>
-        </div>
-      ) : null}
-    </section>
-  );
 }
 
 function reportStatusLabel(status: string, language: Language): string {
@@ -1679,179 +1426,125 @@ function NoteReportDetail({ item, language }: { item: ContentItem; language: Lan
 }
 
 function ReportsPage({ language }: { language: Language }) {
-  const [loadState, setLoadState] = useState<ReportLoadState>({ kind: "loading" });
+  const [loadState, setLoadState] = useState<ReportDeskLoadState>({ kind: "loading" });
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadReports = useCallback(async () => {
     const statusUrl = reportAssetPath("status.json");
     const markdownUrl = reportAssetPath("latest.md");
+    setIsRefreshing(true);
 
-    Promise.all([fetchJson<PublicReportStatus>(statusUrl), fetchText(markdownUrl)])
-      .then(([status, markdown]) => {
-        if (!cancelled) {
-          setLoadState({ kind: "ready", status, markdown });
-        }
-      })
-      .catch((reason: unknown) => {
-        if (!cancelled) {
-          setLoadState({
-            kind: "error",
-            message: reason instanceof Error ? reason.message : "Unknown report load error",
-          });
-        }
+    try {
+      const [statusResult, markdownResult] = await Promise.allSettled([
+        fetchJson<ReportRawStatus>(statusUrl),
+        fetchText(markdownUrl),
+      ]);
+      setLoadState({
+        kind: "ready",
+        ...buildReportDeskArtifacts(statusResult, markdownResult),
+        lastFetchedAt: new Date().toISOString(),
       });
-
-    return () => {
-      cancelled = true;
-    };
+    } finally {
+      setIsRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadReports();
+  }, [loadReports]);
+
+  const deskProps =
+    loadState.kind === "ready"
+      ? {
+          status: loadState.status,
+          statusError: loadState.statusError,
+          markdown: loadState.markdown,
+          markdownError: loadState.markdownError,
+          lastFetchedAt: loadState.lastFetchedAt,
+        }
+      : {
+          status: null,
+          statusError: null,
+          markdown: null,
+          markdownError: null,
+          lastFetchedAt: null,
+        };
 
   return (
     <>
       <PageIntro
         eyebrow={copy(language, "报告", "Reports")}
-        title={copy(language, "股票池公开安全报告", "Public-safe stock-pool reports")}
-        body={copy(language, "这里接入服务器本地调试报告：只读展示覆盖率、交易日、数据来源和 Markdown 内容；不是投资建议，不是交易信号，也不是业绩证明。", "This page connects the local debug report surface: read-only coverage, trading dates, data source, and markdown content without investment advice, trading signals, or performance proof.")}
+        title={copy(language, "GOTRA 每日股票池分析台", "GOTRA Daily Stock-Pool Desk")}
+        body={copy(language, "公开安全分析台：只读展示覆盖率、交易日、异常清单和公开报告产物；不是投资建议、交易信号、业绩证明或科学证明。", "Public-safe analyst desk for read-only coverage, trading dates, exception tape, and public report artifacts; not advice, a trading signal, performance proof, or science proof.")}
         icon={FileText}
       />
-      <section className="route-panel reports-shell" aria-labelledby="reports-title">
-        <div className="boundary-banner">
-          <ShieldCheck aria-hidden="true" size={18} />
-          {boundarySentence(language)}
-        </div>
-
-        {loadState.kind === "loading" ? (
-          <div className="edge-state-note" role="status">
+      {loadState.kind === "loading" ? (
+        <section className="route-panel reports-shell analyst-desk-shell" aria-labelledby="reports-loading-title">
+          <div className="edge-state-note" role="status" id="reports-loading-title">
             {copy(language, "正在加载 /reports/status.json 和 /reports/latest.md。", "Loading /reports/status.json and /reports/latest.md.")}
           </div>
-        ) : null}
-
-        {loadState.kind === "error" ? (
-          <div className="edge-state-note warning" role="alert">
-            {copy(language, "报告加载失败：", "Report load failed:")} <span className="mono">{loadState.message}</span>
-          </div>
-        ) : null}
-
-        {loadState.kind === "ready" ? (
-          <>
-            <div className="reports-head">
-              <div>
-                <span className="section-index">{loadState.status.mode}</span>
-                <h2 id="reports-title">{copy(language, "最新股票池报告", "Latest stock-pool report")}</h2>
-                <p>{loadState.status.reason}</p>
-              </div>
-              <span className={`status-badge ${loadState.status.ok ? "resolved" : "frozen_pending"}`}>
-                {loadState.status.ok ? "OK" : "PARTIAL"}
-              </span>
-            </div>
-
-            <div className="report-status-grid" aria-label={copy(language, "报告状态", "Report status")}>
-              <div>
-                <span>as_of_date</span>
-                <strong>{loadState.status.as_of_date}</strong>
-              </div>
-              <div>
-                <span>trading_date</span>
-                <strong>{loadState.status.trading_date}</strong>
-              </div>
-              <div>
-                <span>{copy(language, "覆盖率", "Coverage")}</span>
-                <strong>
-                  {loadState.status.success_count}/{loadState.status.universe_count}
-                </strong>
-              </div>
-              <div>
-                <span>{copy(language, "失败", "Failed")}</span>
-                <strong>{loadState.status.failed_count}</strong>
-              </div>
-            </div>
-
-            <div className="reports-meta-grid">
-              <section aria-labelledby="report-exchange-title">
-                <h3 id="report-exchange-title">{copy(language, "交易所覆盖", "Exchange coverage")}</h3>
-                <div className="table-scroll">
-                  <table className="portfolio-table reports-table">
-                    <thead>
-                      <tr>
-                        <th>{copy(language, "交易所", "Exchange")}</th>
-                        <th>{copy(language, "交易日", "Date")}</th>
-                        <th>{copy(language, "股票池", "Universe")}</th>
-                        <th>{copy(language, "成功", "Success")}</th>
-                        <th>{copy(language, "失败", "Failed")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(Object.entries(loadState.status.by_exchange) as Array<[PublicReportExchange, PublicReportExchangeStatus]>).map(
-                        ([exchange, value]) => (
-                          <tr key={exchange}>
-                            <td>{exchange}</td>
-                            <td className="mono">{value.trading_date}</td>
-                            <td>{value.universe}</td>
-                            <td>{value.success}</td>
-                            <td>{value.failed}</td>
-                          </tr>
-                        ),
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-
-              <section aria-labelledby="report-boundary-title">
-                <h3 id="report-boundary-title">{copy(language, "边界", "Boundary")}</h3>
-                <div className="boundary-chip-row">
-                  {loadState.status.boundary.map((boundary) => (
-                    <span key={boundary}>{boundary}</span>
-                  ))}
-                </div>
-                <dl className="source-grid reports-source-grid">
-                  <div>
-                    <dt>{copy(language, "数据源", "Data source")}</dt>
-                    <dd>{loadState.status.source}</dd>
-                  </div>
-                  <div>
-                    <dt>{copy(language, "生成时间", "Generated")}</dt>
-                    <dd className="mono">{loadState.status.generated_at_utc}</dd>
-                  </div>
-                  <div>
-                    <dt>{copy(language, "文件", "Files")}</dt>
-                    <dd className="mono">
-                      {loadState.status.latest_file} · {loadState.status.status_file}
-                    </dd>
-                  </div>
-                </dl>
-              </section>
-            </div>
-
-            {loadState.status.missing_symbols.length > 0 ? (
-              <details className="audit-details">
-                <summary>{copy(language, "查看失败 symbols", "View failed symbols")}</summary>
-                <ul>
-                  {loadState.status.missing_symbols.map((item) => (
-                    <li key={`${item.exchange}-${item.symbol}`}>
-                      <span className="mono">
-                        {item.exchange}:{item.symbol}
-                      </span>{" "}
-                      {item.reason}
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            ) : null}
-
-            <section aria-labelledby="latest-report-markdown-title">
-              <div className="reports-reader-head">
-                <h3 id="latest-report-markdown-title">{copy(language, "Markdown 报告", "Markdown report")}</h3>
-                <a className="secondary-action" href={reportAssetPath(loadState.status.latest_file)}>
-                  {copy(language, "打开 latest.md", "Open latest.md")}
-                </a>
-              </div>
-              <pre className="report-markdown-reader">{loadState.markdown}</pre>
-            </section>
-          </>
-        ) : null}
-      </section>
+        </section>
+      ) : null}
+      {loadState.kind !== "loading" ? (
+        <AnalystDesk
+          language={language}
+          {...deskProps}
+          isRefreshing={isRefreshing}
+          onRefresh={loadReports}
+          assetHref={reportAssetPath}
+        />
+      ) : null}
     </>
+  );
+}
+
+function HowToReadGotra({ language }: { language: Language }) {
+  const entries = [
+    {
+      href: routeHref("/"),
+      label: copy(language, "首页", "Home"),
+      body: copy(language, "看当前状态、项目定位和最新运行摘要。", "Start with current status, project positioning, and the latest runtime summary."),
+    },
+    {
+      href: routeHref("/ledger"),
+      label: copy(language, "账本", "Ledger"),
+      body: copy(language, "查看公开记录、纸面组合和表现跟踪；不是业绩承诺。", "Inspect public records, paper tracking, and performance tracking; not a performance promise."),
+    },
+    {
+      href: routeHref("/reports"),
+      label: copy(language, "报告", "Reports"),
+      body: copy(language, "查看每日股票池报告、异常清单和简报复盘。", "Read daily stock-pool reports, exception lists, and notes or reviews."),
+    },
+    {
+      href: routeHref("/system"),
+      label: copy(language, "系统", "System"),
+      body: copy(language, "查看方法、来源、证据边界和系统运行说明。", "Review methods, sources, evidence boundaries, and system operating notes."),
+    },
+  ];
+
+  return (
+    <section className="reader-guide" aria-labelledby="reader-guide-title">
+      <div className="section-heading compact">
+        <span>{copy(language, "阅读路径", "Reading path")}</span>
+        <h2 id="reader-guide-title">{copy(language, "如何阅读 GOTRA", "How to read GOTRA")}</h2>
+        <p>
+          {copy(
+            language,
+            "这四个入口把概览、记录、报告和系统说明分开；先读状态，再进账本或报告，最后用系统材料核对边界。",
+            "The four entries separate overview, records, reports, and system context; read status first, then ledger or reports, then use system materials to check boundaries.",
+          )}
+        </p>
+      </div>
+      <div className="reader-guide-grid">
+        {entries.map((entry, index) => (
+          <a href={entry.href} key={entry.href}>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <strong>{entry.label}</strong>
+            <p>{entry.body}</p>
+          </a>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -2110,7 +1803,7 @@ function App() {
   const [selectedTicker, setSelectedTicker] = useState("");
   const [dashboardRequested, setDashboardRequested] = useState(false);
   const [missingPredictionId, setMissingPredictionId] = useState<string | null>(null);
-  const [reportStatusState, setReportStatusState] = useState<ReportStatusLoadState>({ kind: "loading" });
+  const [reportStatusState, setReportStatusState] = useState<DailyDeskSnapshotState>({ kind: "loading" });
   const dashboardLoadRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -2140,10 +1833,14 @@ function App() {
   useEffect(() => {
     let cancelled = false;
 
-    fetchJson<PublicReportStatus>(reportAssetPath("status.json"))
+    fetchJson<ReportRawStatus>(reportAssetPath("status.json"))
       .then((status) => {
         if (!cancelled) {
-          setReportStatusState({ kind: "ready", status });
+          setReportStatusState({
+            kind: "ready",
+            status: normalizeReportStatus(status),
+            lastFetchedAt: new Date().toISOString(),
+          });
         }
       })
       .catch((reason: unknown) => {
@@ -2309,7 +2006,8 @@ function App() {
         {route.name === "home" ? (
           <>
             <Hero dataset={dataset} metrics={metrics} records={views} language={language} />
-            <HomeReportStatusCards reportStatus={reportStatusState} language={language} />
+            <DailyDeskSnapshot reportStatus={reportStatusState} language={language} reportsHref={routeHref("/reports")} />
+            <HowToReadGotra language={language} />
             <HowItWorks language={language} />
             <TrustStrip records={views} language={language} />
             {dashboardRequested ? (

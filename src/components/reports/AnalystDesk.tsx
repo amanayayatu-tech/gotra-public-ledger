@@ -1,0 +1,542 @@
+import { Clipboard, RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
+import { copy, type Language } from "../../i18n/language";
+import {
+  createEvidenceSummary,
+  formatCoveragePct,
+  formatShanghaiTimestamp,
+  type ExceptionSeverity,
+  type NormalizedReportStatus,
+  type ReportExceptionRow,
+} from "./ReportStatusModel";
+
+type ExceptionStatusFilter = "all" | ExceptionSeverity;
+
+export type AnalystDeskProps = {
+  language: Language;
+  status: NormalizedReportStatus | null;
+  statusError: string | null;
+  markdown: string | null;
+  markdownError: string | null;
+  lastFetchedAt: string | null;
+  isRefreshing: boolean;
+  onRefresh: () => void;
+  assetHref: (fileName: string) => string;
+};
+
+function localeFor(language: Language): string {
+  return language === "zh" ? "zh-CN" : "en-US";
+}
+
+function modeLabel(mode: string, language: Language): string {
+  if (mode === "morning-global") {
+    return copy(language, "全市场早报", "Morning Global");
+  }
+  if (mode === "evening-hk") {
+    return copy(language, "港股晚报", "Evening HK");
+  }
+  return mode === "unknown" ? copy(language, "未知模式", "Unknown mode") : mode;
+}
+
+function severityLabel(severity: ExceptionSeverity, language: Language): string {
+  return severity === "allowed_gap"
+    ? copy(language, "已知数据缺口", "Allowed data gap")
+    : copy(language, "意外失败", "Unexpected failure");
+}
+
+function statusFilterLabel(filter: ExceptionStatusFilter, language: Language): string {
+  if (filter === "allowed_gap") {
+    return copy(language, "已知数据缺口", "Allowed data gaps");
+  }
+  if (filter === "unexpected_failure") {
+    return copy(language, "意外失败", "Unexpected failures");
+  }
+  return copy(language, "全部状态", "All statuses");
+}
+
+function statusLabelText(status: NormalizedReportStatus["statusLabel"] | null, language: Language): string {
+  if (status === "Completed") {
+    return copy(language, "已完成", "Completed");
+  }
+  if (status === "Data gap, artifact published") {
+    return copy(language, "已发布，存在已知数据缺口", "Data gap, artifact published");
+  }
+  if (status === "Partial, needs review") {
+    return copy(language, "部分完成，需复核", "Partial, needs review");
+  }
+  if (status === "Artifact write failed") {
+    return copy(language, "产物写入失败", "Artifact write failed");
+  }
+  if (status === "Stale") {
+    return copy(language, "已过期", "Stale");
+  }
+  return copy(language, "产物不可用", "Artifact unavailable");
+}
+
+function statusHeadline(status: NormalizedReportStatus | null, language: Language): string {
+  if (!status) {
+    return copy(language, "状态产物不可用；当前仅显示公开审计外壳。", "Status artifact unavailable; public desk is showing the audit shell only.");
+  }
+  if (status.statusLabel === "Completed") {
+    return copy(
+      language,
+      `${status.universeCount} 个公开股票池标的已完成覆盖。`,
+      `Full coverage completed for ${status.universeCount} public-universe symbols.`,
+    );
+  }
+  if (status.statusLabel === "Data gap, artifact published") {
+    return copy(
+      language,
+      `报告已发布，但保留 ${status.failedCount} 个已知数据缺口。`,
+      `Report published with ${status.failedCount} known provider coverage gap${status.failedCount === 1 ? "" : "s"}.`,
+    );
+  }
+  if (status.statusLabel === "Artifact write failed") {
+    return copy(language, "产物写入失败；请先复核运行产物归属。", "Artifact write failed; review runtime ownership before relying on the report artifact.");
+  }
+  if (status.statusLabel === "Stale") {
+    return copy(language, "生成时间超出新鲜度窗口；仅可作为过期运行证据。", "Report may be stale: generated time is older than the freshness window.");
+  }
+  return copy(
+    language,
+    `部分完成，仍有 ${status.unexpectedFailedCount} 个意外失败需要复核。`,
+    `Partial report needs review: ${status.unexpectedFailedCount} unexpected symbol failure${status.unexpectedFailedCount === 1 ? "" : "s"}.`,
+  );
+}
+
+function formatNextRun(status: NormalizedReportStatus, language: Language, locale: string): string {
+  const time = new Intl.DateTimeFormat(locale, {
+    timeZone: status.nextExpectedRun.timeZone,
+    weekday: "short",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZoneName: "short",
+  }).format(status.nextExpectedRun.date);
+  return `${modeLabel(status.nextExpectedRun.mode, language)} · ${time}`;
+}
+
+function evidenceBoundaryItems(language: Language): string[] {
+  return [
+    copy(language, "仅作研究信息", "Research information only"),
+    copy(language, "不是投资建议", "Not investment advice"),
+    copy(language, "不是交易信号", "Not a trading signal"),
+    copy(language, "不是业绩证明", "Not performance proof"),
+    copy(language, "不是科学或公开证明", "Not science/public proof"),
+    copy(language, "仅为运行和状态证据", "Runtime/status evidence only"),
+  ];
+}
+
+function conclusionBullets(status: NormalizedReportStatus | null, language: Language): string[] {
+  if (!status) {
+    return [
+      copy(language, "状态产物不可用，本页无法核验当期覆盖率。", "Status artifact is unavailable, so this desk cannot verify today's coverage."),
+      copy(language, "公开产物链接仍保留，用于审计和重试。", "Raw public artifact links remain visible for audit and retry."),
+      copy(language, "本页仅属于运行和状态证据层。", "This page remains runtime/status evidence only."),
+    ];
+  }
+
+  const coverage = formatCoveragePct(status.coveragePct);
+  const bullets = [
+    statusHeadline(status, language),
+    copy(
+      language,
+      `${status.successCount}/${status.universeCount} 个公开股票池标的具备收盘数据覆盖，覆盖率 ${coverage}。`,
+      `${status.successCount}/${status.universeCount} public-universe symbols have available close-data coverage (${coverage}).`,
+    ),
+  ];
+
+  if (status.failedCount > 0) {
+    bullets.push(
+      copy(
+        language,
+        `${status.failedCount} 个失败标的保持可见：${status.allowedMissingCount} 个已知数据缺口，${status.unexpectedFailedCount} 个意外失败。`,
+        `${status.failedCount} failed symbols remain visible: ${status.allowedMissingCount} allowed provider gaps and ${status.unexpectedFailedCount} unexpected failures.`,
+      ),
+    );
+  } else {
+    bullets.push(copy(language, "公开状态产物未报告异常。", "No exceptions reported in public status.json."));
+  }
+
+  if (status.isStale) {
+    bullets.push(copy(language, "生成时间超出新鲜度窗口；请按过期运行证据处理。", "Generated time is outside the freshness window; treat the report as stale runtime evidence."));
+  }
+
+  bullets.push(
+    copy(
+      language,
+      "本分析台仅展示公开安全的运行和状态证据，不构成投资建议、交易信号、业绩证明或科学证明。",
+      "This desk is public-safe runtime/status evidence only, not investment advice, not a trading signal, and not proof of performance or science claims.",
+    ),
+  );
+  return bullets.slice(0, 5);
+}
+
+function coverageNotes(status: NormalizedReportStatus, language: Language): string[] {
+  const rowsWithFailures = status.byExchange.filter((row) => row.failed > 0);
+  if (status.byExchange.length === 0) {
+    return [
+      copy(language, "状态产物未报告交易所矩阵；此处仅展示汇总计数。", "No exchange matrix was reported in status.json; summary counts are shown instead."),
+    ];
+  }
+  if (rowsWithFailures.length === 0) {
+    return [
+      copy(language, "公开状态产物中，各交易所均显示完整覆盖。", "All reported exchanges show full coverage in the public status artifact."),
+      copy(language, "覆盖率仅表示运行时可用性，不证明后续数据质量或研究有效性。", "Coverage is runtime availability only; it does not prove future data quality or research validity."),
+    ];
+  }
+  return [
+    copy(
+      language,
+      `${rowsWithFailures.map((row) => `${row.exchange} ${row.success}/${row.universe}`).join(" · ")} 报告覆盖缺口。`,
+      `${rowsWithFailures.map((row) => `${row.exchange} ${row.success}/${row.universe}`).join(" · ")} reported coverage gaps.`,
+    ),
+    status.unexpectedFailedCount > 0
+      ? copy(language, "意外失败需要复核后，才可依赖公开产物。", "Unexpected failures require review before relying on the public artifact.")
+      : copy(language, "已报告失败均归类为允许的数据源覆盖缺口。", "Reported failures are classified as allowed provider coverage gaps."),
+  ];
+}
+
+function exceptionTreatment(row: ReportExceptionRow, language: Language): string {
+  return row.severity === "allowed_gap"
+    ? copy(language, "允许的数据源覆盖缺口", "Allowlisted provider gap")
+    : copy(language, "意外失败", "Unexpected failure");
+}
+
+function exceptionAction(row: ReportExceptionRow, language: Language): string {
+  return row.severity === "allowed_gap"
+    ? copy(language, "继续监控数据源覆盖", "Monitor provider coverage")
+    : copy(language, "复核运行状态", "Review runtime status");
+}
+
+function exceptionKey(row: ReportExceptionRow): string {
+  return `${row.severity}-${row.exchange}-${row.symbol}-${row.providerTicker}-${row.reason}`;
+}
+
+export function AnalystDesk({
+  language,
+  status,
+  statusError,
+  markdown,
+  markdownError,
+  lastFetchedAt,
+  isRefreshing,
+  onRefresh,
+  assetHref,
+}: AnalystDeskProps) {
+  const [exchangeFilter, setExchangeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<ExceptionStatusFilter>("all");
+  const [copyResult, setCopyResult] = useState<string | null>(null);
+  const locale = localeFor(language);
+  const exceptions = status?.failedSymbols ?? [];
+  const exchangeOptions = useMemo(
+    () => Array.from(new Set(exceptions.map((row) => row.exchange))).sort((left, right) => left.localeCompare(right, "en")),
+    [exceptions],
+  );
+  const filteredExceptions = exceptions.filter((row) => {
+    const exchangeMatches = exchangeFilter === "all" || row.exchange === exchangeFilter;
+    const statusMatches = statusFilter === "all" || row.severity === statusFilter;
+    return exchangeMatches && statusMatches;
+  });
+  const lastFetched = lastFetchedAt ? formatShanghaiTimestamp(lastFetchedAt, locale) : copy(language, "未读取", "Not fetched");
+  const statusLabel = statusLabelText(status?.statusLabel ?? null, language);
+  const statusTone = status?.statusTone ?? "critical";
+
+  async function handleCopyEvidence() {
+    if (!status) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(createEvidenceSummary(status));
+      setCopyResult(copy(language, "证据已复制", "Evidence copied"));
+    } catch (reason) {
+      setCopyResult(reason instanceof Error ? reason.message : copy(language, "复制失败", "Copy failed"));
+    }
+  }
+
+  const kpis = status
+    ? [
+        { label: copy(language, "股票池", "Universe"), value: status.universeCount },
+        { label: copy(language, "已覆盖", "Covered"), value: status.successCount },
+        { label: copy(language, "失败", "Failed"), value: status.failedCount },
+        { label: copy(language, "已知缺口", "Allowed gaps"), value: status.allowedMissingCount },
+        { label: copy(language, "意外失败", "Unexpected"), value: status.unexpectedFailedCount },
+        { label: copy(language, "退出状态", "Exit status"), value: status.exitStatus ?? "n/a" },
+      ]
+    : [
+        { label: copy(language, "股票池", "Universe"), value: "n/a" },
+        { label: copy(language, "已覆盖", "Covered"), value: "n/a" },
+        { label: copy(language, "失败", "Failed"), value: "n/a" },
+        { label: copy(language, "已知缺口", "Allowed gaps"), value: "n/a" },
+        { label: copy(language, "意外失败", "Unexpected"), value: "n/a" },
+        { label: copy(language, "退出状态", "Exit status"), value: "n/a" },
+      ];
+
+  return (
+    <section className="route-panel reports-shell analyst-desk-shell" aria-labelledby="reports-title">
+      <div className="desk-top-rule" aria-hidden="true" />
+      <div className="desk-boundary-strip">
+        {evidenceBoundaryItems(language).map((item) => (
+          <span key={item}>{item}</span>
+        ))}
+      </div>
+
+      <header className={`desk-header tone-${statusTone}`}>
+        <div className="desk-header-main">
+          <span className="desk-eyebrow">{status ? modeLabel(status.mode, language) : copy(language, "公开产物不可用", "Public artifact unavailable")}</span>
+          <div className="desk-title-row">
+            <div>
+              <h2 id="reports-title">{copy(language, "GOTRA 每日股票池分析台", "GOTRA Daily Stock-Pool Desk")}</h2>
+              <p>{statusHeadline(status, language)}</p>
+            </div>
+            <span className={`desk-status-badge tone-${statusTone}`}>{statusLabel}</span>
+          </div>
+        </div>
+
+        <div className="desk-meta-grid" aria-label={copy(language, "分析台元数据", "Desk metadata")}>
+          <div>
+            <span>{copy(language, "报告模式", "Mode")}</span>
+            <strong>{status ? modeLabel(status.mode, language) : "n/a"}</strong>
+          </div>
+          <div>
+            <span>{copy(language, "统计日期", "As-of date")}</span>
+            <strong>{status?.asOfDate ?? "n/a"}</strong>
+          </div>
+          <div>
+            <span>{copy(language, "交易日", "Trading date")}</span>
+            <strong>{status?.tradingDate ?? "n/a"}</strong>
+          </div>
+          <div>
+            <span>{copy(language, "覆盖率", "Coverage")}</span>
+            <strong>{status ? `${status.successCount}/${status.universeCount} · ${formatCoveragePct(status.coveragePct)}` : "n/a"}</strong>
+          </div>
+          <div>
+            <span>{copy(language, "生成时间", "Generated time")}</span>
+            <strong>{status ? formatShanghaiTimestamp(status.generatedAtUtc, locale) : "n/a"}</strong>
+          </div>
+          <div>
+            <span>{copy(language, "下次运行", "Next expected run")}</span>
+            <strong>{status ? formatNextRun(status, language, locale) : "n/a"}</strong>
+          </div>
+        </div>
+      </header>
+
+      <div className="desk-controls" aria-label={copy(language, "报告操作", "Report controls")}>
+        <button className="desk-button" type="button" onClick={onRefresh} disabled={isRefreshing}>
+          <RefreshCw aria-hidden="true" size={16} />
+          {isRefreshing ? copy(language, "刷新中", "Refreshing") : copy(language, "刷新", "Refresh")}
+        </button>
+        <button className="desk-button" type="button" onClick={handleCopyEvidence} disabled={!status}>
+          <Clipboard aria-hidden="true" size={16} />
+          {copy(language, "复制证据", "Copy Evidence")}
+        </button>
+        <span className="desk-last-fetched">{copy(language, "上次读取", "Last fetched")}: {lastFetched}</span>
+        {copyResult ? <span className="desk-copy-result" role="status">{copyResult}</span> : null}
+      </div>
+
+      {statusError ? (
+        <div className="edge-state-note warning" role="alert">
+          {copy(language, "status.json 读取失败：", "status.json load failed:")} <span className="mono">{statusError}</span>
+        </div>
+      ) : null}
+
+      {status ? (
+        <>
+          <section className="desk-section desk-executive" aria-labelledby="desk-executive-title">
+            <div className="desk-section-head">
+              <span>01</span>
+              <h3 id="desk-executive-title">{copy(language, "执行摘要", "Executive Conclusion")}</h3>
+            </div>
+            <div className="desk-two-column">
+              <ul className="desk-conclusion-list">
+                {conclusionBullets(status, language).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <div className="desk-kpi-matrix" aria-label={copy(language, "关键报告数字", "Key report numbers")}>
+                {kpis.map((item) => (
+                  <div key={item.label}>
+                    <span>{item.label}</span>
+                    <strong>{item.value}</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="desk-section" aria-labelledby="desk-coverage-title">
+            <div className="desk-section-head">
+              <span>02</span>
+              <h3 id="desk-coverage-title">{copy(language, "覆盖率矩阵", "Coverage Matrix")}</h3>
+            </div>
+            <div className="desk-two-column">
+              <div className="table-scroll">
+                <table className="desk-table">
+                  <thead>
+                    <tr>
+                      <th>{copy(language, "交易所", "Exchange")}</th>
+                      <th>{copy(language, "交易日", "Trading date")}</th>
+                      <th>{copy(language, "股票池", "Universe")}</th>
+                      <th>{copy(language, "已覆盖", "Covered")}</th>
+                      <th>{copy(language, "失败", "Failed")}</th>
+                      <th>{copy(language, "覆盖率", "Coverage")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {status.byExchange.length > 0 ? (
+                      status.byExchange.map((row) => (
+                        <tr key={row.exchange}>
+                          <td>{row.exchange}</td>
+                          <td className="mono">{row.tradingDate ?? "n/a"}</td>
+                          <td>{row.universe}</td>
+                          <td>{row.success}</td>
+                          <td className={row.failed > 0 ? "desk-risk-cell" : undefined}>{row.failed}</td>
+                          <td>{formatCoveragePct(row.coveragePct)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6}>{copy(language, "未报告交易所矩阵", "No exchange matrix reported")}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <aside className="desk-side-notes">
+                {coverageNotes(status, language).map((item) => (
+                  <p key={item}>{item}</p>
+                ))}
+              </aside>
+            </div>
+          </section>
+
+          <section className="desk-section" aria-labelledby="desk-exceptions-title">
+            <div className="desk-section-head">
+              <span>03</span>
+              <h3 id="desk-exceptions-title">{copy(language, "异常清单", "Exception Tape")}</h3>
+            </div>
+            <div className="exception-controls">
+              <label>
+                {copy(language, "交易所", "Exchange")}
+                <select className="desk-select" value={exchangeFilter} onChange={(event) => setExchangeFilter(event.target.value)}>
+                  <option value="all">{copy(language, "全部交易所", "All exchanges")}</option>
+                  {exchangeOptions.map((exchange) => (
+                    <option key={exchange} value={exchange}>
+                      {exchange}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                {copy(language, "状态", "Status")}
+                <select className="desk-select" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as ExceptionStatusFilter)}>
+                  <option value="all">{statusFilterLabel("all", language)}</option>
+                  <option value="allowed_gap">{statusFilterLabel("allowed_gap", language)}</option>
+                  <option value="unexpected_failure">{statusFilterLabel("unexpected_failure", language)}</option>
+                </select>
+              </label>
+            </div>
+            <div className="table-scroll">
+              <table className="desk-table exception-table">
+                <thead>
+                  <tr>
+                    <th>{copy(language, "级别", "Severity")}</th>
+                    <th>{copy(language, "交易所", "Exchange")}</th>
+                    <th>{copy(language, "代码", "Symbol")}</th>
+                    <th>{copy(language, "数据源代码", "Provider ticker")}</th>
+                    <th>{copy(language, "原因", "Reason")}</th>
+                    <th>{copy(language, "处理", "Treatment")}</th>
+                    <th>{copy(language, "动作", "Action")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredExceptions.length > 0 ? (
+                    filteredExceptions.map((row) => (
+                      <tr key={exceptionKey(row)}>
+                        <td>
+                          <span className={`exception-pill ${row.severity}`}>{severityLabel(row.severity, language)}</span>
+                        </td>
+                        <td>{row.exchange}</td>
+                        <td className="mono">{row.symbol}</td>
+                        <td className="mono">{row.providerTicker}</td>
+                        <td>{row.reason}</td>
+                        <td>{exceptionTreatment(row, language)}</td>
+                        <td>{exceptionAction(row, language)}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={7}>{copy(language, "未报告异常", "No exceptions reported")}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </>
+      ) : (
+        <section className="desk-section desk-executive" aria-labelledby="desk-unavailable-title">
+          <div className="desk-section-head">
+            <span>01</span>
+            <h3 id="desk-unavailable-title">{copy(language, "产物不可用", "Artifact unavailable")}</h3>
+          </div>
+          <ul className="desk-conclusion-list">
+            {conclusionBullets(null, language).map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="desk-section" aria-labelledby="desk-preview-title">
+        <div className="desk-section-head">
+          <span>04</span>
+          <h3 id="desk-preview-title">{copy(language, "公开产物预览", "Public Artifact Preview")}</h3>
+        </div>
+        {markdown ? (
+          <pre className="report-markdown-reader artifact-preview">{markdown}</pre>
+        ) : (
+          <div className="edge-state-note" role="status">
+            {copy(language, "latest.md 预览不可用。", "latest.md preview unavailable.")}
+            {markdownError ? <> <span className="mono">{markdownError}</span></> : null}
+          </div>
+        )}
+      </section>
+
+      <section className="desk-section" aria-labelledby="desk-artifacts-title">
+        <div className="desk-section-head">
+          <span>05</span>
+          <h3 id="desk-artifacts-title">{copy(language, "公开产物链接", "Public Artifact Links")}</h3>
+        </div>
+        <div className="public-artifact-links">
+          <a href={assetHref(status?.statusFile ?? "status.json")}>/reports/status.json</a>
+          <a href={assetHref(status?.latestFile ?? "latest.md")}>/reports/latest.md</a>
+          {status?.reportFile ? <a href={assetHref(status.reportFile)}>{status.reportFile}</a> : null}
+        </div>
+        <p className="desk-source-note">
+          {copy(
+            language,
+            "仅公开产物。本页不暴露私有运行日志、环境文件、数据库文件或原始数据源/模型输入输出。",
+            "Public artifacts only. No private runtime logs, environment files, database files, or raw provider/model I/O are exposed here.",
+          )}
+        </p>
+        {status?.source ? <p className="desk-source-note">{copy(language, "来源", "Source")}: {status.source}</p> : null}
+      </section>
+
+      <section className="desk-section evidence-boundary" aria-labelledby="desk-boundary-title">
+        <div className="desk-section-head">
+          <span>06</span>
+          <h3 id="desk-boundary-title">{copy(language, "证据边界", "Boundary & Evidence Layer")}</h3>
+        </div>
+        <div className="evidence-boundary-grid">
+          {evidenceBoundaryItems(language).map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+      </section>
+    </section>
+  );
+}
