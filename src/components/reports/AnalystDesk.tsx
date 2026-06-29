@@ -6,6 +6,7 @@ import {
   formatCoveragePct,
   formatShanghaiTimestamp,
   type ExceptionSeverity,
+  type FullAnalystPilotStatus,
   type NormalizedReportStatus,
   type ReportExceptionRow,
   type ReportStatusFileResult,
@@ -21,6 +22,8 @@ export type AnalystDeskProps = {
   markdownError: string | null;
   lastFetchedAt: string | null;
   marketStatuses?: ReportStatusFileResult[];
+  fullAnalystPilot: FullAnalystPilotStatus | null;
+  fullAnalystPilotError: string | null;
   isRefreshing: boolean;
   onRefresh: () => void;
   assetHref: (fileName: string) => string;
@@ -82,6 +85,54 @@ function statusLabelText(status: NormalizedReportStatus["statusLabel"] | null, l
     return copy(language, "已过期", "Stale");
   }
   return copy(language, "产物不可用", "Artifact unavailable");
+}
+
+function fullAnalystPilotLabel(status: FullAnalystPilotStatus["statusLabel"] | null, language: Language): string {
+  if (status === "Completed") {
+    return copy(language, "已完成", "Completed");
+  }
+  if (status === "Review items") {
+    return copy(language, "有复核项", "Review items");
+  }
+  if (status === "Blocked") {
+    return copy(language, "已阻断", "Blocked");
+  }
+  if (status === "Artifact write failed") {
+    return copy(language, "产物写入失败", "Artifact write failed");
+  }
+  return copy(language, "等待产物", "Artifact pending");
+}
+
+function fullAnalystPilotHeadline(status: FullAnalystPilotStatus | null, language: Language): string {
+  if (!status) {
+    return copy(
+      language,
+      "完整分析链路试运行状态产物尚未发布；不会影响五个早晚报 timer。",
+      "Full analyst pilot status is not published yet; the five daily timers are unaffected.",
+    );
+  }
+  if (status.statusLabel === "Completed") {
+    return copy(
+      language,
+      `${status.publishCount}/${status.universeCount} 个样本完成 publish gate，${status.alayaSyncedCount} 个 Alaya ${status.alayaMode ?? "sync"} 事件。`,
+      `${status.publishCount}/${status.universeCount} sample symbols passed publish gate with ${status.alayaSyncedCount} Alaya ${status.alayaMode ?? "sync"} events.`,
+    );
+  }
+  if (status.statusLabel === "Review items") {
+    return copy(
+      language,
+      `试运行已写出产物，但保留 ${status.needsReviewCount} 个复核项和 ${status.dataGapCount} 个数据缺口。`,
+      `Pilot artifact was written with ${status.needsReviewCount} review item(s) and ${status.dataGapCount} data gap(s).`,
+    );
+  }
+  if (status.statusLabel === "Artifact write failed") {
+    return copy(language, "试运行产物写入失败；需要先复核运行目录和 web root 权限。", "Pilot artifact write failed; review runtime and web-root ownership first.");
+  }
+  return copy(
+    language,
+    `试运行被阻断：${status.blockedCount} 个 blocked，${status.failedCount} 个 failed，${status.alayaFailedCount} 个 Alaya sync failed。`,
+    `Pilot blocked: ${status.blockedCount} blocked, ${status.failedCount} failed, ${status.alayaFailedCount} Alaya sync failed.`,
+  );
 }
 
 function statusHeadline(status: NormalizedReportStatus | null, language: Language): string {
@@ -235,6 +286,8 @@ export function AnalystDesk({
   markdownError,
   lastFetchedAt,
   marketStatuses = [],
+  fullAnalystPilot,
+  fullAnalystPilotError,
   isRefreshing,
   onRefresh,
   assetHref,
@@ -366,6 +419,74 @@ export function AnalystDesk({
           </div>
         </section>
       ) : null}
+
+      <section className={`full-analyst-pilot-card tone-${fullAnalystPilot?.statusTone ?? "neutral"}`} aria-labelledby="full-analyst-pilot-title">
+        <div className="desk-section-head compact">
+          <span>00A</span>
+          <h3 id="full-analyst-pilot-title">{copy(language, "完整分析链路试运行", "Full Analyst Pilot")}</h3>
+        </div>
+        <div className="full-analyst-pilot-layout">
+          <div className="full-analyst-pilot-summary">
+            <span className={`desk-status-badge tone-${fullAnalystPilot?.statusTone ?? "neutral"}`}>
+              {fullAnalystPilotLabel(fullAnalystPilot?.statusLabel ?? null, language)}
+            </span>
+            <p>{fullAnalystPilotHeadline(fullAnalystPilot, language)}</p>
+            <p className="desk-source-note">
+              {copy(
+                language,
+                "证据层级：local checks + one-shot runtime smoke + public-safe artifact smoke；不是正式验收、科学证明、业绩证明或交易信号。",
+                "Evidence layer: local checks + one-shot runtime smoke + public-safe artifact smoke; not formal acceptance, science proof, performance proof, or a trading signal.",
+              )}
+            </p>
+            {fullAnalystPilotError ? (
+              <p className="desk-source-note warning">
+                {copy(language, "状态文件未读取：", "Status file unavailable:")} <span className="mono">{fullAnalystPilotError}</span>
+              </p>
+            ) : null}
+          </div>
+          <div className="full-analyst-pilot-grid" aria-label={copy(language, "完整分析链路指标", "Full analyst pilot metrics")}>
+            <div>
+              <span>run_id</span>
+              <strong>{fullAnalystPilot?.runId ?? "pending"}</strong>
+            </div>
+            <div>
+              <span>{copy(language, "样本", "Sample")}</span>
+              <strong>{fullAnalystPilot ? fullAnalystPilot.sampleSymbols.join(" · ") : "n/a"}</strong>
+            </div>
+            <div>
+              <span>{copy(language, "publish", "Publish")}</span>
+              <strong>{fullAnalystPilot?.publishCount ?? "n/a"}/{fullAnalystPilot?.universeCount ?? "n/a"}</strong>
+            </div>
+            <div>
+              <span>needs_review / blocked</span>
+              <strong>{fullAnalystPilot ? `${fullAnalystPilot.needsReviewCount} / ${fullAnalystPilot.blockedCount}` : "n/a"}</strong>
+            </div>
+            <div>
+              <span>Alaya</span>
+              <strong>{fullAnalystPilot ? `${fullAnalystPilot.alayaSyncedCount} synced · ${fullAnalystPilot.alayaMode ?? "n/a"}` : "n/a"}</strong>
+            </div>
+            <div>
+              <span>{copy(language, "runner", "Runner")}</span>
+              <strong>{fullAnalystPilot?.llmRunner ?? "n/a"}</strong>
+            </div>
+          </div>
+        </div>
+        {fullAnalystPilot?.issues.length ? (
+          <div className="full-analyst-pilot-issues">
+            {fullAnalystPilot.issues.slice(0, 4).map((issue) => (
+              <span key={`${issue.stage}-${issue.exchange}-${issue.symbol}-${issue.reason}`}>
+                {issue.stage}: {issue.exchange}:{issue.symbol} · {issue.reason}
+              </span>
+            ))}
+          </div>
+        ) : null}
+        <div className="public-artifact-links compact">
+          <a href={assetHref(fullAnalystPilot?.statusFile ?? "status_full_analyst_evening_hk.json")}>
+            /reports/status_full_analyst_evening_hk.json
+          </a>
+          {fullAnalystPilot?.reportFile ? <a href={assetHref(fullAnalystPilot.reportFile)}>{fullAnalystPilot.reportFile}</a> : null}
+        </div>
+      </section>
 
       <div className="desk-controls" aria-label={copy(language, "报告操作", "Report controls")}>
         <button className="desk-button" type="button" onClick={onRefresh} disabled={isRefreshing}>

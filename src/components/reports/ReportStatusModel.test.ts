@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { REPORT_SCHEDULES, buildReportDeskArtifacts, normalizeReportStatus, type ReportRawStatus } from "./ReportStatusModel";
+import {
+  REPORT_SCHEDULES,
+  buildReportDeskArtifacts,
+  normalizeFullAnalystPilotStatus,
+  normalizeReportStatus,
+  type ReportRawStatus,
+} from "./ReportStatusModel";
 
 const now = new Date("2026-06-29T03:00:00.000Z");
 
@@ -220,5 +226,99 @@ describe("buildReportDeskArtifacts", () => {
     expect(artifacts.statusError).toBeNull();
     expect(artifacts.markdown).toBeNull();
     expect(artifacts.markdownError).toContain("latest.md returned HTTP 404");
+  });
+});
+
+describe("normalizeFullAnalystPilotStatus", () => {
+  function fullAnalystStatus(overrides: ReportRawStatus = {}): ReportRawStatus {
+    return {
+      schema: "gotra.full_analyst.status.v1",
+      ok: true,
+      run_status: "completed",
+      mode: "full-analyst-evening-hk-test",
+      run_id: "full_analyst_evening_hk_20260629_v1",
+      as_of_date: "2026-06-29",
+      trading_date: "2026-06-29",
+      sample_symbols: ["HKEX:0700", "HKEX:1810", "HKEX:9688", "HKEX:9969", "HKEX:0501"],
+      universe_count: 5,
+      success_count: 5,
+      failed_count: 0,
+      publish_count: 5,
+      needs_review_count: 0,
+      blocked_count: 0,
+      data_gap_count: 0,
+      alaya_synced_count: 5,
+      alaya_failed_count: 0,
+      artifact_write_status: "ok",
+      evidence_layer: "local checks + one-shot runtime smoke + public-safe artifact smoke",
+      llm_runner: "fixture",
+      alaya_mode: "mock",
+      provider_model_io_embedded: false,
+      exit_status: 0,
+      report_file: "full_analyst_evening_hk_2026-06-29.md",
+      status_file: "status_full_analyst_evening_hk.json",
+      ...overrides,
+    };
+  }
+
+  it("normalizes completed pilot status without promoting the evidence layer", () => {
+    const status = normalizeFullAnalystPilotStatus(fullAnalystStatus());
+
+    expect(status.statusLabel).toBe("Completed");
+    expect(status.statusTone).toBe("good");
+    expect(status.publishCount).toBe(5);
+    expect(status.alayaSyncedCount).toBe(5);
+    expect(status.evidenceLayer).toContain("one-shot runtime smoke");
+    expect(status.providerModelIoEmbedded).toBe(false);
+  });
+
+  it("keeps review items visible as warning status", () => {
+    const status = normalizeFullAnalystPilotStatus(
+      fullAnalystStatus({
+        ok: true,
+        run_status: "completed_with_review_items",
+        publish_count: 4,
+        needs_review_count: 1,
+        data_gap_count: 1,
+        needs_review_symbols: [
+          {
+            exchange: "HKEX",
+            symbol: "0501",
+            provider_ticker: "0501.HK",
+            reason: "price coverage is data_gap",
+          },
+        ],
+      }),
+    );
+
+    expect(status.statusLabel).toBe("Review items");
+    expect(status.statusTone).toBe("warning");
+    expect(status.issues).toHaveLength(1);
+    expect(status.issues[0]).toMatchObject({ exchange: "HKEX", symbol: "0501", stage: "needs_review" });
+  });
+
+  it("marks blocked or failed pilot status as critical", () => {
+    const status = normalizeFullAnalystPilotStatus(
+      fullAnalystStatus({
+        ok: false,
+        run_status: "completed_with_blockers",
+        failed_count: 1,
+        blocked_count: 1,
+        blocked_symbols: [
+          {
+            exchange: "HKEX",
+            symbol: "0700",
+            provider_ticker: "0700.HK",
+            reason: "forbidden_raw_io_keys_detected",
+          },
+        ],
+        exit_status: 2,
+      }),
+    );
+
+    expect(status.statusLabel).toBe("Blocked");
+    expect(status.statusTone).toBe("critical");
+    expect(status.issues[0]?.reason).toBe("forbidden_raw_io_keys_detected");
+    expect(status.exitStatus).toBe(2);
   });
 });
