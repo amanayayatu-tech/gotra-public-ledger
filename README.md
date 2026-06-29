@@ -7,6 +7,8 @@ the mistakes visible, and uses the ledger as an auditable credibility record.
 
 This project is **Research information only**. It is **Not investment advice**, uses a **Demo/public-safe dataset**, is **Not OOS**, is **Not science/public proof**, and is **Not a trading signal**.
 
+Production public URL: https://gotra.me/
+
 ## What This Is
 
 - A Vite + React + TypeScript frontend for inspecting a public-safe prediction ledger snapshot.
@@ -55,6 +57,8 @@ npm run preview
 ## GitHub Pages Deployment
 
 GitHub Pages deployment is handled by `.github/workflows/pages.yml`.
+GitHub Pages remains a fallback static publishing target; the canonical public
+entry point for readers and SEO is https://gotra.me/.
 
 Deployment triggers:
 
