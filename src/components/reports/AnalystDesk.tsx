@@ -88,6 +88,12 @@ function statusLabelText(status: NormalizedReportStatus["statusLabel"] | null, l
 }
 
 function fullAnalystPilotLabel(status: FullAnalystPilotStatus["statusLabel"] | null, language: Language): string {
+  if (status === "Running") {
+    return copy(language, "运行中", "Running");
+  }
+  if (status === "Stale") {
+    return copy(language, "心跳过期", "Heartbeat stale");
+  }
   if (status === "Completed") {
     return copy(language, "已完成", "Completed");
   }
@@ -107,8 +113,22 @@ function fullAnalystPilotHeadline(status: FullAnalystPilotStatus | null, languag
   if (!status) {
     return copy(
       language,
-      "完整分析链路试运行状态产物尚未发布；不会影响五个早晚报 timer。",
-      "Full analyst pilot status is not published yet; the five daily timers are unaffected.",
+      "完整分析链路循环状态产物尚未发布；不会影响五个早晚报 timer。",
+      "Full analyst loop status is not published yet; the five daily timers are unaffected.",
+    );
+  }
+  if (status.statusLabel === "Running") {
+    return copy(
+      language,
+      `循环运行中：phase=${status.phase}，最新心跳 ${status.lastHeartbeatUtc ?? "n/a"}，最近成功 cycle=${status.lastSuccessfulCycle}。`,
+      `Loop running: phase=${status.phase}, last heartbeat ${status.lastHeartbeatUtc ?? "n/a"}, last successful cycle=${status.lastSuccessfulCycle}.`,
+    );
+  }
+  if (status.statusLabel === "Stale") {
+    return copy(
+      language,
+      `循环心跳超过 10 分钟未更新；当前不能显示为健康运行。最近心跳 ${status.lastHeartbeatUtc ?? "n/a"}。`,
+      `Loop heartbeat is more than 10 minutes stale; it is not a healthy running state. Last heartbeat ${status.lastHeartbeatUtc ?? "n/a"}.`,
     );
   }
   if (status.statusLabel === "Completed") {
@@ -121,17 +141,17 @@ function fullAnalystPilotHeadline(status: FullAnalystPilotStatus | null, languag
   if (status.statusLabel === "Review items") {
     return copy(
       language,
-      `试运行已写出产物，但保留 ${status.needsReviewCount} 个复核项和 ${status.dataGapCount} 个数据缺口。`,
-      `Pilot artifact was written with ${status.needsReviewCount} review item(s) and ${status.dataGapCount} data gap(s).`,
+      `循环产物已写出，但保留 ${status.needsReviewCount} 个复核项和 ${status.dataGapCount} 个数据缺口。`,
+      `Loop artifact was written with ${status.needsReviewCount} review item(s) and ${status.dataGapCount} data gap(s).`,
     );
   }
   if (status.statusLabel === "Artifact write failed") {
-    return copy(language, "试运行产物写入失败；需要先复核运行目录和 web root 权限。", "Pilot artifact write failed; review runtime and web-root ownership first.");
+    return copy(language, "循环产物写入失败；需要先复核运行目录和 web root 权限。", "Loop artifact write failed; review runtime and web-root ownership first.");
   }
   return copy(
     language,
-    `试运行被阻断：${status.blockedCount} 个 blocked，${status.failedCount} 个 failed，${status.alayaFailedCount} 个 Alaya sync failed。`,
-    `Pilot blocked: ${status.blockedCount} blocked, ${status.failedCount} failed, ${status.alayaFailedCount} Alaya sync failed.`,
+    `循环被阻断：${status.blockedCount} 个 blocked，${status.failedCount} 个 failed，${status.alayaFailedCount} 个 Alaya sync failed，${status.alayaReadbackFailedCount} 个 readback failed。`,
+    `Loop blocked: ${status.blockedCount} blocked, ${status.failedCount} failed, ${status.alayaFailedCount} Alaya sync failed, ${status.alayaReadbackFailedCount} readback failed.`,
   );
 }
 
@@ -423,7 +443,7 @@ export function AnalystDesk({
       <section className={`full-analyst-pilot-card tone-${fullAnalystPilot?.statusTone ?? "neutral"}`} aria-labelledby="full-analyst-pilot-title">
         <div className="desk-section-head compact">
           <span>00A</span>
-          <h3 id="full-analyst-pilot-title">{copy(language, "完整分析链路试运行", "Full Analyst Pilot")}</h3>
+          <h3 id="full-analyst-pilot-title">{copy(language, "完整分析链路循环", "Full Analyst Loop")}</h3>
         </div>
         <div className="full-analyst-pilot-layout">
           <div className="full-analyst-pilot-summary">
@@ -434,10 +454,20 @@ export function AnalystDesk({
             <p className="desk-source-note">
               {copy(
                 language,
-                "证据层级：local checks + one-shot runtime smoke + public-safe artifact smoke；不是正式验收、科学证明、业绩证明或交易信号。",
-                "Evidence layer: local checks + one-shot runtime smoke + public-safe artifact smoke; not formal acceptance, science proof, performance proof, or a trading signal.",
+                `证据层级：${fullAnalystPilot?.evidenceLayer ?? "local checks + status artifact"}；不是正式验收、科学证明、业绩证明、交易信号或投资建议。`,
+                `Evidence layer: ${fullAnalystPilot?.evidenceLayer ?? "local checks + status artifact"}; not formal acceptance, science proof, performance proof, a trading signal, or investment advice.`,
               )}
             </p>
+            {fullAnalystPilot?.heartbeatStale ? (
+              <p className="desk-source-note warning">
+                {copy(language, "心跳过期：不要把当前状态展示为健康运行。", "Heartbeat stale: do not present the loop as healthy running.")}
+              </p>
+            ) : null}
+            {fullAnalystPilot?.isMockAlaya ? (
+              <p className="desk-source-note warning">
+                {copy(language, `Alaya 模式为 ${fullAnalystPilot.alayaMode}；这不是 real sync 证据。`, `Alaya mode is ${fullAnalystPilot.alayaMode}; this is not real sync evidence.`)}
+              </p>
+            ) : null}
             {fullAnalystPilotError ? (
               <p className="desk-source-note warning">
                 {copy(language, "状态文件未读取：", "Status file unavailable:")} <span className="mono">{fullAnalystPilotError}</span>
@@ -450,6 +480,22 @@ export function AnalystDesk({
               <strong>{fullAnalystPilot?.runId ?? "pending"}</strong>
             </div>
             <div>
+              <span>{copy(language, "phase", "Phase")}</span>
+              <strong>{fullAnalystPilot?.phase ?? "n/a"}</strong>
+            </div>
+            <div>
+              <span>{copy(language, "心跳", "Heartbeat")}</span>
+              <strong>{fullAnalystPilot?.lastHeartbeatUtc ? formatShanghaiTimestamp(fullAnalystPilot.lastHeartbeatUtc, locale) : "n/a"}</strong>
+            </div>
+            <div>
+              <span>{copy(language, "elapsed", "Elapsed")}</span>
+              <strong>{fullAnalystPilot ? `${Math.round(fullAnalystPilot.elapsedSeconds / 60)} min` : "n/a"}</strong>
+            </div>
+            <div>
+              <span>{copy(language, "cycle", "Cycle")}</span>
+              <strong>{fullAnalystPilot ? `${fullAnalystPilot.currentCycle} · success ${fullAnalystPilot.lastSuccessfulCycle}` : "n/a"}</strong>
+            </div>
+            <div>
               <span>{copy(language, "样本", "Sample")}</span>
               <strong>{fullAnalystPilot ? fullAnalystPilot.sampleSymbols.join(" · ") : "n/a"}</strong>
             </div>
@@ -458,16 +504,20 @@ export function AnalystDesk({
               <strong>{fullAnalystPilot?.publishCount ?? "n/a"}/{fullAnalystPilot?.universeCount ?? "n/a"}</strong>
             </div>
             <div>
-              <span>needs_review / blocked</span>
-              <strong>{fullAnalystPilot ? `${fullAnalystPilot.needsReviewCount} / ${fullAnalystPilot.blockedCount}` : "n/a"}</strong>
+              <span>review / blocked / gap</span>
+              <strong>{fullAnalystPilot ? `${fullAnalystPilot.needsReviewCount} / ${fullAnalystPilot.blockedCount} / ${fullAnalystPilot.dataGapCount}` : "n/a"}</strong>
             </div>
             <div>
-              <span>Alaya</span>
-              <strong>{fullAnalystPilot ? `${fullAnalystPilot.alayaSyncedCount} synced · ${fullAnalystPilot.alayaMode ?? "n/a"}` : "n/a"}</strong>
+              <span>Alaya sync</span>
+              <strong>{fullAnalystPilot ? `${fullAnalystPilot.alayaSyncedCount} synced · ${fullAnalystPilot.alayaFailedCount} failed · ${fullAnalystPilot.alayaMode ?? "n/a"}` : "n/a"}</strong>
+            </div>
+            <div>
+              <span>Alaya readback</span>
+              <strong>{fullAnalystPilot ? `${fullAnalystPilot.alayaReadbackVerifiedCount} verified · ${fullAnalystPilot.alayaReadbackFailedCount} failed` : "n/a"}</strong>
             </div>
             <div>
               <span>{copy(language, "runner", "Runner")}</span>
-              <strong>{fullAnalystPilot?.llmRunner ?? "n/a"}</strong>
+              <strong>{fullAnalystPilot ? `${fullAnalystPilot.llmRunner ?? "n/a"} · ${fullAnalystPilot.llmModel ?? "n/a"}` : "n/a"}</strong>
             </div>
           </div>
         </div>
@@ -481,10 +531,12 @@ export function AnalystDesk({
           </div>
         ) : null}
         <div className="public-artifact-links compact">
-          <a href={assetHref(fullAnalystPilot?.statusFile ?? "status_full_analyst_evening_hk.json")}>
-            /reports/status_full_analyst_evening_hk.json
+          <a href={assetHref(fullAnalystPilot?.statusFile ?? "status_full_analyst_loop.json")}>
+            /reports/status_full_analyst_loop.json
           </a>
-          {fullAnalystPilot?.reportFile ? <a href={assetHref(fullAnalystPilot.reportFile)}>{fullAnalystPilot.reportFile}</a> : null}
+          <a href={assetHref(fullAnalystPilot?.latestPublicReportFile ?? "full_analyst_loop_latest.md")}>
+            {fullAnalystPilot?.latestPublicReportFile ?? "full_analyst_loop_latest.md"}
+          </a>
         </div>
       </section>
 

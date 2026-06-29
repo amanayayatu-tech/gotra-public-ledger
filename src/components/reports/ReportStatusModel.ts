@@ -92,8 +92,12 @@ export type FullAnalystPilotIssue = {
 export type FullAnalystPilotStatus = {
   ok: boolean;
   runStatus: string;
+  runtimeStatus: string;
   mode: string;
   runId: string;
+  phase: string;
+  currentCycle: number;
+  lastSuccessfulCycle: number;
   asOfDate: string | null;
   tradingDate: string | null;
   sampleSymbols: string[];
@@ -106,18 +110,32 @@ export type FullAnalystPilotStatus = {
   dataGapCount: number;
   alayaSyncedCount: number;
   alayaFailedCount: number;
+  alayaReadbackVerifiedCount: number;
+  alayaReadbackFailedCount: number;
+  alayaSyncStatus: string | null;
+  alayaReadbackStatus: string | null;
   artifactWriteStatus: string | null;
+  publicScanStatus: string | null;
   evidenceLayer: string | null;
+  limitations: string[];
   llmRunner: string | null;
+  llmModel: string | null;
   alayaMode: string | null;
   providerModelIoEmbedded: boolean;
   exitStatus: number | null;
   reportFile: string | null;
+  latestPublicReportFile: string;
   statusFile: string;
   startedAtUtc: string | null;
   finishedAtUtc: string | null;
+  lastHeartbeatUtc: string | null;
+  elapsedSeconds: number;
+  remainingSeconds: number;
+  heartbeatStale: boolean;
+  isRunning: boolean;
+  isMockAlaya: boolean;
   statusTone: ReportTone;
-  statusLabel: "Completed" | "Review items" | "Blocked" | "Artifact write failed" | "Artifact unavailable";
+  statusLabel: "Running" | "Stale" | "Completed" | "Review items" | "Blocked" | "Artifact write failed" | "Artifact unavailable";
   headline: string;
   issues: FullAnalystPilotIssue[];
 };
@@ -532,35 +550,62 @@ function normalizeFullAnalystIssues(raw: ReportRawStatus): FullAnalystPilotIssue
   return issues;
 }
 
-export function normalizeFullAnalystPilotStatus(raw: ReportRawStatus): FullAnalystPilotStatus {
+export function normalizeFullAnalystPilotStatus(raw: ReportRawStatus, options: { now?: Date } = {}): FullAnalystPilotStatus {
+  const now = options.now ?? new Date();
   const failedCount = numberValue(raw.failed_count, 0);
   const blockedCount = numberValue(raw.blocked_count, 0);
   const needsReviewCount = numberValue(raw.needs_review_count, 0);
   const alayaFailedCount = numberValue(raw.alaya_failed_count, 0);
+  const alayaReadbackFailedCount = numberValue(raw.alaya_readback_failed_count, 0);
   const dataGapCount = numberValue(raw.data_gap_count, 0);
   const artifactWriteStatus = optionalString(raw.artifact_write_status);
+  const publicScanStatus = optionalString(raw.public_scan_status);
   const artifactFailed = artifactWriteStatus !== null && artifactWriteStatus.toLowerCase() !== "ok";
-  const isBlocked = artifactFailed || failedCount > 0 || blockedCount > 0 || alayaFailedCount > 0;
+  const publicScanFailed = publicScanStatus !== null && publicScanStatus.toLowerCase() !== "ok";
+  const runStatus = stringValue(raw.run_status ?? raw.session_status, "unknown");
+  const runtimeStatus = stringValue(raw.status, runStatus);
+  const lastHeartbeatUtc = optionalString(raw.last_heartbeat_utc);
+  const isRunning = runtimeStatus.toLowerCase().includes("running") || runStatus.toLowerCase().includes("running");
+  const heartbeatStale = isRunning && (raw.heartbeat_stale === true || isHeartbeatStale(lastHeartbeatUtc, now));
+  const isBlocked =
+    artifactFailed ||
+    publicScanFailed ||
+    failedCount > 0 ||
+    blockedCount > 0 ||
+    alayaFailedCount > 0 ||
+    alayaReadbackFailedCount > 0 ||
+    runStatus.toLowerCase().includes("block") ||
+    runStatus.toLowerCase().includes("failed");
   const isReview = needsReviewCount > 0 || dataGapCount > 0;
-  const statusTone: ReportTone = isBlocked ? "critical" : isReview ? "warning" : raw.ok === true ? "good" : "neutral";
+  const statusTone: ReportTone = heartbeatStale || isBlocked ? "critical" : isRunning || isReview ? "warning" : raw.ok === true ? "good" : "neutral";
   const statusLabel: FullAnalystPilotStatus["statusLabel"] = artifactFailed
     ? "Artifact write failed"
-    : isBlocked
-      ? "Blocked"
-      : isReview
-        ? "Review items"
-        : raw.ok === true
-          ? "Completed"
-          : "Artifact unavailable";
+    : heartbeatStale
+      ? "Stale"
+      : isBlocked
+        ? "Blocked"
+        : isRunning
+          ? "Running"
+          : isReview
+            ? "Review items"
+            : raw.ok === true
+              ? "Completed"
+              : "Artifact unavailable";
   const universeCount = numberValue(raw.universe_count, 0);
   const publishCount = numberValue(raw.publish_count, 0);
   const alayaSyncedCount = numberValue(raw.alaya_synced_count, 0);
+  const alayaMode = optionalString(raw.alaya_mode);
+  const latestPublicReportFile = stringValue(raw.latest_public_report_file ?? raw.report_file, "full_analyst_loop_latest.md");
 
   return {
     ok: raw.ok === true,
-    runStatus: stringValue(raw.run_status ?? raw.session_status, "unknown"),
+    runStatus,
+    runtimeStatus,
     mode: stringValue(raw.mode, "unknown"),
     runId: stringValue(raw.run_id, "unknown"),
+    phase: stringValue(raw.phase, "unknown"),
+    currentCycle: numberValue(raw.current_cycle, 0),
+    lastSuccessfulCycle: numberValue(raw.last_successful_cycle, 0),
     asOfDate: optionalString(raw.as_of_date),
     tradingDate: optionalString(raw.trading_date),
     sampleSymbols: stringArray(raw.sample_symbols),
@@ -573,28 +618,46 @@ export function normalizeFullAnalystPilotStatus(raw: ReportRawStatus): FullAnaly
     dataGapCount,
     alayaSyncedCount,
     alayaFailedCount,
+    alayaReadbackVerifiedCount: numberValue(raw.alaya_readback_verified_count, 0),
+    alayaReadbackFailedCount,
+    alayaSyncStatus: optionalString(raw.alaya_sync_status),
+    alayaReadbackStatus: optionalString(raw.alaya_readback_status),
     artifactWriteStatus,
+    publicScanStatus,
     evidenceLayer: optionalString(raw.evidence_layer),
+    limitations: stringArray(raw.limitations),
     llmRunner: optionalString(raw.llm_runner),
-    alayaMode: optionalString(raw.alaya_mode),
+    llmModel: optionalString(raw.llm_model),
+    alayaMode,
     providerModelIoEmbedded: raw.provider_model_io_embedded === true,
     exitStatus: nullableNumber(raw.exit_status),
-    reportFile: optionalString(raw.report_file),
-    statusFile: stringValue(raw.status_file, "status_full_analyst_evening_hk.json"),
+    reportFile: optionalString(raw.report_file) ?? latestPublicReportFile,
+    latestPublicReportFile,
+    statusFile: stringValue(raw.status_file, "status_full_analyst_loop.json"),
     startedAtUtc: optionalString(raw.started_at_utc),
     finishedAtUtc: optionalString(raw.finished_at_utc),
+    lastHeartbeatUtc,
+    elapsedSeconds: numberValue(raw.elapsed_seconds, 0),
+    remainingSeconds: numberValue(raw.remaining_seconds, 0),
+    heartbeatStale,
+    isRunning,
+    isMockAlaya: alayaMode !== null && alayaMode !== "real",
     statusTone,
     statusLabel,
     headline:
-      statusLabel === "Completed"
-        ? `Full analyst pilot completed for ${publishCount}/${universeCount} sample symbols with ${alayaSyncedCount} Alaya sync events.`
+      statusLabel === "Running"
+        ? `Full analyst loop is running in ${stringValue(raw.phase, "unknown")} phase; last successful cycle ${numberValue(raw.last_successful_cycle, 0)}.`
+        : statusLabel === "Stale"
+          ? "Full analyst loop heartbeat is stale; do not treat it as a healthy running state."
+          : statusLabel === "Completed"
+            ? `Full analyst loop completed for ${publishCount}/${universeCount} sample symbols with ${alayaSyncedCount} Alaya sync events.`
         : statusLabel === "Review items"
-          ? `Full analyst pilot published with ${needsReviewCount} review item${needsReviewCount === 1 ? "" : "s"} and ${dataGapCount} data gap${dataGapCount === 1 ? "" : "s"}.`
+          ? `Full analyst loop artifact was written with ${needsReviewCount} review item${needsReviewCount === 1 ? "" : "s"} and ${dataGapCount} data gap${dataGapCount === 1 ? "" : "s"}.`
           : statusLabel === "Artifact write failed"
-            ? "Full analyst pilot artifact write failed; review runtime ownership."
+            ? "Full analyst loop artifact write failed; review runtime ownership."
             : statusLabel === "Blocked"
-              ? `Full analyst pilot blocked: ${blockedCount} blocked, ${failedCount} failed, ${alayaFailedCount} Alaya sync failures.`
-              : "Full analyst pilot status artifact is unavailable.",
+              ? `Full analyst loop blocked: ${blockedCount} blocked, ${failedCount} failed, ${alayaFailedCount} Alaya sync failures, ${alayaReadbackFailedCount} readback failures.`
+              : "Full analyst loop status artifact is unavailable.",
     issues: normalizeFullAnalystIssues(raw),
   };
 }
@@ -643,6 +706,17 @@ function isStatusStale(generatedAtUtc: string | null, now: Date, staleAfterHours
     return false;
   }
   return now.getTime() - generated.getTime() > staleAfterHours * 60 * 60 * 1000;
+}
+
+function isHeartbeatStale(lastHeartbeatUtc: string | null, now: Date, staleAfterMinutes = 10): boolean {
+  if (!lastHeartbeatUtc) {
+    return false;
+  }
+  const heartbeat = new Date(lastHeartbeatUtc);
+  if (Number.isNaN(heartbeat.getTime())) {
+    return false;
+  }
+  return now.getTime() - heartbeat.getTime() > staleAfterMinutes * 60 * 1000;
 }
 
 function deriveStatusPresentation(params: {
