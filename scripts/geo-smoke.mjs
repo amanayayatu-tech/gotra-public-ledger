@@ -91,6 +91,8 @@ function main() {
   assertIncludes(pages.get("/ledger"), "Download the full JSON dataset", "/ledger");
   assertIncludes(pages.get("/reports"), "artifact_unavailable", "/reports");
   assertIncludes(pages.get("/reports/latest"), "Interpretation boundary", "/reports/latest");
+  assertIncludes(pages.get("/reports/latest"), 'href="/reports/latest.md"', "/reports/latest");
+  assertIncludes(pages.get("/reports/latest"), 'href="/reports/status.json"', "/reports/latest");
   assertIncludes(pages.get("/methodology"), "pending rows are excluded", "/methodology");
   assertIncludes(pages.get("/claim-boundary"), "Not investment advice.", "/claim-boundary");
   assertIncludes(pages.get("/faq"), "FAQPage", "/faq");

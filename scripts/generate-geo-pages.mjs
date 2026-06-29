@@ -528,6 +528,13 @@ function latestReportPage(source) {
         ${latestText}
       </section>
       <section>
+        <h2>Source artifacts</h2>
+        <ul>
+          <li><a href="/reports/latest.md">Latest report Markdown artifact</a></li>
+          <li><a href="/reports/status.json">Latest report status JSON artifact</a></li>
+        </ul>
+      </section>
+      <section>
         <h2>Interpretation boundary</h2>
         <p>${escapeHtml(boundarySentence)}</p>
       </section>`,
