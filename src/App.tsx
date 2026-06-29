@@ -1480,7 +1480,7 @@ function ReportsPage({ language }: { language: Language }) {
   const loadReports = useCallback(async () => {
     const statusUrl = reportAssetPath("status.json");
     const markdownUrl = reportAssetPath("latest.md");
-    const fullAnalystStatusUrl = reportAssetPath("status_full_analyst_evening_hk.json");
+    const fullAnalystStatusUrl = reportAssetPath("status_full_analyst_loop.json");
     setIsRefreshing(true);
 
     try {

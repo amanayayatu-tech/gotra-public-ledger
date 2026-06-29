@@ -235,8 +235,12 @@ describe("normalizeFullAnalystPilotStatus", () => {
       schema: "gotra.full_analyst.status.v1",
       ok: true,
       run_status: "completed",
+      status: "completed",
       mode: "full-analyst-evening-hk-test",
       run_id: "full_analyst_evening_hk_20260629_v1",
+      phase: "completed",
+      current_cycle: 1,
+      last_successful_cycle: 1,
       as_of_date: "2026-06-29",
       trading_date: "2026-06-29",
       sample_symbols: ["HKEX:0700", "HKEX:1810", "HKEX:9688", "HKEX:9969", "HKEX:0501"],
@@ -249,14 +253,28 @@ describe("normalizeFullAnalystPilotStatus", () => {
       data_gap_count: 0,
       alaya_synced_count: 5,
       alaya_failed_count: 0,
+      alaya_readback_verified_count: 0,
+      alaya_readback_failed_count: 0,
+      alaya_sync_status: "ok",
+      alaya_readback_status: "not_applicable",
       artifact_write_status: "ok",
+      public_scan_status: "ok",
       evidence_layer: "local checks + one-shot runtime smoke + public-safe artifact smoke",
+      limitations: ["not 10h evidence", "not formal acceptance", "not a trading signal"],
       llm_runner: "fixture",
+      llm_model: "fixture",
       alaya_mode: "mock",
       provider_model_io_embedded: false,
       exit_status: 0,
-      report_file: "full_analyst_evening_hk_2026-06-29.md",
-      status_file: "status_full_analyst_evening_hk.json",
+      report_file: "full_analyst_loop_latest.md",
+      latest_public_report_file: "full_analyst_loop_latest.md",
+      status_file: "status_full_analyst_loop.json",
+      started_at_utc: "2026-06-29T02:00:00Z",
+      finished_at_utc: "2026-06-29T02:05:00Z",
+      last_heartbeat_utc: "2026-06-29T02:05:00Z",
+      elapsed_seconds: 300,
+      remaining_seconds: 0,
+      heartbeat_stale: false,
       ...overrides,
     };
   }
@@ -270,6 +288,9 @@ describe("normalizeFullAnalystPilotStatus", () => {
     expect(status.alayaSyncedCount).toBe(5);
     expect(status.evidenceLayer).toContain("one-shot runtime smoke");
     expect(status.providerModelIoEmbedded).toBe(false);
+    expect(status.statusFile).toBe("status_full_analyst_loop.json");
+    expect(status.latestPublicReportFile).toBe("full_analyst_loop_latest.md");
+    expect(status.isMockAlaya).toBe(true);
   });
 
   it("keeps review items visible as warning status", () => {
@@ -320,5 +341,63 @@ describe("normalizeFullAnalystPilotStatus", () => {
     expect(status.statusTone).toBe("critical");
     expect(status.issues[0]?.reason).toBe("forbidden_raw_io_keys_detected");
     expect(status.exitStatus).toBe(2);
+  });
+
+  it("shows running loop state without promoting it to completed", () => {
+    const status = normalizeFullAnalystPilotStatus(
+      fullAnalystStatus({
+        ok: false,
+        run_status: "running_with_warnings",
+        status: "running",
+        phase: "alaya_sync",
+        current_cycle: 3,
+        last_successful_cycle: 2,
+        last_heartbeat_utc: "2026-06-29T02:59:00Z",
+        elapsed_seconds: 7140,
+        remaining_seconds: 28860,
+      }),
+      { now },
+    );
+
+    expect(status.statusLabel).toBe("Running");
+    expect(status.statusTone).toBe("warning");
+    expect(status.phase).toBe("alaya_sync");
+    expect(status.currentCycle).toBe(3);
+    expect(status.lastSuccessfulCycle).toBe(2);
+    expect(status.isRunning).toBe(true);
+  });
+
+  it("marks stale loop heartbeat as critical", () => {
+    const status = normalizeFullAnalystPilotStatus(
+      fullAnalystStatus({
+        ok: false,
+        run_status: "running",
+        status: "running",
+        phase: "sleep",
+        last_heartbeat_utc: "2026-06-29T02:40:00Z",
+      }),
+      { now },
+    );
+
+    expect(status.statusLabel).toBe("Stale");
+    expect(status.statusTone).toBe("critical");
+    expect(status.heartbeatStale).toBe(true);
+  });
+
+  it("does not display mock Alaya as real sync evidence", () => {
+    const mockStatus = normalizeFullAnalystPilotStatus(fullAnalystStatus({ alaya_mode: "mock" }), { now });
+    const realStatus = normalizeFullAnalystPilotStatus(
+      fullAnalystStatus({
+        alaya_mode: "real",
+        alaya_readback_verified_count: 5,
+        alaya_readback_status: "verified",
+      }),
+      { now },
+    );
+
+    expect(mockStatus.isMockAlaya).toBe(true);
+    expect(mockStatus.alayaMode).toBe("mock");
+    expect(realStatus.isMockAlaya).toBe(false);
+    expect(realStatus.alayaReadbackVerifiedCount).toBe(5);
   });
 });
