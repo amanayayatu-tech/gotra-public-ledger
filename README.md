@@ -51,8 +51,19 @@ hit rate and average error use resolved demo rows only; `pending` and
 npm install
 npm run lint
 npm run build
+npm run geo:smoke
 npm run preview
 ```
+
+`npm run build` runs the Vite build and then `npm run geo:generate`, which writes
+crawler-readable static HTML under `dist/` for the homepage fallback, ledger,
+reports, latest report, system boundary, methodology, claim boundary, FAQ, sources, notes, and
+prediction detail routes. The generated pages use only public-safe repository
+data and preserve the research-only boundary.
+
+For static hosting notes and Markdown/JSON/HTML Content-Type guidance, see
+`docs/GEO_STATIC_HOSTING.md`. Future manual GEO audit notes should use
+`docs/GEO_AUDIT_TEMPLATE.md`.
 
 ## GitHub Pages Deployment
 
@@ -139,10 +150,15 @@ Local checks for this MVP:
 ```bash
 npm run lint
 npm run build
+npm run geo:smoke
 ```
 
 CI runs install, lint, and build. GitHub Pages deploy runs only from `main` push
 or manual dispatch.
+
+GEO smoke checks are local raw HTML/no-JS evidence only. They do not prove
+production Content-Type headers, deployment acceptance, science/public claims,
+performance, trading usefulness, or investment suitability.
 
 ## Rebuild Public Dataset
 

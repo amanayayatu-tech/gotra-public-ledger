@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc --noEmit",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && npm run geo:generate",
     "lint": "eslint .",
     "test": "vitest run",
+    "geo:generate": "node scripts/generate-geo-pages.mjs",
+    "geo:smoke": "node scripts/geo-smoke.mjs",
     "generate:og": "node scripts/generate-og-image.mjs",
     "validate:data": "node scripts/validate-data.mjs",
     "dataset:diff": "node scripts/diff-dataset.mjs",

@@ -1,0 +1,173 @@
+/* global console, process */
+import fs from "node:fs";
+import path from "node:path";
+
+const repoRoot = process.cwd();
+const distRoot = path.join(repoRoot, "dist");
+
+function fail(message, details = undefined) {
+  console.error(message);
+  if (details !== undefined) {
+    console.error(JSON.stringify(details, null, 2));
+  }
+  process.exit(1);
+}
+
+function readDist(relativePath) {
+  const filePath = path.join(distRoot, relativePath);
+  if (!fs.existsSync(filePath)) {
+    fail(`Missing dist artifact: ${relativePath}`);
+  }
+  return fs.readFileSync(filePath, "utf8");
+}
+
+function assertIncludes(text, phrase, label) {
+  if (!text.includes(phrase)) {
+    fail(`Missing GEO smoke phrase in ${label}: ${phrase}`);
+  }
+}
+
+function assertNotIncludes(text, phrase, label) {
+  if (text.includes(phrase)) {
+    fail(`Forbidden GEO smoke phrase in ${label}: ${phrase}`);
+  }
+}
+
+function countTableRows(html) {
+  return (html.match(/<tr>/g) ?? []).length - 1;
+}
+
+function routeFile(route) {
+  if (route === "/") {
+    return "index.html";
+  }
+  return `${route.replace(/^\//, "")}/index.html`;
+}
+
+function loadManifest() {
+  const manifestPath = path.join(distRoot, "geo-manifest.json");
+  if (!fs.existsSync(manifestPath)) {
+    fail("Missing dist/geo-manifest.json. Run npm run geo:generate first.");
+  }
+  return JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+}
+
+function main() {
+  if (!fs.existsSync(distRoot)) {
+    fail("dist/ is missing. Run npm run build, then npm run geo:generate.");
+  }
+
+  const manifest = loadManifest();
+  const requiredRoutes = [
+    "/",
+    "/ledger",
+    "/reports",
+    "/methodology",
+    "/claim-boundary",
+    "/faq",
+    "/sources",
+    "/system",
+    "/notes",
+    "/reports/latest",
+  ];
+
+  const pages = new Map();
+  for (const route of requiredRoutes) {
+    pages.set(route, readDist(routeFile(route)));
+  }
+
+  const combinedCoreHtml = [...pages.values()].join("\n");
+  const requiredPhrases = [
+    "auditable AI stock-research public ledger",
+    "完整公开预测账本",
+    "research information only",
+    "not investment advice",
+    "resolved-only",
+  ];
+  requiredPhrases.forEach((phrase) => assertIncludes(combinedCoreHtml, phrase, "core routes"));
+
+  assertIncludes(pages.get("/"), "GOTRA Public Ledger 是一个可审计的 AI 股票研究公开预测账本", "/");
+  assertIncludes(pages.get("/ledger"), "First 50 public ledger rows", "/ledger");
+  assertIncludes(pages.get("/ledger"), "Download the full JSON dataset", "/ledger");
+  assertIncludes(pages.get("/reports"), "artifact_unavailable", "/reports");
+  assertIncludes(pages.get("/reports/latest"), "Interpretation boundary", "/reports/latest");
+  assertIncludes(pages.get("/reports/latest"), 'href="/reports/latest.md"', "/reports/latest");
+  assertIncludes(pages.get("/reports/latest"), 'href="/reports/status.json"', "/reports/latest");
+  assertIncludes(pages.get("/methodology"), "pending rows are excluded", "/methodology");
+  assertIncludes(pages.get("/claim-boundary"), "Not investment advice.", "/claim-boundary");
+  assertIncludes(pages.get("/faq"), "FAQPage", "/faq");
+  assertIncludes(pages.get("/sources"), "Manifest files", "/sources");
+  assertIncludes(pages.get("/system"), "Evidence layers", "/system");
+  assertIncludes(pages.get("/notes"), "Notes index", "/notes");
+
+  const ledgerRows = countTableRows(pages.get("/ledger"));
+  if (ledgerRows < 50) {
+    fail("Ledger raw HTML table has fewer than 50 rows", { ledgerRows });
+  }
+
+  const counts = manifest.ledger_counts;
+  if (
+    counts.total_public_records !== 294 ||
+    counts.resolved_records !== 48 ||
+    counts.pending_records !== 6 ||
+    counts.frozen_pending_records !== 240 ||
+    counts.generated_table_row_count !== 50
+  ) {
+    fail("Unexpected GEO ledger counts", counts);
+  }
+
+  const sitemap = readDist("sitemap.xml");
+  [
+    "https://gotra.me/",
+    "https://gotra.me/ledger",
+    "https://gotra.me/reports",
+    "https://gotra.me/reports/latest",
+    "https://gotra.me/reports/latest.md",
+    "https://gotra.me/reports/status.json",
+    "https://gotra.me/methodology",
+    "https://gotra.me/sources",
+    "https://gotra.me/claim-boundary",
+    "https://gotra.me/faq",
+    "https://gotra.me/notes",
+  ].forEach((url) => assertIncludes(sitemap, url, "sitemap.xml"));
+  assertNotIncludes(sitemap, "#/", "sitemap.xml");
+  assertNotIncludes(sitemap, "localhost", "sitemap.xml");
+  assertNotIncludes(sitemap, "127.0.0.1", "sitemap.xml");
+  assertNotIncludes(sitemap, ".codex-loop", "sitemap.xml");
+
+  const robots = readDist("robots.txt");
+  [
+    "User-agent: OAI-SearchBot",
+    "User-agent: GPTBot",
+    "User-agent: ChatGPT-User",
+    "User-agent: PerplexityBot",
+    "User-agent: ClaudeBot",
+    "User-agent: Claude-SearchBot",
+    "User-agent: Claude-User",
+    "User-agent: Googlebot",
+    "User-agent: Google-Extended",
+    "User-agent: CCBot",
+    "Sitemap: https://gotra.me/sitemap.xml",
+  ].forEach((phrase) => assertIncludes(robots, phrase, "robots.txt"));
+
+  const reportStatus = JSON.parse(readDist("reports/status.json"));
+  if (manifest.source_report_status === "artifact_unavailable" && reportStatus.status !== "artifact_unavailable") {
+    fail("Report placeholder status must remain explicit when source artifacts are missing", reportStatus);
+  }
+
+  const forbiddenInstructionPhrases = [
+    "suggests buying",
+    "suggests selling",
+    "buy this stock",
+    "sell this stock",
+    "hold this stock",
+    "position size",
+  ];
+  forbiddenInstructionPhrases.forEach((phrase) => assertNotIncludes(combinedCoreHtml.toLowerCase(), phrase, "core routes"));
+
+  console.log(
+    `GEO smoke passed: routes=${requiredRoutes.length}, ledger_rows=${ledgerRows}, prediction_detail_pages=${counts.prediction_detail_pages}, report_source=${manifest.source_report_status}`,
+  );
+}
+
+main();
