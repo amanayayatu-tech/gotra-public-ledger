@@ -366,6 +366,161 @@ async function exerciseLedger(client) {
   })()`);
 }
 
+async function inspectLedgerSearchLayout(client) {
+  return evaluate(client, `(() => {
+    const box = document.querySelector(".search-box");
+    const input = document.querySelector(".search-box input");
+    const icon = document.querySelector(".search-box svg");
+    if (!box || !input || !icon) {
+      return { ok: false, reason: "search_box_not_found" };
+    }
+    const inputRect = input.getBoundingClientRect();
+    const iconRect = icon.getBoundingClientRect();
+    const iconCenterX = iconRect.left + iconRect.width / 2;
+    const iconCenterY = iconRect.top + iconRect.height / 2;
+    const inputCenterY = inputRect.top + inputRect.height / 2;
+    const centerDeltaY = Math.abs(iconCenterY - inputCenterY);
+    const yInsideInput = iconCenterY >= inputRect.top + 2 && iconCenterY <= inputRect.bottom - 2;
+    const yCenteredInInput = centerDeltaY <= 2;
+    const xInsideLeadingPadding = iconCenterX >= inputRect.left + 8 && iconCenterX <= inputRect.left + 28;
+    return {
+      ok: yInsideInput && yCenteredInInput && xInsideLeadingPadding,
+      yInsideInput,
+      yCenteredInInput,
+      xInsideLeadingPadding,
+      inputRect: {
+        left: Math.round(inputRect.left),
+        top: Math.round(inputRect.top),
+        right: Math.round(inputRect.right),
+        bottom: Math.round(inputRect.bottom),
+      },
+      iconRect: {
+        left: Math.round(iconRect.left),
+        top: Math.round(iconRect.top),
+        right: Math.round(iconRect.right),
+        bottom: Math.round(iconRect.bottom),
+      },
+      iconCenterX: Math.round(iconCenterX),
+      iconCenterY: Math.round(iconCenterY),
+      inputCenterY: Math.round(inputCenterY),
+      centerDeltaY: Math.round(centerDeltaY * 10) / 10,
+    };
+  })()`);
+}
+
+async function inspectDesktopNavHover(client) {
+  const triggerRect = await evaluate(client, `(() => {
+    const group = document.querySelector(".nav-group");
+    const trigger = group?.querySelector(".nav-group-trigger");
+    if (!group || !trigger) {
+      return null;
+    }
+    const rect = trigger.getBoundingClientRect();
+    return {
+      left: rect.left,
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom,
+      width: rect.width,
+      height: rect.height,
+    };
+  })()`);
+  if (!triggerRect) {
+    return { ok: false, reason: "nav_group_not_found" };
+  }
+
+  await client.send("Input.dispatchMouseEvent", {
+    type: "mouseMoved",
+    x: triggerRect.left + triggerRect.width / 2,
+    y: triggerRect.top + triggerRect.height / 2,
+  });
+  await sleep(180);
+
+  const openRect = await evaluate(client, `(() => {
+    const group = document.querySelector(".nav-group");
+    const menu = group?.querySelector(".nav-group-menu");
+    if (!group || !menu) {
+      return null;
+    }
+    const menuRect = menu.getBoundingClientRect();
+    const trigger = group.querySelector(".nav-group-trigger");
+    const triggerRect = trigger.getBoundingClientRect();
+    const visible = window.getComputedStyle(menu).display !== "none" && menuRect.width > 0 && menuRect.height > 0;
+    return {
+      visible,
+      triggerBottom: triggerRect.bottom,
+      menuTop: menuRect.top,
+      menuLeft: menuRect.left,
+      menuRight: menuRect.right,
+      menuBottom: menuRect.bottom,
+      menuWidth: menuRect.width,
+      menuHeight: menuRect.height,
+    };
+  })()`);
+  if (!openRect?.visible) {
+    return { ok: false, reason: "menu_did_not_open", openRect };
+  }
+
+  await client.send("Input.dispatchMouseEvent", {
+    type: "mouseMoved",
+    x: triggerRect.left + triggerRect.width / 2,
+    y: triggerRect.bottom + Math.max(1, Math.min(4, (openRect.menuTop - triggerRect.bottom) / 2)),
+  });
+  await sleep(180);
+
+  const bridgeState = await evaluate(client, `(() => {
+    const menu = document.querySelector(".nav-group-menu");
+    const rect = menu?.getBoundingClientRect();
+    return {
+      visible: Boolean(menu && window.getComputedStyle(menu).display !== "none" && rect.width > 0 && rect.height > 0),
+      rect: rect ? {
+        left: Math.round(rect.left),
+        top: Math.round(rect.top),
+        right: Math.round(rect.right),
+        bottom: Math.round(rect.bottom),
+      } : null,
+    };
+  })()`);
+
+  await client.send("Input.dispatchMouseEvent", {
+    type: "mouseMoved",
+    x: openRect.menuLeft + openRect.menuWidth / 2,
+    y: openRect.menuTop + Math.min(20, openRect.menuHeight / 2),
+  });
+  await sleep(180);
+
+  const menuState = await evaluate(client, `(() => {
+    const menu = document.querySelector(".nav-group-menu");
+    const rect = menu?.getBoundingClientRect();
+    return {
+      visible: Boolean(menu && window.getComputedStyle(menu).display !== "none" && rect.width > 0 && rect.height > 0),
+      rect: rect ? {
+        left: Math.round(rect.left),
+        top: Math.round(rect.top),
+        right: Math.round(rect.right),
+        bottom: Math.round(rect.bottom),
+      } : null,
+    };
+  })()`);
+
+  return {
+    ok: Boolean(bridgeState.visible && menuState.visible),
+    triggerRect: {
+      left: Math.round(triggerRect.left),
+      top: Math.round(triggerRect.top),
+      right: Math.round(triggerRect.right),
+      bottom: Math.round(triggerRect.bottom),
+    },
+    openRect: {
+      triggerBottom: Math.round(openRect.triggerBottom),
+      menuTop: Math.round(openRect.menuTop),
+      menuBottom: Math.round(openRect.menuBottom),
+    },
+    bridgeState,
+    menuState,
+  };
+}
+
 function detectForbiddenPhrases(text) {
   const normalized = normalizeText(text);
   return FORBIDDEN_PHRASES.filter((phrase) => normalized.includes(phrase));
@@ -487,6 +642,8 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
       routeCheckCompleted: 0,
       domConsoleOverflowChecked: false,
       auditDetailsChecked: false,
+      visualLayoutChecked: false,
+      desktopNavHoverChecked: false,
     },
   };
   const chromeState = await startChrome(args.chromePath);
@@ -602,6 +759,17 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
     const ledgerExercise = await exerciseLedger(client);
     report.ledgerInteraction = ledgerExercise;
     assert(ledgerExercise.ok && ledgerExercise.containsCountLine, "Ledger search/filter interaction failed", ledgerExercise);
+
+    const searchLayout = await inspectLedgerSearchLayout(client);
+    report.searchLayout = searchLayout;
+    report.checks.visualLayoutChecked = true;
+    assert(searchLayout.ok, "Ledger search icon is not aligned inside the input", searchLayout);
+
+    await navigate(client, `${args.baseUrl}#/`, desktop);
+    const navHover = await inspectDesktopNavHover(client);
+    report.desktopNavHover = navHover;
+    report.checks.desktopNavHoverChecked = true;
+    assert(navHover.ok, "Desktop nav dropdown does not stay open while pointer moves into the menu", navHover);
 
     const auditRouteLabels = new Set(["system", "system_mobile", "sources", "morning", "evening"]);
     report.auditDetailRoutes = report.routeResults
