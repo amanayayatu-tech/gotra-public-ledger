@@ -4,11 +4,12 @@ import {
   formatCoveragePct,
   formatShanghaiTimestamp,
   type NormalizedReportStatus,
+  type ReportStatusFileResult,
 } from "./ReportStatusModel";
 
 export type DailyDeskSnapshotState =
   | { kind: "loading" }
-  | { kind: "ready"; status: NormalizedReportStatus; lastFetchedAt: string }
+  | { kind: "ready"; status: NormalizedReportStatus; lastFetchedAt: string; marketStatuses?: ReportStatusFileResult[] }
   | { kind: "error"; message: string };
 
 export type DailyDeskSnapshotProps = {
@@ -22,11 +23,20 @@ function localeFor(language: Language): string {
 }
 
 function modeLabel(mode: string, language: Language): string {
-  if (mode === "morning-global") {
-    return copy(language, "全市场早报", "Morning Global");
+  if (mode === "morning-hk") {
+    return copy(language, "港股早报", "HK Morning");
   }
   if (mode === "evening-hk") {
-    return copy(language, "港股晚报", "Evening HK");
+    return copy(language, "港股晚报", "HK Evening");
+  }
+  if (mode === "morning-us") {
+    return copy(language, "美股早报", "US Morning");
+  }
+  if (mode === "evening-us") {
+    return copy(language, "美股晚报", "US Evening");
+  }
+  if (mode === "morning-global") {
+    return copy(language, "全局汇总", "Global Summary");
   }
   return mode === "unknown" ? copy(language, "未知模式", "Unknown mode") : mode;
 }
@@ -101,6 +111,7 @@ function exceptionKindText(severity: string, language: Language): string {
 export function DailyDeskSnapshot({ language, reportStatus, reportsHref }: DailyDeskSnapshotProps) {
   const locale = localeFor(language);
   const status = reportStatus.kind === "ready" ? reportStatus.status : null;
+  const marketStatuses = reportStatus.kind === "ready" ? reportStatus.marketStatuses ?? [] : [];
   const tone = status?.statusTone ?? (reportStatus.kind === "loading" ? "neutral" : "critical");
   const exceptions = status?.failedSymbols.slice(0, 3) ?? [];
 
@@ -168,6 +179,28 @@ export function DailyDeskSnapshot({ language, reportStatus, reportsHref }: Daily
               {row.exchange} <strong>{row.success}/{row.universe || "n/a"}</strong>
             </span>
           ))}
+        </div>
+      ) : null}
+
+      {marketStatuses.length > 0 ? (
+        <div className="daily-market-report-grid" aria-label={copy(language, "分市场报告状态", "Market report status")}>
+          {marketStatuses.map((item) => {
+            const itemStatus = item.status;
+            const itemTone = itemStatus?.statusTone ?? "neutral";
+            return (
+              <a className={`daily-market-report-card tone-${itemTone}`} href={reportsHref} key={item.mode}>
+                <span>{modeLabel(item.mode, language)}</span>
+                <strong>{itemStatus ? `${itemStatus.successCount}/${itemStatus.universeCount}` : copy(language, "待产物", "Pending")}</strong>
+                <p>
+                  {itemStatus
+                    ? `${statusLabelText(itemStatus.statusLabel, language)} · ${formatCoveragePct(itemStatus.coveragePct)}`
+                    : item.error
+                      ? copy(language, "状态文件未读取", "Status file unavailable")
+                      : copy(language, "等待首次运行", "Awaiting first run")}
+                </p>
+              </a>
+            );
+          })}
         </div>
       ) : null}
 

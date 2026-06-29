@@ -8,6 +8,7 @@ import {
   type ExceptionSeverity,
   type NormalizedReportStatus,
   type ReportExceptionRow,
+  type ReportStatusFileResult,
 } from "./ReportStatusModel";
 
 type ExceptionStatusFilter = "all" | ExceptionSeverity;
@@ -19,6 +20,7 @@ export type AnalystDeskProps = {
   markdown: string | null;
   markdownError: string | null;
   lastFetchedAt: string | null;
+  marketStatuses?: ReportStatusFileResult[];
   isRefreshing: boolean;
   onRefresh: () => void;
   assetHref: (fileName: string) => string;
@@ -29,11 +31,20 @@ function localeFor(language: Language): string {
 }
 
 function modeLabel(mode: string, language: Language): string {
-  if (mode === "morning-global") {
-    return copy(language, "全市场早报", "Morning Global");
+  if (mode === "morning-hk") {
+    return copy(language, "港股早报", "HK Morning");
   }
   if (mode === "evening-hk") {
-    return copy(language, "港股晚报", "Evening HK");
+    return copy(language, "港股晚报", "HK Evening");
+  }
+  if (mode === "morning-us") {
+    return copy(language, "美股早报", "US Morning");
+  }
+  if (mode === "evening-us") {
+    return copy(language, "美股晚报", "US Evening");
+  }
+  if (mode === "morning-global") {
+    return copy(language, "全局汇总", "Global Summary");
   }
   return mode === "unknown" ? copy(language, "未知模式", "Unknown mode") : mode;
 }
@@ -223,6 +234,7 @@ export function AnalystDesk({
   markdown,
   markdownError,
   lastFetchedAt,
+  marketStatuses = [],
   isRefreshing,
   onRefresh,
   assetHref,
@@ -323,6 +335,37 @@ export function AnalystDesk({
           </div>
         </div>
       </header>
+
+      {marketStatuses.length > 0 ? (
+        <section className="desk-market-status-strip" aria-labelledby="desk-market-status-title">
+          <div className="desk-section-head compact">
+            <span>00</span>
+            <h3 id="desk-market-status-title">{copy(language, "分市场报告状态", "Market Report Status")}</h3>
+          </div>
+          <div className="desk-market-status-grid">
+            {marketStatuses.map((item) => {
+              const itemStatus = item.status;
+              const itemTone = itemStatus?.statusTone ?? "neutral";
+              return (
+                <article className={`desk-market-status-card tone-${itemTone}`} key={item.mode}>
+                  <div>
+                    <span>{modeLabel(item.mode, language)}</span>
+                    <strong>{itemStatus ? statusLabelText(itemStatus.statusLabel, language) : copy(language, "待产物", "Pending")}</strong>
+                  </div>
+                  <p>
+                    {itemStatus
+                      ? `${itemStatus.successCount}/${itemStatus.universeCount} · ${formatCoveragePct(itemStatus.coveragePct)} · ${copy(language, "失败", "Failed")} ${itemStatus.failedCount}`
+                      : item.error
+                        ? copy(language, "状态文件未读取，等待下一次运行或发布。", "Status file unavailable; awaiting the next run or publish.")
+                        : copy(language, "等待首次运行。", "Awaiting first run.")}
+                  </p>
+                  <a href={assetHref(itemStatus?.statusFile ?? item.statusFile)}>{item.statusFile}</a>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
       <div className="desk-controls" aria-label={copy(language, "报告操作", "Report controls")}>
         <button className="desk-button" type="button" onClick={onRefresh} disabled={isRefreshing}>

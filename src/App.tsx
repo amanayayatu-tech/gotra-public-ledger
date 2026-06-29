@@ -18,10 +18,13 @@ import { LedgerTable, type SortKey, type SortState } from "./components/LedgerTa
 import { AnalystDesk } from "./components/reports/AnalystDesk";
 import { DailyDeskSnapshot, type DailyDeskSnapshotState } from "./components/reports/DailyDeskSnapshot";
 import {
+  REPORT_SCHEDULES,
   buildReportDeskArtifacts,
   normalizeReportStatus,
+  type NormalizedReportStatus,
   type ReportDeskArtifacts,
   type ReportRawStatus,
+  type ReportStatusFileResult,
 } from "./components/reports/ReportStatusModel";
 import { SeoHead } from "./components/SeoHead";
 import { SiteFooter } from "./components/SiteFooter";
@@ -66,6 +69,7 @@ type ReportDeskLoadState =
   | ({
       kind: "ready";
       lastFetchedAt: string;
+      marketStatuses: ReportStatusFileResult[];
     } & ReportDeskArtifacts);
 
 function compareRecord(a: RecordView, b: RecordView, key: SortKey): number {
@@ -198,6 +202,46 @@ async function fetchText(url: string): Promise<string> {
     throw new Error(`${url} returned HTTP ${response.status}`);
   }
   return response.text();
+}
+
+function marketStatusFallbacks(error: string | null): ReportStatusFileResult[] {
+  return REPORT_SCHEDULES.map((schedule) => ({
+    mode: schedule.key,
+    statusFile: schedule.statusFile,
+    latestFile: schedule.latestFile,
+    status: null,
+    error,
+  }));
+}
+
+async function fetchMarketReportStatuses(): Promise<ReportStatusFileResult[]> {
+  const results = await Promise.allSettled(
+    REPORT_SCHEDULES.map(async (schedule): Promise<ReportStatusFileResult> => {
+      const raw = await fetchJson<ReportRawStatus>(reportAssetPath(schedule.statusFile));
+      const status: NormalizedReportStatus = normalizeReportStatus(raw);
+      return {
+        mode: schedule.key,
+        statusFile: schedule.statusFile,
+        latestFile: schedule.latestFile,
+        status,
+        error: null,
+      };
+    }),
+  );
+
+  return results.map((result, index) => {
+    const schedule = REPORT_SCHEDULES[index];
+    if (result.status === "fulfilled") {
+      return result.value;
+    }
+    return {
+      mode: schedule.key,
+      statusFile: schedule.statusFile,
+      latestFile: schedule.latestFile,
+      status: null,
+      error: result.reason instanceof Error ? result.reason.message : String(result.reason),
+    };
+  });
 }
 
 function reportStatusLabel(status: string, language: Language): string {
@@ -1435,13 +1479,18 @@ function ReportsPage({ language }: { language: Language }) {
     setIsRefreshing(true);
 
     try {
-      const [statusResult, markdownResult] = await Promise.allSettled([
+      const [statusResult, markdownResult, marketStatusResult] = await Promise.allSettled([
         fetchJson<ReportRawStatus>(statusUrl),
         fetchText(markdownUrl),
+        fetchMarketReportStatuses(),
       ]);
       setLoadState({
         kind: "ready",
         ...buildReportDeskArtifacts(statusResult, markdownResult),
+        marketStatuses:
+          marketStatusResult.status === "fulfilled"
+            ? marketStatusResult.value
+            : marketStatusFallbacks(marketStatusResult.reason instanceof Error ? marketStatusResult.reason.message : String(marketStatusResult.reason)),
         lastFetchedAt: new Date().toISOString(),
       });
     } finally {
@@ -1460,6 +1509,7 @@ function ReportsPage({ language }: { language: Language }) {
           statusError: loadState.statusError,
           markdown: loadState.markdown,
           markdownError: loadState.markdownError,
+          marketStatuses: loadState.marketStatuses,
           lastFetchedAt: loadState.lastFetchedAt,
         }
       : {
@@ -1467,6 +1517,7 @@ function ReportsPage({ language }: { language: Language }) {
           statusError: null,
           markdown: null,
           markdownError: null,
+          marketStatuses: marketStatusFallbacks(null),
           lastFetchedAt: null,
         };
 
@@ -1833,15 +1884,35 @@ function App() {
   useEffect(() => {
     let cancelled = false;
 
-    fetchJson<ReportRawStatus>(reportAssetPath("status.json"))
-      .then((status) => {
-        if (!cancelled) {
+    Promise.allSettled([fetchJson<ReportRawStatus>(reportAssetPath("status.json")), fetchMarketReportStatuses()])
+      .then(([statusResult, marketStatusResult]) => {
+        if (cancelled) {
+          return;
+        }
+        const marketStatuses =
+          marketStatusResult.status === "fulfilled"
+            ? marketStatusResult.value
+            : marketStatusFallbacks(marketStatusResult.reason instanceof Error ? marketStatusResult.reason.message : String(marketStatusResult.reason));
+        const fallbackStatus = marketStatuses.find((item) => item.status)?.status ?? null;
+        const primaryStatus = statusResult.status === "fulfilled" ? normalizeReportStatus(statusResult.value) : fallbackStatus;
+
+        if (primaryStatus) {
           setReportStatusState({
             kind: "ready",
-            status: normalizeReportStatus(status),
+            status: primaryStatus,
+            marketStatuses,
             lastFetchedAt: new Date().toISOString(),
           });
+          return;
         }
+
+        setReportStatusState({
+          kind: "error",
+          message:
+            statusResult.status === "rejected" && statusResult.reason instanceof Error
+              ? statusResult.reason.message
+              : "Unknown report status load error",
+        });
       })
       .catch((reason: unknown) => {
         if (!cancelled) {

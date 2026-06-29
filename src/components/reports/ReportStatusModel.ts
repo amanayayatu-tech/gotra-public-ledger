@@ -23,7 +23,7 @@ export type ReportExceptionRow = {
   action: string;
 };
 
-export type ReportScheduleKey = "morning-global" | "evening-hk";
+export type ReportScheduleKey = "morning-hk" | "evening-hk" | "morning-us" | "evening-us" | "morning-global";
 
 export type ReportNextExpectedRun = {
   mode: ReportScheduleKey | "unknown";
@@ -73,28 +73,75 @@ export type ReportDeskArtifacts = {
   markdownError: string | null;
 };
 
+export type ReportStatusFileResult = {
+  mode: ReportScheduleKey;
+  statusFile: string;
+  latestFile: string;
+  status: NormalizedReportStatus | null;
+  error: string | null;
+};
+
 const SHANGHAI_TIME_ZONE = "Asia/Shanghai";
 const DEFAULT_STALE_AFTER_HOURS = 36;
 
-const REPORT_SCHEDULES: Array<{
+export const REPORT_SCHEDULES: Array<{
   key: ReportScheduleKey;
   label: string;
+  shortLabel: string;
+  statusFile: string;
+  latestFile: string;
   weekdays: number[];
   hour: number;
   minute: number;
 }> = [
   {
-    key: "morning-global",
-    label: "Morning Global",
-    weekdays: [2, 3, 4, 5, 6],
-    hour: 10,
-    minute: 30,
+    key: "morning-hk",
+    label: "HK Morning",
+    shortLabel: "HK AM",
+    statusFile: "status_morning_hk.json",
+    latestFile: "latest_morning_hk.md",
+    weekdays: [1, 2, 3, 4, 5],
+    hour: 9,
+    minute: 0,
   },
   {
     key: "evening-hk",
-    label: "Evening HK",
+    label: "HK Evening",
+    shortLabel: "HK PM",
+    statusFile: "status_evening_hk.json",
+    latestFile: "latest_evening_hk.md",
     weekdays: [1, 2, 3, 4, 5],
     hour: 18,
+    minute: 30,
+  },
+  {
+    key: "morning-us",
+    label: "US Morning",
+    shortLabel: "US AM",
+    statusFile: "status_morning_us.json",
+    latestFile: "latest_morning_us.md",
+    weekdays: [1, 2, 3, 4, 5],
+    hour: 21,
+    minute: 0,
+  },
+  {
+    key: "evening-us",
+    label: "US Evening",
+    shortLabel: "US PM",
+    statusFile: "status_evening_us.json",
+    latestFile: "latest_evening_us.md",
+    weekdays: [2, 3, 4, 5, 6],
+    hour: 6,
+    minute: 30,
+  },
+  {
+    key: "morning-global",
+    label: "Morning Global",
+    shortLabel: "Global",
+    statusFile: "status_morning_global.json",
+    latestFile: "latest_morning_global.md",
+    weekdays: [2, 3, 4, 5, 6],
+    hour: 10,
     minute: 30,
   },
 ];
@@ -179,6 +226,10 @@ function shanghaiScheduledDate(
   return new Date(Date.UTC(parts.year, parts.month - 1, parts.day + offsetDays, schedule.hour - 8, schedule.minute));
 }
 
+function shanghaiCalendarWeekday(parts: { year: number; month: number; day: number }, offsetDays: number): number {
+  return new Date(Date.UTC(parts.year, parts.month - 1, parts.day + offsetDays)).getUTCDay();
+}
+
 function nextExpectedRun(mode: string, now: Date): ReportNextExpectedRun {
   const requested = REPORT_SCHEDULES.find((schedule) => schedule.key === mode);
   const schedules = requested ? [requested] : REPORT_SCHEDULES;
@@ -186,9 +237,10 @@ function nextExpectedRun(mode: string, now: Date): ReportNextExpectedRun {
   let next: { date: Date; schedule: (typeof REPORT_SCHEDULES)[number] } | null = null;
 
   for (let offsetDays = 0; offsetDays < 14; offsetDays += 1) {
+    const shanghaiWeekday = shanghaiCalendarWeekday(parts, offsetDays);
     for (const schedule of schedules) {
       const candidate = shanghaiScheduledDate(parts, offsetDays, schedule);
-      if (!schedule.weekdays.includes(candidate.getUTCDay()) || candidate.getTime() <= now.getTime()) {
+      if (!schedule.weekdays.includes(shanghaiWeekday) || candidate.getTime() <= now.getTime()) {
         continue;
       }
       if (!next || candidate.getTime() < next.date.getTime()) {
