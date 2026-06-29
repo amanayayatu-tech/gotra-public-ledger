@@ -1492,14 +1492,25 @@ h1 {
   min-width: min(310px, 100%);
 }
 
+.filters .search-box {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-height: 38px;
+}
+
 .search-box svg {
   position: absolute;
   left: 10px;
-  bottom: 11px;
+  top: 50%;
+  transform: translateY(-50%);
   color: var(--faint);
+  pointer-events: none;
 }
 
 .search-box input {
+  display: block;
+  flex: 1 1 auto;
   width: 100%;
   padding: 0 10px 0 32px;
 }
@@ -6113,6 +6124,16 @@ h1::after {
   flex: 0 0 auto;
 }
 
+.nav-group::after {
+  position: absolute;
+  right: 0;
+  bottom: -10px;
+  left: 0;
+  display: block;
+  height: 10px;
+  content: "";
+}
+
 .nav-group-trigger svg {
   flex: 0 0 auto;
   transition: transform 140ms ease;
@@ -6124,7 +6145,7 @@ h1::after {
 
 .nav-group-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   right: 0;
   z-index: 40;
   display: none;
