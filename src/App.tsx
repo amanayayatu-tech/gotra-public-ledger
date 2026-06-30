@@ -36,7 +36,7 @@ import { SiteHeader } from "./components/SiteHeader";
 import { Subscribe } from "./components/Subscribe";
 import { TrustStrip } from "./components/TrustStrip";
 import { buildTickerList } from "./data/cognition";
-import { contentItems, findContentItem } from "./data/content";
+import { contentIndex, contentItems, findContentItem } from "./data/content";
 import {
   fixtureIsFutureDated,
   loadLiveReportsSnapshot,
@@ -57,10 +57,12 @@ import type { ContentItem, PaperPortfolioSnapshot } from "./data/publicContract"
 import { loadLedgerDataset, type LedgerDataset } from "./data/schema";
 import {
   boundarySentence,
+  artifactStatusText,
   contentTypeText,
   copy,
   layerText,
   readStoredLanguage,
+  runtimeStatusText,
   statusText,
   writeStoredLanguage,
   type Language,
@@ -284,116 +286,6 @@ function formatLiveTimestamp(value: string | null, language: Language): string {
   }).format(date);
 }
 
-function liveCoverage(entry: LiveReportEntry): string {
-  if (entry.universeCount <= 0) {
-    return "n/a";
-  }
-  return `${entry.successCount}/${entry.universeCount}`;
-}
-
-function liveReportTone(entry: LiveReportEntry): "good" | "warning" | "critical" | "neutral" {
-  if (entry.error || entry.failedCount > 0 || entry.unexpectedFailedCount > 0) {
-    return "critical";
-  }
-  if (!entry.ok || entry.dataGapCount > 0 || entry.runStatus.includes("partial") || entry.runStatus.includes("gap")) {
-    return "warning";
-  }
-  return "good";
-}
-
-function LiveReportCard({ entry, language }: { entry: LiveReportEntry; language: Language }) {
-  const tone = liveReportTone(entry);
-  return (
-    <article className={`live-report-card ${tone}`}>
-      <div className="live-report-card-head">
-        <div>
-          <span>{entry.kind === "full-analyst" ? "production canary" : "production report"}</span>
-          <h3>{liveReportLabel(entry, language)}</h3>
-        </div>
-        <strong>{entry.runStatus}</strong>
-      </div>
-      <dl className="live-report-facts">
-        <div>
-          <dt>as_of_date</dt>
-          <dd>{entry.asOfDate ?? "unknown"}</dd>
-        </div>
-        <div>
-          <dt>trading_date</dt>
-          <dd>{entry.tradingDate ?? "unknown"}</dd>
-        </div>
-        <div>
-          <dt>{copy(language, "生成时间", "Generated")}</dt>
-          <dd>{formatLiveTimestamp(entry.generatedAtUtc, language)}</dd>
-        </div>
-        <div>
-          <dt>coverage</dt>
-          <dd>{liveCoverage(entry)}</dd>
-        </div>
-      </dl>
-      <p className="live-report-note">
-        {entry.error
-          ? entry.error
-          : entry.kind === "full-analyst"
-            ? copy(language, `monitor: ${entry.monitorHealth ?? "unknown"} · ${entry.successCount}/${entry.universeCount} publish`, `monitor: ${entry.monitorHealth ?? "unknown"} · ${entry.successCount}/${entry.universeCount} publish`)
-            : copy(language, `data_gap=${entry.dataGapCount} · failed=${entry.failedCount} · artifact=${entry.artifactWriteStatus ?? "unknown"}`, `data_gap=${entry.dataGapCount} · failed=${entry.failedCount} · artifact=${entry.artifactWriteStatus ?? "unknown"}`)}
-      </p>
-      <div className="live-link-row">
-        <a href={entry.statusHref}>status JSON</a>
-        {entry.reportHref ? <a href={entry.reportHref}>report markdown</a> : null}
-        {entry.latestHref && entry.latestHref !== entry.reportHref ? <a href={entry.latestHref}>latest link</a> : null}
-      </div>
-    </article>
-  );
-}
-
-function LiveProductionBriefs({ state, language }: { state: LiveReportsLoadState; language: Language }) {
-  if (state.kind === "loading") {
-    return (
-      <section className="route-panel live-reports-shell" aria-labelledby="live-briefs-title">
-        <h2 id="live-briefs-title">{copy(language, "最新生产简报", "Latest production briefs")}</h2>
-        <div className="edge-state-note" role="status">
-          {copy(language, "正在读取 /reports/status_*.json。", "Reading /reports/status_*.json.")}
-        </div>
-      </section>
-    );
-  }
-  if (state.kind === "error") {
-    return (
-      <section className="route-panel live-reports-shell" aria-labelledby="live-briefs-title">
-        <h2 id="live-briefs-title">{copy(language, "最新生产简报", "Latest production briefs")}</h2>
-        <div className="edge-state-note warning" role="status">
-          {state.message}
-        </div>
-      </section>
-    );
-  }
-
-  const entries = state.snapshot.fullAnalyst
-    ? [...state.snapshot.daily, state.snapshot.fullAnalyst]
-    : state.snapshot.daily;
-  return (
-    <section className="route-panel live-reports-shell" aria-labelledby="live-briefs-title">
-      <div className="section-heading compact">
-        <span>{copy(language, "生产公开产物", "Production artifacts")}</span>
-        <h2 id="live-briefs-title">{copy(language, "最新生产简报 / Latest production briefs", "Latest production briefs")}</h2>
-        <p>
-          {copy(
-            language,
-            "这些卡片直接来自 /reports/status_*.json 与 full analyst canary status；它们不是静态文章索引，也不是投资建议、交易信号或业绩证明。",
-            "These cards come directly from /reports/status_*.json and full analyst canary status; they are not the static article index and not advice, a trading signal, or performance proof.",
-          )}
-        </p>
-      </div>
-      <div className="live-report-grid">
-        {entries.map((entry) => (
-          <LiveReportCard entry={entry} language={language} key={entry.id} />
-        ))}
-      </div>
-      <p className="muted">{copy(language, "最后读取", "Last fetched")}: {formatLiveTimestamp(state.snapshot.lastFetchedAt, language)}</p>
-    </section>
-  );
-}
-
 function LiveProductionStrip({ state, language }: { state: LiveReportsLoadState; language: Language }) {
   if (state.kind !== "ready") {
     return (
@@ -410,14 +302,14 @@ function LiveProductionStrip({ state, language }: { state: LiveReportsLoadState;
     <section className="live-production-strip" aria-label="Latest production reports">
       <div>
         <strong>{copy(language, "最新生产报告状态", "Latest production report status")}</strong>
-        <span>{copy(language, "账本/表现页下方数据是 demo；生产运行看这里。", "Ledger/performance data below is demo; production runtime is shown here.")}</span>
+        <span>{copy(language, "账本/表现页下方数据是演示或夹具样本；生产运行状态看这里。", "Ledger/performance data below is demo; production runtime is shown here.")}</span>
       </div>
       <div className="live-strip-items">
         {entries.map((entry) => (
           <a href={entry.reportHref ?? entry.statusHref} key={entry.id}>
             <span>{liveReportLabel(entry, language)}</span>
             <strong>{entry.asOfDate ?? "unknown"}</strong>
-            <small>{entry.runStatus}</small>
+            <small>{runtimeStatusText(language, entry.runStatus)}</small>
           </a>
         ))}
       </div>
@@ -429,9 +321,9 @@ function LiveArtifactSources({ state, language }: { state: LiveReportsLoadState;
   if (state.kind !== "ready") {
     return (
       <section className="route-panel live-sources-shell" aria-labelledby="live-sources-title">
-        <h2 id="live-sources-title">{copy(language, "Live production artifacts", "Live production artifacts")}</h2>
+        <h2 id="live-sources-title">{copy(language, "生产公开产物", "Live production artifacts")}</h2>
         <div className="edge-state-note" role="status">
-          {state.kind === "loading" ? copy(language, "正在读取生产 artifacts。", "Loading production artifacts.") : state.message}
+          {state.kind === "loading" ? copy(language, "正在读取生产产物。", "Loading production artifacts.") : state.message}
         </div>
       </section>
     );
@@ -440,11 +332,11 @@ function LiveArtifactSources({ state, language }: { state: LiveReportsLoadState;
     <section className="route-panel live-sources-shell" aria-labelledby="live-sources-title">
       <div className="section-heading compact">
         <span>{copy(language, "生产来源", "Live sources")}</span>
-        <h2 id="live-sources-title">Live production artifacts</h2>
+        <h2 id="live-sources-title">{copy(language, "生产公开产物", "Live production artifacts")}</h2>
         <p>
           {copy(
             language,
-            "以下链接是生产公开产物；manifest 与 evidence index 仍保留为 static demo/source manifest，不代表最新生产状态。",
+            "以下链接是生产公开产物；manifest 与 evidence index 仍保留为静态 demo/source manifest，不代表最新生产状态。",
             "These links are production public artifacts; manifest and evidence index remain static demo/source manifests and are not the latest production state.",
           )}
         </p>
@@ -453,11 +345,11 @@ function LiveArtifactSources({ state, language }: { state: LiveReportsLoadState;
         <table className="live-artifact-table">
           <thead>
             <tr>
-              <th>artifact</th>
-              <th>status</th>
-              <th>as_of_date</th>
-              <th>trading_date</th>
-              <th>{copy(language, "生成时间", "generated")}</th>
+              <th>{copy(language, "产物", "Artifact")}</th>
+              <th>{copy(language, "状态", "Status")}</th>
+              <th>{copy(language, "统计日期", "As-of date")}</th>
+              <th>{copy(language, "交易日", "Trading date")}</th>
+              <th>{copy(language, "生成时间", "Generated time")}</th>
             </tr>
           </thead>
           <tbody>
@@ -466,10 +358,94 @@ function LiveArtifactSources({ state, language }: { state: LiveReportsLoadState;
                 <td>
                   <a href={artifact.href}>{artifact.label}</a>
                 </td>
-                <td>{artifact.status}</td>
+                <td>{artifactStatusText(language, artifact.status)}</td>
                 <td>{artifact.asOfDate ?? "unknown"}</td>
                 <td>{artifact.tradingDate ?? "unknown"}</td>
                 <td>{formatLiveTimestamp(artifact.generatedAtUtc, language)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function publicAssetHref(path: string): string {
+  return `${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
+}
+
+function StaticDemoArtifacts({ dataset, language }: { dataset: LedgerDataset; language: Language }) {
+  const staticArtifacts = [
+    {
+      label: "data/manifest.json",
+      href: publicAssetHref("data/manifest.json"),
+      date: "2026-06-25",
+      type: copy(language, "静态清单", "Static manifest"),
+      note: copy(language, "公开安全演示/来源清单，不是最新生产状态。", "public-safe demo/source manifest, not current production."),
+    },
+    {
+      label: "data/ledger.demo.json",
+      href: publicAssetHref("data/ledger.demo.json"),
+      date: dataset.metadata.snapshot_date,
+      type: copy(language, "冻结 Demo 账本", "Frozen demo ledger"),
+      note: copy(language, "冻结公开安全演示快照，不是实时预测账本。", "Frozen public-safe demo snapshot, not a live prediction ledger."),
+    },
+    {
+      label: "data/evidence-index.json",
+      href: publicAssetHref("data/evidence-index.json"),
+      date: "2026-06-25",
+      type: copy(language, "静态证据索引", "Static evidence index"),
+      note: copy(language, "归档证据索引，不代表最新生产日报。", "Archive evidence index, not the latest production daily report."),
+    },
+    {
+      label: "content/articles/index.json",
+      href: publicAssetHref("content/articles/index.json"),
+      date: contentIndex.snapshot_date,
+      type: copy(language, "静态文章归档", "Static article archive"),
+      note: copy(language, `${contentItems.length} 篇透明度文章，不是最新生产日报。`, `${contentItems.length} transparency articles, not latest production reports.`),
+    },
+    {
+      label: "data/paper-portfolio.latest.json",
+      href: publicAssetHref("data/paper-portfolio.latest.json"),
+      date: latestPaperPortfolioSnapshot.as_of_date,
+      type: copy(language, "演示夹具样本", "Demo fixture"),
+      note: copy(language, "未来日期样本；不是当前生产表现、业绩证明或实盘交易。", "Future-dated sample; not current production, performance proof, or live trading."),
+    },
+  ];
+
+  return (
+    <section className="route-panel live-sources-shell" aria-labelledby="static-artifacts-title">
+      <div className="section-heading compact">
+        <span>{copy(language, "静态材料", "Static materials")}</span>
+        <h2 id="static-artifacts-title">{copy(language, "静态演示 / 归档产物", "Static demo/archive artifacts")}</h2>
+        <p>
+          {copy(
+            language,
+            "这些文件用于演示、归档或来源审计。它们可以检查，但不是最新生产日报、不是当前表现跟踪，也不是交易信号。",
+            "These files are for demo, archive, or provenance audit. They are inspectable, but they are not latest production reports, current performance tracking, or trading signals.",
+          )}
+        </p>
+      </div>
+      <div className="live-artifact-table-wrap">
+        <table className="live-artifact-table">
+          <thead>
+            <tr>
+              <th>{copy(language, "产物", "Artifact")}</th>
+              <th>{copy(language, "类型", "Type")}</th>
+              <th>{copy(language, "快照日期", "Snapshot date")}</th>
+              <th>{copy(language, "边界", "Boundary")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {staticArtifacts.map((artifact) => (
+              <tr key={artifact.label}>
+                <td>
+                  <a href={artifact.href}>{artifact.label}</a>
+                </td>
+                <td>{artifact.type}</td>
+                <td>{artifact.date}</td>
+                <td>{artifact.note}</td>
               </tr>
             ))}
           </tbody>
@@ -1069,9 +1045,9 @@ function PerformancePage({
   return (
     <>
       <PageIntro
-        eyebrow={copy(language, "表现", "Performance")}
+        eyebrow={copy(language, "表现说明", "Performance Notes")}
         title={copy(language, "暂无生产表现跟踪", "No production performance tracking yet")}
-        body={copy(language, "当前页面不把 demo fixture 或未来日期样本呈现为生产表现。最新生产运行请看每日报告和 full analyst canary。", "This page does not present demo fixtures or future-dated samples as production performance. Use daily reports and the full analyst canary for current production runtime.")}
+        body={copy(language, "当前页面不把演示夹具或未来日期样本呈现为生产表现。最新生产运行请看生产日报和 Full Analyst 金丝雀。", "This page does not present demo fixtures or future-dated samples as production performance. Use daily reports and the full analyst canary for current production runtime.")}
         icon={BarChart3}
       />
       <section className="route-panel performance-shell" aria-labelledby="performance-policy-title">
@@ -1083,7 +1059,7 @@ function PerformancePage({
           <AlertCircle aria-hidden="true" size={18} />
           {copy(
             language,
-            "暂无生产表现跟踪。当前只有 demo fixture / paper portfolio sample；它不构成业绩证明、收益承诺、交易信号或投资建议。",
+            "暂无生产表现跟踪。当前只有演示夹具样本；它不构成业绩证明、收益承诺、交易信号或投资建议。",
             "No production performance tracking is available. Only a demo fixture / paper portfolio sample exists; it is not performance proof, a return promise, a trading signal, or investment advice.",
           )}
         </div>
@@ -1093,27 +1069,27 @@ function PerformancePage({
           <p>
             {copy(
               language,
-              "没有新的 live performance ledger artifact，所以本页不会伪造收益曲线、持仓或表现结论。生产运行状态请转到报告分析台核对。",
+              "没有新的生产表现账本产物，所以本页不会伪造收益曲线、持仓或表现结论。生产运行状态请转到生产日报核对。",
               "No live performance ledger artifact exists, so this page does not fabricate an equity curve, holdings, or performance conclusion. Use the reports desk for production runtime status.",
             )}
           </p>
           <a className="secondary-action" href={routeHref("/reports")}>
-            {copy(language, "查看每日报告和 canary", "Open daily reports and canary")}
+            {copy(language, "查看生产日报和金丝雀监控", "Open daily reports and canary")}
           </a>
         </div>
         <details className="audit-details portfolio-metrics-detail demo-fixture-detail">
           <summary>
             {copy(
               language,
-              `查看 demo fixture（${snapshot.as_of_date}${fixtureFutureDated ? "，未来日期样本" : ""}，非当前生产表现）`,
-              `View demo fixture (${snapshot.as_of_date}${fixtureFutureDated ? ", future-dated sample" : ""}, not current production performance)`,
+              `查看演示夹具样本（${fixtureFutureDated ? "未来日期样本，" : ""}非当前生产表现）`,
+              `View demo fixture (${fixtureFutureDated ? "future-dated sample, " : ""}not current production performance)`,
             )}
           </summary>
           <div className="boundary-banner warning">
             <AlertCircle aria-hidden="true" size={18} />
             {copy(
               language,
-              `fixture as_of_date=${snapshot.as_of_date}，portfolio_id=${snapshot.portfolio_id}。这是 demo/future fixture，不是 live trading、performance proof、return promise 或 beta 用户验收依据。`,
+              `演示夹具样本 as_of_date=${snapshot.as_of_date}，portfolio_id=${snapshot.portfolio_id}。这是未来日期样本，不是当前生产表现、实盘交易、业绩证明、收益承诺或测试用户验收依据。`,
               `fixture as_of_date=${snapshot.as_of_date}, portfolio_id=${snapshot.portfolio_id}. This is a demo/future fixture, not live trading, performance proof, return promise, or beta-user acceptance evidence.`,
             )}
           </div>
@@ -1284,16 +1260,17 @@ function SourcesPage({
   return (
     <>
       <PageIntro
-        eyebrow={copy(language, "来源", "Sources")}
-        title={copy(language, "公开安全来源记录", "Public-safe provenance")}
-        body={copy(language, "来源页先展示 live production artifacts，再展示 static demo/source manifest；不会公开私有 GOTRA 原始产物。", "The sources page shows live production artifacts first, then static demo/source manifests; it never publishes private GOTRA raw artifacts.")}
+        eyebrow={copy(language, "来源与产物", "Sources & Artifacts")}
+        title={copy(language, "来源与产物", "Sources and Artifacts")}
+        body={copy(language, "来源页先展示生产公开产物，再展示静态演示 / 归档产物；不会公开私有 GOTRA 原始产物。", "The sources page shows live production artifacts first, then static demo/archive artifacts; it never publishes private GOTRA raw artifacts.")}
         icon={Database}
       />
       <LiveArtifactSources state={liveReportsState} language={language} />
+      <StaticDemoArtifacts dataset={dataset} language={language} />
       <section className="route-panel" aria-labelledby="sources-title">
-        <h2 id="sources-title">{copy(language, "哪些公开数据可被检查", "What public data can be inspected")}</h2>
+        <h2 id="sources-title">{copy(language, "公开可检查的数据面", "What public data can be inspected")}</h2>
         <p>
-          {copy(language, "以下是 static demo/source manifest：演示账本、证据索引、清单、内容索引和生成的公开安全快照。它们不是最新生产状态；最新生产状态在上方 live artifacts。", "The following are static demo/source manifests: demo ledger, evidence index, manifest, content index, and generated public-safe snapshots. They are not the latest production status; live artifacts above are the current production state.")}
+          {copy(language, "以下摘要来自静态演示 / 归档材料：演示账本、证据索引、清单、内容索引和生成的公开安全快照。它们不是最新生产状态；最新生产状态在上方生产公开产物。", "The following summaries come from static demo/archive materials: demo ledger, evidence index, manifest, content index, and generated public-safe snapshots. They are not the latest production status; live artifacts above are the current production state.")}
         </p>
         <ContentTypeChart language={language} />
         <div className="source-reader-grid" aria-label="Public-safe data surfaces">
@@ -1842,15 +1819,19 @@ function ReportsPage({ language }: { language: Language }) {
   return (
     <>
       <PageIntro
-        eyebrow={copy(language, "报告", "Reports")}
-        title={copy(language, "GOTRA 每日股票池分析台", "GOTRA Daily Stock-Pool Desk")}
-        body={copy(language, "公开安全分析台：只读展示覆盖率、交易日、异常清单和公开报告产物；不是投资建议、交易信号、业绩证明或科学证明。", "Public-safe analyst desk for read-only coverage, trading dates, exception tape, and public report artifacts; not advice, a trading signal, performance proof, or science proof.")}
+        eyebrow={copy(language, "生产公开产物", "Live production")}
+        title={copy(language, "生产日报", "Production Daily Reports")}
+        body={copy(
+          language,
+          "展示最新公开安全日报产物、覆盖率、数据缺口和异常清单；Full Analyst 金丝雀在下方独立显示。不是投资建议、交易信号、业绩证明或科学证明。",
+          "Shows the latest public-safe daily report artifacts, coverage, data gaps, and exception lists. Full Analyst Canary is shown separately below. Not investment advice, not a trading signal, and not performance proof or science proof.",
+        )}
         icon={FileText}
       />
       {loadState.kind === "loading" ? (
         <section className="route-panel reports-shell analyst-desk-shell" aria-labelledby="reports-loading-title">
           <div className="edge-state-note" role="status" id="reports-loading-title">
-            {copy(language, "正在加载 /reports/status.json 和 /reports/latest.md。", "Loading /reports/status.json and /reports/latest.md.")}
+            {copy(language, "正在加载生产日报状态和最新 Markdown 产物。", "Loading production daily status and latest markdown artifacts.")}
           </div>
         </section>
       ) : null}
@@ -1876,13 +1857,13 @@ function HowToReadGotra({ language }: { language: Language }) {
     },
     {
       href: routeHref("/ledger"),
-      label: copy(language, "账本", "Ledger"),
-      body: copy(language, "查看冻结演示账本；最新生产报告在报告/简报入口。", "Inspect the frozen demo ledger; latest production reports are under Reports/Notes."),
+      label: copy(language, "Demo 账本", "Demo Ledger"),
+      body: copy(language, "查看冻结演示账本；最新生产日报只在生产日报入口。", "Inspect the frozen demo ledger; latest production reports are only under Production Reports."),
     },
     {
       href: routeHref("/reports"),
-      label: copy(language, "报告", "Reports"),
-      body: copy(language, "查看最新每日报告、异常清单、canary observability 和简报复盘。", "Read latest daily reports, exception lists, canary observability, and notes or reviews."),
+      label: copy(language, "生产日报", "Production Reports"),
+      body: copy(language, "查看最新日报、异常清单和 Full Analyst 金丝雀监控。", "Read latest daily reports, exception lists, and Full Analyst Canary monitoring."),
     },
     {
       href: routeHref("/system"),
@@ -1899,8 +1880,8 @@ function HowToReadGotra({ language }: { language: Language }) {
         <p>
           {copy(
             language,
-            "这四个入口把概览、记录、报告和系统说明分开；先读状态，再进账本或报告，最后用系统材料核对边界。",
-            "The four entries separate overview, records, reports, and system context; read status first, then ledger or reports, then use system materials to check boundaries.",
+            "这四个入口把概览、Demo 记录、生产日报和系统说明分开；先读生产日报，再按需检查 demo 账本或系统材料。",
+            "The four entries separate overview, demo records, production reports, and system context; read production reports first, then inspect the demo ledger or system materials as needed.",
           )}
         </p>
       </div>
@@ -1917,27 +1898,40 @@ function HowToReadGotra({ language }: { language: Language }) {
   );
 }
 
-function NotesPage({ liveReportsState, language }: { liveReportsState: LiveReportsLoadState; language: Language }) {
+function NotesPage({ language }: { language: Language }) {
   return (
     <>
       <PageIntro
-        eyebrow={copy(language, "简报", "Notes")}
-        title={copy(language, "研究简报与透明度报告", "Research notes and transparency reports")}
-        body={copy(language, "Notes 先展示最新生产日报和 canary 状态，再保留静态透明度文章归档；技术来源收起在审计区。", "Notes show latest production daily reports and canary status first, then keep static transparency articles as an archive; technical provenance is collapsed.")}
+        eyebrow={copy(language, "文章", "Articles")}
+        title={copy(language, "透明度文章", "Transparency Articles")}
+        body={copy(language, "这里是静态文章归档，不是最新生产日报。最新日报请看「生产日报」。", "This is a static article archive, not the latest production daily reports. Use Production Daily Reports for current artifacts.")}
         icon={FileText}
       />
-      <LiveProductionBriefs state={liveReportsState} language={language} />
       <section className="route-panel notes-shell" aria-labelledby="notes-title">
         <div className="boundary-banner">
           <ShieldCheck aria-hidden="true" size={18} />
           {boundarySentence(language)}
         </div>
-        <h2 id="notes-title">{copy(language, "静态透明度文章 / Archive notes", "Static transparency articles / Archive notes")}</h2>
+        <div className="notes-archive-head">
+          <div>
+            <h2 id="notes-title">{copy(language, "静态文章归档", "Static article archive")}</h2>
+            <p className="muted">
+              {copy(
+                language,
+                "这些文章来自 2026-06-25 的内容索引，是归档透明度材料，不是最新生产日报。",
+                "These articles come from the 2026-06-25 content index. They are archive/static transparency material, not latest production daily reports.",
+              )}
+            </p>
+          </div>
+          <a className="secondary-action" href={routeHref("/reports")}>
+            {copy(language, "查看最新生产日报", "Open latest production reports")}
+          </a>
+        </div>
         <p className="muted">
           {copy(
             language,
-            "这些文章来自 2026-06-25 的 content index，是 archive/static transparency material，不是最新生产简报。",
-            "These articles come from the 2026-06-25 content index. They are archive/static transparency material, not the latest production briefs.",
+            "文章可用于理解方法、错误复盘和边界；当前生产运行状态只在生产日报页展示。",
+            "Articles explain method, error review, and boundaries; current production runtime state is shown only on the Production Daily Reports page.",
           )}
         </p>
         <div className="content-card-grid">
@@ -2452,19 +2446,19 @@ function App() {
         {route.name === "ledger" ? (
           <>
             <PageIntro
-              eyebrow={copy(language, "账本", "Ledger")}
-              title={copy(language, "冻结公开预测账本 / 最新生产报告见下方", "Frozen public prediction ledger / latest production reports below")}
-              body={copy(language, "此页表格是冻结演示快照，不是 6/30 生产日报或实时预测账本。最新生产报告状态见下方 strip。", "The table on this page is a frozen demo snapshot, not the 6/30 production daily reports or a live prediction ledger. Latest production report status is shown below.")}
+              eyebrow={copy(language, "Demo 账本", "Demo Ledger")}
+              title={copy(language, "冻结 Demo 账本", "Frozen Demo Ledger")}
+              body={copy(language, "这是冻结公开安全演示快照，不是最新生产日报，也不是实时预测账本。最新生产日报请看下方入口。", "This is a frozen public-safe demo snapshot, not the latest production daily report and not a live prediction ledger. Use the link below for current production reports.")}
               icon={Database}
             />
             <section className="route-panel demo-ledger-banner" aria-labelledby="demo-ledger-title">
               <div className="boundary-banner warning">
                 <AlertCircle aria-hidden="true" size={18} />
                 <span>
-                  {copy(language, "当前公开预测账本为冻结演示快照", "Current public prediction ledger is a frozen demo snapshot")}
+                  {copy(language, "这是冻结公开安全演示快照", "This is a frozen public-safe demo snapshot")}
                 </span>
               </div>
-              <h2 id="demo-ledger-title">{copy(language, "不是最新生产预测账本", "Not the latest production prediction ledger")}</h2>
+              <h2 id="demo-ledger-title">{copy(language, "不是最新生产日报", "Not the latest production daily report")}</h2>
               <p>
                 {copy(
                   language,
@@ -2472,6 +2466,9 @@ function App() {
                   `snapshot_date=${dataset.metadata.snapshot_date}; dataset_id=${dataset.metadata.dataset_id}. It is used for public-safe demo and historical readability, not latest daily reports, not a live production prediction ledger, and not advice or a trading signal.`,
                 )}
               </p>
+              <a className="secondary-action" href={routeHref("/reports")}>
+                {copy(language, "查看最新生产日报", "Open latest production reports")}
+              </a>
             </section>
             <LiveProductionStrip state={liveReportsState} language={language} />
             <LedgerStatusChart metrics={metrics} language={language} />
@@ -2479,8 +2476,8 @@ function App() {
           <div className="ledger-panel">
             <div className="ledger-toolbar">
               <div>
-                <span className="section-index">{copy(language, "S5 · 完整账本", "S5 · Full ledger")}</span>
-                <h2 id="full-ledger-title">{copy(language, "冻结公开账本", "Frozen public ledger")}</h2>
+                <span className="section-index">{copy(language, "S5 · 演示快照", "S5 · Demo snapshot")}</span>
+                <h2 id="full-ledger-title">{copy(language, "冻结 Demo 账本", "Frozen Demo Ledger")}</h2>
                 <p>
                   {copy(language, `这是全部 ${views.length} 条冻结演示判断，可搜索、筛选、逐条核对；它不是 6/30 生产数据，也不是投资行动指令。`, `These are all ${views.length} frozen demo judgments. Search, filter, and inspect records one by one; this is not 6/30 production data and not an investment action instruction.`)}
                 </p>
@@ -2577,7 +2574,7 @@ function App() {
         {route.name === "methodology" ? <MethodologyPage dataset={dataset} records={views} language={language} /> : null}
         {route.name === "sources" ? <SourcesPage dataset={dataset} liveReportsState={liveReportsState} language={language} /> : null}
         {route.name === "reports" ? <ReportsPage language={language} /> : null}
-        {route.name === "notes" ? <NotesPage liveReportsState={liveReportsState} language={language} /> : null}
+        {route.name === "notes" ? <NotesPage language={language} /> : null}
         {route.name === "note" ? <NoteDetailPage item={activeNote} language={language} /> : null}
 
         {route.name === "home" || route.name === "notes" || route.name === "note" ? <Subscribe language={language} /> : null}

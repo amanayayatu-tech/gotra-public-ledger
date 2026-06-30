@@ -10,6 +10,8 @@ describe("content index", () => {
   it("loads exactly four public-safe content items", () => {
     expect(contentIndexSchema.safeParse(contentIndex).success).toBe(true);
     expect(contentIndex.schema_version).toBe("1.1");
+    expect(contentIndex.snapshot_date).toBe("2026-06-25");
+    expect(contentIndex.dataset_id).toBe("gotra_public_alpha_content_2026_06_25");
     expect(contentItems.every((item) => item.schema_version === "1.1")).toBe(true);
     expect(contentItems).toHaveLength(4);
     expect(contentItems.map((item) => item.type).sort()).toEqual([
@@ -18,6 +20,12 @@ describe("content index", () => {
       "method_note",
       "monthly_transparency",
     ]);
+  });
+
+  it("keeps transparency articles separate from the latest production daily reports", () => {
+    expect(contentItems.every((item) => item.published_at.startsWith("2026-06-25"))).toBe(true);
+    expect(contentItems.map((item) => item.slug)).not.toContain("public_stock_pool_morning_us_2026-06-29");
+    expect(contentItems.map((item) => item.slug)).not.toContain("full_analyst_evening_hk_2026-06-30");
   });
 
   it("keeps article body sources public, present, and boundary-labeled", () => {
