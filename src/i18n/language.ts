@@ -115,3 +115,106 @@ export function layerText(language: Language, layer: string): string {
   }
   return layer.replaceAll("_", " ");
 }
+
+export function runtimeStatusText(language: Language, status: string | null | undefined): string {
+  const value = status ?? "unknown";
+  const labels: Record<string, { zh: string; en: string }> = {
+    active: { zh: "活跃", en: "Active" },
+    artifact_write_failed: { zh: "产物写入失败", en: "Artifact write failed" },
+    blocked: { zh: "已阻断", en: "Blocked" },
+    completed: { zh: "已完成", en: "Completed" },
+    completed_with_allowed_data_gaps: { zh: "已完成，存在允许的数据缺口", en: "Completed with allowed data gaps" },
+    completed_with_blockers: { zh: "已完成，存在阻断项", en: "Completed with blockers" },
+    completed_with_review_items: { zh: "已完成，存在复核项", en: "Completed with review items" },
+    critical: { zh: "严重", en: "Critical" },
+    degraded: { zh: "降级", en: "Degraded" },
+    disabled: { zh: "已停用", en: "Disabled" },
+    enabled: { zh: "已启用", en: "Enabled" },
+    failed: { zh: "失败", en: "Failed" },
+    fail: { zh: "失败", en: "Fail" },
+    healthy: { zh: "健康", en: "Healthy" },
+    manual_ssh_runbook: { zh: "手动 SSH 回滚手册", en: "Manual SSH runbook" },
+    not_applicable: { zh: "不适用", en: "Not applicable" },
+    ok: { zh: "正常", en: "OK" },
+    partial: { zh: "部分完成", en: "Partial" },
+    pending: { zh: "待产物", en: "Pending" },
+    published: { zh: "已发布", en: "Published" },
+    running: { zh: "运行中", en: "Running" },
+    running_with_warnings: { zh: "运行中，有警告", en: "Running with warnings" },
+    stale: { zh: "已过期", en: "Stale" },
+    success: { zh: "成功", en: "Success" },
+    unavailable: { zh: "不可用", en: "Unavailable" },
+    unknown: { zh: "未知", en: "Unknown" },
+  };
+  const label = labels[value];
+  if (label) {
+    return language === "zh" ? label.zh : label.en;
+  }
+  return language === "zh" ? value.replaceAll("_", " ") : value.replaceAll("_", " ");
+}
+
+export function fullAnalystLabelText(language: Language, key: string): string {
+  const labels: Record<string, { zh: string; en: string }> = {
+    alaya_readback: { zh: "内部 Alaya 回读", en: "Alaya readback" },
+    alaya_sync: { zh: "内部 Alaya 同步", en: "Alaya sync" },
+    artifact_freshness: { zh: "产物新鲜度", en: "Artifact freshness" },
+    canary: { zh: "Full Analyst 金丝雀", en: "Full Analyst Canary" },
+    canary_full_chain: { zh: "Full Analyst 金丝雀完整链路", en: "Full Analyst Canary Full Chain" },
+    cycle: { zh: "循环", en: "Cycle" },
+    elapsed: { zh: "已运行", en: "Elapsed" },
+    exchange_split: { zh: "交易所分布", en: "Exchange split" },
+    heartbeat: { zh: "心跳", en: "Heartbeat" },
+    heartbeat_freshness: { zh: "心跳新鲜度", en: "Heartbeat freshness" },
+    latest_run: { zh: "最近运行", en: "Latest run" },
+    overall_health: { zh: "整体健康", en: "Overall health" },
+    phase: { zh: "阶段", en: "Phase" },
+    public_scan: { zh: "公开安全扫描", en: "Public scan" },
+    publish: { zh: "发布", en: "Publish" },
+    review_blocked_gap: { zh: "需复核 / 阻断 / 数据缺口", en: "Review / blocked / gap" },
+    rollback_mode: { zh: "回滚方式", en: "Rollback mode" },
+    rollback_runbook: { zh: "回滚手册", en: "Rollback runbook" },
+    run_id: { zh: "运行 ID", en: "Run ID" },
+    runner: { zh: "运行器", en: "Runner" },
+    service_state: { zh: "服务状态", en: "Service state" },
+    service_timer: { zh: "服务 / 定时器", en: "Service / timer" },
+    status_files: { zh: "状态文件", en: "Status files" },
+    timer_state: { zh: "定时器状态", en: "Timer state" },
+    universe: { zh: "股票池", en: "Universe" },
+  };
+  const label = labels[key];
+  if (label) {
+    return language === "zh" ? label.zh : label.en;
+  }
+  return key.replaceAll("_", " ");
+}
+
+export function fullAnalystStageText(language: Language, stage: string): string {
+  const labels: Record<string, { zh: string; en: string }> = {
+    alaya_readback: { zh: "内部 Alaya 回读", en: "Alaya readback" },
+    alaya_sync: { zh: "内部 Alaya 同步", en: "Alaya sync" },
+    artifact_write: { zh: "产物写入", en: "Artifact write" },
+    data_fetch: { zh: "数据抓取 / 覆盖率", en: "Data fetch / coverage" },
+    judge_gate: { zh: "裁判 / 闸门", en: "Judge / gate" },
+    llm_analyst: { zh: "LLM 分析", en: "LLM analyst" },
+    public_publish: { zh: "公开发布", en: "Public publish" },
+    public_safety_scan: { zh: "公开安全扫描", en: "Public safety scan" },
+  };
+  const label = labels[stage];
+  if (label) {
+    return language === "zh" ? label.zh : label.en;
+  }
+  return stage.replaceAll("_", " ");
+}
+
+export function artifactStatusText(language: Language, status: string): string {
+  const labels: Record<string, { zh: string; en: string }> = {
+    "full analyst canary markdown": { zh: "Full Analyst 金丝雀 Markdown 报告", en: "Full analyst canary markdown" },
+    "ordinary daily alias": { zh: "日报状态别名", en: "Daily status alias" },
+    "ordinary daily latest": { zh: "最新日报 Markdown", en: "Latest daily markdown" },
+  };
+  const label = labels[status];
+  if (label) {
+    return language === "zh" ? label.zh : label.en;
+  }
+  return runtimeStatusText(language, status);
+}

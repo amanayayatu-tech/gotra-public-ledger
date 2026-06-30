@@ -213,9 +213,9 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
           </article>
           <article>
             <span>{copy(language, "最新生产日报", "Latest production reports")}</span>
-            <strong>{copy(language, "2026-06-30 live reports", "2026-06-30 live reports")}</strong>
+            <strong>{copy(language, "2026-06-30 生产日报", "2026-06-30 live reports")}</strong>
             <p>
-              <a href="#/notes">{copy(language, "打开最新生产简报", "Open latest production briefs")}</a>
+              <a href="#/reports">{copy(language, "打开生产日报", "Open production reports")}</a>
             </p>
           </article>
           <article>

@@ -5233,6 +5233,21 @@ h1::after {
   gap: 12px;
 }
 
+.notes-archive-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.notes-archive-head > div {
+  min-width: 0;
+}
+
+.notes-archive-head .secondary-action {
+  flex: 0 0 auto;
+}
+
 .live-reports-shell,
 .live-sources-shell {
   border-color: rgba(117, 216, 143, 0.32);

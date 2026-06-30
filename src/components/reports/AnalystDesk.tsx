@@ -1,6 +1,12 @@
 import { Clipboard, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
-import { copy, type Language } from "../../i18n/language";
+import {
+  copy,
+  fullAnalystLabelText,
+  fullAnalystStageText,
+  runtimeStatusText,
+  type Language,
+} from "../../i18n/language";
 import {
   createEvidenceSummary,
   formatCoveragePct,
@@ -151,59 +157,59 @@ function fullAnalystMonitorLabel(status: FullAnalystMonitorStatus["statusLabel"]
 
 function formatAgeSeconds(value: number | null, language: Language): string {
   if (value === null) {
-    return copy(language, "unknown", "unknown");
+    return copy(language, "未知", "unknown");
   }
   if (value < 90) {
     return `${value}s`;
   }
   if (value < 7200) {
-    return `${Math.round(value / 60)} min`;
+    return language === "zh" ? `${Math.round(value / 60)} 分钟` : `${Math.round(value / 60)} min`;
   }
-  return `${Math.round(value / 3600)} h`;
+  return language === "zh" ? `${Math.round(value / 3600)} 小时` : `${Math.round(value / 3600)} h`;
 }
 
 function fullAnalystPilotHeadline(status: FullAnalystPilotStatus | null, language: Language): string {
   if (!status) {
     return copy(
       language,
-      "Full Analyst Canary 状态产物尚未发布；不会影响五个早晚报 timer。",
+      "Full Analyst 金丝雀状态产物尚未发布；不会影响五个日报定时器。",
       "Full Analyst Canary status is not published yet; the five daily timers are unaffected.",
     );
   }
   if (status.statusLabel === "Running") {
     return copy(
       language,
-      `canary 运行中：phase=${status.phase}，最新心跳 ${status.lastHeartbeatUtc ?? "n/a"}。`,
+      `金丝雀运行中：阶段 ${fullAnalystStageText(language, status.phase)}，最新心跳 ${status.lastHeartbeatUtc ?? "n/a"}。`,
       `Canary running: phase=${status.phase}, last heartbeat ${status.lastHeartbeatUtc ?? "n/a"}.`,
     );
   }
   if (status.statusLabel === "Stale") {
     return copy(
       language,
-      `canary 心跳超过 10 分钟未更新；当前不能显示为健康运行。最近心跳 ${status.lastHeartbeatUtc ?? "n/a"}。`,
+      `金丝雀心跳超过 10 分钟未更新；当前不能显示为健康运行。最近心跳 ${status.lastHeartbeatUtc ?? "n/a"}。`,
       `Canary heartbeat is more than 10 minutes stale; it is not a healthy running state. Last heartbeat ${status.lastHeartbeatUtc ?? "n/a"}.`,
     );
   }
   if (status.statusLabel === "Completed") {
     return copy(
       language,
-      `${status.publishCount}/${status.universeCount} 个 full-pool 标的完成 publish gate，${status.alayaSyncedCount} 个内部 Alaya ${status.alayaMode ?? "sync"} 事件。`,
+      `${status.publishCount}/${status.universeCount} 个全量股票池标的完成发布闸门，${status.alayaSyncedCount} 个内部 Alaya 同步事件。`,
       `${status.publishCount}/${status.universeCount} full-pool symbols passed publish gate with ${status.alayaSyncedCount} internal Alaya ${status.alayaMode ?? "sync"} events.`,
     );
   }
   if (status.statusLabel === "Review items") {
     return copy(
       language,
-      `canary 产物已写出，但保留 ${status.needsReviewCount} 个复核项和 ${status.dataGapCount} 个数据缺口。`,
+      `金丝雀产物已写出，但保留 ${status.needsReviewCount} 个复核项和 ${status.dataGapCount} 个数据缺口。`,
       `Canary artifact was written with ${status.needsReviewCount} review item(s) and ${status.dataGapCount} data gap(s).`,
     );
   }
   if (status.statusLabel === "Artifact write failed") {
-    return copy(language, "canary 产物写入失败；需要先复核运行目录和 web root 权限。", "Canary artifact write failed; review runtime and web-root ownership first.");
+    return copy(language, "金丝雀产物写入失败；需要先复核运行目录和 web root 权限。", "Canary artifact write failed; review runtime and web-root ownership first.");
   }
   return copy(
     language,
-    `canary 被阻断：${status.blockedCount} 个 blocked，${status.failedCount} 个 failed，${status.alayaFailedCount} 个 Alaya sync failed，${status.alayaReadbackFailedCount} 个 readback failed。`,
+    `金丝雀被阻断：${status.blockedCount} 个已阻断，${status.failedCount} 个失败，${status.alayaFailedCount} 个内部 Alaya 同步失败，${status.alayaReadbackFailedCount} 个回读失败。`,
     `Canary blocked: ${status.blockedCount} blocked, ${status.failedCount} failed, ${status.alayaFailedCount} Alaya sync failed, ${status.alayaReadbackFailedCount} readback failed.`,
   );
 }
@@ -211,24 +217,13 @@ function fullAnalystPilotHeadline(status: FullAnalystPilotStatus | null, languag
 function formatExchangeCounts(counts: Record<string, number>, language: Language): string {
   const entries = Object.entries(counts);
   if (entries.length === 0) {
-    return copy(language, "not reported", "not reported");
+    return copy(language, "未上报", "not reported");
   }
   return entries.map(([exchange, count]) => `${exchange} ${count}`).join(" · ");
 }
 
 function formatStageLabel(stage: string, language: Language): string {
-  const labels: Record<string, [string, string]> = {
-    data_fetch: ["data fetch / coverage", "data fetch / coverage"],
-    llm_analyst: ["LLM analyst", "LLM analyst"],
-    judge_gate: ["judge/gate", "judge/gate"],
-    alaya_sync: ["Alaya sync", "Alaya sync"],
-    alaya_readback: ["Alaya readback", "Alaya readback"],
-    public_safety_scan: ["public safety scan", "public safety scan"],
-    artifact_write: ["artifact write", "artifact write"],
-    public_publish: ["public publish", "public publish"],
-  };
-  const label = labels[stage];
-  return label ? copy(language, label[0], label[1]) : stage;
+  return fullAnalystStageText(language, stage);
 }
 
 function compactSymbolSummary(status: FullAnalystPilotStatus | null, language: Language): string {
@@ -236,11 +231,11 @@ function compactSymbolSummary(status: FullAnalystPilotStatus | null, language: L
     return "n/a";
   }
   if (status.symbolHash) {
-    return `${status.symbolCount || status.sampleSymbols.length || status.universeCount} ${copy(language, "symbols", "symbols")} · ${status.symbolHash.slice(0, 12)}`;
+    return `${status.symbolCount || status.sampleSymbols.length || status.universeCount} ${copy(language, "个标的", "symbols")} · ${status.symbolHash.slice(0, 12)}`;
   }
   return status.sampleSymbols.length > 8
-    ? `${status.sampleSymbols.length} ${copy(language, "symbols", "symbols")}`
-    : status.sampleSymbols.join(" · ") || copy(language, "not reported", "not reported");
+    ? `${status.sampleSymbols.length} ${copy(language, "个标的", "symbols")}`
+    : status.sampleSymbols.join(" · ") || copy(language, "未上报", "not reported");
 }
 
 function statusHeadline(status: NormalizedReportStatus | null, language: Language): string {
@@ -465,7 +460,7 @@ export function AnalystDesk({
           <span className="desk-eyebrow">{status ? modeLabel(status.mode, language) : copy(language, "公开产物不可用", "Public artifact unavailable")}</span>
           <div className="desk-title-row">
             <div>
-              <h2 id="reports-title">{copy(language, "GOTRA 每日股票池分析台", "GOTRA Daily Stock-Pool Desk")}</h2>
+              <h2 id="reports-title">{copy(language, "生产日报", "Production Daily Reports")}</h2>
               <p>{statusHeadline(status, language)}</p>
             </div>
             <span className={`desk-status-badge tone-${statusTone}`}>{statusLabel}</span>
@@ -535,7 +530,7 @@ export function AnalystDesk({
       <section className={`full-analyst-pilot-card tone-${canaryTone}`} aria-labelledby="full-analyst-pilot-title">
         <div className="desk-section-head compact">
           <span>00A</span>
-          <h3 id="full-analyst-pilot-title">{copy(language, "Full Analyst Canary 完整链路", "Full Analyst Canary Full Chain")}</h3>
+          <h3 id="full-analyst-pilot-title">{fullAnalystLabelText(language, "canary_full_chain")}</h3>
         </div>
         <div className="full-analyst-pilot-layout">
           <div className="full-analyst-pilot-summary">
@@ -551,7 +546,7 @@ export function AnalystDesk({
             <p className="desk-source-note">
               {copy(
                 language,
-                `Production canary 证据层级：${fullAnalystPilot?.evidenceLayer ?? "local checks + status artifact"}；不是正式验收、科学证明、业绩证明、交易信号或投资建议。`,
+                `生产金丝雀证据层级：${fullAnalystPilot?.evidenceLayer ?? "local checks + status artifact"}；不是正式验收、科学证明、业绩证明、交易信号或投资建议。`,
                 `Production canary evidence layer: ${fullAnalystPilot?.evidenceLayer ?? "local checks + status artifact"}; not formal acceptance, science proof, performance proof, a trading signal, or investment advice.`,
               )}
             </p>
@@ -562,7 +557,7 @@ export function AnalystDesk({
             ) : null}
             {fullAnalystPilot?.isMockAlaya ? (
               <p className="desk-source-note warning">
-                {copy(language, `Alaya 模式为 ${fullAnalystPilot.alayaMode}；这不是 real sync 证据。`, `Alaya mode is ${fullAnalystPilot.alayaMode}; this is not real sync evidence.`)}
+                {copy(language, `内部 Alaya 模式为 ${fullAnalystPilot.alayaMode}；这不是外部服务或真实同步验收证据。`, `Alaya mode is ${fullAnalystPilot.alayaMode}; this is not real sync evidence.`)}
               </p>
             ) : null}
             {fullAnalystPilotError ? (
@@ -578,118 +573,118 @@ export function AnalystDesk({
           </div>
           <div className="full-analyst-pilot-grid" aria-label={copy(language, "完整分析链路指标", "Full analyst pilot metrics")}>
             <div>
-              <span>{copy(language, "service / timer", "Service / timer")}</span>
-              <strong>{fullAnalystPilot ? `${fullAnalystPilot.candidateService ?? "not reported"} · ${fullAnalystPilot.candidateTimer ?? "not reported"}` : "n/a"}</strong>
+              <span>{fullAnalystLabelText(language, "service_timer")}</span>
+              <strong className="mono">{fullAnalystPilot ? `${fullAnalystPilot.candidateService ?? "not_reported"} · ${fullAnalystPilot.candidateTimer ?? "not_reported"}` : "n/a"}</strong>
             </div>
             <div>
-              <span>{copy(language, "timer state", "Timer state")}</span>
+              <span>{fullAnalystLabelText(language, "timer_state")}</span>
               <strong>
                 {fullAnalystMonitor
-                  ? `${fullAnalystMonitor.candidate.timerState} · ${fullAnalystMonitor.candidate.timerEnabled ? "enabled" : "disabled"} · next ${fullAnalystMonitor.candidate.nextRunAt ?? "n/a"}`
-                  : copy(language, "active/enabled/next run 未由 monitor 上报", "active/enabled/next run not reported by monitor")}
+                  ? `${runtimeStatusText(language, fullAnalystMonitor.candidate.timerState)} · ${fullAnalystMonitor.candidate.timerEnabled ? runtimeStatusText(language, "enabled") : runtimeStatusText(language, "disabled")} · ${copy(language, "下次运行", "next")} ${fullAnalystMonitor.candidate.nextRunAt ?? "n/a"}`
+                  : copy(language, "活跃状态、启用状态和下次运行未由监控上报", "active/enabled/next run not reported by monitor")}
               </strong>
             </div>
             <div>
-              <span>run_id</span>
-              <strong>{fullAnalystPilot?.runId ?? "pending"}</strong>
+              <span>{fullAnalystLabelText(language, "run_id")}</span>
+              <strong className="mono">{fullAnalystPilot?.runId ?? "pending"}</strong>
             </div>
             <div>
-              <span>{copy(language, "phase", "Phase")}</span>
-              <strong>{fullAnalystPilot?.phase ?? "n/a"}</strong>
+              <span>{fullAnalystLabelText(language, "phase")}</span>
+              <strong>{fullAnalystPilot?.phase ? fullAnalystStageText(language, fullAnalystPilot.phase) : "n/a"}</strong>
             </div>
             <div>
-              <span>{copy(language, "心跳", "Heartbeat")}</span>
+              <span>{fullAnalystLabelText(language, "heartbeat")}</span>
               <strong>{fullAnalystPilot?.lastHeartbeatUtc ? formatShanghaiTimestamp(fullAnalystPilot.lastHeartbeatUtc, locale) : "n/a"}</strong>
             </div>
             <div>
-              <span>{copy(language, "elapsed", "Elapsed")}</span>
-              <strong>{fullAnalystPilot ? `${Math.round(fullAnalystPilot.elapsedSeconds / 60)} min` : "n/a"}</strong>
+              <span>{fullAnalystLabelText(language, "elapsed")}</span>
+              <strong>{fullAnalystPilot ? (language === "zh" ? `${Math.round(fullAnalystPilot.elapsedSeconds / 60)} 分钟` : `${Math.round(fullAnalystPilot.elapsedSeconds / 60)} min`) : "n/a"}</strong>
             </div>
             <div>
-              <span>{copy(language, "cycle", "Cycle")}</span>
-              <strong>{fullAnalystPilot ? `${fullAnalystPilot.currentCycle} · success ${fullAnalystPilot.lastSuccessfulCycle}` : "n/a"}</strong>
+              <span>{fullAnalystLabelText(language, "cycle")}</span>
+              <strong>{fullAnalystPilot ? `${copy(language, "当前", "current")} ${fullAnalystPilot.currentCycle} · ${copy(language, "最近成功", "success")} ${fullAnalystPilot.lastSuccessfulCycle}` : "n/a"}</strong>
             </div>
             <div>
-              <span>{copy(language, "universe", "Universe")}</span>
+              <span>{fullAnalystLabelText(language, "universe")}</span>
               <strong>{compactSymbolSummary(fullAnalystPilot, language)}</strong>
             </div>
             <div>
-              <span>{copy(language, "exchange split", "Exchange split")}</span>
+              <span>{fullAnalystLabelText(language, "exchange_split")}</span>
               <strong>{fullAnalystPilot ? formatExchangeCounts(fullAnalystPilot.exchangeCounts, language) : "n/a"}</strong>
             </div>
             <div>
-              <span>{copy(language, "publish", "Publish")}</span>
+              <span>{fullAnalystLabelText(language, "publish")}</span>
               <strong>{fullAnalystPilot?.publishCount ?? "n/a"}/{fullAnalystPilot?.universeCount ?? "n/a"}</strong>
             </div>
             <div>
-              <span>review / blocked / gap</span>
+              <span>{fullAnalystLabelText(language, "review_blocked_gap")}</span>
               <strong>{fullAnalystPilot ? `${fullAnalystPilot.needsReviewCount} / ${fullAnalystPilot.blockedCount} / ${fullAnalystPilot.dataGapCount}` : "n/a"}</strong>
             </div>
             <div>
-              <span>Alaya sync</span>
-              <strong>{fullAnalystPilot ? `${fullAnalystPilot.alayaSyncedCount} synced · ${fullAnalystPilot.alayaFailedCount} failed · ${fullAnalystPilot.alayaMode ?? "n/a"}` : "n/a"}</strong>
+              <span>{fullAnalystLabelText(language, "alaya_sync")}</span>
+              <strong>{fullAnalystPilot ? `${fullAnalystPilot.alayaSyncedCount} ${copy(language, "已同步", "synced")} · ${fullAnalystPilot.alayaFailedCount} ${copy(language, "失败", "failed")} · ${fullAnalystPilot.alayaMode ?? "n/a"}` : "n/a"}</strong>
             </div>
             <div>
-              <span>Alaya readback</span>
-              <strong>{fullAnalystPilot ? `${fullAnalystPilot.alayaReadbackVerifiedCount} verified · ${fullAnalystPilot.alayaReadbackFailedCount} failed` : "n/a"}</strong>
+              <span>{fullAnalystLabelText(language, "alaya_readback")}</span>
+              <strong>{fullAnalystPilot ? `${fullAnalystPilot.alayaReadbackVerifiedCount} ${copy(language, "已验证", "verified")} · ${fullAnalystPilot.alayaReadbackFailedCount} ${copy(language, "失败", "failed")}` : "n/a"}</strong>
             </div>
             <div>
-              <span>{copy(language, "runner", "Runner")}</span>
-              <strong>{fullAnalystPilot ? `${fullAnalystPilot.llmRunner ?? "n/a"} · ${fullAnalystPilot.llmModel ?? "n/a"} · c=${fullAnalystPilot.maxConcurrency ?? "n/a"}` : "n/a"}</strong>
+              <span>{fullAnalystLabelText(language, "runner")}</span>
+              <strong className="mono">{fullAnalystPilot ? `${fullAnalystPilot.llmRunner ?? "n/a"} · ${fullAnalystPilot.llmModel ?? "n/a"} · c=${fullAnalystPilot.maxConcurrency ?? "n/a"}` : "n/a"}</strong>
             </div>
             <div>
-              <span>{copy(language, "status files", "Status files")}</span>
-              <strong>{fullAnalystPilot?.statusFile ?? "status_full_analyst_evening_hk.json"}</strong>
+              <span>{fullAnalystLabelText(language, "status_files")}</span>
+              <strong className="mono">{fullAnalystPilot?.statusFile ?? "status_full_analyst_evening_hk.json"}</strong>
             </div>
           </div>
         </div>
         <div className="full-analyst-monitor-grid" aria-label={copy(language, "monitor 健康检查", "Monitor health checks")}>
           <div>
-            <span>{copy(language, "overall health", "Overall health")}</span>
-            <strong>{fullAnalystMonitor ? `${fullAnalystMonitor.overallStatus} · ${fullAnalystMonitor.verdict}` : "n/a"}</strong>
+            <span>{fullAnalystLabelText(language, "overall_health")}</span>
+            <strong>{fullAnalystMonitor ? `${runtimeStatusText(language, fullAnalystMonitor.overallStatus)} · ${fullAnalystMonitor.verdict}` : "n/a"}</strong>
           </div>
           <div>
-            <span>{copy(language, "service state", "Service state")}</span>
+            <span>{fullAnalystLabelText(language, "service_state")}</span>
             <strong>
               {fullAnalystMonitor
-                ? `${fullAnalystMonitor.candidate.serviceState} · ${fullAnalystMonitor.candidate.serviceResult}`
+                ? `${runtimeStatusText(language, fullAnalystMonitor.candidate.serviceState)} · ${runtimeStatusText(language, fullAnalystMonitor.candidate.serviceResult)}`
                 : "n/a"}
             </strong>
           </div>
           <div>
-            <span>{copy(language, "heartbeat freshness", "Heartbeat freshness")}</span>
+            <span>{fullAnalystLabelText(language, "heartbeat_freshness")}</span>
             <strong>
               {fullAnalystMonitor
-                ? `${fullAnalystMonitor.checks.heartbeat ?? "unknown"} · age ${formatAgeSeconds(fullAnalystMonitor.latestRun.heartbeatAgeSeconds, language)}`
+                ? `${runtimeStatusText(language, fullAnalystMonitor.checks.heartbeat)} · ${copy(language, "年龄", "age")} ${formatAgeSeconds(fullAnalystMonitor.latestRun.heartbeatAgeSeconds, language)}`
                 : "n/a"}
             </strong>
           </div>
           <div>
-            <span>{copy(language, "artifact freshness", "Artifact freshness")}</span>
+            <span>{fullAnalystLabelText(language, "artifact_freshness")}</span>
             <strong>
               {fullAnalystMonitor
-                ? `${fullAnalystMonitor.checks.artifact ?? "unknown"} · age ${formatAgeSeconds(fullAnalystMonitor.latestRun.artifactAgeSeconds, language)}`
+                ? `${runtimeStatusText(language, fullAnalystMonitor.checks.artifact)} · ${copy(language, "年龄", "age")} ${formatAgeSeconds(fullAnalystMonitor.latestRun.artifactAgeSeconds, language)}`
                 : "n/a"}
             </strong>
           </div>
           <div>
-            <span>{copy(language, "public scan", "Public scan")}</span>
-            <strong>{fullAnalystMonitor?.checks.public_scan ?? fullAnalystPilot?.publicScanStatus ?? "n/a"}</strong>
+            <span>{fullAnalystLabelText(language, "public_scan")}</span>
+            <strong>{runtimeStatusText(language, fullAnalystMonitor?.checks.public_scan ?? fullAnalystPilot?.publicScanStatus ?? "unknown")}</strong>
           </div>
           <div>
-            <span>Alaya readback</span>
-            <strong>{fullAnalystMonitor?.checks.alaya_readback ?? fullAnalystPilot?.alayaReadbackStatus ?? "n/a"}</strong>
+            <span>{fullAnalystLabelText(language, "alaya_readback")}</span>
+            <strong>{runtimeStatusText(language, fullAnalystMonitor?.checks.alaya_readback ?? fullAnalystPilot?.alayaReadbackStatus ?? "unknown")}</strong>
           </div>
           <div>
-            <span>{copy(language, "latest run", "Latest run")}</span>
-            <strong>{fullAnalystMonitor?.latestRun.runId ?? fullAnalystPilot?.runId ?? "pending"}</strong>
+            <span>{fullAnalystLabelText(language, "latest_run")}</span>
+            <strong className="mono">{fullAnalystMonitor?.latestRun.runId ?? fullAnalystPilot?.runId ?? "pending"}</strong>
           </div>
           <div>
-            <span>{copy(language, "rollback mode", "Rollback mode")}</span>
+            <span>{fullAnalystLabelText(language, "rollback_mode")}</span>
             <strong>
               {fullAnalystMonitor
-                ? `${fullAnalystMonitor.rollback.mode} · candidate_only=${fullAnalystMonitor.rollback.candidateOnly ? "true" : "false"}`
-                : "manual_ssh_runbook"}
+                ? `${runtimeStatusText(language, fullAnalystMonitor.rollback.mode)} · ${copy(language, "仅候选服务", "candidate_only")}=${fullAnalystMonitor.rollback.candidateOnly ? "true" : "false"}`
+                : runtimeStatusText(language, "manual_ssh_runbook")}
             </strong>
           </div>
         </div>
@@ -697,7 +692,7 @@ export function AnalystDesk({
           <div className="full-analyst-stage-strip" aria-label={copy(language, "monitor status taxonomy", "Monitor status taxonomy")}>
             {fullAnalystMonitor.statusCodes.map((code) => (
               <span key={code}>
-                status <strong>{code}</strong>
+                {copy(language, "状态", "status")} <strong>{runtimeStatusText(language, code)}</strong>
               </span>
             ))}
           </div>
@@ -706,11 +701,11 @@ export function AnalystDesk({
           {Object.entries(fullAnalystPilot?.stageStatuses ?? {}).length > 0 ? (
             Object.entries(fullAnalystPilot?.stageStatuses ?? {}).map(([stage, value]) => (
               <span key={stage}>
-                {formatStageLabel(stage, language)} <strong>{value}</strong>
+                {formatStageLabel(stage, language)} <strong>{runtimeStatusText(language, value)}</strong>
               </span>
             ))
           ) : (
-            <span>{copy(language, "stage_statuses 未由 public status 上报", "stage_statuses not reported by public status")}</span>
+            <span>{copy(language, "阶段状态未由公开状态上报", "stage_statuses not reported by public status")}</span>
           )}
         </div>
         {fullAnalystPilot?.rollbackHint ? (
@@ -719,7 +714,7 @@ export function AnalystDesk({
           </p>
         ) : (
           <p className="desk-source-note">
-            {copy(language, "回滚：disable candidate timer/service，或将 max_concurrency 降到 1。", "Rollback: disable the candidate timer/service, or lower max_concurrency to 1.")}
+            {copy(language, "回滚：停用候选定时器/服务，或将 max_concurrency 降到 1。", "Rollback: disable the candidate timer/service, or lower max_concurrency to 1.")}
           </p>
         )}
         {fullAnalystPilot?.issues.length ? (
@@ -741,7 +736,7 @@ export function AnalystDesk({
           </a>
           {fullAnalystMonitor?.links.rollbackRunbook ? (
             <a href={fullAnalystMonitor.links.rollbackRunbook} target="_blank" rel="noreferrer">
-              {copy(language, "rollback runbook", "rollback runbook")}
+              {fullAnalystLabelText(language, "rollback_runbook")}
             </a>
           ) : null}
         </div>
