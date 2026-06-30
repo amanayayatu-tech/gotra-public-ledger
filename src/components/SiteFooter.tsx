@@ -15,18 +15,18 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
   const siteMapGroups = [
     {
       label: copy(language, "账本", "Ledger"),
-      note: copy(language, "表现跟踪不是业绩证明或收益承诺。", "Performance tracking is not performance proof or a return promise."),
+      note: copy(language, "账本为冻结演示；表现页暂无生产表现。", "Ledger is a frozen demo; performance has no production tracking yet."),
       links: [
-        { href: routeHref("/ledger"), label: copy(language, "公开账本", "Public ledger") },
-        { href: routeHref("/performance"), label: copy(language, "表现跟踪", "Performance tracking") },
+        { href: routeHref("/ledger"), label: copy(language, "冻结演示账本", "Frozen demo ledger") },
+        { href: routeHref("/performance"), label: copy(language, "表现跟踪（暂无生产）", "Performance tracking (no production yet)") },
       ],
     },
     {
       label: copy(language, "报告", "Reports"),
-      note: copy(language, "报告不是投资建议或交易信号。", "Reports are not investment advice or trading signals."),
+      note: copy(language, "每日报告是生产公开产物；不是投资建议或交易信号。", "Daily reports are production public artifacts; not advice or trading signals."),
       links: [
         { href: routeHref("/reports"), label: copy(language, "每日报告", "Daily reports") },
-        { href: routeHref("/notes"), label: copy(language, "简报复盘", "Notes & reviews") },
+        { href: routeHref("/notes"), label: copy(language, "简报复盘（含最新报告）", "Notes & reviews (latest reports)") },
       ],
     },
     {
@@ -48,7 +48,7 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
         </span>
         <h2 id="footer-title">{copy(language, "GOTRA Public Ledger 公开研究过程，也公开错误。", "GOTRA Public Ledger shows the research process and the errors.")}</h2>
         <p>
-          {copy(language, "当前展示的是公开安全的冻结演示快照。它是产品与研究流程展示，不是交易信号、投资建议、科学证明或业绩证明。", "The current surface is a public-safe frozen demo snapshot. It is product and research-process evidence, not a trading signal, investment advice, scientific proof, or performance proof.")}
+          {copy(language, "每日报告为生产公开产物；账本与表现页包含冻结 demo/fixture，均不构成投资建议、交易信号、科学证明或业绩证明。", "Daily reports are production public artifacts; ledger and performance pages contain frozen demo/fixture material, and none of them are investment advice, trading signals, scientific proof, or performance proof.")}
         </p>
       </div>
       <nav className="footer-site-map" aria-label={copy(language, "站点地图", "Site map")}>
