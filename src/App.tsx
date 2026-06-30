@@ -20,8 +20,10 @@ import { DailyDeskSnapshot, type DailyDeskSnapshotState } from "./components/rep
 import {
   REPORT_SCHEDULES,
   buildReportDeskArtifacts,
+  normalizeFullAnalystMonitorStatus,
   normalizeFullAnalystPilotStatus,
   normalizeReportStatus,
+  type FullAnalystMonitorStatus,
   type FullAnalystPilotStatus,
   type NormalizedReportStatus,
   type ReportDeskArtifacts,
@@ -72,6 +74,8 @@ type ReportDeskLoadState =
       kind: "ready";
       lastFetchedAt: string;
       marketStatuses: ReportStatusFileResult[];
+      fullAnalystMonitor: FullAnalystMonitorStatus | null;
+      fullAnalystMonitorError: string | null;
       fullAnalystPilot: FullAnalystPilotStatus | null;
       fullAnalystPilotError: string | null;
     } & ReportDeskArtifacts);
@@ -1480,15 +1484,17 @@ function ReportsPage({ language }: { language: Language }) {
   const loadReports = useCallback(async () => {
     const statusUrl = reportAssetPath("status.json");
     const markdownUrl = reportAssetPath("latest.md");
-    const fullAnalystStatusUrl = reportAssetPath("status_full_analyst_loop.json");
+    const fullAnalystStatusUrl = reportAssetPath("status_full_analyst_evening_hk.json");
+    const fullAnalystMonitorUrl = reportAssetPath("status_full_analyst_monitor.json");
     setIsRefreshing(true);
 
     try {
-      const [statusResult, markdownResult, marketStatusResult, fullAnalystStatusResult] = await Promise.allSettled([
+      const [statusResult, markdownResult, marketStatusResult, fullAnalystStatusResult, fullAnalystMonitorResult] = await Promise.allSettled([
         fetchJson<ReportRawStatus>(statusUrl),
         fetchText(markdownUrl),
         fetchMarketReportStatuses(),
         fetchJson<ReportRawStatus>(fullAnalystStatusUrl),
+        fetchJson<ReportRawStatus>(fullAnalystMonitorUrl),
       ]);
       setLoadState({
         kind: "ready",
@@ -1501,11 +1507,21 @@ function ReportsPage({ language }: { language: Language }) {
           fullAnalystStatusResult.status === "fulfilled"
             ? normalizeFullAnalystPilotStatus(fullAnalystStatusResult.value)
             : null,
+        fullAnalystMonitor:
+          fullAnalystMonitorResult.status === "fulfilled"
+            ? normalizeFullAnalystMonitorStatus(fullAnalystMonitorResult.value)
+            : null,
         fullAnalystPilotError:
           fullAnalystStatusResult.status === "rejected"
             ? fullAnalystStatusResult.reason instanceof Error
               ? fullAnalystStatusResult.reason.message
               : String(fullAnalystStatusResult.reason)
+            : null,
+        fullAnalystMonitorError:
+          fullAnalystMonitorResult.status === "rejected"
+            ? fullAnalystMonitorResult.reason instanceof Error
+              ? fullAnalystMonitorResult.reason.message
+              : String(fullAnalystMonitorResult.reason)
             : null,
         lastFetchedAt: new Date().toISOString(),
       });
@@ -1526,6 +1542,8 @@ function ReportsPage({ language }: { language: Language }) {
           markdown: loadState.markdown,
           markdownError: loadState.markdownError,
           marketStatuses: loadState.marketStatuses,
+          fullAnalystMonitor: loadState.fullAnalystMonitor,
+          fullAnalystMonitorError: loadState.fullAnalystMonitorError,
           fullAnalystPilot: loadState.fullAnalystPilot,
           fullAnalystPilotError: loadState.fullAnalystPilotError,
           lastFetchedAt: loadState.lastFetchedAt,
@@ -1536,6 +1554,8 @@ function ReportsPage({ language }: { language: Language }) {
           markdown: null,
           markdownError: null,
           marketStatuses: marketStatusFallbacks(null),
+          fullAnalystMonitor: null,
+          fullAnalystMonitorError: null,
           fullAnalystPilot: null,
           fullAnalystPilotError: null,
           lastFetchedAt: null,

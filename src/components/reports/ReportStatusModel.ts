@@ -102,6 +102,9 @@ export type FullAnalystPilotStatus = {
   tradingDate: string | null;
   sampleSymbols: string[];
   universeCount: number;
+  symbolCount: number;
+  exchangeCounts: Record<string, number>;
+  symbolHash: string | null;
   successCount: number;
   failedCount: number;
   publishCount: number;
@@ -120,7 +123,12 @@ export type FullAnalystPilotStatus = {
   limitations: string[];
   llmRunner: string | null;
   llmModel: string | null;
+  maxConcurrency: number | null;
   alayaMode: string | null;
+  candidateService: string | null;
+  candidateTimer: string | null;
+  rollbackHint: string | null;
+  stageStatuses: Record<string, string>;
   providerModelIoEmbedded: boolean;
   exitStatus: number | null;
   reportFile: string | null;
@@ -138,6 +146,52 @@ export type FullAnalystPilotStatus = {
   statusLabel: "Running" | "Stale" | "Completed" | "Review items" | "Blocked" | "Artifact write failed" | "Artifact unavailable";
   headline: string;
   issues: FullAnalystPilotIssue[];
+};
+
+export type FullAnalystMonitorStatus = {
+  overallStatus: string;
+  verdict: string;
+  generatedAt: string | null;
+  statusTone: ReportTone;
+  statusLabel: "Healthy" | "Degraded" | "Failed" | "Unknown";
+  statusCodes: string[];
+  candidate: {
+    timer: string;
+    service: string;
+    timerActive: boolean;
+    timerEnabled: boolean;
+    timerState: string;
+    serviceState: string;
+    serviceResult: string;
+    lastRunAt: string | null;
+    nextRunAt: string | null;
+    rollbackMode: string;
+  };
+  latestRun: {
+    runId: string | null;
+    status: string;
+    heartbeatAt: string | null;
+    heartbeatAgeSeconds: number | null;
+    heartbeatStale: boolean;
+    artifactUpdatedAt: string | null;
+    artifactAgeSeconds: number | null;
+    artifactStale: boolean;
+  };
+  checks: Record<string, string>;
+  links: {
+    statusJson: string;
+    reportMarkdown: string;
+    rollbackRunbook: string | null;
+  };
+  rollback: {
+    mode: string;
+    runbookPath: string | null;
+    runbookUrl: string | null;
+    candidateOnly: boolean;
+    affectsDailyTimers: boolean;
+    deletesHistoricalReports: boolean;
+  };
+  limitations: string[];
 };
 
 const SHANGHAI_TIME_ZONE = "Asia/Shanghai";
@@ -252,6 +306,32 @@ function stringArray(value: unknown): string[] {
     return [];
   }
   return value.map((item) => (typeof item === "string" ? item.trim() : "")).filter(Boolean);
+}
+
+function booleanValue(value: unknown, fallback = false): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function numberRecord(value: unknown): Record<string, number> {
+  if (!isRecord(value)) {
+    return {};
+  }
+  return Object.fromEntries(
+    Object.entries(value)
+      .map(([key, raw]) => [key, numberValue(raw, 0)] as const)
+      .filter(([, count]) => Number.isFinite(count)),
+  );
+}
+
+function stringRecord(value: unknown): Record<string, string> {
+  if (!isRecord(value)) {
+    return {};
+  }
+  return Object.fromEntries(
+    Object.entries(value)
+      .map(([key, raw]) => [key, optionalString(raw)])
+      .filter((entry): entry is [string, string] => Boolean(entry[1])),
+  );
 }
 
 function coveragePct(success: number, universe: number): number | null {
@@ -550,6 +630,65 @@ function normalizeFullAnalystIssues(raw: ReportRawStatus): FullAnalystPilotIssue
   return issues;
 }
 
+export function normalizeFullAnalystMonitorStatus(raw: ReportRawStatus): FullAnalystMonitorStatus {
+  const candidate = isRecord(raw.candidate) ? raw.candidate : {};
+  const latestRun = isRecord(raw.latest_run) ? raw.latest_run : {};
+  const links = isRecord(raw.links) ? raw.links : {};
+  const rollback = isRecord(raw.rollback) ? raw.rollback : {};
+  const overallStatus = stringValue(raw.overall_status, "unknown");
+  const normalizedOverall = overallStatus.toLowerCase();
+  const statusTone: ReportTone =
+    normalizedOverall === "healthy" ? "good" : normalizedOverall === "degraded" ? "warning" : normalizedOverall === "failed" ? "critical" : "neutral";
+  const statusLabel: FullAnalystMonitorStatus["statusLabel"] =
+    normalizedOverall === "healthy" ? "Healthy" : normalizedOverall === "degraded" ? "Degraded" : normalizedOverall === "failed" ? "Failed" : "Unknown";
+
+  return {
+    overallStatus,
+    verdict: stringValue(raw.verdict, "PRODUCTION_CANARY_MONITOR_UNKNOWN"),
+    generatedAt: optionalString(raw.generated_at),
+    statusTone,
+    statusLabel,
+    statusCodes: stringArray(raw.status_codes),
+    candidate: {
+      timer: stringValue(candidate.timer, "gotra-full-analyst-evening-hk-candidate.timer"),
+      service: stringValue(candidate.service, "gotra-full-analyst-evening-hk-candidate.service"),
+      timerActive: booleanValue(candidate.timer_active),
+      timerEnabled: booleanValue(candidate.timer_enabled),
+      timerState: stringValue(candidate.timer_state, "unknown"),
+      serviceState: stringValue(candidate.service_state, "unknown"),
+      serviceResult: stringValue(candidate.service_result, "unknown"),
+      lastRunAt: optionalString(candidate.last_run_at),
+      nextRunAt: optionalString(candidate.next_run_at),
+      rollbackMode: stringValue(candidate.rollback_mode, stringValue(rollback.mode, "manual_ssh_runbook")),
+    },
+    latestRun: {
+      runId: optionalString(latestRun.run_id),
+      status: stringValue(latestRun.status, "unknown"),
+      heartbeatAt: optionalString(latestRun.heartbeat_at),
+      heartbeatAgeSeconds: nullableNumber(latestRun.heartbeat_age_seconds),
+      heartbeatStale: booleanValue(latestRun.heartbeat_stale),
+      artifactUpdatedAt: optionalString(latestRun.artifact_updated_at),
+      artifactAgeSeconds: nullableNumber(latestRun.artifact_age_seconds),
+      artifactStale: booleanValue(latestRun.artifact_stale),
+    },
+    checks: stringRecord(raw.checks),
+    links: {
+      statusJson: stringValue(links.status_json, "/reports/status_full_analyst_evening_hk.json"),
+      reportMarkdown: stringValue(links.report_markdown, "/reports/full_analyst_evening_hk_YYYY-MM-DD.md"),
+      rollbackRunbook: optionalString(links.rollback_runbook),
+    },
+    rollback: {
+      mode: stringValue(rollback.mode, "manual_ssh_runbook"),
+      runbookPath: optionalString(rollback.runbook_path),
+      runbookUrl: optionalString(rollback.runbook_url),
+      candidateOnly: booleanValue(rollback.candidate_only, true),
+      affectsDailyTimers: booleanValue(rollback.affects_daily_timers),
+      deletesHistoricalReports: booleanValue(rollback.deletes_historical_reports),
+    },
+    limitations: stringArray(raw.limitations).length > 0 ? stringArray(raw.limitations) : DEFAULT_BOUNDARY,
+  };
+}
+
 export function normalizeFullAnalystPilotStatus(raw: ReportRawStatus, options: { now?: Date } = {}): FullAnalystPilotStatus {
   const now = options.now ?? new Date();
   const failedCount = numberValue(raw.failed_count, 0);
@@ -592,10 +731,11 @@ export function normalizeFullAnalystPilotStatus(raw: ReportRawStatus, options: {
               ? "Completed"
               : "Artifact unavailable";
   const universeCount = numberValue(raw.universe_count, 0);
+  const symbolCount = numberValue(raw.symbol_count, universeCount);
   const publishCount = numberValue(raw.publish_count, 0);
   const alayaSyncedCount = numberValue(raw.alaya_synced_count, 0);
   const alayaMode = optionalString(raw.alaya_mode);
-  const latestPublicReportFile = stringValue(raw.latest_public_report_file ?? raw.report_file, "full_analyst_loop_latest.md");
+  const latestPublicReportFile = stringValue(raw.latest_public_report_file ?? raw.report_file, "full_analyst_evening_hk_latest.md");
 
   return {
     ok: raw.ok === true,
@@ -610,6 +750,9 @@ export function normalizeFullAnalystPilotStatus(raw: ReportRawStatus, options: {
     tradingDate: optionalString(raw.trading_date),
     sampleSymbols: stringArray(raw.sample_symbols),
     universeCount,
+    symbolCount,
+    exchangeCounts: numberRecord(raw.exchange_counts),
+    symbolHash: optionalString(raw.symbol_hash),
     successCount: numberValue(raw.success_count, 0),
     failedCount,
     publishCount,
@@ -628,12 +771,17 @@ export function normalizeFullAnalystPilotStatus(raw: ReportRawStatus, options: {
     limitations: stringArray(raw.limitations),
     llmRunner: optionalString(raw.llm_runner),
     llmModel: optionalString(raw.llm_model),
+    maxConcurrency: nullableNumber(raw.max_concurrency),
     alayaMode,
+    candidateService: optionalString(raw.candidate_service),
+    candidateTimer: optionalString(raw.candidate_timer),
+    rollbackHint: optionalString(raw.rollback_hint),
+    stageStatuses: stringRecord(raw.stage_statuses),
     providerModelIoEmbedded: raw.provider_model_io_embedded === true,
     exitStatus: nullableNumber(raw.exit_status),
     reportFile: optionalString(raw.report_file) ?? latestPublicReportFile,
     latestPublicReportFile,
-    statusFile: stringValue(raw.status_file, "status_full_analyst_loop.json"),
+    statusFile: stringValue(raw.status_file, "status_full_analyst_evening_hk.json"),
     startedAtUtc: optionalString(raw.started_at_utc),
     finishedAtUtc: optionalString(raw.finished_at_utc),
     lastHeartbeatUtc,
@@ -646,18 +794,18 @@ export function normalizeFullAnalystPilotStatus(raw: ReportRawStatus, options: {
     statusLabel,
     headline:
       statusLabel === "Running"
-        ? `Full analyst loop is running in ${stringValue(raw.phase, "unknown")} phase; last successful cycle ${numberValue(raw.last_successful_cycle, 0)}.`
+        ? `Full analyst canary is running in ${stringValue(raw.phase, "unknown")} phase; last successful cycle ${numberValue(raw.last_successful_cycle, 0)}.`
         : statusLabel === "Stale"
-          ? "Full analyst loop heartbeat is stale; do not treat it as a healthy running state."
+          ? "Full analyst canary heartbeat is stale; do not treat it as a healthy running state."
           : statusLabel === "Completed"
-            ? `Full analyst loop completed for ${publishCount}/${universeCount} sample symbols with ${alayaSyncedCount} Alaya sync events.`
+            ? `Full analyst canary completed for ${publishCount}/${universeCount} symbols with ${alayaSyncedCount} Alaya sync events.`
         : statusLabel === "Review items"
-          ? `Full analyst loop artifact was written with ${needsReviewCount} review item${needsReviewCount === 1 ? "" : "s"} and ${dataGapCount} data gap${dataGapCount === 1 ? "" : "s"}.`
+          ? `Full analyst canary artifact was written with ${needsReviewCount} review item${needsReviewCount === 1 ? "" : "s"} and ${dataGapCount} data gap${dataGapCount === 1 ? "" : "s"}.`
           : statusLabel === "Artifact write failed"
-            ? "Full analyst loop artifact write failed; review runtime ownership."
+            ? "Full analyst canary artifact write failed; review runtime ownership."
             : statusLabel === "Blocked"
-              ? `Full analyst loop blocked: ${blockedCount} blocked, ${failedCount} failed, ${alayaFailedCount} Alaya sync failures, ${alayaReadbackFailedCount} readback failures.`
-              : "Full analyst loop status artifact is unavailable.",
+              ? `Full analyst canary blocked: ${blockedCount} blocked, ${failedCount} failed, ${alayaFailedCount} Alaya sync failures, ${alayaReadbackFailedCount} readback failures.`
+              : "Full analyst canary status artifact is unavailable.",
     issues: normalizeFullAnalystIssues(raw),
   };
 }
