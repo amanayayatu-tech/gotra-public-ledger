@@ -170,7 +170,6 @@ function MiniProofCard({ records, language }: { records: RecordView[]; language:
 export function Hero({ dataset, metrics, records, language }: HeroProps) {
   const openMistakes = getOpenMistakeCount(records);
   const largestErrorRecord = getLargestErrorRecord(records);
-  const latestNoteSlug = "weekly-ledger-update-2026-06-25";
   const heroAsset = `${import.meta.env.BASE_URL}images/p9-commercial-ux/research-ledger-system.svg`;
 
   return (
@@ -213,21 +212,21 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
             <p>{copy(language, "不是交易信号、实时交易或业绩证明。", "Not a trading signal, live trading, or performance proof.")}</p>
           </article>
           <article>
-            <span>{copy(language, "最新简报", "Latest note")}</span>
-            <strong>{copy(language, "晨间观察队列", "Morning watch queue")}</strong>
+            <span>{copy(language, "最新生产日报", "Latest production reports")}</span>
+            <strong>{copy(language, "2026-06-30 live reports", "2026-06-30 live reports")}</strong>
             <p>
-              <a href={`#/notes/${latestNoteSlug}`}>{copy(language, "阅读最新简报", "Read latest note")}</a>
+              <a href="#/notes">{copy(language, "打开最新生产简报", "Open latest production briefs")}</a>
             </p>
           </article>
           <article>
             <span>{copy(language, "快照日期", "Snapshot date")}</span>
             <strong>{dataset.metadata.snapshot_date}</strong>
-            <p>{copy(language, "与最新简报、最新已结算记录分开定义。", "Distinct from latest note and latest resolved record.")}</p>
+            <p>{copy(language, "这是 demo 账本快照日期；生产日报日期在报告卡中显示。", "This is the demo ledger snapshot date; production report dates appear in report cards.")}</p>
           </article>
         </div>
         <div className="hero-actions" aria-label="Page shortcuts">
-          <a className="primary-action" href="#full-ledger" onClick={() => reportCtaClick("full-ledger")}>
-            {copy(language, "浏览公开账本", "Browse ledger")}
+          <a className="primary-action" href="#/ledger" onClick={() => reportCtaClick("full-ledger")}>
+            {copy(language, "浏览冻结演示账本", "Browse frozen demo ledger")}
             <ArrowDown aria-hidden="true" size={16} />
           </a>
           <a className="secondary-action" href="#method-boundary">
