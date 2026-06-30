@@ -3109,6 +3109,12 @@ h1 {
   min-width: 0;
 }
 
+.full-analyst-status-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .full-analyst-pilot-summary p {
   margin: 0;
   color: var(--muted);
@@ -3150,6 +3156,40 @@ h1 {
   line-height: 1.25;
 }
 
+.full-analyst-monitor-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.full-analyst-monitor-grid div {
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid rgba(94, 116, 132, 0.58);
+  border-radius: 6px;
+  background: rgba(12, 22, 30, 0.72);
+}
+
+.full-analyst-monitor-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.full-analyst-monitor-grid strong {
+  display: block;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
 .full-analyst-pilot-issues {
   display: flex;
   flex-wrap: wrap;
@@ -3167,6 +3207,31 @@ h1 {
   font-size: 12px;
   font-weight: 800;
   overflow-wrap: anywhere;
+}
+
+.full-analyst-stage-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.full-analyst-stage-strip span {
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid rgba(94, 116, 132, 0.62);
+  border-radius: 6px;
+  background: rgba(13, 28, 39, 0.74);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.full-analyst-stage-strip strong {
+  margin-left: 4px;
+  color: var(--text);
+  font-weight: 950;
 }
 
 .public-artifact-links.compact a {
@@ -6138,6 +6203,7 @@ h1::after {
   }
 
   .desk-market-status-grid,
+  .full-analyst-monitor-grid,
   .full-analyst-pilot-grid,
   .daily-market-report-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -6235,6 +6301,7 @@ h1::after {
   .desk-meta-grid,
   .desk-kpi-matrix,
   .desk-market-status-grid,
+  .full-analyst-monitor-grid,
   .full-analyst-pilot-grid,
   .daily-market-report-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -6276,6 +6343,7 @@ h1::after {
   .desk-meta-grid,
   .desk-kpi-matrix,
   .desk-market-status-grid,
+  .full-analyst-monitor-grid,
   .full-analyst-pilot-grid,
   .daily-market-report-grid {
     grid-template-columns: 1fr;

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   REPORT_SCHEDULES,
   buildReportDeskArtifacts,
+  normalizeFullAnalystMonitorStatus,
   normalizeFullAnalystPilotStatus,
   normalizeReportStatus,
   type ReportRawStatus,
@@ -245,6 +246,9 @@ describe("normalizeFullAnalystPilotStatus", () => {
       trading_date: "2026-06-29",
       sample_symbols: ["HKEX:0700", "HKEX:1810", "HKEX:9688", "HKEX:9969", "HKEX:0501"],
       universe_count: 5,
+      symbol_count: 5,
+      exchange_counts: { HKEX: 5 },
+      symbol_hash: "abc123def456",
       success_count: 5,
       failed_count: 0,
       publish_count: 5,
@@ -263,7 +267,21 @@ describe("normalizeFullAnalystPilotStatus", () => {
       limitations: ["not 10h evidence", "not formal acceptance", "not a trading signal"],
       llm_runner: "fixture",
       llm_model: "fixture",
+      max_concurrency: 3,
       alaya_mode: "mock",
+      candidate_service: "gotra-full-analyst-evening-hk-candidate.service",
+      candidate_timer: "gotra-full-analyst-evening-hk-candidate.timer",
+      rollback_hint: "disable candidate timer/service",
+      stage_statuses: {
+        data_fetch: "ok",
+        llm_analyst: "ok",
+        judge_gate: "ok",
+        alaya_sync: "ok",
+        alaya_readback: "not_applicable",
+        public_safety_scan: "ok",
+        artifact_write: "ok",
+        public_publish: "published",
+      },
       provider_model_io_embedded: false,
       exit_status: 0,
       report_file: "full_analyst_loop_latest.md",
@@ -286,6 +304,14 @@ describe("normalizeFullAnalystPilotStatus", () => {
     expect(status.statusTone).toBe("good");
     expect(status.publishCount).toBe(5);
     expect(status.alayaSyncedCount).toBe(5);
+    expect(status.symbolCount).toBe(5);
+    expect(status.exchangeCounts).toEqual({ HKEX: 5 });
+    expect(status.symbolHash).toBe("abc123def456");
+    expect(status.maxConcurrency).toBe(3);
+    expect(status.candidateService).toBe("gotra-full-analyst-evening-hk-candidate.service");
+    expect(status.candidateTimer).toBe("gotra-full-analyst-evening-hk-candidate.timer");
+    expect(status.rollbackHint).toBe("disable candidate timer/service");
+    expect(status.stageStatuses.judge_gate).toBe("ok");
     expect(status.evidenceLayer).toContain("one-shot runtime smoke");
     expect(status.providerModelIoEmbedded).toBe(false);
     expect(status.statusFile).toBe("status_full_analyst_loop.json");
@@ -399,5 +425,101 @@ describe("normalizeFullAnalystPilotStatus", () => {
     expect(mockStatus.alayaMode).toBe("mock");
     expect(realStatus.isMockAlaya).toBe(false);
     expect(realStatus.alayaReadbackVerifiedCount).toBe(5);
+  });
+});
+
+describe("normalizeFullAnalystMonitorStatus", () => {
+  function monitorStatus(overrides: ReportRawStatus = {}): ReportRawStatus {
+    return {
+      schema: "gotra.full_analyst.candidate_monitor.v1",
+      generated_at: "2026-06-30T08:15:00Z",
+      overall_status: "degraded",
+      verdict: "PRODUCTION_CANARY_MONITOR_DEGRADED",
+      candidate: {
+        timer: "gotra-full-analyst-evening-hk-candidate.timer",
+        service: "gotra-full-analyst-evening-hk-candidate.service",
+        timer_active: true,
+        timer_enabled: true,
+        timer_state: "active",
+        service_state: "activating",
+        service_result: "success",
+        last_run_at: "Tue 2026-06-30 15:25:55 CST",
+        next_run_at: "Tue 2026-06-30 19:30:00 CST",
+        rollback_mode: "manual_ssh_runbook",
+      },
+      latest_run: {
+        run_id: "full_analyst_evening_hk_candidate_20260630T152555+0800",
+        status: "running",
+        heartbeat_at: "2026-06-30T08:04:45Z",
+        heartbeat_age_seconds: 615,
+        heartbeat_stale: true,
+        artifact_updated_at: "2026-06-30T08:00:00Z",
+        artifact_age_seconds: 900,
+        artifact_stale: false,
+      },
+      checks: {
+        timer: "ok",
+        service: "ok",
+        heartbeat: "stale",
+        artifact: "ok",
+        public_scan: "ok",
+        alaya_readback: "ok",
+      },
+      status_codes: ["running", "heartbeat_stale"],
+      links: {
+        status_json: "/reports/status_full_analyst_evening_hk.json",
+        report_markdown: "/reports/full_analyst_evening_hk_2026-06-30.md",
+        rollback_runbook: "https://github.com/amanayayatu-tech/gotra/blob/main/ops/runbooks/full_analyst_candidate_rollback.md",
+      },
+      rollback: {
+        mode: "manual_ssh_runbook",
+        runbook_path: "ops/runbooks/full_analyst_candidate_rollback.md",
+        runbook_url: "https://github.com/amanayayatu-tech/gotra/blob/main/ops/runbooks/full_analyst_candidate_rollback.md",
+        candidate_only: true,
+        affects_daily_timers: false,
+        deletes_historical_reports: false,
+      },
+      limitations: ["production canary", "not investment advice", "not trading signal"],
+      ...overrides,
+    };
+  }
+
+  it("normalizes public-safe monitor health and rollback metadata", () => {
+    const status = normalizeFullAnalystMonitorStatus(monitorStatus());
+
+    expect(status.statusLabel).toBe("Degraded");
+    expect(status.statusTone).toBe("warning");
+    expect(status.candidate.timerActive).toBe(true);
+    expect(status.candidate.timerEnabled).toBe(true);
+    expect(status.latestRun.heartbeatStale).toBe(true);
+    expect(status.checks.public_scan).toBe("ok");
+    expect(status.statusCodes).toContain("heartbeat_stale");
+    expect(status.rollback.mode).toBe("manual_ssh_runbook");
+    expect(status.rollback.candidateOnly).toBe(true);
+    expect(status.rollback.affectsDailyTimers).toBe(false);
+    expect(status.links.statusJson).toBe("/reports/status_full_analyst_evening_hk.json");
+  });
+
+  it("marks failed monitor status as critical without hiding public scan failures", () => {
+    const status = normalizeFullAnalystMonitorStatus(
+      monitorStatus({
+        overall_status: "failed",
+        verdict: "PRODUCTION_CANARY_MONITOR_FAILED",
+        checks: {
+          timer: "ok",
+          service: "ok",
+          heartbeat: "ok",
+          artifact: "ok",
+          public_scan: "fail",
+          alaya_readback: "ok",
+        },
+        status_codes: ["running", "public_scan_failed"],
+      }),
+    );
+
+    expect(status.statusLabel).toBe("Failed");
+    expect(status.statusTone).toBe("critical");
+    expect(status.checks.public_scan).toBe("fail");
+    expect(status.statusCodes).toContain("public_scan_failed");
   });
 });
