@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 const appSource = fs.readFileSync(path.join(process.cwd(), "src/App.tsx"), "utf8");
 const seoHeadSource = fs.readFileSync(path.join(process.cwd(), "src/components/SeoHead.tsx"), "utf8");
 const siteHeaderSource = fs.readFileSync(path.join(process.cwd(), "src/components/SiteHeader.tsx"), "utf8");
+const boundaryPanelSource = fs.readFileSync(path.join(process.cwd(), "src/components/BoundaryPanel.tsx"), "utf8");
+const termTipSource = fs.readFileSync(path.join(process.cwd(), "src/components/TermTip.tsx"), "utf8");
 const geoGeneratorSource = fs.readFileSync(path.join(process.cwd(), "scripts/generate-geo-pages.mjs"), "utf8");
 const geoSmokeSource = fs.readFileSync(path.join(process.cwd(), "scripts/geo-smoke.mjs"), "utf8");
 const stylesSource = fs.readFileSync(path.join(process.cwd(), "src/styles.css"), "utf8");
@@ -92,6 +94,16 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("暂无生产表现跟踪");
     expect(appSource).toContain("演示夹具样本");
     expect(appSource).toContain("未来日期样本");
+  });
+
+  it("keeps methodology boundary copy bilingual instead of fixed Chinese", () => {
+    expect(appSource).toContain("<BoundaryPanel metadata={dataset.metadata} language={language} />");
+    expect(boundaryPanelSource).toContain("language: Language");
+    expect(boundaryPanelSource).toContain("The limits are stated up front");
+    expect(boundaryPanelSource).toContain("These are public-safe demo readings, not OOS validation.");
+    expect(boundaryPanelSource).toContain("Full claim-boundary labels come from the current metadata:");
+    expect(termTipSource).toContain("englishLabelMap");
+    expect(termTipSource).toContain("Expected change %");
   });
 
   it("separates live production artifacts from static demo/archive artifacts on sources", () => {
