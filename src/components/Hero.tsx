@@ -212,10 +212,10 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
             <p>{copy(language, "不是交易信号、实时交易或业绩证明。", "Not a trading signal, live trading, or performance proof.")}</p>
           </article>
           <article>
-            <span>{copy(language, "最新生产日报", "Latest production reports")}</span>
-            <strong>{copy(language, "2026-06-30 生产日报", "2026-06-30 live reports")}</strong>
+            <span>{copy(language, "今日阅读入口", "Today entry")}</span>
+            <strong>{copy(language, "今日研究简报", "Daily Research Brief")}</strong>
             <p>
-              <a href="#/reports">{copy(language, "打开生产日报", "Open production reports")}</a>
+              <a href="#/today">{copy(language, "阅读今日简报", "Read today's brief")}</a>
             </p>
           </article>
           <article>
@@ -225,12 +225,15 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
           </article>
         </div>
         <div className="hero-actions" aria-label="Page shortcuts">
-          <a className="primary-action" href="#/ledger" onClick={() => reportCtaClick("full-ledger")}>
-            {copy(language, "浏览冻结演示账本", "Browse frozen demo ledger")}
+          <a className="primary-action" href="#/today">
+            {copy(language, "阅读今日简报", "Read today's brief")}
             <ArrowDown aria-hidden="true" size={16} />
           </a>
-          <a className="secondary-action" href="#method-boundary">
-            {copy(language, "查看方法与边界", "View method and boundary")}
+          <a className="secondary-action" href="#/reports">
+            {copy(language, "查看生产日报", "View production reports")}
+          </a>
+          <a className="secondary-action" href="#/ledger" onClick={() => reportCtaClick("full-ledger")}>
+            {copy(language, "浏览 Demo 账本", "Browse demo ledger")}
           </a>
         </div>
       </div>

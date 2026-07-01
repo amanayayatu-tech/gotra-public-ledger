@@ -242,6 +242,7 @@ function pageShell({ route, title, description, body, extraJsonLd = [] }) {
       <strong>GOTRA Public Ledger</strong>
       <nav aria-label="Primary">
         <a href="/">Home</a>
+        <a href="/today">Daily Research Brief</a>
         <a href="/reports">Production Daily Reports</a>
         <a href="/notes">Transparency Articles</a>
         <a href="/ledger">Frozen Demo Ledger</a>
@@ -298,6 +299,7 @@ function homeFallback(summary) {
       <section>
         <h2>Core public pages</h2>
         <ul>
+          <li><a href="/today">今日研究简报 / Daily Research Brief</a></li>
           <li><a href="/reports">生产日报 / Production Daily Reports</a></li>
           <li><a href="/notes">透明度文章 / Transparency Articles</a></li>
           <li><a href="/ledger">冻结 Demo 账本 / Frozen Demo Ledger</a></li>
@@ -326,17 +328,20 @@ function injectHomepage(summary) {
 
 function reportSource() {
   const status = readJson("public/reports/status.json", false);
+  const dailyReaderBrief = readJson("public/reports/daily_reader_brief.json", false);
   const latestMarkdown = readText("public/reports/latest.md");
-  if (status || latestMarkdown) {
+  if (status || latestMarkdown || dailyReaderBrief) {
     return {
       state: "source_artifacts_found",
       status,
+      dailyReaderBrief,
       latestMarkdown,
     };
   }
   return {
     state: "artifact_unavailable",
     status: null,
+    dailyReaderBrief: null,
     latestMarkdown: null,
   };
 }
@@ -453,6 +458,7 @@ ${safeRows.map((row) => `          <tr>${row.map((cell) => `<td>${cell}</td>`).j
 
 function reportsPage(source) {
   const liveArtifacts = [
+    ["/reports/daily_reader_brief.json", "Daily reader brief JSON"],
     ["/reports/status.json", "Latest production status alias"],
     ["/reports/latest.md", "Latest production Markdown alias"],
     ["/reports/status_morning_hk.json", "HK morning production daily report status"],
@@ -508,6 +514,100 @@ function reportsPage(source) {
           <li><a href="/reports/latest">Latest report HTML</a></li>
           <li><a href="/reports/latest.md">Latest report Markdown</a></li>
           <li><a href="/reports/status.json">Report status JSON</a></li>
+        </ul>
+      </section>`,
+  });
+}
+
+function todayPage(source) {
+  const brief = source.dailyReaderBrief;
+  const title = brief?.title ?? "GOTRA Daily Research Brief";
+  const subtitle = brief?.subtitle ?? "Daily reader brief artifact is unavailable in this repository build.";
+  const tldr =
+    brief?.tldr ??
+    "This raw HTML page exposes the reader-first daily brief route, but this build has no public/reports/daily_reader_brief.json artifact. It does not infer facts from private or raw artifacts.";
+  const topItems = Array.isArray(brief?.top_items) ? brief.top_items : [];
+  const watchlist = Array.isArray(brief?.watchlist) ? brief.watchlist : [];
+  const knownGaps = Array.isArray(brief?.known_gaps) ? brief.known_gaps : [];
+  const nextWatch = Array.isArray(brief?.next_watch) ? brief.next_watch : [];
+  const effect = brief?.research_effectiveness ?? {};
+
+  return pageShell({
+    route: "/today",
+    title: "GOTRA Daily Research Brief | Raw HTML",
+    description:
+      "Crawler-readable daily reader brief summarizing production reports, known data gaps, watchlist items, Full Analyst Canary health, and next watch points. Not investment advice or a trading signal.",
+    extraJsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: title,
+        url: `${baseUrl}/today`,
+        description: tldr,
+        datePublished: brief?.brief_date ?? "",
+        dateModified: brief?.generated_at ?? "",
+      },
+    ],
+    body: `      <h1>${escapeHtml(title)}</h1>
+      ${definitionBlock()}
+      <section class="notice">
+        <h2>TLDR / 一句话摘要</h2>
+        <p>${escapeHtml(tldr)}</p>
+        <p>${escapeHtml(subtitle)}</p>
+      </section>
+      <section>
+        <h2>Top items / 今日重点</h2>
+        ${
+          topItems.length > 0
+            ? table(["label", "summary", "why_it_matters"], topItems.map((item) => [item.label, item.summary, item.why_it_matters]))
+            : "<p>daily_reader_brief.json is unavailable; no top items are inferred.</p>"
+        }
+      </section>
+      <section>
+        <h2>Watchlist / 观察清单</h2>
+        ${
+          watchlist.length > 0
+            ? table(["symbol", "reason", "reader_takeaway"], watchlist.map((item) => [item.symbol, item.reason, item.reader_takeaway]))
+            : "<p>No public data-gap watch item is marked in this build.</p>"
+        }
+      </section>
+      <section>
+        <h2>Known gaps / 已知缺口</h2>
+        ${
+          knownGaps.length > 0
+            ? table(["symbol", "reason", "affected_report"], knownGaps.map((gap) => [gap.symbol, gap.reason, gap.affected_report]))
+            : "<p>No public known gap artifact is available in this build.</p>"
+        }
+      </section>
+      <section>
+        <h2>Research process effectiveness / 研究过程效果</h2>
+        ${table(
+          ["field", "value"],
+          [
+            ["daily_update_status", effect.daily_update_status ?? "artifact_unavailable"],
+            ["reports_updated_count", effect.reports_updated_count ?? "artifact_unavailable"],
+            ["reports_with_data_gaps_count", effect.reports_with_data_gaps_count ?? "artifact_unavailable"],
+            ["canary_status", effect.canary_status ?? "artifact_unavailable"],
+            ["reader_summary", effect.reader_summary ?? "No reader summary is inferred when the artifact is unavailable."],
+          ],
+        )}
+        <p>These fields describe process visibility only. They are not performance proof, not a trading signal, and not investment advice.</p>
+      </section>
+      <section>
+        <h2>Next watch / 下一步观察</h2>
+        ${
+          nextWatch.length > 0
+            ? `<ul>${nextWatch.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+            : "<p>Next-watch items require daily_reader_brief.json or runtime synthesis from public status files.</p>"
+        }
+      </section>
+      <section>
+        <h2>Public artifacts</h2>
+        <ul>
+          <li><a href="/reports/daily_reader_brief.json">Daily reader brief JSON</a></li>
+          <li><a href="/reports/status.json">Latest production status JSON</a></li>
+          <li><a href="/reports/status_full_analyst_monitor.json">Full Analyst Canary monitor JSON</a></li>
+          <li><a href="/reports">Production Daily Reports Audit</a></li>
         </ul>
       </section>`,
   });
@@ -733,6 +833,7 @@ function faqPage(summary) {
 
 function sourcesPage(manifest, evidenceIndex, contentIndex) {
   const liveArtifactRows = [
+    ["/reports/daily_reader_brief.json", "Daily reader brief JSON"],
     ["/reports/status.json", "production status alias"],
     ["/reports/latest.md", "latest production Markdown alias"],
     ["/reports/status_morning_hk.json", "HK morning production status"],
@@ -932,6 +1033,19 @@ function writeGeneratedReportArtifacts(source) {
     note: "public/reports/status.json was not present in this repository build; no report facts were inferred.",
   };
   fs.writeFileSync(path.join(reportsDir, "status.json"), `${JSON.stringify(status, null, 2)}\n`);
+  const dailyReaderBrief = source.dailyReaderBrief ?? {
+    schema: "gotra.daily_reader_brief.v1",
+    status: "artifact_unavailable",
+    note: "public/reports/daily_reader_brief.json was not present in this repository build; no reader brief facts were inferred.",
+    boundary: [
+      "research information only",
+      "not investment advice",
+      "not a trading signal",
+      "not performance proof",
+      "not science/public proof",
+    ],
+  };
+  fs.writeFileSync(path.join(reportsDir, "daily_reader_brief.json"), `${JSON.stringify(dailyReaderBrief, null, 2)}\n`);
   if (!source.latestMarkdown) {
     fs.writeFileSync(
       path.join(reportsDir, "latest.md"),
@@ -1025,6 +1139,7 @@ It is research information only. It is not investment advice, not a trading sign
 
 ## Primary reader routes
 
+- https://gotra.me/today - Daily Research Brief. Reader-first daily summary of production reports, known data gaps, watchlist items, Full Analyst Canary health, and next watch points.
 - https://gotra.me/reports - Production Daily Reports. Live production/status artifacts for HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary.
 - https://gotra.me/notes - Transparency Articles. Static article archive, not latest production daily reports.
 - https://gotra.me/ledger - Frozen Demo Ledger. snapshot_date=2026-06-20 demo snapshot, not current production.
@@ -1035,6 +1150,7 @@ It is research information only. It is not investment advice, not a trading sign
 
 ## Public artifacts
 
+- https://gotra.me/reports/daily_reader_brief.json
 - https://gotra.me/reports/status.json
 - https://gotra.me/reports/latest.md
 - https://gotra.me/reports/status_morning_hk.json
@@ -1080,6 +1196,7 @@ function main() {
 
   const generated = [];
   const corePages = [
+    ["/today", todayPage(source)],
     ["/ledger", ledgerPage(ledger, summary)],
     ["/reports", reportsPage(source)],
     ["/reports/latest", latestReportPage(source)],
@@ -1104,11 +1221,13 @@ function main() {
 
   const routes = [
     "/",
+    "/today",
     "/ledger",
     "/reports",
     "/reports/latest",
     "/reports/latest.md",
     "/reports/status.json",
+    "/reports/daily_reader_brief.json",
     "/performance",
     "/system",
     "/methodology",

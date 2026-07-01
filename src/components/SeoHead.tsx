@@ -76,9 +76,17 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       enDescription:
         "GOTRA Public Ledger separates production daily reports, the Full Analyst Canary, a frozen demo ledger, and transparency articles. Research information only; not investment advice, not a trading signal, not performance proof, and not science/public proof.",
     },
+    "/today": {
+      zhTitle: "GOTRA 今日研究简报 | GOTRA Public Ledger",
+      enTitle: "GOTRA Daily Research Brief | GOTRA Public Ledger",
+      zhDescription:
+        "每日公开安全研究简报，汇总生产日报、数据缺口、观察清单、Full Analyst 金丝雀健康和下一步观察。不是投资建议或交易信号。",
+      enDescription:
+        "A public-safe daily reader brief summarizing production reports, known data gaps, watchlist items, Full Analyst canary health, and next watch points. Not investment advice or a trading signal.",
+    },
     "/reports": {
-      zhTitle: "生产日报 | GOTRA Public Ledger",
-      enTitle: "Production Daily Reports | GOTRA Public Ledger",
+      zhTitle: "生产日报审计 | GOTRA Public Ledger",
+      enTitle: "Production Daily Reports Audit | GOTRA Public Ledger",
       zhDescription:
         "生产日报页面展示港股早报、港股晚报、美股早报、美股晚报、全局汇总和 Full Analyst 金丝雀公开安全产物。不是投资建议、交易信号、业绩证明或科学/公开证明。",
       enDescription:

@@ -3,6 +3,7 @@ import {
   normalizeFullAnalystMonitorStatus,
   normalizeFullAnalystPilotStatus,
   normalizeReportStatus,
+  type ReportExceptionRow,
   type FullAnalystMonitorStatus,
   type FullAnalystPilotStatus,
   type NormalizedReportStatus,
@@ -35,6 +36,7 @@ export type LiveReportEntry = {
   dataGapCount: number;
   allowedMissingCount: number;
   unexpectedFailedCount: number;
+  exceptions: ReportExceptionRow[];
   artifactWriteStatus: string | null;
   monitorHealth: string | null;
   error: string | null;
@@ -114,6 +116,7 @@ function dailyEntryFromStatus(status: NormalizedReportStatus, schedule: (typeof 
     dataGapCount: status.allowedMissingCount + status.unexpectedFailedCount,
     allowedMissingCount: status.allowedMissingCount,
     unexpectedFailedCount: status.unexpectedFailedCount,
+    exceptions: status.failedSymbols,
     artifactWriteStatus: status.artifactWriteStatus,
     monitorHealth: null,
     error: null,
@@ -145,6 +148,7 @@ function failedDailyEntry(schedule: (typeof REPORT_SCHEDULES)[number], error: un
     dataGapCount: 0,
     allowedMissingCount: 0,
     unexpectedFailedCount: 0,
+    exceptions: [],
     artifactWriteStatus: null,
     monitorHealth: null,
     error: error instanceof Error ? error.message : String(error),
@@ -179,6 +183,7 @@ function fullAnalystEntry(
     dataGapCount: pilot?.dataGapCount ?? 0,
     allowedMissingCount: 0,
     unexpectedFailedCount: pilot?.failedCount ?? 0,
+    exceptions: [],
     artifactWriteStatus: pilot?.artifactWriteStatus ?? null,
     monitorHealth: monitor?.overallStatus ?? null,
     error,

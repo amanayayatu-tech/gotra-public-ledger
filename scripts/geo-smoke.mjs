@@ -60,6 +60,7 @@ function main() {
   const manifest = loadManifest();
   const requiredRoutes = [
     "/",
+    "/today",
     "/ledger",
     "/reports",
     "/performance",
@@ -89,6 +90,9 @@ function main() {
   requiredPhrases.forEach((phrase) => assertIncludes(combinedCoreHtml, phrase, "core routes"));
 
   assertIncludes(pages.get("/"), "GOTRA Public Ledger 是一个可审计的 AI 股票研究公开预测账本", "/");
+  assertIncludes(pages.get("/today"), "Daily Research Brief", "/today");
+  assertIncludes(pages.get("/today"), "Research process effectiveness", "/today");
+  assertIncludes(pages.get("/today"), "not investment advice", "/today");
   assertIncludes(pages.get("/ledger"), "Frozen Demo Ledger", "/ledger");
   assertIncludes(pages.get("/ledger"), "not current production", "/ledger");
   assertIncludes(pages.get("/ledger"), "First 50 public ledger rows", "/ledger");
@@ -131,11 +135,13 @@ function main() {
   const sitemap = readDist("sitemap.xml");
   [
     "https://gotra.me/",
+    "https://gotra.me/today",
     "https://gotra.me/ledger",
     "https://gotra.me/reports",
     "https://gotra.me/reports/latest",
     "https://gotra.me/reports/latest.md",
     "https://gotra.me/reports/status.json",
+    "https://gotra.me/reports/daily_reader_brief.json",
     "https://gotra.me/performance",
     "https://gotra.me/methodology",
     "https://gotra.me/sources",
@@ -166,6 +172,7 @@ function main() {
   const llms = readDist("llms.txt");
   [
     "Production Daily Reports",
+    "Daily Research Brief",
     "Transparency Articles",
     "Frozen Demo Ledger",
     "Performance Notes",
