@@ -1861,7 +1861,7 @@ function MethodologyPage({ dataset, records, language }: { dataset: LedgerDatase
         icon={BookOpenCheck}
       />
       <MethodologyProcessGraphic language={language} />
-      <BoundaryPanel metadata={dataset.metadata} />
+      <BoundaryPanel metadata={dataset.metadata} language={language} />
       <CredibilityDashboard records={records} language={language} />
     </>
   );
