@@ -37,6 +37,7 @@ import { Subscribe } from "./components/Subscribe";
 import { TrustStrip } from "./components/TrustStrip";
 import { buildTickerList } from "./data/cognition";
 import { contentIndex, contentItems, findContentItem } from "./data/content";
+import { loadDailyReaderBrief, type DailyReaderBrief } from "./data/dailyReaderBrief";
 import {
   fixtureIsFutureDated,
   loadLiveReportsSnapshot,
@@ -91,6 +92,11 @@ type ReportDeskLoadState =
 type LiveReportsLoadState =
   | { kind: "loading" }
   | { kind: "ready"; snapshot: LiveReportsSnapshot }
+  | { kind: "error"; message: string };
+
+type DailyReaderBriefLoadState =
+  | { kind: "loading" }
+  | { kind: "ready"; brief: DailyReaderBrief; source: "artifact" | "fallback"; fallbackReason: string | null }
   | { kind: "error"; message: string };
 
 function compareRecord(a: RecordView, b: RecordView, key: SortKey): number {
@@ -154,6 +160,9 @@ function routeActivePath(route: AppRoute): string {
   }
   if (route.name === "note") {
     return "/notes";
+  }
+  if (route.name === "today") {
+    return "/today";
   }
   return route.path;
 }
@@ -473,6 +482,29 @@ function scopeLayerLabel(layer: string, language: Language): string {
 
 function ledgerStatusReaderLabel(status: string, language: Language): string {
   return statusText(language, status);
+}
+
+function dailyBriefHealthLabel(value: string, language: Language): string {
+  switch (value) {
+    case "ok":
+      return copy(language, "正常", "OK");
+    case "ok_with_data_gaps":
+      return copy(language, "正常但有数据缺口", "OK with data gaps");
+    case "needs_review":
+      return copy(language, "需要复核", "Needs review");
+    case "healthy":
+      return copy(language, "健康", "Healthy");
+    case "degraded":
+      return copy(language, "需关注", "Degraded");
+    case "reports_updated":
+      return copy(language, "日报已更新", "Reports updated");
+    case "reports_updated_with_gaps":
+      return copy(language, "日报已更新，有缺口", "Reports updated with gaps");
+    case "unavailable":
+      return copy(language, "暂不可用", "Unavailable");
+    default:
+      return value;
+  }
 }
 
 function itemTitle(item: ContentItem, language: Language): string {
@@ -1028,6 +1060,253 @@ function SystemRulesPage({ language }: { language: Language }) {
   );
 }
 
+function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; language: Language }) {
+  if (state.kind === "loading") {
+    return (
+      <>
+        <PageIntro
+          eyebrow={copy(language, "今日简报", "Today")}
+          title={copy(language, "今日研究简报", "Daily Research Brief")}
+          body={copy(language, "正在读取公开日报状态和 reader brief artifact。", "Loading public report status and the reader brief artifact.")}
+          icon={BookOpenCheck}
+        />
+        <section className="route-panel edge-state-note" role="status">
+          {copy(language, "正在加载今日简报。", "Loading today's brief.")}
+        </section>
+      </>
+    );
+  }
+
+  if (state.kind === "error") {
+    return (
+      <>
+        <PageIntro
+          eyebrow={copy(language, "今日简报", "Today")}
+          title={copy(language, "今日研究简报暂不可用", "Daily Research Brief unavailable")}
+          body={copy(language, "公开状态文件无法合成今日简报；页面不会从私有或 raw 产物推断内容。", "The public status files cannot synthesize a daily brief; this page will not infer from private or raw artifacts.")}
+          icon={AlertCircle}
+        />
+        <section className="route-panel edge-state-note" role="alert">
+          {state.message}
+        </section>
+      </>
+    );
+  }
+
+  const { brief } = state;
+  const hasWatchlist = brief.watchlist.length > 0;
+  const hasKnownGaps = brief.known_gaps.length > 0;
+
+  return (
+    <>
+      <section className="today-hero route-panel" aria-labelledby="today-title">
+        <div className="today-hero-copy">
+          <span className="section-index">{copy(language, "今日简报", "Daily brief")}</span>
+          <h1 id="today-title">{copy(language, "今日研究简报", "Daily Research Brief")}</h1>
+          <p className="today-date-line">
+            <time dateTime={brief.brief_date}>{brief.brief_date}</time>
+            <span>{copy(language, "生成时间", "Generated")} {formatLiveTimestamp(brief.generated_at, language)}</span>
+          </p>
+          <div className="today-tldr">
+            <strong>{copy(language, "一句话摘要", "TLDR")}</strong>
+            <p>{brief.tldr}</p>
+          </div>
+          <div className="today-boundary-chips" aria-label={copy(language, "声明边界", "Boundary")}>
+            {brief.boundary.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </div>
+          <div className="hero-actions today-actions">
+            <a className="primary-action" href={routeHref("/reports")}>
+              {copy(language, "查看生产日报审计", "Open production audit")}
+            </a>
+            <a className="secondary-action" href={brief.links.latest_report}>
+              {copy(language, "打开最新 Markdown", "Open latest markdown")}
+            </a>
+          </div>
+        </div>
+        <aside className="today-health-panel" aria-label={copy(language, "今日研究状态", "Daily research state")}>
+          <div>
+            <span>{copy(language, "日报状态", "Daily reports")}</span>
+            <strong>{dailyBriefHealthLabel(brief.system_health.daily_reports, language)}</strong>
+          </div>
+          <div>
+            <span>{copy(language, "数据缺口报告", "Reports with data gaps")}</span>
+            <strong>{brief.research_effectiveness.reports_with_data_gaps_count}</strong>
+          </div>
+          <div>
+            <span>{copy(language, "Full Analyst 金丝雀", "Full Analyst Canary")}</span>
+            <strong>{dailyBriefHealthLabel(brief.system_health.full_analyst_canary, language)}</strong>
+          </div>
+        </aside>
+      </section>
+
+      {state.source === "fallback" ? (
+        <section className="route-panel edge-state-note">
+          {copy(
+            language,
+            "当前页面从公开状态文件临时合成简报；daily_reader_brief.json artifact 不可用或 schema 不匹配。",
+            "This page synthesized the brief from public status files because the daily_reader_brief.json artifact was unavailable or mismatched.",
+          )}{" "}
+          <span className="mono">{state.fallbackReason}</span>
+        </section>
+      ) : null}
+
+      <section className="today-section" aria-labelledby="today-top-items-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "今日重点", "Top items")}</span>
+          <h2 id="today-top-items-title">{copy(language, "今天有什么值得看", "What to read today")}</h2>
+        </div>
+        <div className="today-card-grid">
+          {brief.top_items.map((item) => (
+            <article className="today-card" key={`${item.label}-${item.summary}`}>
+              <span>{item.label}</span>
+              <h3>{item.summary}</h3>
+              <p>{item.why_it_matters}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="today-section" aria-labelledby="today-watchlist-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "观察清单", "Watchlist")}</span>
+          <h2 id="today-watchlist-title">{copy(language, "哪些标的需要注意", "What needs attention")}</h2>
+        </div>
+        {hasWatchlist ? (
+          <div className="today-watchlist">
+            {brief.watchlist.map((item) => (
+              <article key={`${item.symbol}-${item.reason}`}>
+                <strong>{item.symbol}</strong>
+                <span>{copy(language, "数据缺口", "Data gap")}</span>
+                <p>{item.reason}</p>
+                <small>{item.reader_takeaway}</small>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="edge-state-note">{copy(language, "今天没有公开标记的数据缺口观察项。", "No public data-gap watch item is marked today.")}</div>
+        )}
+      </section>
+
+      <section className="report-two-column today-two-column" aria-label={copy(language, "今日变化与缺口", "Changes and gaps")}>
+        <div>
+          <h2>{copy(language, "昨日以来变化", "Changes since last brief")}</h2>
+          <ul className="today-list">
+            {brief.changes_since_last_brief.map((change) => (
+              <li key={change}>{change}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h2>{copy(language, "已知缺口与风险", "Known gaps and risks")}</h2>
+          {hasKnownGaps ? (
+            <div className="today-gap-list">
+              {brief.known_gaps.map((gap) => (
+                <article key={`${gap.symbol}-${gap.affected_report}-${gap.reason}`}>
+                  <strong>{gap.symbol}</strong>
+                  <span>{gap.affected_report}</span>
+                  <p>{gap.reason}</p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="muted">{copy(language, "暂无公开标记的数据缺口。", "No public data gap is currently marked.")}</p>
+          )}
+        </div>
+      </section>
+
+      <section className="today-section" aria-labelledby="today-effectiveness-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "研究过程效果", "Research process effectiveness")}</span>
+          <h2 id="today-effectiveness-title">{copy(language, "每天效果如何表达", "How daily effect is represented")}</h2>
+          <p>
+            {copy(
+              language,
+              "这里说的是公开日报是否按计划更新、缺口是否被标记、金丝雀是否健康；不是收益、业绩或预测正确性证明。",
+              "This describes whether public reports updated, gaps were marked, and the canary is healthy; it is not a return, performance, or prediction-accuracy proof.",
+            )}
+          </p>
+        </div>
+        <div className="today-effect-grid">
+          <article>
+            <span>{copy(language, "日报更新", "Daily update")}</span>
+            <strong>{dailyBriefHealthLabel(brief.research_effectiveness.daily_update_status, language)}</strong>
+            <p>{brief.research_effectiveness.reports_updated_count} {copy(language, "份日报有公开更新", "reports have public updates")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "数据缺口", "Data gaps")}</span>
+            <strong>{brief.research_effectiveness.reports_with_data_gaps_count}</strong>
+            <p>{copy(language, "按公开状态文件统计，不补私有数据。", "Counted from public status files only.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "金丝雀状态", "Canary state")}</span>
+            <strong>{dailyBriefHealthLabel(brief.research_effectiveness.canary_status, language)}</strong>
+            <p>{copy(language, "金丝雀健康不等于正式上线或结论升级。", "A healthy canary is not a production graduation or conclusion upgrade.")}</p>
+          </article>
+        </div>
+        <div className="report-callout">
+          <h3>{copy(language, "读者摘要", "Reader summary")}</h3>
+          <p>{brief.research_effectiveness.reader_summary}</p>
+        </div>
+      </section>
+
+      <section className="today-section" aria-labelledby="today-next-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "下一步观察", "Next watch")}</span>
+          <h2 id="today-next-title">{copy(language, "明天或下一次看什么", "What to watch next")}</h2>
+        </div>
+        <ul className="today-list next-watch-list">
+          {brief.next_watch.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="today-section" aria-labelledby="today-links-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "完整材料", "Full materials")}</span>
+          <h2 id="today-links-title">{copy(language, "继续核对公开材料", "Inspect the public materials")}</h2>
+        </div>
+        <div className="related-prediction-list today-links">
+          <a href={routeHref("/reports")}>{copy(language, "生产日报审计", "Production audit")}</a>
+          <a href={brief.links.latest_report}>{copy(language, "最新 Markdown", "Latest Markdown")}</a>
+          <a href={brief.links.status_json}>{copy(language, "状态文件", "Status file")}</a>
+          <a href={brief.links.full_analyst_monitor}>{copy(language, "Full Analyst 金丝雀监控", "Full Analyst Canary monitor")}</a>
+        </div>
+        <details className="audit-details today-technical-details">
+          <summary>{copy(language, "技术细节 / 状态文件", "Technical details / status files")}</summary>
+          <dl className="source-grid">
+            <div>
+              <dt>schema</dt>
+              <dd>{brief.schema}</dd>
+            </div>
+            <div>
+              <dt>brief_date</dt>
+              <dd>{brief.brief_date}</dd>
+            </div>
+            <div>
+              <dt>generated_at</dt>
+              <dd>{brief.generated_at}</dd>
+            </div>
+            <div>
+              <dt>source</dt>
+              <dd>{state.source}</dd>
+            </div>
+          </dl>
+          <p className="muted">
+            {copy(
+              language,
+              "技术字段只用于审计；普通读者默认阅读上方摘要、观察清单、缺口和下一步观察。",
+              "Technical fields are for audit only; the default reader experience is the summary, watchlist, gaps, and next-watch sections above.",
+            )}
+          </p>
+        </details>
+      </section>
+    </>
+  );
+}
+
 function PerformancePage({
   ledgerMetrics,
   snapshot,
@@ -1047,7 +1326,7 @@ function PerformancePage({
       <PageIntro
         eyebrow={copy(language, "表现说明", "Performance Notes")}
         title={copy(language, "暂无生产表现跟踪", "No production performance tracking yet")}
-        body={copy(language, "当前页面不把演示夹具或未来日期样本呈现为生产表现。最新生产运行请看生产日报和 Full Analyst 金丝雀。", "This page does not present demo fixtures or future-dated samples as production performance. Use daily reports and the full analyst canary for current production runtime.")}
+        body={copy(language, "当前页面不把演示夹具或未来日期样本呈现为生产表现。研究过程效果请看今日简报，生产审计再看生产日报。", "This page does not present demo fixtures or future-dated samples as production performance. Use today's brief for research-process effectiveness, then production reports for audit details.")}
         icon={BarChart3}
       />
       <section className="route-panel performance-shell" aria-labelledby="performance-policy-title">
@@ -1069,12 +1348,15 @@ function PerformancePage({
           <p>
             {copy(
               language,
-              "没有新的生产表现账本产物，所以本页不会伪造收益曲线、持仓或表现结论。生产运行状态请转到生产日报核对。",
-              "No live performance ledger artifact exists, so this page does not fabricate an equity curve, holdings, or performance conclusion. Use the reports desk for production runtime status.",
+              "没有新的生产表现账本产物，所以本页不会伪造收益曲线、持仓或表现结论。研究过程效果请转到今日简报核对。",
+              "No live performance ledger artifact exists, so this page does not fabricate an equity curve, holdings, or performance conclusion. Use today's brief for research-process effectiveness.",
             )}
           </p>
           <a className="secondary-action" href={routeHref("/reports")}>
             {copy(language, "查看生产日报和金丝雀监控", "Open daily reports and canary")}
+          </a>
+          <a className="primary-action" href={routeHref("/today")}>
+            {copy(language, "阅读今日简报", "Read today's brief")}
           </a>
         </div>
         <details className="audit-details portfolio-metrics-detail demo-fixture-detail">
@@ -1820,11 +2102,11 @@ function ReportsPage({ language }: { language: Language }) {
     <>
       <PageIntro
         eyebrow={copy(language, "生产公开产物", "Live production")}
-        title={copy(language, "生产日报", "Production Daily Reports")}
+        title={copy(language, "生产日报审计", "Production Daily Reports Audit")}
         body={copy(
           language,
-          "展示最新公开安全日报产物、覆盖率、数据缺口和异常清单；Full Analyst 金丝雀在下方独立显示。不是投资建议、交易信号、业绩证明或科学证明。",
-          "Shows the latest public-safe daily report artifacts, coverage, data gaps, and exception lists. Full Analyst Canary is shown separately below. Not investment advice, not a trading signal, and not performance proof or science proof.",
+          "完整状态、覆盖率、数据缺口和公开产物链接在这里审计；普通读者每日入口请看今日简报。不是投资建议、交易信号、业绩证明或科学证明。",
+          "Audit complete status, coverage, data gaps, and public artifact links here; everyday readers should start with Today's Brief. Not investment advice, not a trading signal, and not performance proof or science proof.",
         )}
         icon={FileText}
       />
@@ -1851,9 +2133,9 @@ function ReportsPage({ language }: { language: Language }) {
 function HowToReadGotra({ language }: { language: Language }) {
   const entries = [
     {
-      href: routeHref("/"),
-      label: copy(language, "首页", "Home"),
-      body: copy(language, "看当前状态、项目定位和最新运行摘要。", "Start with current status, project positioning, and the latest runtime summary."),
+      href: routeHref("/today"),
+      label: copy(language, "今日简报", "Today"),
+      body: copy(language, "每天先看读者化摘要、观察清单、缺口、金丝雀和下一步观察。", "Start with the reader brief, watchlist, gaps, canary, and next watch."),
     },
     {
       href: routeHref("/ledger"),
@@ -1880,8 +2162,8 @@ function HowToReadGotra({ language }: { language: Language }) {
         <p>
           {copy(
             language,
-            "这四个入口把概览、Demo 记录、生产日报和系统说明分开；先读生产日报，再按需检查 demo 账本或系统材料。",
-            "The four entries separate overview, demo records, production reports, and system context; read production reports first, then inspect the demo ledger or system materials as needed.",
+            "这四个入口把今日简报、Demo 记录、生产日报和系统说明分开；每天先读今日简报，再按需检查生产审计、demo 账本或系统材料。",
+            "The four entries separate today's brief, demo records, production reports, and system context; read today's brief first, then inspect production audit, the demo ledger, or system materials as needed.",
           )}
         </p>
       </div>
@@ -1904,7 +2186,7 @@ function NotesPage({ language }: { language: Language }) {
       <PageIntro
         eyebrow={copy(language, "文章", "Articles")}
         title={copy(language, "透明度文章", "Transparency Articles")}
-        body={copy(language, "这里是静态文章归档，不是最新生产日报。最新日报请看「生产日报」。", "This is a static article archive, not the latest production daily reports. Use Production Daily Reports for current artifacts.")}
+        body={copy(language, "这里是静态文章归档，不是最新生产日报，也不是今日简报。每天先看「今日简报」。", "This is a static article archive, not the latest production daily reports and not today's brief. Start with Today.")}
         icon={FileText}
       />
       <section className="route-panel notes-shell" aria-labelledby="notes-title">
@@ -1923,8 +2205,11 @@ function NotesPage({ language }: { language: Language }) {
               )}
             </p>
           </div>
+          <a className="primary-action" href={routeHref("/today")}>
+            {copy(language, "阅读今日简报", "Read today's brief")}
+          </a>
           <a className="secondary-action" href={routeHref("/reports")}>
-            {copy(language, "查看最新生产日报", "Open latest production reports")}
+            {copy(language, "查看生产日报审计", "Open production audit")}
           </a>
         </div>
         <p className="muted">
@@ -2176,6 +2461,7 @@ function App() {
   const [missingPredictionId, setMissingPredictionId] = useState<string | null>(null);
   const [reportStatusState, setReportStatusState] = useState<DailyDeskSnapshotState>({ kind: "loading" });
   const [liveReportsState, setLiveReportsState] = useState<LiveReportsLoadState>({ kind: "loading" });
+  const [dailyBriefState, setDailyBriefState] = useState<DailyReaderBriefLoadState>({ kind: "loading" });
   const dashboardLoadRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -2216,6 +2502,34 @@ function App() {
           setLiveReportsState({
             kind: "error",
             message: reason instanceof Error ? reason.message : "Unknown live reports load error",
+          });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setDailyBriefState({ kind: "loading" });
+    loadDailyReaderBrief()
+      .then((result) => {
+        if (cancelled) {
+          return;
+        }
+        setDailyBriefState({
+          kind: "ready",
+          brief: result.brief,
+          source: result.kind,
+          fallbackReason: result.kind === "fallback" ? result.reason : null,
+        });
+      })
+      .catch((reason: unknown) => {
+        if (!cancelled) {
+          setDailyBriefState({
+            kind: "error",
+            message: reason instanceof Error ? reason.message : "Unknown daily reader brief load error",
           });
         }
       });
@@ -2443,6 +2757,8 @@ function App() {
           </>
         ) : null}
 
+        {route.name === "today" ? <TodayPage state={dailyBriefState} language={language} /> : null}
+
         {route.name === "ledger" ? (
           <>
             <PageIntro
@@ -2577,7 +2893,7 @@ function App() {
         {route.name === "notes" ? <NotesPage language={language} /> : null}
         {route.name === "note" ? <NoteDetailPage item={activeNote} language={language} /> : null}
 
-        {route.name === "home" || route.name === "notes" || route.name === "note" ? <Subscribe language={language} /> : null}
+        {route.name === "home" || route.name === "today" || route.name === "notes" || route.name === "note" ? <Subscribe language={language} /> : null}
         <SiteFooter metadata={dataset.metadata} language={language} />
       </main>
     </div>

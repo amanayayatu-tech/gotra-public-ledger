@@ -13,6 +13,8 @@ describe("hash router", () => {
     expect(normalizeHashPath("")).toBe("/");
     expect(normalizeHashPath("#/ledger/")).toBe("/ledger");
     expect(routeHref("/performance")).toBe("#/performance");
+    expect(routeHref("/today")).toBe("#/today");
+    expect(parseHashRoute("#/today").name).toBe("today");
     expect(parseHashRoute("#/system").name).toBe("system");
     expect(parseHashRoute("#/reports").name).toBe("reports");
   });

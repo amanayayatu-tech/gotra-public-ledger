@@ -13,8 +13,20 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("function NotesPage({ language }");
     expect(appSource).toContain("透明度文章");
     expect(appSource).toContain("静态文章归档");
-    expect(appSource).toContain("查看最新生产日报");
+    expect(appSource).toContain("阅读今日简报");
     expect(appSource).not.toContain("LiveProductionBriefs");
+  });
+
+  it("adds a reader-first daily brief entrypoint separate from production audit details", () => {
+    expect(appSource).toContain("function TodayPage({ state, language }");
+    expect(appSource).toContain("今日研究简报");
+    expect(appSource).toContain("一句话摘要");
+    expect(appSource).toContain("今日重点");
+    expect(appSource).toContain("观察清单");
+    expect(appSource).toContain("已知缺口与风险");
+    expect(appSource).toContain("研究过程效果");
+    expect(appSource).toContain("下一步观察");
+    expect(appSource).toContain("生产日报审计");
   });
 
   it("labels the ledger and performance pages as demo or non-production surfaces", () => {
@@ -35,6 +47,8 @@ describe("public ledger information architecture contract", () => {
 
   it("defines route-specific GEO metadata for primary production, archive, demo, and fixture routes", () => {
     expect(seoHeadSource).toContain("Production Daily Reports");
+    expect(seoHeadSource).toContain("GOTRA Daily Research Brief");
+    expect(seoHeadSource).toContain("known data gaps");
     expect(seoHeadSource).toContain("Transparency Articles");
     expect(seoHeadSource).toContain("Frozen Demo Ledger");
     expect(seoHeadSource).toContain("Performance Notes");
@@ -45,11 +59,16 @@ describe("public ledger information architecture contract", () => {
 
   it("keeps generated GEO pages discoverable without relying only on hash routes", () => {
     expect(geoGeneratorSource).toContain("function performancePage");
+    expect(geoGeneratorSource).toContain("function todayPage");
+    expect(geoGeneratorSource).toContain('"/today"');
+    expect(geoGeneratorSource).toContain("daily_reader_brief.json");
     expect(geoGeneratorSource).toContain('"/performance"');
     expect(geoGeneratorSource).toContain("function llmsTxt");
     expect(geoGeneratorSource).toContain("Live production artifacts");
     expect(geoGeneratorSource).toContain("Static demo/archive artifacts");
     expect(geoSmokeSource).toContain('readDist("llms.txt")');
+    expect(geoSmokeSource).toContain("https://gotra.me/today");
+    expect(geoSmokeSource).toContain("daily_reader_brief.json");
     expect(geoSmokeSource).toContain("https://gotra.me/performance");
   });
 
