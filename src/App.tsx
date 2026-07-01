@@ -2413,7 +2413,7 @@ function App() {
   return (
     <div className="app-shell">
       <AnalyticsProvider />
-      <SeoHead dataset={dataset} records={views} activeRecord={routeRecord} />
+      <SeoHead dataset={dataset} records={views} activeRecord={routeRecord} route={route} language={language} />
       <SiteHeader activePath={routeActivePath(route)} language={language} onLanguageChange={handleLanguageChange} />
 
       <main className="page-shell">

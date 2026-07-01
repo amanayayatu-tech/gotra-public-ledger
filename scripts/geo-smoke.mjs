@@ -62,6 +62,7 @@ function main() {
     "/",
     "/ledger",
     "/reports",
+    "/performance",
     "/methodology",
     "/claim-boundary",
     "/faq",
@@ -79,7 +80,8 @@ function main() {
   const combinedCoreHtml = [...pages.values()].join("\n");
   const requiredPhrases = [
     "auditable AI stock-research public ledger",
-    "完整公开预测账本",
+    "冻结 Demo 账本",
+    "Production Daily Reports",
     "research information only",
     "not investment advice",
     "resolved-only",
@@ -87,18 +89,28 @@ function main() {
   requiredPhrases.forEach((phrase) => assertIncludes(combinedCoreHtml, phrase, "core routes"));
 
   assertIncludes(pages.get("/"), "GOTRA Public Ledger 是一个可审计的 AI 股票研究公开预测账本", "/");
+  assertIncludes(pages.get("/ledger"), "Frozen Demo Ledger", "/ledger");
+  assertIncludes(pages.get("/ledger"), "not current production", "/ledger");
   assertIncludes(pages.get("/ledger"), "First 50 public ledger rows", "/ledger");
   assertIncludes(pages.get("/ledger"), "Download the full JSON dataset", "/ledger");
+  assertIncludes(pages.get("/reports"), "Production Daily Reports", "/reports");
+  assertIncludes(pages.get("/reports"), "Full Analyst Canary", "/reports");
   assertIncludes(pages.get("/reports"), "artifact_unavailable", "/reports");
   assertIncludes(pages.get("/reports/latest"), "Interpretation boundary", "/reports/latest");
   assertIncludes(pages.get("/reports/latest"), 'href="/reports/latest.md"', "/reports/latest");
   assertIncludes(pages.get("/reports/latest"), 'href="/reports/status.json"', "/reports/latest");
+  assertIncludes(pages.get("/performance"), "No production performance tracking yet", "/performance");
+  assertIncludes(pages.get("/performance"), "demo fixture and future-dated sample", "/performance");
+  assertIncludes(pages.get("/performance"), "not performance proof", "/performance");
   assertIncludes(pages.get("/methodology"), "pending rows are excluded", "/methodology");
   assertIncludes(pages.get("/claim-boundary"), "Not investment advice.", "/claim-boundary");
   assertIncludes(pages.get("/faq"), "FAQPage", "/faq");
   assertIncludes(pages.get("/sources"), "Manifest files", "/sources");
+  assertIncludes(pages.get("/sources"), "Live production artifacts", "/sources");
+  assertIncludes(pages.get("/sources"), "Static demo/archive artifacts", "/sources");
   assertIncludes(pages.get("/system"), "Evidence layers", "/system");
-  assertIncludes(pages.get("/notes"), "Notes index", "/notes");
+  assertIncludes(pages.get("/notes"), "Transparency Articles", "/notes");
+  assertIncludes(pages.get("/notes"), "Static article archive", "/notes");
 
   const ledgerRows = countTableRows(pages.get("/ledger"));
   if (ledgerRows < 50) {
@@ -124,6 +136,7 @@ function main() {
     "https://gotra.me/reports/latest",
     "https://gotra.me/reports/latest.md",
     "https://gotra.me/reports/status.json",
+    "https://gotra.me/performance",
     "https://gotra.me/methodology",
     "https://gotra.me/sources",
     "https://gotra.me/claim-boundary",
@@ -149,6 +162,18 @@ function main() {
     "User-agent: CCBot",
     "Sitemap: https://gotra.me/sitemap.xml",
   ].forEach((phrase) => assertIncludes(robots, phrase, "robots.txt"));
+
+  const llms = readDist("llms.txt");
+  [
+    "Production Daily Reports",
+    "Transparency Articles",
+    "Frozen Demo Ledger",
+    "Performance Notes",
+    "Sources and Artifacts",
+    "not investment advice",
+    "not a trading signal",
+    "not performance proof",
+  ].forEach((phrase) => assertIncludes(llms, phrase, "llms.txt"));
 
   const reportStatus = JSON.parse(readDist("reports/status.json"));
   if (manifest.source_report_status === "artifact_unavailable" && reportStatus.status !== "artifact_unavailable") {
