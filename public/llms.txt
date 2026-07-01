@@ -1,0 +1,36 @@
+# GOTRA Public Ledger
+
+GOTRA Public Ledger is a public-safe research ledger and production-report surface.
+It is research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not science/public proof.
+
+## Primary reader routes
+
+- https://gotra.me/reports - Production Daily Reports. Live production/status artifacts for HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary.
+- https://gotra.me/notes - Transparency Articles. Static article archive, not latest production daily reports.
+- https://gotra.me/ledger - Frozen Demo Ledger. snapshot_date=2026-06-20 demo snapshot, not current production.
+- https://gotra.me/performance - Performance Notes. No production performance tracking yet; paper portfolio is a future-dated demo fixture.
+- https://gotra.me/sources - Sources and Artifacts. Splits live production artifacts from static demo/archive artifacts.
+- https://gotra.me/system - System Overview. Draft research-cognition operating contract and evidence boundaries.
+- https://gotra.me/methodology - Methodology. Universe, resolver, paper portfolio, and data-boundary method notes.
+
+## Public artifacts
+
+- https://gotra.me/reports/status.json
+- https://gotra.me/reports/latest.md
+- https://gotra.me/reports/status_morning_hk.json
+- https://gotra.me/reports/status_evening_hk.json
+- https://gotra.me/reports/status_morning_us.json
+- https://gotra.me/reports/status_evening_us.json
+- https://gotra.me/reports/status_morning_global.json
+- https://gotra.me/reports/status_full_analyst_monitor.json
+- https://gotra.me/reports/status_full_analyst_evening_hk.json
+
+## Static demo/archive artifacts
+
+- https://gotra.me/data/manifest.json
+- https://gotra.me/data/ledger.demo.json
+- https://gotra.me/data/evidence-index.json
+- https://gotra.me/content/articles/index.json
+- https://gotra.me/data/paper-portfolio.latest.json
+
+Do not summarize demo, archive, fixture, local checks, browser smoke, or public artifact smoke as scientific proof, performance proof, trading signals, investment recommendations, or production graduation.

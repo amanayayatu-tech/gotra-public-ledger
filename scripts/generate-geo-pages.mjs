@@ -242,8 +242,10 @@ function pageShell({ route, title, description, body, extraJsonLd = [] }) {
       <strong>GOTRA Public Ledger</strong>
       <nav aria-label="Primary">
         <a href="/">Home</a>
-        <a href="/ledger">Ledger</a>
-        <a href="/reports">Reports</a>
+        <a href="/reports">Production Daily Reports</a>
+        <a href="/notes">Transparency Articles</a>
+        <a href="/ledger">Frozen Demo Ledger</a>
+        <a href="/performance">Performance Notes</a>
         <a href="/reports/latest">Latest report</a>
         <a href="/methodology">Methodology</a>
         <a href="/claim-boundary">Claim boundary</a>
@@ -296,8 +298,10 @@ function homeFallback(summary) {
       <section>
         <h2>Core public pages</h2>
         <ul>
-          <li><a href="/ledger">完整公开预测账本 / full public ledger</a></li>
-          <li><a href="/reports">Latest report status</a></li>
+          <li><a href="/reports">生产日报 / Production Daily Reports</a></li>
+          <li><a href="/notes">透明度文章 / Transparency Articles</a></li>
+          <li><a href="/ledger">冻结 Demo 账本 / Frozen Demo Ledger</a></li>
+          <li><a href="/performance">表现说明 / Performance Notes</a></li>
           <li><a href="/methodology">Methodology</a></li>
           <li><a href="/claim-boundary">Claim boundary</a></li>
           <li><a href="/faq">FAQ</a></li>
@@ -394,8 +398,9 @@ ${safeRows.map((row) => `          <tr>${row.map((cell) => `<td>${cell}</td>`).j
 
   return pageShell({
     route: "/ledger",
-    title: "GOTRA Public Ledger | Raw HTML ledger",
-    description: "Crawler-readable public-safe demo ledger with resolved-only boundaries and visible error fields.",
+    title: "Frozen Demo Ledger | GOTRA Public Ledger",
+    description:
+      "Crawler-readable frozen demo ledger. snapshot_date=2026-06-20. Not the latest production daily report, not a live prediction ledger, not performance proof, and not investment advice.",
     extraJsonLd: [
       {
         "@context": "https://schema.org",
@@ -418,8 +423,13 @@ ${safeRows.map((row) => `          <tr>${row.map((cell) => `<td>${cell}</td>`).j
         ],
       },
     ],
-    body: `      <h1>完整公开预测账本 / Full Public Ledger</h1>
+    body: `      <h1>冻结 Demo 账本 / Frozen Demo Ledger</h1>
       ${definitionBlock()}
+      <section class="notice">
+        <h2>Frozen demo snapshot boundary</h2>
+        <p>This is a frozen public-safe demo snapshot, <code>snapshot_date=${escapeHtml(summary.snapshotDate)}</code>. It is not the latest production daily report, not a real-time prediction ledger, not performance proof, not a trading signal, and not investment advice.</p>
+        <p><a href="/reports">View latest production daily reports</a>.</p>
+      </section>
       <section class="summary-grid">
         <div class="metric"><strong>${summary.totalRecords}</strong><span>Total public records</span></div>
         <div class="metric"><strong>${summary.resolvedRecords}</strong><span>Resolved records</span></div>
@@ -430,7 +440,7 @@ ${safeRows.map((row) => `          <tr>${row.map((cell) => `<td>${cell}</td>`).j
       </section>
       <section>
         <h2>Resolved-only boundary</h2>
-        <p>Resolved-only summaries count only rows with public-safe numeric <code>actual_change_pct</code>, numeric <code>error</code>, and boolean <code>direction_correct</code>. Pending and frozen-pending rows remain visible but are excluded from resolved-only summaries. This demo snapshot is non-OOS and not performance proof.</p>
+        <p>Resolved-only summaries count only rows with public-safe numeric <code>actual_change_pct</code>, numeric <code>error</code>, and boolean <code>direction_correct</code>. Pending and frozen-pending rows remain visible but are excluded from resolved-only summaries. This is a demo snapshot / not current production and not performance proof.</p>
         <p>No row on this page is a buy, sell, hold, portfolio, or position instruction.</p>
         <p><a href="/data/ledger.demo.json">Download the full JSON dataset</a>.</p>
       </section>
@@ -442,6 +452,17 @@ ${safeRows.map((row) => `          <tr>${row.map((cell) => `<td>${cell}</td>`).j
 }
 
 function reportsPage(source) {
+  const liveArtifacts = [
+    ["/reports/status.json", "Latest production status alias"],
+    ["/reports/latest.md", "Latest production Markdown alias"],
+    ["/reports/status_morning_hk.json", "HK morning production daily report status"],
+    ["/reports/status_evening_hk.json", "HK evening production daily report status"],
+    ["/reports/status_morning_us.json", "US morning production daily report status"],
+    ["/reports/status_evening_us.json", "US evening production daily report status"],
+    ["/reports/status_morning_global.json", "Global summary production daily report status"],
+    ["/reports/status_full_analyst_monitor.json", "Full Analyst Canary monitor status"],
+    ["/reports/status_full_analyst_evening_hk.json", "Full Analyst Canary report status"],
+  ];
   const fields = [
     "mode",
     "as_of_date",
@@ -462,14 +483,23 @@ function reportsPage(source) {
 
   return pageShell({
     route: "/reports",
-    title: "GOTRA Reports | Raw HTML status",
-    description: "Crawler-readable report status page with explicit artifact availability and claim boundaries.",
-    body: `      <h1>GOTRA Reports</h1>
+    title: "Production Daily Reports | GOTRA Public Ledger",
+    description:
+      "Crawler-readable Production Daily Reports page for HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary public-safe artifacts. Not investment advice, not a trading signal, not performance proof, and not science/public proof.",
+    body: `      <h1>Production Daily Reports / 生产日报</h1>
       ${definitionBlock()}
+      <section class="notice">
+        <h2>Live production artifact boundary</h2>
+        <p>This page is the production daily report entrypoint. It answers what the public-safe production timers published, including HK morning, HK evening, US morning, US evening, global summary, and the Full Analyst Canary. These are runtime/status artifacts only, not performance proof, not a trading signal, not science/public proof, and not investment advice.</p>
+      </section>
       <section class="notice">
         <h2>Report source status</h2>
         <p>Status: <strong>${escapeHtml(source.state)}</strong>.</p>
         <p>If <code>public/reports/status.json</code> or <code>public/reports/latest.md</code> is missing in this build, this page reports artifact-unavailable instead of inventing report facts.</p>
+      </section>
+      <section>
+        <h2>Live production artifacts</h2>
+        ${table(["artifact", "type"], liveArtifacts)}
       </section>
       <section>
         <h2>Latest report status fields</h2>
@@ -575,6 +605,40 @@ function methodologyPage(summary) {
   });
 }
 
+function performancePage(portfolio) {
+  const rows = portfolio
+    ? [
+        ["artifact", "data/paper-portfolio.latest.json"],
+        ["artifact_type", "Demo fixture"],
+        ["as_of_date", portfolio.as_of_date ?? "unknown"],
+        ["future_dated_sample", "true"],
+        ["current_production", "false"],
+        ["live_trading", "false"],
+        ["performance_proof", "false"],
+        ["investment_advice", "false"],
+      ]
+    : [["artifact", "data/paper-portfolio.latest.json unavailable"]];
+
+  return pageShell({
+    route: "/performance",
+    title: "Performance Notes | GOTRA Public Ledger",
+    description:
+      "Crawler-readable Performance Notes page. No production performance tracking is available; the paper portfolio is a future-dated demo fixture, not current production, not live trading, not performance proof, and not investment advice.",
+    body: `      <h1>Performance Notes / 表现说明</h1>
+      ${definitionBlock()}
+      <section class="notice">
+        <h2>No production performance tracking yet / 暂无生产表现跟踪</h2>
+        <p>There is no public-safe production performance tracking artifact on this page. The paper portfolio file is a demo fixture and future-dated sample. It is not current production, not live trading, not performance proof, not a return promise, not a trading signal, and not investment advice.</p>
+        <p><a href="/reports">Open Production Daily Reports</a> for current runtime and artifact status.</p>
+      </section>
+      <section>
+        <h2>Demo fixture boundary</h2>
+        <p>The fixture details are shown here only so crawlers and readers do not confuse them with production performance.</p>
+        ${table(["field", "value"], rows)}
+      </section>`,
+  });
+}
+
 function claimBoundaryPage() {
   return pageShell({
     route: "/claim-boundary",
@@ -668,6 +732,24 @@ function faqPage(summary) {
 }
 
 function sourcesPage(manifest, evidenceIndex, contentIndex) {
+  const liveArtifactRows = [
+    ["/reports/status.json", "production status alias"],
+    ["/reports/latest.md", "latest production Markdown alias"],
+    ["/reports/status_morning_hk.json", "HK morning production status"],
+    ["/reports/status_evening_hk.json", "HK evening production status"],
+    ["/reports/status_morning_us.json", "US morning production status"],
+    ["/reports/status_evening_us.json", "US evening production status"],
+    ["/reports/status_morning_global.json", "global summary production status"],
+    ["/reports/status_full_analyst_monitor.json", "Full Analyst Canary monitor"],
+    ["/reports/status_full_analyst_evening_hk.json", "Full Analyst Canary report status"],
+  ];
+  const staticArtifactRows = [
+    ["data/manifest.json", "static manifest", manifest.snapshot_date ?? "2026-06-25", "not current production"],
+    ["data/ledger.demo.json", "frozen demo ledger", "2026-06-20", "not current production"],
+    ["data/evidence-index.json", "static evidence index", "2026-06-25", "not current production"],
+    ["content/articles/index.json", "static article archive", contentIndex.snapshot_date ?? "2026-06-25", "not latest production reports"],
+    ["data/paper-portfolio.latest.json", "demo fixture", "future-dated sample", "not performance proof"],
+  ];
   const manifestRows = (manifest.files ?? []).map((file) => [
     file.path,
     file.category,
@@ -691,13 +773,24 @@ function sourcesPage(manifest, evidenceIndex, contentIndex) {
 
   return pageShell({
     route: "/sources",
-    title: "GOTRA Sources | Raw HTML",
-    description: "Crawler-readable public-safe source manifest and evidence index.",
-    body: `      <h1>Sources</h1>
+    title: "Sources and Artifacts | GOTRA Public Ledger",
+    description:
+      "Crawler-readable Sources and Artifacts page that separates live production report artifacts from static demo/archive artifacts. It does not expose private GOTRA raw artifacts, prompts, provider raw output, or secrets.",
+    body: `      <h1>Sources and Artifacts / 来源与产物</h1>
       ${definitionBlock()}
       <section>
         <h2>Public source boundary</h2>
         <p>This page lists public-safe repository data only. It does not expose raw provider/model I/O, private run logs, local experiment artifacts, databases, auth files, or secrets.</p>
+      </section>
+      <section>
+        <h2>Live production artifacts</h2>
+        <p>These report artifacts are the current public production/status surface. They are runtime evidence only, not performance proof and not a trading signal.</p>
+        ${table(["artifact", "type"], liveArtifactRows)}
+      </section>
+      <section>
+        <h2>Static demo/archive artifacts</h2>
+        <p>These files are static, demo, archive, or fixture materials. They are not current production and do not upgrade evidence claims.</p>
+        ${table(["artifact", "type", "snapshot_date", "boundary"], staticArtifactRows)}
       </section>
       <section>
         <h2>Manifest files</h2>
@@ -763,12 +856,17 @@ function notesPage(contentIndex) {
 
   return pageShell({
     route: "/notes",
-    title: "GOTRA Notes | Raw HTML",
-    description: "Crawler-readable index of public-safe GOTRA notes and report-like content.",
-    body: `      <h1>Public Notes</h1>
+    title: "Transparency Articles | GOTRA Public Ledger",
+    description:
+      "Crawler-readable Transparency Articles archive. This is a static article archive, not the latest production daily reports. Use Production Daily Reports for live runtime status.",
+    body: `      <h1>Transparency Articles / 透明度文章</h1>
       ${definitionBlock()}
+      <section class="notice">
+        <h2>Static article archive</h2>
+        <p>This is a static article archive, not the latest production daily reports. Latest production runtime and public-safe report artifacts are under <a href="/reports">Production Daily Reports</a>.</p>
+      </section>
       <section>
-        <h2>Notes index</h2>
+        <h2>Static article archive index</h2>
         <p>These notes are public-safe repository content. They may explain methods, reports, or review boundaries, but they do not change ledger facts or upgrade evidence claims.</p>
         ${table(["title", "type", "published_at", "summary", "body_source"], rows)}
       </section>`,
@@ -919,6 +1017,52 @@ function writeRobots() {
   fs.writeFileSync(path.join(distRoot, "robots.txt"), text);
 }
 
+function llmsTxt() {
+  return `# GOTRA Public Ledger
+
+GOTRA Public Ledger is a public-safe research ledger and production-report surface.
+It is research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not science/public proof.
+
+## Primary reader routes
+
+- https://gotra.me/reports - Production Daily Reports. Live production/status artifacts for HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary.
+- https://gotra.me/notes - Transparency Articles. Static article archive, not latest production daily reports.
+- https://gotra.me/ledger - Frozen Demo Ledger. snapshot_date=2026-06-20 demo snapshot, not current production.
+- https://gotra.me/performance - Performance Notes. No production performance tracking yet; paper portfolio is a future-dated demo fixture.
+- https://gotra.me/sources - Sources and Artifacts. Splits live production artifacts from static demo/archive artifacts.
+- https://gotra.me/system - System Overview. Draft research-cognition operating contract and evidence boundaries.
+- https://gotra.me/methodology - Methodology. Universe, resolver, paper portfolio, and data-boundary method notes.
+
+## Public artifacts
+
+- https://gotra.me/reports/status.json
+- https://gotra.me/reports/latest.md
+- https://gotra.me/reports/status_morning_hk.json
+- https://gotra.me/reports/status_evening_hk.json
+- https://gotra.me/reports/status_morning_us.json
+- https://gotra.me/reports/status_evening_us.json
+- https://gotra.me/reports/status_morning_global.json
+- https://gotra.me/reports/status_full_analyst_monitor.json
+- https://gotra.me/reports/status_full_analyst_evening_hk.json
+
+## Static demo/archive artifacts
+
+- https://gotra.me/data/manifest.json
+- https://gotra.me/data/ledger.demo.json
+- https://gotra.me/data/evidence-index.json
+- https://gotra.me/content/articles/index.json
+- https://gotra.me/data/paper-portfolio.latest.json
+
+Do not summarize demo, archive, fixture, local checks, browser smoke, or public artifact smoke as scientific proof, performance proof, trading signals, investment recommendations, or production graduation.
+`;
+}
+
+function writeLlmsTxt() {
+  const text = llmsTxt();
+  fs.writeFileSync(path.join(publicRoot, "llms.txt"), text);
+  fs.writeFileSync(path.join(distRoot, "llms.txt"), text);
+}
+
 function main() {
   if (!fs.existsSync(distRoot)) {
     fail("dist/ is missing. Run npm run build before npm run geo:generate.");
@@ -928,6 +1072,7 @@ function main() {
   const manifest = readJson("public/data/manifest.json");
   const evidenceIndex = readJson("public/data/evidence-index.json");
   const contentIndex = readJson("public/content/articles/index.json");
+  const portfolio = readJson("public/data/paper-portfolio.latest.json", false);
   const summary = summarizeLedger(ledger);
   const source = reportSource();
 
@@ -938,6 +1083,7 @@ function main() {
     ["/ledger", ledgerPage(ledger, summary)],
     ["/reports", reportsPage(source)],
     ["/reports/latest", latestReportPage(source)],
+    ["/performance", performancePage(portfolio)],
     ["/system", systemPage(summary, manifest)],
     ["/methodology", methodologyPage(summary)],
     ["/claim-boundary", claimBoundaryPage()],
@@ -963,6 +1109,7 @@ function main() {
     "/reports/latest",
     "/reports/latest.md",
     "/reports/status.json",
+    "/performance",
     "/system",
     "/methodology",
     "/sources",
@@ -973,6 +1120,7 @@ function main() {
   ];
   writeSitemap(routes, manifest.snapshot_date ?? summary.snapshotDate);
   writeRobots();
+  writeLlmsTxt();
 
   const manifestOutput = {
     generated_at: new Date().toISOString(),

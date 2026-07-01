@@ -3,6 +3,9 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 const appSource = fs.readFileSync(path.join(process.cwd(), "src/App.tsx"), "utf8");
+const seoHeadSource = fs.readFileSync(path.join(process.cwd(), "src/components/SeoHead.tsx"), "utf8");
+const geoGeneratorSource = fs.readFileSync(path.join(process.cwd(), "scripts/generate-geo-pages.mjs"), "utf8");
+const geoSmokeSource = fs.readFileSync(path.join(process.cwd(), "scripts/geo-smoke.mjs"), "utf8");
 
 describe("public ledger information architecture contract", () => {
   it("keeps notes as a transparency article archive instead of a production report entry", () => {
@@ -27,5 +30,25 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("data/ledger.demo.json");
     expect(appSource).toContain("data/paper-portfolio.latest.json");
     expect(appSource).toContain("content/articles/index.json");
+  });
+
+  it("defines route-specific GEO metadata for primary production, archive, demo, and fixture routes", () => {
+    expect(seoHeadSource).toContain("Production Daily Reports");
+    expect(seoHeadSource).toContain("Transparency Articles");
+    expect(seoHeadSource).toContain("Frozen Demo Ledger");
+    expect(seoHeadSource).toContain("Performance Notes");
+    expect(seoHeadSource).toContain("Sources and Artifacts");
+    expect(seoHeadSource).toContain("not performance proof");
+    expect(seoHeadSource).toContain("not science/public proof");
+  });
+
+  it("keeps generated GEO pages discoverable without relying only on hash routes", () => {
+    expect(geoGeneratorSource).toContain("function performancePage");
+    expect(geoGeneratorSource).toContain('"/performance"');
+    expect(geoGeneratorSource).toContain("function llmsTxt");
+    expect(geoGeneratorSource).toContain("Live production artifacts");
+    expect(geoGeneratorSource).toContain("Static demo/archive artifacts");
+    expect(geoSmokeSource).toContain('readDist("llms.txt")');
+    expect(geoSmokeSource).toContain("https://gotra.me/performance");
   });
 });
