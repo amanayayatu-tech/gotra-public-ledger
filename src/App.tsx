@@ -1096,6 +1096,8 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
   const { brief } = state;
   const hasWatchlist = brief.watchlist.length > 0;
   const hasKnownGaps = brief.known_gaps.length > 0;
+  const selectedAgentItems = brief.agent_analysis_items.slice(0, 8);
+  const hasRichAgentBrief = selectedAgentItems.length > 0;
 
   return (
     <>
@@ -1117,45 +1119,147 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
             ))}
           </div>
           <div className="hero-actions today-actions">
-            <a className="primary-action" href={routeHref("/reports")}>
-              {copy(language, "查看生产日报审计", "Open production audit")}
+            <a className="primary-action" href={brief.links.full_analyst_report}>
+              {copy(language, "打开 Full Analyst 研究报告", "Open Full Analyst report")}
             </a>
             <a className="secondary-action" href={brief.links.latest_report}>
-              {copy(language, "打开最新 Markdown", "Open latest markdown")}
+              {copy(language, "打开行情覆盖日报", "Open coverage daily report")}
             </a>
           </div>
         </div>
         <aside className="today-health-panel" aria-label={copy(language, "今日研究状态", "Daily research state")}>
           <div>
-            <span>{copy(language, "日报状态", "Daily reports")}</span>
-            <strong>{dailyBriefHealthLabel(brief.system_health.daily_reports, language)}</strong>
+            <span>{copy(language, "Full Analyst 标的", "Full Analyst symbols")}</span>
+            <strong>{brief.full_analyst.publish_count}</strong>
           </div>
           <div>
-            <span>{copy(language, "数据缺口报告", "Reports with data gaps")}</span>
-            <strong>{brief.research_effectiveness.reports_with_data_gaps_count}</strong>
+            <span>{copy(language, "内部 Alaya 回读", "Internal Alaya readback")}</span>
+            <strong>{brief.internal_alaya.readback_verified_count}</strong>
           </div>
           <div>
-            <span>{copy(language, "Full Analyst 金丝雀", "Full Analyst Canary")}</span>
+            <span>{copy(language, "金丝雀状态", "Canary status")}</span>
             <strong>{dailyBriefHealthLabel(brief.system_health.full_analyst_canary, language)}</strong>
           </div>
         </aside>
       </section>
 
-      {state.source === "fallback" ? (
+      {state.source === "fallback" || !hasRichAgentBrief ? (
         <section className="route-panel edge-state-note">
           {copy(
             language,
-            "当前页面从公开状态文件临时合成简报；daily_reader_brief.json artifact 不可用或 schema 不匹配。",
-            "This page synthesized the brief from public status files because the daily_reader_brief.json artifact was unavailable or mismatched.",
+            "Full Analyst rich brief unavailable：当前页面从公开状态文件临时合成 fallback，不能展示完整 per-symbol agent 分析。",
+            "Full Analyst rich brief unavailable: this page is using a public-status fallback and cannot show complete per-symbol agent analysis.",
           )}{" "}
-          <span className="mono">{state.fallbackReason}</span>
+          {state.fallbackReason ? <span className="mono">{state.fallbackReason}</span> : null}
         </section>
       ) : null}
+
+      <section className="today-section" aria-labelledby="today-full-analyst-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "Full Analyst", "Full Analyst")}</span>
+          <h2 id="today-full-analyst-title">{copy(language, "今日研究摘要", "Today's research summary")}</h2>
+          <p>{brief.full_analyst.summary}</p>
+        </div>
+        <div className="today-effect-grid today-full-analyst-grid">
+          <article>
+            <span>run_id</span>
+            <strong className="mono">{brief.full_analyst.run_id}</strong>
+            <p>{copy(language, `run_status=${brief.full_analyst.run_status}`, `run_status=${brief.full_analyst.run_status}`)}</p>
+          </article>
+          <article>
+            <span>{copy(language, "发布 / 复核 / 阻断", "Published / review / blocked")}</span>
+            <strong>{brief.full_analyst.publish_count} / {brief.full_analyst.needs_review_count} / {brief.full_analyst.blocked_count}</strong>
+            <p>{copy(language, "candidate/canary 公开状态，不是 formal acceptance。", "Candidate/canary public status, not formal acceptance.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "数据缺口 / 失败", "Data gaps / failed")}</span>
+            <strong>{brief.full_analyst.data_gap_count} / {brief.full_analyst.failed_count}</strong>
+            <p>{brief.full_analyst.evidence_layer}</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="today-section" aria-labelledby="today-agent-matrix-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "Agent 分析矩阵", "Agent analysis matrix")}</span>
+          <h2 id="today-agent-matrix-title">{copy(language, "今天 agent 分析了什么", "What the agent analyzed today")}</h2>
+          <p>
+            {copy(
+              language,
+              `daily_reader_brief.json 包含 ${brief.agent_analysis_items.length} 个公开 per-symbol 研究摘要；本页展示精选样本，完整报告见 Full Analyst Markdown。`,
+              `daily_reader_brief.json contains ${brief.agent_analysis_items.length} public per-symbol research summaries; this page shows selected examples and links to the full markdown report.`,
+            )}
+          </p>
+        </div>
+        {hasRichAgentBrief ? (
+          <div className="today-agent-grid">
+            {selectedAgentItems.map((item) => (
+              <article className="today-agent-card" key={item.symbol}>
+                <div className="today-agent-head">
+                  <span>{copy(language, "研究样本", "Research sample")}</span>
+                  <strong>{item.symbol}</strong>
+                </div>
+                <p>{item.research_summary}</p>
+                <div className="today-agent-columns">
+                  <div>
+                    <h3>{copy(language, "正方", "Positive case")}</h3>
+                    <ul>
+                      {item.positive_case.slice(0, 2).map((value) => (
+                        <li key={value}>{value}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h3>{copy(language, "反方 / red-team", "Negative / red-team")}</h3>
+                    <ul>
+                      {[...item.negative_case.slice(0, 1), ...item.red_team_review.slice(0, 2)].map((value) => (
+                        <li key={value}>{value}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <details className="today-agent-details">
+                  <summary>{copy(language, "风险、观察项、来源摘要", "Risks, watch items, source notes")}</summary>
+                  <div className="today-agent-columns">
+                    <div>
+                      <h3>{copy(language, "风险因素", "Risk factors")}</h3>
+                      <ul>
+                        {item.risk_factors.slice(0, 3).map((value) => (
+                          <li key={value}>{value}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h3>{copy(language, "观察项", "Watch items")}</h3>
+                      <ul>
+                        {item.watch_items.slice(0, 3).map((value) => (
+                          <li key={value}>{value}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                  {item.source_notes.length > 0 ? (
+                    <ul className="today-source-notes">
+                      {item.source_notes.slice(0, 3).map((value) => (
+                        <li key={value}>{value}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </details>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="edge-state-note">
+            {copy(language, "没有可展示的公开 per-symbol agent 分析；请打开 Full Analyst report 或等待 rich brief artifact。", "No public per-symbol agent analysis is available; open the Full Analyst report or wait for the rich brief artifact.")}
+          </div>
+        )}
+      </section>
 
       <section className="today-section" aria-labelledby="today-top-items-title">
         <div className="section-heading compact">
           <span>{copy(language, "今日重点", "Top items")}</span>
-          <h2 id="today-top-items-title">{copy(language, "今天有什么值得看", "What to read today")}</h2>
+          <h2 id="today-top-items-title">{copy(language, "研究状态与数据缺口", "Research state and data gaps")}</h2>
         </div>
         <div className="today-card-grid">
           {brief.top_items.map((item) => (
@@ -1168,12 +1272,56 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         </div>
       </section>
 
+      <section className="report-two-column today-two-column" aria-label={copy(language, "运行框架与内部 Alaya", "Run framework and internal Alaya")}>
+        <div>
+          <h2>{copy(language, "提示词 / 运行框架摘要", "Prompt / run framework summary")}</h2>
+          <ul className="today-list">
+            {brief.prompt_framework_summary.task_structure.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+            <li>{brief.prompt_framework_summary.judge_gate}</li>
+            <li>{brief.prompt_framework_summary.public_safety_scan}</li>
+            <li>{brief.prompt_framework_summary.raw_io_policy}</li>
+          </ul>
+        </div>
+        <div>
+          <h2>{copy(language, "GOTRA 内部 Alaya 认知飞轮", "GOTRA internal Alaya cognition flywheel")}</h2>
+          <div className="today-effect-grid today-alaya-grid">
+            <article>
+              <span>mode</span>
+              <strong>{brief.internal_alaya.mode}</strong>
+            </article>
+            <article>
+              <span>{copy(language, "同步 / 失败", "Synced / failed")}</span>
+              <strong>{brief.internal_alaya.synced_count} / {brief.internal_alaya.failed_count}</strong>
+            </article>
+            <article>
+              <span>{copy(language, "回读 / 失败", "Readback / failed")}</span>
+              <strong>{brief.internal_alaya.readback_verified_count} / {brief.internal_alaya.readback_failed_count}</strong>
+            </article>
+          </div>
+          <p className="muted">{brief.internal_alaya.interpretation}</p>
+        </div>
+      </section>
+
       <section className="today-section" aria-labelledby="today-watchlist-title">
         <div className="section-heading compact">
-          <span>{copy(language, "观察清单", "Watchlist")}</span>
-          <h2 id="today-watchlist-title">{copy(language, "哪些标的需要注意", "What needs attention")}</h2>
+          <span>{copy(language, "研究观察清单", "Research watchlist")}</span>
+          <h2 id="today-watchlist-title">{copy(language, "哪些问题需要继续验证", "What still needs verification")}</h2>
         </div>
-        {hasWatchlist ? (
+        {brief.research_watchlist.length > 0 ? (
+          <div className="today-watchlist">
+            {brief.research_watchlist.map((item) => (
+              <article key={`${item.symbol}-${item.question}`}>
+                <strong>{item.symbol}</strong>
+                <span>{item.source}</span>
+                <p>{item.question}</p>
+                <small>{item.reason}</small>
+                <p>{item.next_check}</p>
+              </article>
+            ))}
+          </div>
+        ) : hasWatchlist ? (
           <div className="today-watchlist">
             {brief.watchlist.map((item) => (
               <article key={`${item.symbol}-${item.reason}`}>
@@ -1270,8 +1418,10 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         </div>
         <div className="related-prediction-list today-links">
           <a href={routeHref("/reports")}>{copy(language, "生产日报审计", "Production audit")}</a>
-          <a href={brief.links.latest_report}>{copy(language, "最新 Markdown", "Latest Markdown")}</a>
+          <a href={brief.links.latest_report}>{copy(language, "行情覆盖日报 latest.md", "Coverage daily latest.md")}</a>
+          <a href={brief.links.full_analyst_report}>{copy(language, "Full Analyst 研究报告", "Full Analyst report")}</a>
           <a href={brief.links.status_json}>{copy(language, "状态文件", "Status file")}</a>
+          <a href={brief.links.full_analyst_status}>{copy(language, "Full Analyst 状态", "Full Analyst status")}</a>
           <a href={brief.links.full_analyst_monitor}>{copy(language, "Full Analyst 金丝雀监控", "Full Analyst Canary monitor")}</a>
         </div>
         <details className="audit-details today-technical-details">

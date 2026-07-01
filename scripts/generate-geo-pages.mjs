@@ -5,6 +5,7 @@ import path from "node:path";
 const repoRoot = process.cwd();
 const distRoot = path.join(repoRoot, "dist");
 const publicRoot = path.join(repoRoot, "public");
+const externalReportsRoot = process.env.GOTRA_REPORTS_DIR ? path.resolve(process.env.GOTRA_REPORTS_DIR) : null;
 const baseUrl = "https://gotra.me";
 
 const englishDefinition =
@@ -22,7 +23,7 @@ function fail(message) {
 }
 
 function readJson(relativePath, required = true) {
-  const filePath = path.join(repoRoot, relativePath);
+  const filePath = sourcePath(relativePath);
   if (!fs.existsSync(filePath)) {
     if (required) {
       fail(`Missing required public-safe source: ${relativePath}`);
@@ -33,8 +34,16 @@ function readJson(relativePath, required = true) {
 }
 
 function readText(relativePath) {
-  const filePath = path.join(repoRoot, relativePath);
+  const filePath = sourcePath(relativePath);
   return fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : null;
+}
+
+function sourcePath(relativePath) {
+  const normalized = relativePath.replace(/^\/+/, "");
+  if (externalReportsRoot && normalized.startsWith("public/reports/")) {
+    return path.join(externalReportsRoot, normalized.replace(/^public\/reports\//, ""));
+  }
+  return path.join(repoRoot, relativePath);
 }
 
 function ensureDir(dirPath) {
@@ -460,7 +469,8 @@ function reportsPage(source) {
   const liveArtifacts = [
     ["/reports/daily_reader_brief.json", "Daily reader brief JSON"],
     ["/reports/status.json", "Latest production status alias"],
-    ["/reports/latest.md", "Latest production Markdown alias"],
+    ["/reports/latest.md", "Coverage daily report alias, not the Full Analyst research report"],
+    ["/reports/full_analyst_evening_hk_2026-06-30.md", "Full Analyst research report Markdown"],
     ["/reports/status_morning_hk.json", "HK morning production daily report status"],
     ["/reports/status_evening_hk.json", "HK evening production daily report status"],
     ["/reports/status_morning_us.json", "US morning production daily report status"],
@@ -512,7 +522,7 @@ function reportsPage(source) {
         ${table(["field", "value"], rows)}
         <ul>
           <li><a href="/reports/latest">Latest report HTML</a></li>
-          <li><a href="/reports/latest.md">Latest report Markdown</a></li>
+          <li><a href="/reports/latest.md">Coverage daily report latest.md</a></li>
           <li><a href="/reports/status.json">Report status JSON</a></li>
         </ul>
       </section>`,
@@ -530,6 +540,11 @@ function todayPage(source) {
   const watchlist = Array.isArray(brief?.watchlist) ? brief.watchlist : [];
   const knownGaps = Array.isArray(brief?.known_gaps) ? brief.known_gaps : [];
   const nextWatch = Array.isArray(brief?.next_watch) ? brief.next_watch : [];
+  const fullAnalyst = brief?.full_analyst ?? {};
+  const agentItems = Array.isArray(brief?.agent_analysis_items) ? brief.agent_analysis_items : [];
+  const researchWatchlist = Array.isArray(brief?.research_watchlist) ? brief.research_watchlist : [];
+  const internalAlaya = brief?.internal_alaya ?? {};
+  const promptFramework = brief?.prompt_framework_summary ?? {};
   const effect = brief?.research_effectiveness ?? {};
 
   return pageShell({
@@ -556,6 +571,40 @@ function todayPage(source) {
         <p>${escapeHtml(subtitle)}</p>
       </section>
       <section>
+        <h2>Full Analyst research summary / Full Analyst 今日研究摘要</h2>
+        ${table(
+          ["field", "value"],
+          [
+            ["run_id", fullAnalyst.run_id ?? "artifact_unavailable"],
+            ["run_status", fullAnalyst.run_status ?? "artifact_unavailable"],
+            ["report_markdown", fullAnalyst.report_markdown ?? "artifact_unavailable"],
+            ["publish_count", fullAnalyst.publish_count ?? "artifact_unavailable"],
+            ["needs_review_count", fullAnalyst.needs_review_count ?? "artifact_unavailable"],
+            ["blocked_count", fullAnalyst.blocked_count ?? "artifact_unavailable"],
+            ["failed_count", fullAnalyst.failed_count ?? "artifact_unavailable"],
+            ["data_gap_count", fullAnalyst.data_gap_count ?? "artifact_unavailable"],
+            ["summary", fullAnalyst.summary ?? "Full Analyst rich brief unavailable."],
+          ],
+        )}
+      </section>
+      <section>
+        <h2>Agent analysis matrix / Agent 分析矩阵</h2>
+        ${
+          agentItems.length > 0
+            ? table(
+                ["symbol", "research_summary", "red_team_review", "risk_factors", "watch_items"],
+                agentItems.slice(0, 12).map((item) => [
+                  item.symbol,
+                  item.research_summary,
+                  Array.isArray(item.red_team_review) ? item.red_team_review.slice(0, 2).join(" | ") : "",
+                  Array.isArray(item.risk_factors) ? item.risk_factors.slice(0, 2).join(" | ") : "",
+                  Array.isArray(item.watch_items) ? item.watch_items.slice(0, 2).join(" | ") : "",
+                ]),
+              )
+            : "<p>Full Analyst rich brief unavailable; no per-symbol agent analysis is inferred.</p>"
+        }
+      </section>
+      <section>
         <h2>Top items / 今日重点</h2>
         ${
           topItems.length > 0
@@ -566,10 +615,35 @@ function todayPage(source) {
       <section>
         <h2>Watchlist / 观察清单</h2>
         ${
-          watchlist.length > 0
-            ? table(["symbol", "reason", "reader_takeaway"], watchlist.map((item) => [item.symbol, item.reason, item.reader_takeaway]))
+          researchWatchlist.length > 0
+            ? table(["symbol", "question", "reason", "next_check", "source"], researchWatchlist.map((item) => [item.symbol, item.question, item.reason, item.next_check, item.source]))
+            : watchlist.length > 0
+              ? table(["symbol", "reason", "reader_takeaway"], watchlist.map((item) => [item.symbol, item.reason, item.reader_takeaway]))
             : "<p>No public data-gap watch item is marked in this build.</p>"
         }
+      </section>
+      <section>
+        <h2>Prompt/run framework / 提示词与运行框架摘要</h2>
+        <ul>
+          ${(Array.isArray(promptFramework.task_structure) ? promptFramework.task_structure : ["Full Analyst rich brief unavailable."]).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+          <li>${escapeHtml(promptFramework.judge_gate ?? "judge_gate=artifact_unavailable")}</li>
+          <li>${escapeHtml(promptFramework.public_safety_scan ?? "public_safety_scan=artifact_unavailable")}</li>
+          <li>${escapeHtml(promptFramework.raw_io_policy ?? "No raw prompt/model I/O is embedded in this raw page.")}</li>
+        </ul>
+      </section>
+      <section>
+        <h2>GOTRA internal Alaya cognition flywheel / 内部 Alaya 认知飞轮</h2>
+        ${table(
+          ["field", "value"],
+          [
+            ["mode", internalAlaya.mode ?? "artifact_unavailable"],
+            ["synced_count", internalAlaya.synced_count ?? "artifact_unavailable"],
+            ["failed_count", internalAlaya.failed_count ?? "artifact_unavailable"],
+            ["readback_verified_count", internalAlaya.readback_verified_count ?? "artifact_unavailable"],
+            ["readback_failed_count", internalAlaya.readback_failed_count ?? "artifact_unavailable"],
+            ["interpretation", internalAlaya.interpretation ?? "Internal Alaya summary unavailable; no outside service is inferred."],
+          ],
+        )}
       </section>
       <section>
         <h2>Known gaps / 已知缺口</h2>
@@ -606,6 +680,9 @@ function todayPage(source) {
         <ul>
           <li><a href="/reports/daily_reader_brief.json">Daily reader brief JSON</a></li>
           <li><a href="/reports/status.json">Latest production status JSON</a></li>
+          <li><a href="${escapeHtml(fullAnalyst.report_markdown ?? "/reports/full_analyst_evening_hk_YYYY-MM-DD.md")}">Full Analyst research report Markdown</a></li>
+          <li><a href="${escapeHtml(fullAnalyst.status_json ?? "/reports/status_full_analyst_evening_hk.json")}">Full Analyst status JSON</a></li>
+          <li><a href="/reports/latest.md">Coverage daily latest.md</a></li>
           <li><a href="/reports/status_full_analyst_monitor.json">Full Analyst Canary monitor JSON</a></li>
           <li><a href="/reports">Production Daily Reports Audit</a></li>
         </ul>
@@ -835,7 +912,8 @@ function sourcesPage(manifest, evidenceIndex, contentIndex) {
   const liveArtifactRows = [
     ["/reports/daily_reader_brief.json", "Daily reader brief JSON"],
     ["/reports/status.json", "production status alias"],
-    ["/reports/latest.md", "latest production Markdown alias"],
+    ["/reports/latest.md", "coverage daily report alias"],
+    ["/reports/full_analyst_evening_hk_2026-06-30.md", "Full Analyst research report Markdown"],
     ["/reports/status_morning_hk.json", "HK morning production status"],
     ["/reports/status_evening_hk.json", "HK evening production status"],
     ["/reports/status_morning_us.json", "US morning production status"],
@@ -1035,8 +1113,73 @@ function writeGeneratedReportArtifacts(source) {
   fs.writeFileSync(path.join(reportsDir, "status.json"), `${JSON.stringify(status, null, 2)}\n`);
   const dailyReaderBrief = source.dailyReaderBrief ?? {
     schema: "gotra.daily_reader_brief.v1",
+    brief_date: "",
+    generated_at: "",
+    evidence_layer: "artifact_unavailable",
+    title: "GOTRA Daily Research Brief",
+    subtitle: "daily_reader_brief.json was not present in this repository build.",
+    tldr: "Full Analyst rich brief unavailable; no reader brief facts are inferred from private or raw artifacts.",
     status: "artifact_unavailable",
     note: "public/reports/daily_reader_brief.json was not present in this repository build; no reader brief facts were inferred.",
+    daily_report_status: {
+      status: "unavailable",
+      reports_updated_count: 0,
+      reports_with_data_gaps_count: 0,
+      known_gap_count: 0,
+      summary: "ordinary daily report status is unavailable in this repository build.",
+    },
+    full_analyst: {
+      run_id: "unavailable",
+      run_status: "unavailable",
+      report_markdown: "/reports/full_analyst_evening_hk_YYYY-MM-DD.md",
+      status_json: "/reports/status_full_analyst_evening_hk.json",
+      evidence_layer: "artifact_unavailable",
+      publish_count: 0,
+      needs_review_count: 0,
+      blocked_count: 0,
+      failed_count: 0,
+      data_gap_count: 0,
+      canary_status: "unavailable",
+      summary: "Full Analyst rich brief unavailable.",
+    },
+    agent_analysis_items: [],
+    prompt_framework_summary: {
+      prompt_template_version: null,
+      runner: null,
+      model: null,
+      max_concurrency: null,
+      task_structure: ["Full Analyst rich brief unavailable."],
+      judge_gate: "judge_gate=artifact_unavailable",
+      public_safety_scan: "public_safety_scan=artifact_unavailable",
+      raw_io_policy: "No raw prompt text, provider/model I/O, or credential material is embedded.",
+    },
+    internal_alaya: {
+      mode: "unavailable",
+      synced_count: 0,
+      failed_count: 0,
+      readback_verified_count: 0,
+      readback_failed_count: 0,
+      sync_status: null,
+      readback_status: null,
+      interpretation: "Internal Alaya summary unavailable; no outside service is inferred.",
+    },
+    research_watchlist: [],
+    top_items: [],
+    watchlist: [],
+    changes_since_last_brief: [],
+    known_gaps: [],
+    research_effectiveness: {
+      daily_update_status: "unavailable",
+      reports_updated_count: 0,
+      reports_with_data_gaps_count: 0,
+      canary_status: "unavailable",
+      reader_summary: "No reader summary is inferred when the artifact is unavailable.",
+    },
+    system_health: {
+      daily_reports: "unavailable",
+      full_analyst_canary: "unavailable",
+    },
+    next_watch: [],
     boundary: [
       "research information only",
       "not investment advice",
@@ -1044,6 +1187,15 @@ function writeGeneratedReportArtifacts(source) {
       "not performance proof",
       "not science/public proof",
     ],
+    links: {
+      latest_report: "/reports/latest.md",
+      full_analyst_report: "/reports/full_analyst_evening_hk_YYYY-MM-DD.md",
+      reports_page: "#/reports",
+      status_json: "/reports/status.json",
+      full_analyst_status: "/reports/status_full_analyst_evening_hk.json",
+      full_analyst_monitor: "/reports/status_full_analyst_monitor.json",
+      daily_reader_brief: "/reports/daily_reader_brief.json",
+    },
   };
   fs.writeFileSync(path.join(reportsDir, "daily_reader_brief.json"), `${JSON.stringify(dailyReaderBrief, null, 2)}\n`);
   if (!source.latestMarkdown) {
@@ -1139,7 +1291,7 @@ It is research information only. It is not investment advice, not a trading sign
 
 ## Primary reader routes
 
-- https://gotra.me/today - Daily Research Brief. Reader-first daily summary of production reports, known data gaps, watchlist items, Full Analyst Canary health, and next watch points.
+- https://gotra.me/today - Daily Research Brief. Reader-first Full Analyst research brief with agent analysis items, red-team review, risk factors, internal Alaya readback, known data gaps, and next watch points.
 - https://gotra.me/reports - Production Daily Reports. Live production/status artifacts for HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary.
 - https://gotra.me/notes - Transparency Articles. Static article archive, not latest production daily reports.
 - https://gotra.me/ledger - Frozen Demo Ledger. snapshot_date=2026-06-20 demo snapshot, not current production.
@@ -1152,7 +1304,8 @@ It is research information only. It is not investment advice, not a trading sign
 
 - https://gotra.me/reports/daily_reader_brief.json
 - https://gotra.me/reports/status.json
-- https://gotra.me/reports/latest.md
+- https://gotra.me/reports/latest.md - coverage daily report alias, not the Full Analyst research report.
+- https://gotra.me/reports/full_analyst_evening_hk_2026-06-30.md
 - https://gotra.me/reports/status_morning_hk.json
 - https://gotra.me/reports/status_evening_hk.json
 - https://gotra.me/reports/status_morning_us.json
@@ -1228,6 +1381,9 @@ function main() {
     "/reports/latest.md",
     "/reports/status.json",
     "/reports/daily_reader_brief.json",
+    "/reports/full_analyst_evening_hk_2026-06-30.md",
+    "/reports/status_full_analyst_evening_hk.json",
+    "/reports/status_full_analyst_monitor.json",
     "/performance",
     "/system",
     "/methodology",

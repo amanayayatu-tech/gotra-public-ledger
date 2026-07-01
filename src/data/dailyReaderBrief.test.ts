@@ -113,6 +113,13 @@ describe("daily reader brief builder", () => {
     expect(brief.schema).toBe("gotra.daily_reader_brief.v1");
     expect(brief.brief_date).toBe("2026-07-01");
     expect(brief.title).toBe("7月1日市场研究简报");
+    expect(brief.evidence_layer).toContain("public-safe artifact smoke");
+    expect(brief.daily_report_status.status).toBe("reports_updated");
+    expect(brief.full_analyst.report_markdown).toBe("/reports/full_analyst_evening_hk_2026-06-30.md");
+    expect(brief.full_analyst.summary).toContain("candidate/canary");
+    expect(brief.prompt_framework_summary.raw_io_policy).toContain("No raw prompt");
+    expect(brief.internal_alaya.interpretation).toContain("GOTRA 内部 Alaya cognition flywheel");
+    expect(brief.agent_analysis_items).toEqual([]);
     expect(brief.top_items[0]?.label).toContain("覆盖完整");
     expect(brief.known_gaps).toEqual([]);
     expect(brief.research_effectiveness.daily_update_status).toBe("reports_updated");
@@ -158,6 +165,10 @@ describe("daily reader brief builder", () => {
     expect(brief.watchlist[0]).toMatchObject({
       symbol: "NYSE:CWAN",
       status: "data_gap",
+    });
+    expect(brief.research_watchlist[0]).toMatchObject({
+      symbol: "NYSE:CWAN",
+      source: "daily_gap",
     });
     expect(brief.known_gaps[0]?.affected_report).toBe("美股晚报");
     expect(brief.next_watch.join("\n")).toContain("NYSE:CWAN");
