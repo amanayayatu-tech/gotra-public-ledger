@@ -14,7 +14,9 @@ describe("hash router", () => {
     expect(normalizeHashPath("#/ledger/")).toBe("/ledger");
     expect(routeHref("/performance")).toBe("#/performance");
     expect(routeHref("/today")).toBe("#/today");
+    expect(routeHref("/guide")).toBe("#/guide");
     expect(parseHashRoute("#/today").name).toBe("today");
+    expect(parseHashRoute("#/guide").name).toBe("guide");
     expect(parseHashRoute("#/system").name).toBe("system");
     expect(parseHashRoute("#/reports").name).toBe("reports");
   });
@@ -41,6 +43,7 @@ describe("hash router", () => {
 
   it("parses browser reports route and keeps hash routes authoritative", () => {
     expect(parseBrowserRoute("/reports", "").name).toBe("reports");
+    expect(parseBrowserRoute("/guide", "").name).toBe("guide");
     expect(parseBrowserRoute("/reports", "#/notes").name).toBe("notes");
   });
 });

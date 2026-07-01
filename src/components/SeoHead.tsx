@@ -84,6 +84,14 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       enDescription:
         "A public-safe daily reader brief with Full Analyst research summaries, the agent analysis matrix, red-team review, risk factors, internal Alaya readback, data gaps, and next watch points. Not investment advice or a trading signal.",
     },
+    "/guide": {
+      zhTitle: "GOTRA 使用指南 | 如何阅读 GOTRA",
+      enTitle: "GOTRA Guide | How to read GOTRA",
+      zhDescription:
+        "GOTRA 使用指南说明七步阅读顺序、生产日报系统流、Full Analyst 金丝雀、内部 Alaya 认知飞轮、术语表和证据边界。不是投资建议、交易信号、业绩证明或科学/公开证明。",
+      enDescription:
+        "The GOTRA Guide explains the seven-step reading order, production daily flow, Full Analyst Canary, internal Alaya cognition flywheel, glossary, and evidence boundaries. Not investment advice, trading signals, performance proof, or science/public proof.",
+    },
     "/reports": {
       zhTitle: "生产日报审计 | GOTRA Public Ledger",
       enTitle: "Production Daily Reports Audit | GOTRA Public Ledger",

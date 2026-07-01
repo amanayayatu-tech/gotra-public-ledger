@@ -18,7 +18,17 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
       note: copy(language, "每日先读读者化摘要、观察清单、数据缺口和下一步观察。", "Start with the reader brief, watchlist, data gaps, and next watch."),
       links: [
         { href: routeHref("/today"), label: copy(language, "今日研究简报", "Daily Research Brief") },
+        { href: routeHref("/guide"), label: copy(language, "如何阅读 GOTRA", "How to read GOTRA") },
         { href: "/reports/daily_reader_brief.json", label: copy(language, "简报 JSON", "Brief JSON") },
+      ],
+    },
+    {
+      label: copy(language, "使用指南", "Guide"),
+      note: copy(language, "七步阅读顺序、日报系统流、术语表和证据边界。", "Seven-step reading order, daily system flow, glossary, and evidence boundaries."),
+      links: [
+        { href: routeHref("/guide"), label: copy(language, "使用指南", "Guide") },
+        { href: routeHref("/sources"), label: copy(language, "来源与产物", "Sources & artifacts") },
+        { href: routeHref("/methodology"), label: copy(language, "方法论", "Methodology") },
       ],
     },
     {
