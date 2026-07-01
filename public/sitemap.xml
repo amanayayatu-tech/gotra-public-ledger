@@ -49,6 +49,24 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://gotra.me/reports/full_analyst_evening_hk_2026-06-30.md</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://gotra.me/reports/status_full_analyst_evening_hk.json</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://gotra.me/reports/status_full_analyst_monitor.json</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://gotra.me/performance</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>weekly</changefreq>

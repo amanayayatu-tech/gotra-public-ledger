@@ -91,6 +91,9 @@ function main() {
 
   assertIncludes(pages.get("/"), "GOTRA Public Ledger 是一个可审计的 AI 股票研究公开预测账本", "/");
   assertIncludes(pages.get("/today"), "Daily Research Brief", "/today");
+  assertIncludes(pages.get("/today"), "Full Analyst research summary", "/today");
+  assertIncludes(pages.get("/today"), "Agent analysis matrix", "/today");
+  assertIncludes(pages.get("/today"), "GOTRA internal Alaya cognition flywheel", "/today");
   assertIncludes(pages.get("/today"), "Research process effectiveness", "/today");
   assertIncludes(pages.get("/today"), "not investment advice", "/today");
   assertIncludes(pages.get("/ledger"), "Frozen Demo Ledger", "/ledger");

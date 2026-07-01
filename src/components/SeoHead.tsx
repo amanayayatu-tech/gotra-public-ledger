@@ -80,9 +80,9 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       zhTitle: "GOTRA 今日研究简报 | GOTRA Public Ledger",
       enTitle: "GOTRA Daily Research Brief | GOTRA Public Ledger",
       zhDescription:
-        "每日公开安全研究简报，汇总生产日报、数据缺口、观察清单、Full Analyst 金丝雀健康和下一步观察。不是投资建议或交易信号。",
+        "每日公开安全研究简报，汇总 Full Analyst 研究摘要、agent 分析矩阵、red-team、风险因素、内部 Alaya 回读、数据缺口和下一步观察。不是投资建议或交易信号。",
       enDescription:
-        "A public-safe daily reader brief summarizing production reports, known data gaps, watchlist items, Full Analyst canary health, and next watch points. Not investment advice or a trading signal.",
+        "A public-safe daily reader brief with Full Analyst research summaries, the agent analysis matrix, red-team review, risk factors, internal Alaya readback, data gaps, and next watch points. Not investment advice or a trading signal.",
     },
     "/reports": {
       zhTitle: "生产日报审计 | GOTRA Public Ledger",

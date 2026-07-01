@@ -5481,9 +5481,98 @@ h1::after {
   border-color: rgba(117, 216, 143, 0.24);
 }
 
+.today-full-analyst-grid {
+  grid-template-columns: minmax(0, 1.35fr) repeat(2, minmax(0, 0.82fr));
+}
+
+.today-full-analyst-grid .mono {
+  font-size: 14px;
+}
+
 .today-effect-grid strong {
   margin-top: 8px;
   color: var(--green);
+}
+
+.today-agent-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.today-agent-card {
+  display: grid;
+  gap: 13px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid rgba(105, 167, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.today-agent-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.today-agent-head span,
+.today-agent-card h3 {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.today-agent-head strong {
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.today-agent-card p,
+.today-agent-card li,
+.today-source-notes li {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.today-agent-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.today-agent-columns ul,
+.today-source-notes {
+  display: grid;
+  gap: 7px;
+  padding: 0;
+  margin: 8px 0 0;
+  list-style: none;
+}
+
+.today-agent-columns li,
+.today-source-notes li {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(58, 75, 89, 0.64);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  overflow-wrap: anywhere;
+}
+
+.today-agent-details {
+  margin-top: 0;
+}
+
+.today-alaya-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 12px 0;
 }
 
 .today-links {
@@ -6168,6 +6257,7 @@ h1::after {
   .report-queue-grid,
   .today-hero,
   .today-card-grid,
+  .today-agent-grid,
   .today-watchlist,
   .today-effect-grid,
   .system-summary-grid,
@@ -6237,9 +6327,16 @@ h1::after {
   .live-strip-items,
   .today-hero,
   .today-card-grid,
+  .today-agent-grid,
+  .today-agent-columns,
   .today-watchlist,
   .today-effect-grid {
     grid-template-columns: 1fr;
+  }
+
+  .today-agent-head {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .today-hero h1 {

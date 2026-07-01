@@ -21,6 +21,10 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("function TodayPage({ state, language }");
     expect(appSource).toContain("今日研究简报");
     expect(appSource).toContain("一句话摘要");
+    expect(appSource).toContain("Full Analyst 研究报告");
+    expect(appSource).toContain("Agent 分析矩阵");
+    expect(appSource).toContain("提示词 / 运行框架摘要");
+    expect(appSource).toContain("GOTRA 内部 Alaya 认知飞轮");
     expect(appSource).toContain("今日重点");
     expect(appSource).toContain("观察清单");
     expect(appSource).toContain("已知缺口与风险");
@@ -48,7 +52,8 @@ describe("public ledger information architecture contract", () => {
   it("defines route-specific GEO metadata for primary production, archive, demo, and fixture routes", () => {
     expect(seoHeadSource).toContain("Production Daily Reports");
     expect(seoHeadSource).toContain("GOTRA Daily Research Brief");
-    expect(seoHeadSource).toContain("known data gaps");
+    expect(seoHeadSource).toContain("agent analysis matrix");
+    expect(seoHeadSource).toContain("internal Alaya readback");
     expect(seoHeadSource).toContain("Transparency Articles");
     expect(seoHeadSource).toContain("Frozen Demo Ledger");
     expect(seoHeadSource).toContain("Performance Notes");
@@ -62,6 +67,8 @@ describe("public ledger information architecture contract", () => {
     expect(geoGeneratorSource).toContain("function todayPage");
     expect(geoGeneratorSource).toContain('"/today"');
     expect(geoGeneratorSource).toContain("daily_reader_brief.json");
+    expect(geoGeneratorSource).toContain("Agent analysis matrix");
+    expect(geoGeneratorSource).toContain("GOTRA internal Alaya cognition flywheel");
     expect(geoGeneratorSource).toContain('"/performance"');
     expect(geoGeneratorSource).toContain("function llmsTxt");
     expect(geoGeneratorSource).toContain("Live production artifacts");
