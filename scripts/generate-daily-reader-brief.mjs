@@ -3,11 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 const reportSchedules = [
-  { key: "morning-hk", label: "港股早报", statusFile: "status_morning_hk.json" },
-  { key: "evening-hk", label: "港股晚报", statusFile: "status_evening_hk.json" },
-  { key: "morning-us", label: "美股早报", statusFile: "status_morning_us.json" },
-  { key: "evening-us", label: "美股晚报", statusFile: "status_evening_us.json" },
-  { key: "morning-global", label: "全局汇总", statusFile: "status_morning_global.json" },
+  { key: "morning-hk", label: "港股早报", labelEn: "HK morning report", statusFile: "status_morning_hk.json" },
+  { key: "evening-hk", label: "港股晚报", labelEn: "HK evening report", statusFile: "status_evening_hk.json" },
+  { key: "morning-us", label: "美股早报", labelEn: "US morning report", statusFile: "status_morning_us.json" },
+  { key: "evening-us", label: "美股晚报", labelEn: "US evening report", statusFile: "status_evening_us.json" },
+  { key: "morning-global", label: "全局汇总", labelEn: "Global summary", statusFile: "status_morning_global.json" },
 ];
 
 const listFields = new Set(["key_updates", "positive_case", "negative_case", "red_team_review", "risk_factors", "watch_items", "source_notes"]);
@@ -45,6 +45,20 @@ function numberValue(value, fallback = 0) {
 
 function stringValue(value) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+function localized(zh, en = zh) {
+  const safeZh = String(zh ?? "").trim();
+  const safeEn = String(en ?? zh ?? "").trim();
+  return {
+    zh: safeZh || safeEn,
+    en: safeEn || safeZh,
+  };
+}
+
+function localizedOriginal(text, zhPrefix = "英文原文摘要") {
+  const safeText = sanitizePublicText(text);
+  return localized(`${zhPrefix}：${safeText}`, safeText);
 }
 
 function arrayValue(value) {
@@ -193,11 +207,22 @@ function titleForDate(date) {
   return `${Number(month)}月${Number(day)}日市场研究简报`;
 }
 
+function titleForDateEn(date) {
+  return `Market research brief for ${date}`;
+}
+
 function coverageSummary(entry) {
   if (entry.universeCount <= 0) {
     return `${entry.label} 已生成公开状态，但覆盖统计暂不可用。`;
   }
   return `${entry.label} ${entry.successCount}/${entry.universeCount} 完成。`;
+}
+
+function coverageSummaryEn(entry) {
+  if (entry.universeCount <= 0) {
+    return `${entry.labelEn} has public status, but coverage statistics are unavailable.`;
+  }
+  return `${entry.labelEn} completed ${entry.successCount}/${entry.universeCount}.`;
 }
 
 function canaryStatus(monitor) {
@@ -215,6 +240,16 @@ function canaryText(status) {
     return "需关注";
   }
   return "暂不可用";
+}
+
+function canaryTextEn(status) {
+  if (status === "healthy") {
+    return "healthy";
+  }
+  if (status === "degraded") {
+    return "needs attention";
+  }
+  return "unavailable";
 }
 
 function dailyHealth(entries) {
@@ -258,6 +293,9 @@ function knownGaps(entries) {
         symbol: gap.symbol,
         reason: gap.reason,
         affected_report: entry.label,
+        code: `gap_${gaps.length + 1}`,
+        label: localized(`${gap.symbol} 数据缺口`, `${gap.symbol} data gap`),
+        explanation: localized(`${entry.label} 标记 ${gap.reason}。`, `${entry.labelEn} marked ${gap.reason}.`),
       });
     }
   }
@@ -277,14 +315,16 @@ function normalizeAgentItem(symbol, fields) {
   }
   return {
     symbol,
-    research_summary: researchSummary,
-    key_updates: sanitizeList(fields.key_updates, 8),
-    positive_case: sanitizeList(fields.positive_case, 7),
-    negative_case: sanitizeList(fields.negative_case, 7),
-    red_team_review: sanitizeList(fields.red_team_review, 7),
-    risk_factors: sanitizeList(fields.risk_factors, 7),
-    watch_items: sanitizeList(fields.watch_items, 7),
-    source_notes: sanitizeList(fields.source_notes, 4, 260),
+    title: localized(`${symbol} 研究摘要`, `${symbol} research summary`),
+    research_summary: localizedOriginal(researchSummary, `${symbol} 研究摘要`),
+    key_updates: sanitizeList(fields.key_updates, 8).map((text) => localizedOriginal(text, "关键观察")),
+    positive_case: sanitizeList(fields.positive_case, 7).map((text) => localizedOriginal(text, "正方观察")),
+    negative_case: sanitizeList(fields.negative_case, 7).map((text) => localizedOriginal(text, "反方观察")),
+    red_team_review: sanitizeList(fields.red_team_review, 7).map((text) => localizedOriginal(text, "反方审查")),
+    risk_factors: sanitizeList(fields.risk_factors, 7).map((text) => localizedOriginal(text, "风险因素")),
+    watch_items: sanitizeList(fields.watch_items, 7).map((text) => localizedOriginal(text, "观察项")),
+    source_notes: sanitizeList(fields.source_notes, 4, 260).map((text) => localizedOriginal(text, "来源摘要")),
+    raw_markdown: researchSummary,
   };
 }
 
@@ -398,8 +438,14 @@ function fullAnalystSummary(status, monitor, agentItems) {
     canary_status: canary,
     summary:
       readableCount > 0
-        ? `Full Analyst candidate/canary 已接入 ${readableCount} 个公开 per-symbol 研究摘要，状态为 ${canaryText(canary)}，发布闸门 ${publishCount}/${universeCount || publishCount}。这些内容是研究观察，不是正式结论升级。`
-        : "Full Analyst rich brief unavailable；当前只能读取 Full Analyst monitor/status，不能展示每标的 agent 分析。",
+        ? localized(
+            `Full Analyst 先行试跑已接入 ${readableCount} 个公开 per-symbol 研究摘要，状态为 ${canaryText(canary)}，发布闸门 ${publishCount}/${universeCount || publishCount}。这些内容是研究观察，不是正式结论升级。`,
+            `Full Analyst Canary has ${readableCount} public per-symbol research summaries, is ${canaryTextEn(canary)}, and shows publication gate ${publishCount}/${universeCount || publishCount}. These are research observations, not formal conclusion upgrades.`,
+          )
+        : localized(
+            "Full Analyst rich brief unavailable；当前只能读取 Full Analyst monitor/status，不能展示每标的 agent 分析。",
+            "Full Analyst rich brief is unavailable; only Full Analyst monitor/status can be read, without per-symbol agent analysis.",
+          ),
   };
 }
 
@@ -411,11 +457,11 @@ function promptFrameworkSummary(status) {
     model: stringValue(status?.llm_model),
     max_concurrency: numberValue(status?.max_concurrency, null),
     task_structure: [
-      "public-safe full-pool candidate/canary run",
-      "per-symbol research_summary, key_updates, positive_case, negative_case, red_team_review, risk_factors, watch_items, source_notes",
-      "judge gate before public artifact publishing",
-      "public safety scan before reader-facing exposure",
-      "GOTRA internal Alaya cognition flywheel / knowledge memory / readback state after publish gate",
+      localized("public-safe 全池 Full Analyst 先行试跑", "public-safe full-pool candidate/canary run"),
+      localized("per-symbol research_summary、key_updates、positive_case、negative_case、red_team_review、risk_factors、watch_items、source_notes", "per-symbol research_summary, key_updates, positive_case, negative_case, red_team_review, risk_factors, watch_items, source_notes"),
+      localized("公开产物发布前经过 judge gate", "judge gate before public artifact publishing"),
+      localized("读者页面曝光前经过 public safety scan", "public safety scan before reader-facing exposure"),
+      localized("发布闸门后写入 GOTRA 内部 Alaya cognition flywheel / knowledge memory / readback state", "GOTRA internal Alaya cognition flywheel / knowledge memory / readback state after publish gate"),
     ],
     judge_gate: `judge_gate=${stringValue(stages.judge_gate) ?? "unavailable"}`,
     public_safety_scan: `public_safety_scan=${stringValue(stages.public_safety_scan) ?? stringValue(status?.public_scan_status) ?? "unavailable"}`,
@@ -439,8 +485,14 @@ function internalAlaya(status, monitor) {
     readback_status: stringValue(status?.alaya_readback_status) ?? stringValue(monitor?.checks?.alaya_readback),
     interpretation:
       mode === "unavailable"
-        ? "Full Analyst rich brief unavailable；当前没有足够公开状态描述 GOTRA 内部 Alaya cognition flywheel / knowledge memory / feedback state。"
-        : `GOTRA 内部 Alaya cognition flywheel / knowledge memory / feedback state 记录 ${synced} 个同步事件，${verified} 个回读验证，失败 ${failed + readbackFailed} 个；这不是外部 Alaya 服务或独立 repo。`,
+        ? localized(
+            "Full Analyst rich brief unavailable；当前没有足够公开状态描述 GOTRA 内部 Alaya cognition flywheel / knowledge memory / feedback state。",
+            "Full Analyst rich brief is unavailable; there is not enough public status to describe GOTRA internal Alaya cognition flywheel / knowledge memory / feedback state.",
+          )
+        : localized(
+            `GOTRA 内部 Alaya cognition flywheel / knowledge memory / feedback state 记录 ${synced} 个同步事件，${verified} 个回读验证，失败 ${failed + readbackFailed} 个；这不是外部 Alaya 服务或独立 repo。`,
+            `GOTRA internal Alaya cognition flywheel / knowledge memory / feedback state records ${synced} sync event(s), ${verified} readback verification(s), and ${failed + readbackFailed} failure(s); this is not an external Alaya service or separate repo.`,
+          ),
   };
 }
 
@@ -452,36 +504,41 @@ function topItems(entries, gaps, fullAnalyst, agentItems) {
   if (agentItems.length > 0) {
     const first = selectedAgentItems(agentItems, 1)[0];
     items.push({
-      label: "Full Analyst 今日研究摘要已接入",
-      summary: `${fullAnalyst.publish_count} 个标的通过候选发布闸门；精选研究样本包括 ${first.symbol}。`,
-      why_it_matters: "普通读者可以先看 agent 的研究摘要、正反观点、red-team、风险因素和观察项，而不是只看产物健康状态。",
+      id: "full-analyst-rich-brief",
+      label: localized("Full Analyst 今日研究摘要已接入", "Full Analyst research summaries are connected"),
+      summary: localized(`${fullAnalyst.publish_count} 个标的通过候选发布闸门；精选研究样本包括 ${first.symbol}。`, `${fullAnalyst.publish_count} symbol(s) passed the candidate publication gate; selected research samples include ${first.symbol}.`),
+      why_it_matters: localized("普通读者可以先看 agent 的研究摘要、正反观点、red-team、风险因素和观察项，而不是只看产物健康状态。", "Readers can start from agent summaries, positive/negative cases, red-team, risks, and watch items instead of only artifact health."),
     });
   } else {
     items.push({
-      label: "Full Analyst rich brief unavailable",
-      summary: "当前没有可读的 per-symbol agent 分析摘要；页面只展示公开状态 fallback。",
-      why_it_matters: "缺少 rich brief 时不能把金丝雀健康伪装成完整研究简报。",
+      id: "full-analyst-rich-brief-unavailable",
+      label: localized("Full Analyst rich brief unavailable", "Full Analyst rich brief unavailable"),
+      summary: localized("当前没有可读的 per-symbol agent 分析摘要；页面只展示公开状态 fallback。", "There is no readable per-symbol agent analysis summary; the page only shows public-status fallback."),
+      why_it_matters: localized("缺少 rich brief 时不能把先行试跑健康伪装成完整研究简报。", "When the rich brief is missing, canary health must not be presented as a complete research brief."),
     });
   }
 
   if (complete) {
     items.push({
-      label: `${complete.label}覆盖完整`,
-      summary: `${coverageSummary(complete)} 暂无需要读者优先处理的数据缺口。`,
-      why_it_matters: "覆盖完整意味着这份普通行情覆盖日报的阅读完整性较高。",
+      id: "coverage-complete",
+      label: localized(`${complete.label}覆盖完整`, `${complete.labelEn} coverage complete`),
+      summary: localized(`${coverageSummary(complete)} 暂无需要读者优先处理的数据缺口。`, `${coverageSummaryEn(complete)} No data gap needs reader priority.`),
+      why_it_matters: localized("覆盖完整意味着这份普通行情覆盖日报的阅读完整性较高。", "Complete coverage means this ordinary coverage daily is more readable for the day."),
     });
   }
   if (gapReport) {
     items.push({
-      label: `${gapReport.label}存在已知数据缺口`,
-      summary: `${coverageSummary(gapReport)} 已知缺口 ${Math.max(gapReport.gapRows.length, 1)} 个，已在公开状态中标记。`,
-      why_it_matters: "缺口被公开标记后，读者可以把它从完整覆盖样本中排除。",
+      id: "coverage-data-gap",
+      label: localized(`${gapReport.label}存在已知数据缺口`, `${gapReport.labelEn} has known data gaps`),
+      summary: localized(`${coverageSummary(gapReport)} 已知缺口 ${Math.max(gapReport.gapRows.length, 1)} 个，已在公开状态中标记。`, `${coverageSummaryEn(gapReport)} ${Math.max(gapReport.gapRows.length, 1)} known gap(s) are marked in public status.`),
+      why_it_matters: localized("缺口被公开标记后，读者可以把它从完整覆盖样本中排除。", "Once a gap is public-marked, readers can exclude it from complete-coverage samples."),
     });
   }
   items.push({
-    label: "边界保持不升级",
-    summary: "Full Analyst 仍是 candidate/canary，不是 formal acceptance、science/public proof、performance proof 或交易信号。",
-    why_it_matters: "读者可以使用研究观察清单，但不能把它读成买卖建议或收益证明。",
+    id: "claim-boundary",
+    label: localized("边界保持不升级", "Claim boundary stays limited"),
+    summary: localized("Full Analyst 仍是 candidate/canary，不是 formal acceptance、science/public proof、performance proof 或交易信号。", "Full Analyst remains candidate/canary, not formal acceptance, science/public proof, performance proof, or a trading signal."),
+    why_it_matters: localized("读者可以使用研究观察清单，但不能把它读成买卖建议或收益证明。", "Readers can use the research watchlist, but must not read it as trading advice or performance proof."),
   });
   return items.slice(0, 5);
 }
@@ -489,16 +546,16 @@ function topItems(entries, gaps, fullAnalyst, agentItems) {
 function researchWatchlist(gaps, agentItems, fullAnalyst) {
   const gapItems = gaps.slice(0, 5).map((gap) => ({
     symbol: gap.symbol,
-    question: `${gap.symbol} 的公开价格覆盖是否恢复？`,
-    reason: `${gap.affected_report} 标记 ${gap.reason}。`,
-    next_check: `等待下一次${gap.affected_report}或 Full Analyst 状态确认。`,
+    question: localized(`${gap.symbol} 的公开价格覆盖是否恢复？`, `Has public price coverage recovered for ${gap.symbol}?`),
+    reason: gap.explanation ?? localized(`${gap.affected_report} 标记 ${gap.reason}。`, `${gap.affected_report} marked ${gap.reason}.`),
+    next_check: localized(`等待下一次${gap.affected_report}或 Full Analyst 状态确认。`, `Wait for the next ${gap.affected_report} or Full Analyst status to confirm.`),
     source: "daily_gap",
   }));
   const selected = selectedAgentItems(agentItems, 8).map((item) => ({
     symbol: item.symbol,
-    question: item.watch_items[0] ?? `${item.symbol} 的下一次公开披露或运营数据是否支持当前研究框架？`,
-    reason: item.red_team_review[0] ?? item.risk_factors[0] ?? "Full Analyst 标记为需要继续验证的研究观察项。",
-    next_check: item.watch_items[1] ?? item.watch_items[0] ?? "复查下一次公开报告、发行人公告和生产日报状态。",
+    question: item.watch_items[0] ?? localized(`${item.symbol} 的下一次公开披露或运营数据是否支持当前研究框架？`, `Does the next public disclosure or operating data for ${item.symbol} support the current research frame?`),
+    reason: item.red_team_review[0] ?? item.risk_factors[0] ?? localized("Full Analyst 标记为需要继续验证的研究观察项。", "Full Analyst marked this as a research observation requiring further verification."),
+    next_check: item.watch_items[1] ?? item.watch_items[0] ?? localized("复查下一次公开报告、发行人公告和生产日报状态。", "Review the next public report, issuer disclosure, and production daily status."),
     source: "full_analyst",
   }));
   const canaryItem =
@@ -506,9 +563,9 @@ function researchWatchlist(gaps, agentItems, fullAnalyst) {
       ? [
           {
             symbol: "Full Analyst Canary",
-            question: "金丝雀心跳、产物新鲜度、公开安全扫描是否恢复健康？",
-            reason: "Full Analyst monitor 当前不是 healthy。",
-            next_check: "复查 status_full_analyst_monitor.json 与最新 Full Analyst status artifact。",
+            question: localized("先行试跑心跳、产物新鲜度、公开安全扫描是否恢复健康？", "Have Canary heartbeat, artifact freshness, and public scan recovered to healthy?"),
+            reason: localized("Full Analyst monitor 当前不是 healthy。", "Full Analyst monitor is not currently healthy."),
+            next_check: localized("复查 status_full_analyst_monitor.json 与最新 Full Analyst status artifact。", "Recheck status_full_analyst_monitor.json and the latest Full Analyst status artifact."),
             source: "canary",
           },
         ]
@@ -536,8 +593,11 @@ function buildBrief() {
   const fullAnalyst = fullAnalystSummary(fullStatus, monitor, agentItems);
   const subtitle =
     health === "unavailable"
-      ? "今日公开日报状态暂不可完整读取。"
-      : `${reportsUpdatedCount} 份日报已更新，${gaps.length > 0 ? `存在 ${gaps.length} 个已知数据缺口` : "暂无公开标记的数据缺口"}，Full Analyst 金丝雀状态为${canaryText(canary)}。`;
+      ? localized("今日公开日报状态暂不可完整读取。", "Today's public daily report status is not fully readable.")
+      : localized(
+          `${reportsUpdatedCount} 份日报已更新，${gaps.length > 0 ? `存在 ${gaps.length} 个已知数据缺口` : "暂无公开标记的数据缺口"}，Full Analyst 先行试跑状态为${canaryText(canary)}。`,
+          `${reportsUpdatedCount} daily report(s) updated, ${gaps.length > 0 ? `${gaps.length} known data gap(s) are present` : "no public-marked data gaps"}, and Full Analyst Canary is ${canaryTextEn(canary)}.`,
+        );
   const dailyReportStatus = {
     status: updateState,
     reports_updated_count: reportsUpdatedCount,
@@ -545,21 +605,44 @@ function buildBrief() {
     known_gap_count: gaps.length,
     summary:
       health === "unavailable"
-        ? "普通日报公开状态暂不可完整读取。"
-        : `${reportsUpdatedCount} 份普通日报有公开状态，${gaps.length > 0 ? `${gaps.length} 个已知数据缺口被标记` : "暂无公开标记的数据缺口"}。`,
+        ? localized("普通日报公开状态暂不可完整读取。", "Ordinary daily report public status is not fully readable.")
+        : localized(
+            `${reportsUpdatedCount} 份普通日报有公开状态，${gaps.length > 0 ? `${gaps.length} 个已知数据缺口被标记` : "暂无公开标记的数据缺口"}。`,
+            `${reportsUpdatedCount} ordinary daily report(s) have public status; ${gaps.length > 0 ? `${gaps.length} known data gap(s) are marked` : "no public-marked data gaps"}.`,
+          ),
   };
+  const readerSummary =
+    health === "unavailable"
+      ? localized(
+          "公开状态不足，今日不从私有或 raw 产物推断研究过程效果。",
+          "Public status is insufficient, so today's page does not infer research-process effectiveness from private or raw artifacts.",
+        )
+      : localized(
+          `日报按公开状态更新；${gaps.length > 0 ? "已知数据缺口被公开标记" : "暂无公开标记的数据缺口"}；Full Analyst 先行试跑状态为${canaryText(canary)}；per-symbol rich brief ${agentItems.length > 0 ? "已接入" : "不可用"}。`,
+          `Daily reports updated according to public status; ${gaps.length > 0 ? "known data gaps are public-marked" : "no public-marked data gaps"}; Full Analyst Canary is ${canaryTextEn(canary)}; per-symbol rich brief is ${agentItems.length > 0 ? "connected" : "unavailable"}.`,
+        );
 
   return {
-    schema: "gotra.daily_reader_brief.v1",
+    schema_version: "gotra.daily_reader_brief.v2",
+    schema: "gotra.daily_reader_brief.v2",
+    as_of_date: briefDate,
+    mode: "public_status_synthesis",
     brief_date: briefDate,
     generated_at: formatShanghaiIso(now),
     evidence_layer: "local checks + runtime/status evidence + public-safe artifact smoke",
-    title: titleForDate(briefDate),
+    title: localized(titleForDate(briefDate), titleForDateEn(briefDate)),
     subtitle,
     tldr:
       agentItems.length > 0
-        ? `Full Analyst candidate/canary 已接入 ${agentItems.length} 个公开 per-symbol 研究摘要；今日先看 agent 分析矩阵、red-team、风险因素、观察清单和数据缺口。${subtitle} 本简报不是投资建议或交易信号。`
-        : `Full Analyst rich brief unavailable；当前页面只能展示公开状态摘要。${subtitle} 本简报不是投资建议或交易信号。`,
+        ? localized(
+            `Full Analyst 先行试跑已接入 ${agentItems.length} 个公开 per-symbol 研究摘要；今日先看 agent 分析矩阵、red-team、风险因素、观察清单和数据缺口。${subtitle.zh} 本简报不是投资建议或交易信号。`,
+            `Full Analyst Canary has ${agentItems.length} public per-symbol research summaries; start with the agent matrix, red-team, risk factors, watchlist, and data gaps today. ${subtitle.en} This brief is not investment advice or a trading signal.`,
+          )
+        : localized(
+            `Full Analyst rich brief unavailable；当前页面只能展示公开状态摘要。${subtitle.zh} 本简报不是投资建议或交易信号。`,
+            `Full Analyst rich brief is unavailable; this page can only show a public-status summary. ${subtitle.en} This brief is not investment advice or a trading signal.`,
+          ),
+    reader_summary: readerSummary,
     daily_report_status: dailyReportStatus,
     full_analyst: fullAnalyst,
     agent_analysis_items: agentItems,
@@ -569,16 +652,19 @@ function buildBrief() {
     top_items: topItems(entries, gaps, fullAnalyst, agentItems),
     watchlist: gaps.slice(0, 8).map((gap) => ({
       symbol: gap.symbol,
-      reason: `${gap.affected_report} 仍有 ${gap.reason}。`,
+      reason: localized(`${gap.affected_report} 仍有 ${gap.reason}。`, `${gap.affected_report} still has ${gap.reason}.`),
       status: "data_gap",
-      reader_takeaway: "这个标的今天不适合被当成完整覆盖样本。",
+      reader_takeaway: localized("这个标的今天不适合被当成完整覆盖样本。", "This symbol should not be treated as a complete-coverage sample today."),
     })),
     changes_since_last_brief: [
       ...entries.filter(statusLooksUpdated).map((entry) =>
-        `${entry.label}${entry.asOfDate ? `更新到 ${entry.asOfDate}` : "已有公开状态更新"}${hasDataGap(entry) ? "，但存在已知数据缺口。" : "。"}`,
+        localized(
+          `${entry.label}${entry.asOfDate ? `更新到 ${entry.asOfDate}` : "已有公开状态更新"}${hasDataGap(entry) ? "，但存在已知数据缺口。" : "。"}`,
+          `${entry.labelEn}${entry.asOfDate ? ` updated to ${entry.asOfDate}` : " has a public status update"}${hasDataGap(entry) ? ", with known data gaps." : "."}`,
+        ),
       ),
-      ...(fullStatus ? [`Full Analyst candidate/canary ${fullAnalyst.run_status}，公开研究摘要 ${agentItems.length} 个。`] : []),
-      ...(canary !== "unavailable" ? [`Full Analyst 金丝雀为 ${canaryText(canary)}。`] : []),
+      ...(fullStatus ? [localized(`Full Analyst 先行试跑 ${fullAnalyst.run_status}，公开研究摘要 ${agentItems.length} 个。`, `Full Analyst Canary is ${fullAnalyst.run_status}, with ${agentItems.length} public research summaries.`)] : []),
+      ...(canary !== "unavailable" ? [localized(`Full Analyst 先行试跑为 ${canaryText(canary)}。`, `Full Analyst Canary is ${canaryTextEn(canary)}.`)] : []),
     ],
     known_gaps: gaps,
     research_effectiveness: {
@@ -586,31 +672,37 @@ function buildBrief() {
       reports_updated_count: reportsUpdatedCount,
       reports_with_data_gaps_count: reportsWithDataGapsCount,
       canary_status: canary,
-      reader_summary:
-        health === "unavailable"
-          ? "公开状态不足，今日不从私有或 raw 产物推断研究过程效果。"
-          : `日报按公开状态更新；${gaps.length > 0 ? "已知数据缺口被公开标记" : "暂无公开标记的数据缺口"}；Full Analyst 金丝雀状态为${canaryText(canary)}；per-symbol rich brief ${agentItems.length > 0 ? "已接入" : "不可用"}。`,
+      reader_summary: readerSummary,
     },
     system_health: {
       daily_reports: health,
       full_analyst_canary: canary,
     },
     next_watch: [
-      ...gaps.slice(0, 4).map((gap) => `等待下一次${gap.affected_report}确认 ${gap.symbol} 是否恢复完整覆盖。`),
+      ...gaps.slice(0, 4).map((gap) => localized(`等待下一次${gap.affected_report}确认 ${gap.symbol} 是否恢复完整覆盖。`, `Wait for the next ${gap.affected_report} to confirm whether ${gap.symbol} returns to complete coverage.`)),
       ...(selectedAgentItems(agentItems, 4).map((item) => item.watch_items[0]).filter(Boolean)),
       canary === "healthy"
-        ? "继续观察 Full Analyst 金丝雀是否保持健康，但不把金丝雀当成正式结论升级。"
-        : "复查 Full Analyst 金丝雀的心跳新鲜度、产物新鲜度和公开安全扫描。",
-      "下一次生产日报继续核对覆盖率、数据缺口和公开产物链接。",
+        ? localized("继续观察 Full Analyst 先行试跑是否保持健康，但不把先行试跑当成正式结论升级。", "Continue watching whether Full Analyst Canary stays healthy, without treating it as a formal conclusion upgrade.")
+        : localized("复查 Full Analyst 先行试跑的心跳新鲜度、产物新鲜度和公开安全扫描。", "Recheck Full Analyst Canary heartbeat freshness, artifact freshness, and public safety scan."),
+      localized("下一次生产日报继续核对覆盖率、数据缺口和公开产物链接。", "In the next production daily report, keep checking coverage, data gaps, and public artifact links."),
     ],
     boundary: [
-      "研究信息，不是投资建议。",
-      "不是交易信号。",
-      "不是业绩证明。",
-      "不是科学或公开证明。",
-      "Full Analyst 仍是金丝雀，不是正式结论升级。",
-      "不输出买/卖/持有、仓位、目标价或收益承诺。",
+      localized("研究信息，不是投资建议。", "Research information only, not investment advice."),
+      localized("不是交易信号。", "Not a trading signal."),
+      localized("不是业绩证明。", "Not performance proof."),
+      localized("不是科学或公开证明。", "Not science/public proof."),
+      localized("Full Analyst 仍是先行试跑，不是正式结论升级。", "Full Analyst remains a canary/candidate path, not a formal conclusion upgrade."),
+      localized("不输出买/卖/持有。不提供仓位指令。不提供价格目标。不承诺回报。", "No buy/sell/hold, position sizing, target price, or return promise is provided."),
     ],
+    technical_status: {
+      run_id: fullAnalyst.run_id,
+      run_status: fullAnalyst.run_status,
+      judge_gate: promptFrameworkSummary(fullStatus).judge_gate,
+      public_safety_scan: promptFrameworkSummary(fullStatus).public_safety_scan,
+      alaya_readback: stringValue(fullStatus?.alaya_readback_status) ?? stringValue(monitor?.checks?.alaya_readback),
+      schema: "gotra.daily_reader_brief.v2",
+      artifact_path: "/reports/daily_reader_brief.json",
+    },
     links: {
       latest_report: "/reports/latest.md",
       full_analyst_report: fullAnalyst.report_markdown,

@@ -44,7 +44,7 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
       note: copy(language, "生产日报是完整状态、覆盖率、缺口和公开产物链接的审计面板。", "Production reports are the audit panel for complete status, coverage, gaps, and public artifact links."),
       links: [
         { href: routeHref("/reports"), label: copy(language, "生产日报审计", "Production Daily Reports Audit") },
-        { href: `${routeHref("/reports")}?focus=canary`, label: copy(language, "金丝雀监控", "Canary Monitoring") },
+        { href: `${routeHref("/reports")}?focus=canary`, label: copy(language, "先行试跑监控", "Canary Monitoring") },
         { href: routeHref("/notes"), label: copy(language, "透明度文章", "Transparency Articles") },
       ],
     },

@@ -1,5 +1,10 @@
 export type Language = "zh" | "en";
 
+export type LocalizedText = {
+  zh: string;
+  en: string;
+};
+
 export const LANGUAGE_STORAGE_KEY = "gotra_public_ledger_language";
 
 export function isLanguage(value: unknown): value is Language {
@@ -24,6 +29,18 @@ export function writeStoredLanguage(language: Language): void {
 
 export function copy(language: Language, zh: string, en: string): string {
   return language === "zh" ? zh : en;
+}
+
+export function pickLocalized(language: Language, value: LocalizedText | string | null | undefined): string {
+  if (!value) {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  const preferred = language === "zh" ? value.zh : value.en;
+  const fallback = language === "zh" ? value.en : value.zh;
+  return preferred.trim() || fallback.trim();
 }
 
 export function boundarySentence(language: Language): string {
@@ -158,8 +175,8 @@ export function fullAnalystLabelText(language: Language, key: string): string {
     alaya_readback: { zh: "内部 Alaya 回读", en: "Alaya readback" },
     alaya_sync: { zh: "内部 Alaya 同步", en: "Alaya sync" },
     artifact_freshness: { zh: "产物新鲜度", en: "Artifact freshness" },
-    canary: { zh: "Full Analyst 金丝雀", en: "Full Analyst Canary" },
-    canary_full_chain: { zh: "Full Analyst 金丝雀完整链路", en: "Full Analyst Canary Full Chain" },
+    canary: { zh: "Full Analyst 先行试跑", en: "Full Analyst Canary" },
+    canary_full_chain: { zh: "Full Analyst 先行试跑完整链路", en: "Full Analyst Canary Full Chain" },
     cycle: { zh: "循环", en: "Cycle" },
     elapsed: { zh: "已运行", en: "Elapsed" },
     exchange_split: { zh: "交易所分布", en: "Exchange split" },
@@ -208,7 +225,7 @@ export function fullAnalystStageText(language: Language, stage: string): string 
 
 export function artifactStatusText(language: Language, status: string): string {
   const labels: Record<string, { zh: string; en: string }> = {
-    "full analyst canary markdown": { zh: "Full Analyst 金丝雀 Markdown 报告", en: "Full analyst canary markdown" },
+    "full analyst canary markdown": { zh: "Full Analyst 先行试跑 Markdown 报告", en: "Full analyst canary markdown" },
     "ordinary daily alias": { zh: "日报状态别名", en: "Daily status alias" },
     "ordinary daily latest": { zh: "最新日报 Markdown", en: "Latest daily markdown" },
   };

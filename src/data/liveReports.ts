@@ -163,7 +163,7 @@ function fullAnalystEntry(
   return {
     id: "full-analyst-canary",
     kind: "full-analyst",
-    labelZh: "Full Analyst 金丝雀",
+    labelZh: "Full Analyst 先行试跑",
     labelEn: "Full Analyst Canary",
     mode: pilot?.mode ?? "full_analyst_evening_hk",
     asOfDate: pilot?.asOfDate ?? null,

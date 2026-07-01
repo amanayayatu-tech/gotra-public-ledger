@@ -69,10 +69,12 @@ import {
   contentTypeText,
   copy,
   layerText,
+  pickLocalized,
   readStoredLanguage,
   runtimeStatusText,
   statusText,
   writeStoredLanguage,
+  type LocalizedText,
   type Language,
 } from "./i18n/language";
 import { noteRouteHref, parseBrowserRoute, parseHashRoute, predictionRouteHref, routeHref, type AppRoute } from "./routes/hashRouter";
@@ -221,7 +223,7 @@ function formatReaderDateForLanguage(value: string, language: Language): string 
 }
 
 function guideCopy(value: BilingualText, language: Language): string {
-  return copy(language, value.zh, value.en);
+  return pickLocalized(language, value);
 }
 
 function hasMostlyEnglishText(value: string): boolean {
@@ -235,15 +237,19 @@ function OriginalText({
   language,
   className = "",
 }: {
-  value: string;
+  value: string | LocalizedText;
   language: Language;
   className?: string;
 }) {
-  const showOriginalLabel = language === "zh" && hasMostlyEnglishText(value);
+  const selected = pickLocalized(language, value);
+  const isLocalized = typeof value !== "string";
+  const showEnglishOriginal = (isLocalized && language === "zh" && !value.zh.trim() && Boolean(value.en.trim())) || (language === "zh" && hasMostlyEnglishText(selected));
+  const showChineseOriginal = isLocalized && language === "en" && !value.en.trim() && Boolean(value.zh.trim());
+  const label = showEnglishOriginal ? "英文原文 / English original" : showChineseOriginal ? "Chinese original / 中文原文" : null;
   return (
     <div className={className ? `original-text ${className}` : "original-text"}>
-      {showOriginalLabel ? <span className="original-label">英文原文 / English original</span> : null}
-      <p>{value}</p>
+      {label ? <span className="original-label">{label}</span> : null}
+      <p>{selected}</p>
     </div>
   );
 }
@@ -414,6 +420,31 @@ function LiveArtifactSources({ state, language }: { state: LiveReportsLoadState;
           </tbody>
         </table>
       </div>
+      <div className="live-artifact-mobile-cards" aria-label={copy(language, "移动端生产公开产物", "Mobile live production artifacts")}>
+        {state.snapshot.artifacts.map((artifact) => (
+          <article key={`${artifact.href}-${artifact.label}-mobile`}>
+            <div>
+              <span>{copy(language, "产物", "Artifact")}</span>
+              <strong>{artifact.label}</strong>
+            </div>
+            <p>{artifactStatusText(language, artifact.status)}</p>
+            <dl>
+              <div>
+                <dt>{copy(language, "统计日期", "As-of")}</dt>
+                <dd>{artifact.asOfDate ?? "unknown"}</dd>
+              </div>
+              <div>
+                <dt>{copy(language, "生成时间", "Generated")}</dt>
+                <dd>{formatLiveTimestamp(artifact.generatedAtUtc, language)}</dd>
+              </div>
+            </dl>
+            <div className="artifact-card-actions">
+              <a className="primary-action" href={artifact.href}>{copy(language, "打开产物", "Open artifact")}</a>
+              <a className="secondary-action" href={artifact.href}>{copy(language, "Raw link", "Raw link")}</a>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
   );
 }
@@ -497,6 +528,31 @@ function StaticDemoArtifacts({ dataset, language }: { dataset: LedgerDataset; la
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="live-artifact-mobile-cards" aria-label={copy(language, "移动端静态产物", "Mobile static artifacts")}>
+        {staticArtifacts.map((artifact) => (
+          <article key={`${artifact.label}-mobile`}>
+            <div>
+              <span>{copy(language, "产物", "Artifact")}</span>
+              <strong>{artifact.label}</strong>
+            </div>
+            <p>{artifact.note}</p>
+            <dl>
+              <div>
+                <dt>{copy(language, "类型", "Type")}</dt>
+                <dd>{artifact.type}</dd>
+              </div>
+              <div>
+                <dt>{copy(language, "快照日期", "Snapshot")}</dt>
+                <dd>{artifact.date}</dd>
+              </div>
+            </dl>
+            <div className="artifact-card-actions">
+              <a className="primary-action" href={artifact.href}>{copy(language, "打开产物", "Open artifact")}</a>
+              <a className="secondary-action" href={artifact.href}>{copy(language, "Raw link", "Raw link")}</a>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   );
@@ -1142,18 +1198,18 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
       <section className="today-hero route-panel" aria-labelledby="today-title">
         <div className="today-hero-copy">
           <span className="section-index">{copy(language, "今日简报", "Daily brief")}</span>
-          <h1 id="today-title">{copy(language, "今日研究简报", "Daily Research Brief")}</h1>
+          <h1 id="today-title">{pickLocalized(language, brief.title)}</h1>
           <p className="today-date-line">
             <time dateTime={brief.brief_date}>{brief.brief_date}</time>
             <span>{copy(language, "生成时间", "Generated")} {formatLiveTimestamp(brief.generated_at, language)}</span>
           </p>
           <div className="today-tldr">
             <strong>{copy(language, "一句话摘要", "TLDR")}</strong>
-            <OriginalText value={brief.tldr} language={language} />
+            <p>{pickLocalized(language, brief.tldr)}</p>
           </div>
           <div className="today-boundary-chips" aria-label={copy(language, "声明边界", "Boundary")}>
             {brief.boundary.map((item) => (
-              <span key={item}>{item}</span>
+              <span key={`${item.zh}-${item.en}`}>{pickLocalized(language, item)}</span>
             ))}
           </div>
           <div className="hero-actions today-actions">
@@ -1178,10 +1234,33 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
             <strong>{brief.internal_alaya.readback_verified_count}</strong>
           </div>
           <div>
-            <span>{copy(language, "金丝雀状态", "Canary status")}</span>
+            <span>{copy(language, "先行试跑状态", "Canary status")}</span>
             <strong>{dailyBriefHealthLabel(brief.system_health.full_analyst_canary, language)}</strong>
           </div>
         </aside>
+      </section>
+
+      <section className="today-section" aria-labelledby="today-top-items-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "今日重点", "Top items")}</span>
+          <h2 id="today-top-items-title">{copy(language, "今天先看什么", "What to read first today")}</h2>
+          <p>{pickLocalized(language, brief.reader_summary)}</p>
+        </div>
+        <div className="today-card-grid">
+          {brief.top_items.map((item) => (
+            <article className="today-card" key={item.id}>
+              <span>{pickLocalized(language, item.label)}</span>
+              <h3>{pickLocalized(language, item.summary)}</h3>
+              <p>{pickLocalized(language, item.why_it_matters)}</p>
+              {item.raw_text ? (
+                <details className="today-agent-details">
+                  <summary>{copy(language, "展开原文", "Show original")}</summary>
+                  <OriginalText value={item.raw_text} language={language} />
+                </details>
+              ) : null}
+            </article>
+          ))}
+        </div>
       </section>
 
       {state.source === "fallback" || !hasRichAgentBrief ? (
@@ -1195,6 +1274,80 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         </section>
       ) : null}
 
+      <section className="today-section" aria-labelledby="today-watchlist-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "研究观察清单", "Research watchlist")}</span>
+          <h2 id="today-watchlist-title">{copy(language, "哪些问题需要继续验证", "What still needs verification")}</h2>
+          <p>
+            {copy(
+              language,
+              "观察清单只说明下一次需要核对的问题或数据缺口，不是买卖、持有或仓位指令。",
+              "The watchlist only states questions or data gaps to check next; it is not buy/sell/hold/position advice.",
+            )}
+          </p>
+        </div>
+        {brief.research_watchlist.length > 0 ? (
+          <div className="today-watchlist">
+            {brief.research_watchlist.map((item) => (
+              <article key={`${item.symbol}-${pickLocalized(language, item.question)}`}>
+                <strong>{item.symbol}</strong>
+                <span>{item.source}</span>
+                <p>{pickLocalized(language, item.question)}</p>
+                <small>{pickLocalized(language, item.reason)}</small>
+                <p>{pickLocalized(language, item.next_check)}</p>
+              </article>
+            ))}
+          </div>
+        ) : hasWatchlist ? (
+          <div className="today-watchlist">
+            {brief.watchlist.map((item) => (
+              <article key={`${item.symbol}-${pickLocalized(language, item.reason)}`}>
+                <strong>{item.symbol}</strong>
+                <span>{copy(language, "数据缺口", "Data gap")}</span>
+                <p>{pickLocalized(language, item.reason)}</p>
+                <small>{pickLocalized(language, item.reader_takeaway)}</small>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="edge-state-note">{copy(language, "今天没有公开标记的数据缺口观察项。", "No public data-gap watch item is marked today.")}</div>
+        )}
+      </section>
+
+      <section className="report-two-column today-two-column" aria-label={copy(language, "今日变化与缺口", "Changes and gaps")}>
+        <div>
+          <h2>{copy(language, "研究观察 / 昨日以来变化", "Research observations / changes since last brief")}</h2>
+          <ul className="today-list">
+            {brief.changes_since_last_brief.map((change) => (
+              <li key={`${change.zh}-${change.en}`}>{pickLocalized(language, change)}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h2>{copy(language, "已知缺口与风险", "Known gaps and risks")}</h2>
+          <p className="muted">
+            {copy(
+              language,
+              "缺口来自公开状态文件；页面不会用私有数据或 raw 运行日志补齐。",
+              "Gaps come from public status files; this page does not fill them with private data or raw run logs.",
+            )}
+          </p>
+          {hasKnownGaps ? (
+            <div className="today-gap-list">
+              {brief.known_gaps.map((gap) => (
+                <article key={gap.code}>
+                  <strong>{gap.symbol ?? gap.code}</strong>
+                  <span>{gap.affected_report ?? pickLocalized(language, gap.label)}</span>
+                  <p>{pickLocalized(language, gap.explanation)}</p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="muted">{copy(language, "暂无公开标记的数据缺口。", "No public data gap is currently marked.")}</p>
+          )}
+        </div>
+      </section>
+
       <section className="today-section" aria-labelledby="today-full-analyst-title">
         <div className="section-heading compact">
           <span>{copy(language, "Full Analyst", "Full Analyst")}</span>
@@ -1202,18 +1355,13 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           <p>
             {copy(
               language,
-              "本段解释 Full Analyst 金丝雀本次公开发布状态、复核项和数据缺口；它是运行/状态证据，不是正式验收或投资结论。",
+              "本段解释 Full Analyst 先行试跑本次公开发布状态、复核项和数据缺口；它是运行/状态证据，不是正式验收或投资结论。",
               "This section explains the Full Analyst Canary public publication status, review items, and data gaps; it is runtime/status evidence, not formal acceptance or an investment conclusion.",
             )}
           </p>
-          <OriginalText value={brief.full_analyst.summary} language={language} />
+          <p>{pickLocalized(language, brief.full_analyst.summary)}</p>
         </div>
         <div className="today-effect-grid today-full-analyst-grid">
-          <article>
-            <span>run_id</span>
-            <strong className="mono">{brief.full_analyst.run_id}</strong>
-            <p>{copy(language, `run_status=${brief.full_analyst.run_status}`, `run_status=${brief.full_analyst.run_status}`)}</p>
-          </article>
           <article>
             <span>{copy(language, "发布 / 复核 / 阻断", "Published / review / blocked")}</span>
             <strong>{brief.full_analyst.publish_count} / {brief.full_analyst.needs_review_count} / {brief.full_analyst.blocked_count}</strong>
@@ -1242,18 +1390,18 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         {hasRichAgentBrief ? (
           <div className="today-agent-grid">
             {selectedAgentItems.map((item) => (
-              <article className="today-agent-card" key={item.symbol}>
+            <article className="today-agent-card" key={item.symbol}>
                 <div className="today-agent-head">
                   <span>{copy(language, "研究样本", "Research sample")}</span>
                   <strong>{item.symbol}</strong>
                 </div>
-                <OriginalText value={item.research_summary} language={language} className="today-agent-summary" />
+                <p className="today-agent-summary">{pickLocalized(language, item.research_summary)}</p>
                 <div className="today-agent-columns">
                   <div>
                     <h3>{copy(language, "正方", "Positive case")}</h3>
                     <ul>
                       {item.positive_case.slice(0, 2).map((value) => (
-                        <li key={value}>{value}</li>
+                        <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
                       ))}
                     </ul>
                   </div>
@@ -1261,7 +1409,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
                     <h3>{copy(language, "反方 / red-team", "Negative / red-team")}</h3>
                     <ul>
                       {[...item.negative_case.slice(0, 1), ...item.red_team_review.slice(0, 2)].map((value) => (
-                        <li key={value}>{value}</li>
+                        <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
                       ))}
                     </ul>
                   </div>
@@ -1273,7 +1421,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
                       <h3>{copy(language, "风险因素", "Risk factors")}</h3>
                       <ul>
                         {item.risk_factors.slice(0, 3).map((value) => (
-                          <li key={value}>{value}</li>
+                          <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
                         ))}
                       </ul>
                     </div>
@@ -1281,7 +1429,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
                       <h3>{copy(language, "观察项", "Watch items")}</h3>
                       <ul>
                         {item.watch_items.slice(0, 3).map((value) => (
-                          <li key={value}>{value}</li>
+                          <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
                         ))}
                       </ul>
                     </div>
@@ -1289,9 +1437,15 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
                   {item.source_notes.length > 0 ? (
                     <ul className="today-source-notes">
                       {item.source_notes.slice(0, 3).map((value) => (
-                        <li key={value}>{value}</li>
+                        <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
                       ))}
                     </ul>
+                  ) : null}
+                  {item.raw_markdown ? (
+                    <details className="today-agent-details">
+                      <summary>{copy(language, "展开原文", "Show original")}</summary>
+                      <OriginalText value={item.raw_markdown} language={language} />
+                    </details>
                   ) : null}
                 </details>
               </article>
@@ -1302,22 +1456,6 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
             {copy(language, "没有可展示的公开 per-symbol agent 分析；请打开 Full Analyst report 或等待 rich brief artifact。", "No public per-symbol agent analysis is available; open the Full Analyst report or wait for the rich brief artifact.")}
           </div>
         )}
-      </section>
-
-      <section className="today-section" aria-labelledby="today-top-items-title">
-        <div className="section-heading compact">
-          <span>{copy(language, "今日重点", "Top items")}</span>
-          <h2 id="today-top-items-title">{copy(language, "研究状态与数据缺口", "Research state and data gaps")}</h2>
-        </div>
-        <div className="today-card-grid">
-          {brief.top_items.map((item) => (
-            <article className="today-card" key={`${item.label}-${item.summary}`}>
-              <span>{item.label}</span>
-              <h3>{item.summary}</h3>
-              <p>{item.why_it_matters}</p>
-            </article>
-          ))}
-        </div>
       </section>
 
       <section className="report-two-column today-two-column" aria-label={copy(language, "运行框架与内部 Alaya", "Run framework and internal Alaya")}>
@@ -1332,7 +1470,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           </p>
           <ul className="today-list">
             {brief.prompt_framework_summary.task_structure.map((item) => (
-              <li key={item}>{item}</li>
+              <li key={`${item.zh}-${item.en}`}>{pickLocalized(language, item)}</li>
             ))}
             <li>{brief.prompt_framework_summary.judge_gate}</li>
             <li>{brief.prompt_framework_summary.public_safety_scan}</li>
@@ -1362,81 +1500,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
               <strong>{brief.internal_alaya.readback_verified_count} / {brief.internal_alaya.readback_failed_count}</strong>
             </article>
           </div>
-          <OriginalText value={brief.internal_alaya.interpretation} language={language} className="muted" />
-        </div>
-      </section>
-
-      <section className="today-section" aria-labelledby="today-watchlist-title">
-        <div className="section-heading compact">
-          <span>{copy(language, "研究观察清单", "Research watchlist")}</span>
-          <h2 id="today-watchlist-title">{copy(language, "哪些问题需要继续验证", "What still needs verification")}</h2>
-          <p>
-            {copy(
-              language,
-              "观察清单只说明下一次需要核对的问题或数据缺口，不是买卖、持有或仓位指令。",
-              "The watchlist only states questions or data gaps to check next; it is not buy/sell/hold/position advice.",
-            )}
-          </p>
-        </div>
-        {brief.research_watchlist.length > 0 ? (
-          <div className="today-watchlist">
-            {brief.research_watchlist.map((item) => (
-              <article key={`${item.symbol}-${item.question}`}>
-                <strong>{item.symbol}</strong>
-                <span>{item.source}</span>
-                <OriginalText value={item.question} language={language} />
-                <small>{item.reason}</small>
-                <p>{item.next_check}</p>
-              </article>
-            ))}
-          </div>
-        ) : hasWatchlist ? (
-          <div className="today-watchlist">
-            {brief.watchlist.map((item) => (
-              <article key={`${item.symbol}-${item.reason}`}>
-                <strong>{item.symbol}</strong>
-                <span>{copy(language, "数据缺口", "Data gap")}</span>
-                <p>{item.reason}</p>
-                <small>{item.reader_takeaway}</small>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <div className="edge-state-note">{copy(language, "今天没有公开标记的数据缺口观察项。", "No public data-gap watch item is marked today.")}</div>
-        )}
-      </section>
-
-      <section className="report-two-column today-two-column" aria-label={copy(language, "今日变化与缺口", "Changes and gaps")}>
-        <div>
-          <h2>{copy(language, "昨日以来变化", "Changes since last brief")}</h2>
-          <ul className="today-list">
-            {brief.changes_since_last_brief.map((change) => (
-              <li key={change}>{change}</li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <h2>{copy(language, "已知缺口与风险", "Known gaps and risks")}</h2>
-          <p className="muted">
-            {copy(
-              language,
-              "缺口来自公开状态文件；页面不会用私有数据或 raw 运行日志补齐。",
-              "Gaps come from public status files; this page does not fill them with private data or raw run logs.",
-            )}
-          </p>
-          {hasKnownGaps ? (
-            <div className="today-gap-list">
-              {brief.known_gaps.map((gap) => (
-                <article key={`${gap.symbol}-${gap.affected_report}-${gap.reason}`}>
-                  <strong>{gap.symbol}</strong>
-                  <span>{gap.affected_report}</span>
-                  <p>{gap.reason}</p>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className="muted">{copy(language, "暂无公开标记的数据缺口。", "No public data gap is currently marked.")}</p>
-          )}
+          <p className="muted">{pickLocalized(language, brief.internal_alaya.interpretation)}</p>
         </div>
       </section>
 
@@ -1447,7 +1511,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           <p>
             {copy(
               language,
-              "这里说的是公开日报是否按计划更新、缺口是否被标记、金丝雀是否健康；不是收益、业绩或预测正确性证明。",
+              "这里说的是公开日报是否按计划更新、缺口是否被标记、先行试跑是否健康；不是收益、业绩或预测正确性证明。",
               "This describes whether public reports updated, gaps were marked, and the canary is healthy; it is not a return, performance, or prediction-accuracy proof.",
             )}
           </p>
@@ -1464,14 +1528,14 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
             <p>{copy(language, "按公开状态文件统计，不补私有数据。", "Counted from public status files only.")}</p>
           </article>
           <article>
-            <span>{copy(language, "金丝雀状态", "Canary state")}</span>
+            <span>{copy(language, "先行试跑状态", "Canary state")}</span>
             <strong>{dailyBriefHealthLabel(brief.research_effectiveness.canary_status, language)}</strong>
-            <p>{copy(language, "金丝雀健康不等于正式上线或结论升级。", "A healthy canary is not a production graduation or conclusion upgrade.")}</p>
+            <p>{copy(language, "先行试跑健康不等于正式上线或结论升级。", "A healthy canary is not a production graduation or conclusion upgrade.")}</p>
           </article>
         </div>
         <div className="report-callout">
           <h3>{copy(language, "读者摘要", "Reader summary")}</h3>
-          <p>{brief.research_effectiveness.reader_summary}</p>
+            <p>{pickLocalized(language, brief.research_effectiveness.reader_summary)}</p>
         </div>
       </section>
 
@@ -1489,9 +1553,9 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         </div>
         <div className="today-boundary-grid">
           {brief.boundary.map((item) => (
-            <article key={item}>
+            <article key={`${item.zh}-${item.en}`}>
               <span>{copy(language, "边界", "Boundary")}</span>
-              <strong>{item}</strong>
+              <strong>{pickLocalized(language, item)}</strong>
             </article>
           ))}
         </div>
@@ -1504,7 +1568,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         </div>
         <ul className="today-list next-watch-list">
           {brief.next_watch.map((item) => (
-            <li key={item}>{item}</li>
+            <li key={`${item.zh}-${item.en}`}>{pickLocalized(language, item)}</li>
           ))}
         </ul>
       </section>
@@ -1521,14 +1585,14 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           <a href={brief.links.full_analyst_report}>{copy(language, "Full Analyst 研究报告", "Full Analyst report")}</a>
           <a href={brief.links.status_json}>{copy(language, "状态文件", "Status file")}</a>
           <a href={brief.links.full_analyst_status}>{copy(language, "Full Analyst 状态", "Full Analyst status")}</a>
-          <a href={brief.links.full_analyst_monitor}>{copy(language, "Full Analyst 金丝雀监控", "Full Analyst Canary monitor")}</a>
+          <a href={brief.links.full_analyst_monitor}>{copy(language, "Full Analyst 先行试跑监控", "Full Analyst Canary monitor")}</a>
         </div>
         <details className="audit-details today-technical-details">
           <summary>{copy(language, "技术细节 / 状态文件", "Technical details / status files")}</summary>
           <dl className="source-grid">
             <div>
               <dt>schema</dt>
-              <dd>{brief.schema}</dd>
+              <dd>{brief.schema_version}</dd>
             </div>
             <div>
               <dt>brief_date</dt>
@@ -1537,6 +1601,30 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
             <div>
               <dt>generated_at</dt>
               <dd>{brief.generated_at}</dd>
+            </div>
+            <div>
+              <dt>run_id</dt>
+              <dd className="mono">{brief.technical_status.run_id ?? brief.full_analyst.run_id}</dd>
+            </div>
+            <div>
+              <dt>run_status</dt>
+              <dd>{brief.technical_status.run_status ?? brief.full_analyst.run_status}</dd>
+            </div>
+            <div>
+              <dt>judge_gate</dt>
+              <dd>{brief.technical_status.judge_gate ?? brief.prompt_framework_summary.judge_gate}</dd>
+            </div>
+            <div>
+              <dt>public_safety_scan</dt>
+              <dd>{brief.technical_status.public_safety_scan ?? brief.prompt_framework_summary.public_safety_scan}</dd>
+            </div>
+            <div>
+              <dt>Internal Alaya readback</dt>
+              <dd>{brief.technical_status.alaya_readback ?? brief.internal_alaya.readback_status ?? "unknown"}</dd>
+            </div>
+            <div>
+              <dt>artifact path</dt>
+              <dd>{brief.technical_status.artifact_path ?? brief.links.daily_reader_brief}</dd>
             </div>
             <div>
               <dt>source</dt>
@@ -1602,7 +1690,7 @@ function PerformancePage({
             )}
           </p>
           <a className="secondary-action" href={routeHref("/reports")}>
-            {copy(language, "查看生产日报和金丝雀监控", "Open daily reports and canary")}
+            {copy(language, "查看生产日报和先行试跑监控", "Open daily reports and canary")}
           </a>
           <a className="primary-action" href={routeHref("/today")}>
             {copy(language, "阅读今日简报", "Read today's brief")}
@@ -2389,7 +2477,7 @@ function ReportTypeIndex({ language }: { language: Language }) {
         <p>
           {copy(
             language,
-            "生产日报页同时展示覆盖日报、Full Analyst 金丝雀、状态 JSON 和监控产物；它们都是运行/状态证据，不是投资建议、交易信号、科学证明或业绩证明。",
+            "生产日报页同时展示覆盖日报、Full Analyst 先行试跑、状态 JSON 和监控产物；它们都是运行/状态证据，不是投资建议、交易信号、科学证明或业绩证明。",
             "The production reports page shows coverage reports, the Full Analyst Canary, status JSON, and monitor artifacts; all are runtime/status evidence, not investment advice, trading signals, science proof, or performance proof.",
           )}
         </p>
@@ -2459,7 +2547,7 @@ function GuidePage({ language }: { language: Language }) {
           <p>
             {copy(
               language,
-              "按这个顺序读，能避免把 demo、状态证据、金丝雀、方法说明和正式结论混在一起。",
+              "按这个顺序读，能避免把 demo、状态证据、先行试跑、方法说明和正式结论混在一起。",
               "Reading in this order prevents demo data, status evidence, canary output, method notes, and formal conclusions from being mixed together.",
             )}
           </p>
@@ -2507,7 +2595,7 @@ function GuidePage({ language }: { language: Language }) {
           <p>
             {copy(
               language,
-              "`latest.md` 是行情覆盖日报别名；Full Analyst 是单独的金丝雀研究报告。两者都不是交易信号。",
+              "`latest.md` 是行情覆盖日报别名；Full Analyst 是单独的先行试跑研究报告。两者都不是交易信号。",
               "`latest.md` is the coverage daily alias; Full Analyst is a separate canary research report. Neither is a trading signal.",
             )}
           </p>
