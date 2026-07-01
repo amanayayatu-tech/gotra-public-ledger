@@ -6,6 +6,7 @@ const appSource = fs.readFileSync(path.join(process.cwd(), "src/App.tsx"), "utf8
 const seoHeadSource = fs.readFileSync(path.join(process.cwd(), "src/components/SeoHead.tsx"), "utf8");
 const geoGeneratorSource = fs.readFileSync(path.join(process.cwd(), "scripts/generate-geo-pages.mjs"), "utf8");
 const geoSmokeSource = fs.readFileSync(path.join(process.cwd(), "scripts/geo-smoke.mjs"), "utf8");
+const stylesSource = fs.readFileSync(path.join(process.cwd(), "src/styles.css"), "utf8");
 
 describe("public ledger information architecture contract", () => {
   it("keeps notes as a transparency article archive instead of a production report entry", () => {
@@ -50,5 +51,11 @@ describe("public ledger information architecture contract", () => {
     expect(geoGeneratorSource).toContain("Static demo/archive artifacts");
     expect(geoSmokeSource).toContain('readDist("llms.txt")');
     expect(geoSmokeSource).toContain("https://gotra.me/performance");
+  });
+
+  it("does not uppercase mixed-case internal Alaya labels in the Full Analyst panel", () => {
+    expect(stylesSource).toContain(".full-analyst-pilot-grid span");
+    expect(stylesSource).toContain(".full-analyst-monitor-grid span");
+    expect(stylesSource).toContain("text-transform: none");
   });
 });
