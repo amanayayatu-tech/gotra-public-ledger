@@ -16,6 +16,46 @@ const boundarySentence =
   "GOTRA Public Ledger provides public-safe research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not a guarantee of future outcomes.";
 const chineseBoundarySentence =
   "GOTRA Public Ledger 仅提供公开安全的研究信息。它不是投资建议、不是交易信号、不是实时交易、不是业绩证明，也不保证未来结果。";
+const guideReadingOrder = [
+  ["/today", "今日简报 / Daily Research Brief", "Start with the reader summary, Full Analyst summary, data gaps, watchlist, and next watch."],
+  [
+    "/reports/full_analyst_evening_hk_2026-06-30.md",
+    "Full Analyst 研究报告 / Full Analyst report",
+    "Open the Full Analyst Markdown original for per-symbol agent analysis, red-team review, risk factors, and public-safe status.",
+  ],
+  ["/reports", "生产日报审计 / Production Daily Reports Audit", "Audit the five daily reports, coverage, exceptions, Full Analyst Canary, status JSON, and public artifact links."],
+  ["/sources", "来源与产物 / Sources and Artifacts", "Separate live production artifacts from static demo/archive/fixture materials."],
+  ["/ledger", "Demo 账本 / Demo Ledger", "Treat this only as a frozen public-safe demo snapshot, not a latest production report or trading instruction."],
+  ["/performance", "表现说明 / Performance Notes", "Confirm there is no production performance proof; the paper portfolio is a future-dated demo fixture."],
+  ["/methodology", "方法论 / Methodology", "Read the universe, resolver, data-boundary, and resolved-only rules."],
+];
+const guideFlowRows = [
+  ["Universe", "Daily flow first fixes the public universe and exchange identity."],
+  ["Production daily timers", "Five timers publish coverage daily reports, status JSON, exceptions, and latest.md aliases."],
+  ["Full Analyst candidate/canary", "Adds per-symbol agent analysis, red-team review, risk factors, and watch items without upgrading conclusions."],
+  ["Judge gate", "Structure, coverage, data gaps, and boundaries are checked before publication."],
+  ["Public safety scan", "Raw prompts, provider/model I/O, secrets, databases, and private logs are not published."],
+  ["Internal Alaya", "Alaya here means GOTRA repo internal cognition flywheel, knowledge memory, feedback state, and hash-chain/readback state only."],
+  ["Public artifacts", "Public outputs include Today's Brief, daily Markdown, status JSON, Full Analyst report, sources, and no-JS raw HTML."],
+  ["Evidence boundary", "Local checks, browser smoke, public artifact smoke, formal acceptance, and science/public claims are separate layers."],
+];
+const guideGlossaryRows = [
+  ["Daily Brief", "Daily reader entrypoint for production reports, Full Analyst highlights, data gaps, watchlist, and boundaries."],
+  ["Full Analyst", "Candidate/canary research chain with per-symbol agent analysis; not a formal conclusion upgrade."],
+  ["Canary", "Controlled trial chain for health, public scan, and rollback status; not production graduation."],
+  ["Agent matrix", "Public-safe per-symbol matrix of summary, positive/negative cases, red-team review, risks, watch items, and source notes."],
+  ["Red-team", "Review step for overclaims, hidden assumptions, missing counterevidence, and boundary breaks."],
+  ["Risk factors", "Conditions that could invalidate the research view or require reader caution."],
+  ["Watch items", "Questions, data points, events, or source states to check next."],
+  ["Data gap", "Missing public-source coverage, price, or status-file gap; private data is not used to fill it."],
+  ["Judge gate", "Pre-publication structure, coverage, public-safety, and boundary gate."],
+  ["Public-safe", "Safe for readers and crawlers; no raw I/O, secrets, private logs, databases, or credentials."],
+  ["Evidence layer", "Separation between local checks, smoke evidence, formal acceptance, and science/public claim layers."],
+  ["Demo Ledger", "Frozen public-safe demo snapshot; not latest production or a live prediction ledger."],
+  ["Performance proof", "Evidence proving production returns or performance; this site does not provide it."],
+  ["Science/public proof", "Validation strong enough for scientific/public-validity claims; daily reports or smoke checks are not that."],
+  ["Trading signal", "Buy, sell, hold, position, or target-price instruction; this site does not provide it."],
+];
 
 function fail(message) {
   console.error(message);
@@ -252,6 +292,7 @@ function pageShell({ route, title, description, body, extraJsonLd = [] }) {
       <nav aria-label="Primary">
         <a href="/">Home</a>
         <a href="/today">Daily Research Brief</a>
+        <a href="/guide">Guide</a>
         <a href="/reports">Production Daily Reports</a>
         <a href="/notes">Transparency Articles</a>
         <a href="/ledger">Frozen Demo Ledger</a>
@@ -309,6 +350,7 @@ function homeFallback(summary) {
         <h2>Core public pages</h2>
         <ul>
           <li><a href="/today">今日研究简报 / Daily Research Brief</a></li>
+          <li><a href="/guide">使用指南 / Guide</a></li>
           <li><a href="/reports">生产日报 / Production Daily Reports</a></li>
           <li><a href="/notes">透明度文章 / Transparency Articles</a></li>
           <li><a href="/ledger">冻结 Demo 账本 / Frozen Demo Ledger</a></li>
@@ -367,6 +409,34 @@ ${rows
   .join("\n")}
         </tbody>
       </table>`;
+}
+
+function guideReadingOrderHtml() {
+  return `<section>
+        <h2>七步阅读顺序 / Seven-step reading order</h2>
+        <ol>
+${guideReadingOrder
+  .map(
+    (row) => `          <li><a href="${escapeHtml(row[0])}">${escapeHtml(row[1])}</a> - ${escapeHtml(row[2])}</li>`,
+  )
+  .join("\n")}
+        </ol>
+      </section>`;
+}
+
+function guideGlossaryHtml() {
+  return `<section>
+        <h2>术语表 / Glossary</h2>
+        ${table(["term", "definition"], guideGlossaryRows)}
+      </section>`;
+}
+
+function guideBoundaryHtml() {
+  return `<section class="notice">
+        <h2>证据边界 / Evidence boundary</h2>
+        <p>Local checks, browser smoke, public artifact smoke, long-run/formal acceptance, and science/public claim are separate evidence layers. Do not summarize this site as investment advice, a trading signal, science/public proof, performance proof, or production graduation.</p>
+        <p>这里的 Alaya 只指 GOTRA repo 内部 cognition flywheel / knowledge memory / feedback state / hash-chain readback，不是外部服务或独立 repo。</p>
+      </section>`;
 }
 
 function ledgerPage(ledger, summary) {
@@ -508,6 +578,15 @@ function reportsPage(source) {
         <h2>Live production artifact boundary</h2>
         <p>This page is the production daily report entrypoint. It answers what the public-safe production timers published, including HK morning, HK evening, US morning, US evening, global summary, and the Full Analyst Canary. These are runtime/status artifacts only, not performance proof, not a trading signal, not science/public proof, and not investment advice.</p>
       </section>
+      <section>
+        <h2>Report type labels / 报告类型</h2>
+        <ul>
+          <li><strong>行情覆盖日报 / Coverage daily report:</strong> <a href="/reports/latest.md">latest.md</a> is the coverage daily alias, not the Full Analyst research report.</li>
+          <li><strong>Full Analyst 研究报告 / Full Analyst report:</strong> candidate/canary per-symbol research output.</li>
+          <li><strong>金丝雀监控 / Canary Monitor:</strong> heartbeat, freshness, public scan, and rollback status.</li>
+          <li><strong>状态 JSON / Status JSON:</strong> public runtime fields for coverage, failed_symbols, and data_gap.</li>
+        </ul>
+      </section>
       <section class="notice">
         <h2>Report source status</h2>
         <p>Status: <strong>${escapeHtml(source.state)}</strong>.</p>
@@ -526,6 +605,40 @@ function reportsPage(source) {
           <li><a href="/reports/status.json">Report status JSON</a></li>
         </ul>
       </section>`,
+  });
+}
+
+function guidePage() {
+  const reportTypeRows = [
+    ["/reports/daily_reader_brief.json", "今日简报 JSON / Daily Reader Brief JSON", "Public-safe reader summary powering /today."],
+    ["/reports/latest.md", "行情覆盖日报 latest.md / Coverage daily alias", "latest.md is the coverage daily alias, not the Full Analyst research report."],
+    ["/reports/full_analyst_evening_hk_2026-06-30.md", "Full Analyst 研究报告 / Full Analyst report", "Canary candidate research report with per-symbol agent analysis; source text may be English original."],
+    ["/reports/status_full_analyst_monitor.json", "金丝雀监控 / Canary Monitor", "Full Analyst heartbeat, freshness, public scan, and rollback status."],
+    ["/reports/status.json", "状态 JSON / Status JSON", "Production audit fields for run_status, coverage, failed_symbols, and data_gap."],
+  ];
+
+  return pageShell({
+    route: "/guide",
+    title: "How to Read GOTRA | 使用指南",
+    description:
+      "Crawler-readable guide for GOTRA reading order, daily system flow, glossary, report types, internal Alaya boundary, and evidence boundaries. Not investment advice, not a trading signal, not performance proof, and not science/public proof.",
+    body: `      <h1>如何阅读 GOTRA / How to Read GOTRA</h1>
+      ${definitionBlock()}
+      <section class="notice">
+        <h2>Reader purpose / 读者目的</h2>
+        <p>Use this page to understand what to read first, what the Full Analyst Canary means, how production reports differ from demo/archive material, and why evidence layers must remain separate.</p>
+      </section>
+      ${guideReadingOrderHtml()}
+      <section>
+        <h2>Daily system flow / 每日系统流</h2>
+        ${table(["step", "meaning"], guideFlowRows)}
+      </section>
+      <section>
+        <h2>Report types / 报告类型</h2>
+        ${table(["artifact", "type", "reader meaning"], reportTypeRows)}
+      </section>
+      ${guideGlossaryHtml()}
+      ${guideBoundaryHtml()}`,
   });
 }
 
@@ -570,6 +683,7 @@ function todayPage(source) {
         <p>${escapeHtml(tldr)}</p>
         <p>${escapeHtml(subtitle)}</p>
       </section>
+      ${guideReadingOrderHtml()}
       <section>
         <h2>Full Analyst research summary / Full Analyst 今日研究摘要</h2>
         ${table(
@@ -675,6 +789,8 @@ function todayPage(source) {
             : "<p>Next-watch items require daily_reader_brief.json or runtime synthesis from public status files.</p>"
         }
       </section>
+      ${guideGlossaryHtml()}
+      ${guideBoundaryHtml()}
       <section>
         <h2>Public artifacts</h2>
         <ul>
@@ -1292,6 +1408,7 @@ It is research information only. It is not investment advice, not a trading sign
 ## Primary reader routes
 
 - https://gotra.me/today - Daily Research Brief. Reader-first Full Analyst research brief with agent analysis items, red-team review, risk factors, internal Alaya readback, known data gaps, and next watch points.
+- https://gotra.me/guide - Guide. Seven-step reading order, daily system flow, report type labels, glossary, internal Alaya boundary, and evidence boundaries.
 - https://gotra.me/reports - Production Daily Reports. Live production/status artifacts for HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary.
 - https://gotra.me/notes - Transparency Articles. Static article archive, not latest production daily reports.
 - https://gotra.me/ledger - Frozen Demo Ledger. snapshot_date=2026-06-20 demo snapshot, not current production.
@@ -1350,6 +1467,7 @@ function main() {
   const generated = [];
   const corePages = [
     ["/today", todayPage(source)],
+    ["/guide", guidePage()],
     ["/ledger", ledgerPage(ledger, summary)],
     ["/reports", reportsPage(source)],
     ["/reports/latest", latestReportPage(source)],
@@ -1375,6 +1493,7 @@ function main() {
   const routes = [
     "/",
     "/today",
+    "/guide",
     "/ledger",
     "/reports",
     "/reports/latest",

@@ -61,6 +61,7 @@ function main() {
   const requiredRoutes = [
     "/",
     "/today",
+    "/guide",
     "/ledger",
     "/reports",
     "/performance",
@@ -91,11 +92,19 @@ function main() {
 
   assertIncludes(pages.get("/"), "GOTRA Public Ledger 是一个可审计的 AI 股票研究公开预测账本", "/");
   assertIncludes(pages.get("/today"), "Daily Research Brief", "/today");
+  assertIncludes(pages.get("/today"), "七步阅读顺序", "/today");
+  assertIncludes(pages.get("/today"), "术语表", "/today");
   assertIncludes(pages.get("/today"), "Full Analyst research summary", "/today");
   assertIncludes(pages.get("/today"), "Agent analysis matrix", "/today");
   assertIncludes(pages.get("/today"), "GOTRA internal Alaya cognition flywheel", "/today");
   assertIncludes(pages.get("/today"), "Research process effectiveness", "/today");
   assertIncludes(pages.get("/today"), "not investment advice", "/today");
+  assertIncludes(pages.get("/guide"), "How to Read GOTRA", "/guide");
+  assertIncludes(pages.get("/guide"), "Seven-step reading order", "/guide");
+  assertIncludes(pages.get("/guide"), "Daily system flow", "/guide");
+  assertIncludes(pages.get("/guide"), "Trading signal", "/guide");
+  assertIncludes(pages.get("/guide"), "Internal Alaya", "/guide");
+  assertIncludes(pages.get("/guide"), "not performance proof", "/guide");
   assertIncludes(pages.get("/ledger"), "Frozen Demo Ledger", "/ledger");
   assertIncludes(pages.get("/ledger"), "not current production", "/ledger");
   assertIncludes(pages.get("/ledger"), "First 50 public ledger rows", "/ledger");
@@ -139,6 +148,7 @@ function main() {
   [
     "https://gotra.me/",
     "https://gotra.me/today",
+    "https://gotra.me/guide",
     "https://gotra.me/ledger",
     "https://gotra.me/reports",
     "https://gotra.me/reports/latest",
@@ -176,6 +186,7 @@ function main() {
   [
     "Production Daily Reports",
     "Daily Research Brief",
+    "Guide",
     "Transparency Articles",
     "Frozen Demo Ledger",
     "Performance Notes",

@@ -14,7 +14,7 @@ type NavChild = {
 };
 
 type NavGroup = {
-  id: "today" | "home" | "ledger" | "reports" | "system";
+  id: "today" | "guide" | "home" | "ledger" | "reports" | "system";
   zh: string;
   en: string;
   href?: string;
@@ -29,6 +29,13 @@ const navGroups: NavGroup[] = [
     zh: "今日简报",
     en: "Today",
     paths: ["/today"],
+  },
+  {
+    id: "guide",
+    href: routeHref("/guide"),
+    zh: "使用指南",
+    en: "Guide",
+    paths: ["/guide"],
   },
   {
     id: "home",

@@ -39,6 +39,13 @@ import { buildTickerList } from "./data/cognition";
 import { contentIndex, contentItems, findContentItem } from "./data/content";
 import { loadDailyReaderBrief, type DailyReaderBrief } from "./data/dailyReaderBrief";
 import {
+  guideGlossary,
+  guideReadingOrder,
+  guideReportTypes,
+  guideSystemFlow,
+  type BilingualText,
+} from "./data/guide";
+import {
   fixtureIsFutureDated,
   loadLiveReportsSnapshot,
   type LiveReportEntry,
@@ -164,6 +171,9 @@ function routeActivePath(route: AppRoute): string {
   if (route.name === "today") {
     return "/today";
   }
+  if (route.name === "guide") {
+    return "/guide";
+  }
   return route.path;
 }
 
@@ -208,6 +218,34 @@ function formatReaderDateForLanguage(value: string, language: Language): string 
     month: language === "zh" ? "2-digit" : "short",
     day: "2-digit",
   }).format(date);
+}
+
+function guideCopy(value: BilingualText, language: Language): string {
+  return copy(language, value.zh, value.en);
+}
+
+function hasMostlyEnglishText(value: string): boolean {
+  const asciiLetters = (value.match(/[A-Za-z]/g) ?? []).length;
+  const cjkLetters = (value.match(/[\u4e00-\u9fff]/g) ?? []).length;
+  return asciiLetters > 20 && asciiLetters > cjkLetters * 2;
+}
+
+function OriginalText({
+  value,
+  language,
+  className = "",
+}: {
+  value: string;
+  language: Language;
+  className?: string;
+}) {
+  const showOriginalLabel = language === "zh" && hasMostlyEnglishText(value);
+  return (
+    <div className={className ? `original-text ${className}` : "original-text"}>
+      {showOriginalLabel ? <span className="original-label">英文原文 / English original</span> : null}
+      <p>{value}</p>
+    </div>
+  );
 }
 
 function reportAssetPath(fileName: string): string {
@@ -1111,7 +1149,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           </p>
           <div className="today-tldr">
             <strong>{copy(language, "一句话摘要", "TLDR")}</strong>
-            <p>{brief.tldr}</p>
+            <OriginalText value={brief.tldr} language={language} />
           </div>
           <div className="today-boundary-chips" aria-label={copy(language, "声明边界", "Boundary")}>
             {brief.boundary.map((item) => (
@@ -1119,6 +1157,9 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
             ))}
           </div>
           <div className="hero-actions today-actions">
+            <a className="secondary-action" href={routeHref("/guide")}>
+              {copy(language, "先看使用指南", "Read the guide first")}
+            </a>
             <a className="primary-action" href={brief.links.full_analyst_report}>
               {copy(language, "打开 Full Analyst 研究报告", "Open Full Analyst report")}
             </a>
@@ -1158,7 +1199,14 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         <div className="section-heading compact">
           <span>{copy(language, "Full Analyst", "Full Analyst")}</span>
           <h2 id="today-full-analyst-title">{copy(language, "今日研究摘要", "Today's research summary")}</h2>
-          <p>{brief.full_analyst.summary}</p>
+          <p>
+            {copy(
+              language,
+              "本段解释 Full Analyst 金丝雀本次公开发布状态、复核项和数据缺口；它是运行/状态证据，不是正式验收或投资结论。",
+              "This section explains the Full Analyst Canary public publication status, review items, and data gaps; it is runtime/status evidence, not formal acceptance or an investment conclusion.",
+            )}
+          </p>
+          <OriginalText value={brief.full_analyst.summary} language={language} />
         </div>
         <div className="today-effect-grid today-full-analyst-grid">
           <article>
@@ -1186,8 +1234,8 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           <p>
             {copy(
               language,
-              `daily_reader_brief.json 包含 ${brief.agent_analysis_items.length} 个公开 per-symbol 研究摘要；本页展示精选样本，完整报告见 Full Analyst Markdown。`,
-              `daily_reader_brief.json contains ${brief.agent_analysis_items.length} public per-symbol research summaries; this page shows selected examples and links to the full markdown report.`,
+              `daily_reader_brief.json 包含 ${brief.agent_analysis_items.length} 个公开 per-symbol 研究摘要；本页展示精选样本。研究摘要可能保留英文原文，完整报告见 Full Analyst Markdown。`,
+              `daily_reader_brief.json contains ${brief.agent_analysis_items.length} public per-symbol research summaries; this page shows selected examples. Research summaries may remain English original; use the Full Analyst Markdown for the full report.`,
             )}
           </p>
         </div>
@@ -1199,7 +1247,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
                   <span>{copy(language, "研究样本", "Research sample")}</span>
                   <strong>{item.symbol}</strong>
                 </div>
-                <p>{item.research_summary}</p>
+                <OriginalText value={item.research_summary} language={language} className="today-agent-summary" />
                 <div className="today-agent-columns">
                   <div>
                     <h3>{copy(language, "正方", "Positive case")}</h3>
@@ -1275,6 +1323,13 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
       <section className="report-two-column today-two-column" aria-label={copy(language, "运行框架与内部 Alaya", "Run framework and internal Alaya")}>
         <div>
           <h2>{copy(language, "提示词 / 运行框架摘要", "Prompt / run framework summary")}</h2>
+          <p className="muted">
+            {copy(
+              language,
+              "这里只展示公开安全的运行框架摘要，不展示 raw prompt、provider/model I/O 或凭据。",
+              "This shows only the public-safe run-framework summary, not raw prompts, provider/model I/O, or credentials.",
+            )}
+          </p>
           <ul className="today-list">
             {brief.prompt_framework_summary.task_structure.map((item) => (
               <li key={item}>{item}</li>
@@ -1286,6 +1341,13 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         </div>
         <div>
           <h2>{copy(language, "GOTRA 内部 Alaya 认知飞轮", "GOTRA internal Alaya cognition flywheel")}</h2>
+          <p className="muted">
+            {copy(
+              language,
+              "这里的 Alaya 只指 GOTRA repo 内部的 cognition flywheel / knowledge memory / feedback state / readback 状态，不是外部服务。",
+              "Alaya here only means the GOTRA repo internal cognition flywheel / knowledge memory / feedback state / readback state, not an external service.",
+            )}
+          </p>
           <div className="today-effect-grid today-alaya-grid">
             <article>
               <span>mode</span>
@@ -1300,7 +1362,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
               <strong>{brief.internal_alaya.readback_verified_count} / {brief.internal_alaya.readback_failed_count}</strong>
             </article>
           </div>
-          <p className="muted">{brief.internal_alaya.interpretation}</p>
+          <OriginalText value={brief.internal_alaya.interpretation} language={language} className="muted" />
         </div>
       </section>
 
@@ -1308,6 +1370,13 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         <div className="section-heading compact">
           <span>{copy(language, "研究观察清单", "Research watchlist")}</span>
           <h2 id="today-watchlist-title">{copy(language, "哪些问题需要继续验证", "What still needs verification")}</h2>
+          <p>
+            {copy(
+              language,
+              "观察清单只说明下一次需要核对的问题或数据缺口，不是买卖、持有或仓位指令。",
+              "The watchlist only states questions or data gaps to check next; it is not buy/sell/hold/position advice.",
+            )}
+          </p>
         </div>
         {brief.research_watchlist.length > 0 ? (
           <div className="today-watchlist">
@@ -1315,7 +1384,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
               <article key={`${item.symbol}-${item.question}`}>
                 <strong>{item.symbol}</strong>
                 <span>{item.source}</span>
-                <p>{item.question}</p>
+                <OriginalText value={item.question} language={language} />
                 <small>{item.reason}</small>
                 <p>{item.next_check}</p>
               </article>
@@ -1348,6 +1417,13 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         </div>
         <div>
           <h2>{copy(language, "已知缺口与风险", "Known gaps and risks")}</h2>
+          <p className="muted">
+            {copy(
+              language,
+              "缺口来自公开状态文件；页面不会用私有数据或 raw 运行日志补齐。",
+              "Gaps come from public status files; this page does not fill them with private data or raw run logs.",
+            )}
+          </p>
           {hasKnownGaps ? (
             <div className="today-gap-list">
               {brief.known_gaps.map((gap) => (
@@ -1399,6 +1475,28 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         </div>
       </section>
 
+      <section className="today-section" aria-labelledby="today-boundary-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "声明边界", "Claim boundary")}</span>
+          <h2 id="today-boundary-title">{copy(language, "这份简报不能怎样解读", "How not to read this brief")}</h2>
+          <p>
+            {copy(
+              language,
+              "它可以帮助读者核对公开运行状态、研究摘要和下一步观察，但不能解读为正式验收、科学/公开证明、业绩证明、交易信号或投资建议。",
+              "It can help readers audit public runtime status, research summaries, and next-watch items, but it must not be read as formal acceptance, science/public proof, performance proof, a trading signal, or investment advice.",
+            )}
+          </p>
+        </div>
+        <div className="today-boundary-grid">
+          {brief.boundary.map((item) => (
+            <article key={item}>
+              <span>{copy(language, "边界", "Boundary")}</span>
+              <strong>{item}</strong>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className="today-section" aria-labelledby="today-next-title">
         <div className="section-heading compact">
           <span>{copy(language, "下一步观察", "Next watch")}</span>
@@ -1417,6 +1515,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           <h2 id="today-links-title">{copy(language, "继续核对公开材料", "Inspect the public materials")}</h2>
         </div>
         <div className="related-prediction-list today-links">
+          <a href={routeHref("/guide")}>{copy(language, "使用指南", "Guide")}</a>
           <a href={routeHref("/reports")}>{copy(language, "生产日报审计", "Production audit")}</a>
           <a href={brief.links.latest_report}>{copy(language, "行情覆盖日报 latest.md", "Coverage daily latest.md")}</a>
           <a href={brief.links.full_analyst_report}>{copy(language, "Full Analyst 研究报告", "Full Analyst report")}</a>
@@ -2260,6 +2359,7 @@ function ReportsPage({ language }: { language: Language }) {
         )}
         icon={FileText}
       />
+      <ReportTypeIndex language={language} />
       {loadState.kind === "loading" ? (
         <section className="route-panel reports-shell analyst-desk-shell" aria-labelledby="reports-loading-title">
           <div className="edge-state-note" role="status" id="reports-loading-title">
@@ -2280,30 +2380,33 @@ function ReportsPage({ language }: { language: Language }) {
   );
 }
 
-function HowToReadGotra({ language }: { language: Language }) {
-  const entries = [
-    {
-      href: routeHref("/today"),
-      label: copy(language, "今日简报", "Today"),
-      body: copy(language, "每天先看读者化摘要、观察清单、缺口、金丝雀和下一步观察。", "Start with the reader brief, watchlist, gaps, canary, and next watch."),
-    },
-    {
-      href: routeHref("/ledger"),
-      label: copy(language, "Demo 账本", "Demo Ledger"),
-      body: copy(language, "查看冻结演示账本；最新生产日报只在生产日报入口。", "Inspect the frozen demo ledger; latest production reports are only under Production Reports."),
-    },
-    {
-      href: routeHref("/reports"),
-      label: copy(language, "生产日报", "Production Reports"),
-      body: copy(language, "查看最新日报、异常清单和 Full Analyst 金丝雀监控。", "Read latest daily reports, exception lists, and Full Analyst Canary monitoring."),
-    },
-    {
-      href: routeHref("/system"),
-      label: copy(language, "系统", "System"),
-      body: copy(language, "查看方法、来源、证据边界和系统运行说明。", "Review methods, sources, evidence boundaries, and system operating notes."),
-    },
-  ];
+function ReportTypeIndex({ language }: { language: Language }) {
+  return (
+    <section className="route-panel report-type-index" aria-labelledby="report-type-index-title">
+      <div className="section-heading compact">
+        <span>{copy(language, "报告类型", "Report types")}</span>
+        <h2 id="report-type-index-title">{copy(language, "先分清这些公开产物", "Separate these public artifacts first")}</h2>
+        <p>
+          {copy(
+            language,
+            "生产日报页同时展示覆盖日报、Full Analyst 金丝雀、状态 JSON 和监控产物；它们都是运行/状态证据，不是投资建议、交易信号、科学证明或业绩证明。",
+            "The production reports page shows coverage reports, the Full Analyst Canary, status JSON, and monitor artifacts; all are runtime/status evidence, not investment advice, trading signals, science proof, or performance proof.",
+          )}
+        </p>
+      </div>
+      <div className="report-type-grid">
+        {guideReportTypes.map((item) => (
+          <a href={item.href} key={item.id}>
+            <strong>{guideCopy(item.label, language)}</strong>
+            <p>{guideCopy(item.body, language)}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
 
+function HowToReadGotra({ language }: { language: Language }) {
   return (
     <section className="reader-guide" aria-labelledby="reader-guide-title">
       <div className="section-heading compact">
@@ -2312,21 +2415,167 @@ function HowToReadGotra({ language }: { language: Language }) {
         <p>
           {copy(
             language,
-            "这四个入口把今日简报、Demo 记录、生产日报和系统说明分开；每天先读今日简报，再按需检查生产审计、demo 账本或系统材料。",
-            "The four entries separate today's brief, demo records, production reports, and system context; read today's brief first, then inspect production audit, the demo ledger, or system materials as needed.",
+            "七步顺序把今日简报、Full Analyst 原文、生产审计、来源、Demo、表现说明和方法论分开；完整解释见使用指南。",
+            "The seven-step order separates Today's Brief, Full Analyst original, production audit, sources, demo, performance notes, and methodology; the full explanation is in the Guide.",
           )}
         </p>
       </div>
       <div className="reader-guide-grid">
-        {entries.map((entry, index) => (
+        {guideReadingOrder.map((entry, index) => (
           <a href={entry.href} key={entry.href}>
             <span>{String(index + 1).padStart(2, "0")}</span>
-            <strong>{entry.label}</strong>
-            <p>{entry.body}</p>
+            <strong>{guideCopy(entry.title, language)}</strong>
+            <p>{guideCopy(entry.body, language)}</p>
           </a>
         ))}
       </div>
+      <div className="reader-guide-actions">
+        <a className="secondary-action" href={routeHref("/guide")}>
+          {copy(language, "打开完整使用指南", "Open the full guide")}
+        </a>
+      </div>
     </section>
+  );
+}
+
+function GuidePage({ language }: { language: Language }) {
+  return (
+    <>
+      <PageIntro
+        eyebrow={copy(language, "使用指南", "Guide")}
+        title={copy(language, "如何阅读 GOTRA", "How to read GOTRA")}
+        body={copy(
+          language,
+          "这页解释普通读者每天应该先看什么、生产日报和 Full Analyst 各自代表什么、内部 Alaya 如何限定，以及哪些说法不能被升级成投资或业绩声明。",
+          "This page explains what everyday readers should read first, what production reports and Full Analyst mean, how internal Alaya is bounded, and which claims must not be upgraded into investment or performance statements.",
+        )}
+        icon={BookOpenCheck}
+      />
+
+      <section className="guide-hero route-panel" aria-labelledby="guide-reading-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "七步阅读顺序", "Seven-step reading order")}</span>
+          <h2 id="guide-reading-title">{copy(language, "从摘要到审计，再到方法", "From summary to audit to method")}</h2>
+          <p>
+            {copy(
+              language,
+              "按这个顺序读，能避免把 demo、状态证据、金丝雀、方法说明和正式结论混在一起。",
+              "Reading in this order prevents demo data, status evidence, canary output, method notes, and formal conclusions from being mixed together.",
+            )}
+          </p>
+        </div>
+        <ol className="guide-step-list">
+          {guideReadingOrder.map((step) => (
+            <li key={step.id}>
+              <a href={step.href}>
+                <span>{step.route}</span>
+                <strong>{guideCopy(step.title, language)}</strong>
+                <p>{guideCopy(step.body, language)}</p>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="guide-section" aria-labelledby="guide-flow-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "每日系统流", "Daily system flow")}</span>
+          <h2 id="guide-flow-title">{copy(language, "从股票池到公开产物", "From universe to public artifacts")}</h2>
+          <p>
+            {copy(
+              language,
+              "这不是后端重跑说明，而是读者理解公开页面时需要知道的运行链路和边界。",
+              "This is not an instruction to rerun the backend; it is the operating chain and boundary readers need for interpreting the public site.",
+            )}
+          </p>
+        </div>
+        <div className="guide-flow-grid">
+          {guideSystemFlow.map((step, index) => (
+            <article key={step.id}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h3>{guideCopy(step.title, language)}</h3>
+              <p>{guideCopy(step.body, language)}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="guide-section" aria-labelledby="guide-report-types-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "公开产物", "Public artifacts")}</span>
+          <h2 id="guide-report-types-title">{copy(language, "报告类型怎么分", "How report types differ")}</h2>
+          <p>
+            {copy(
+              language,
+              "`latest.md` 是行情覆盖日报别名；Full Analyst 是单独的金丝雀研究报告。两者都不是交易信号。",
+              "`latest.md` is the coverage daily alias; Full Analyst is a separate canary research report. Neither is a trading signal.",
+            )}
+          </p>
+        </div>
+        <div className="report-type-grid">
+          {guideReportTypes.map((item) => (
+            <a href={item.href} key={item.id}>
+              <strong>{guideCopy(item.label, language)}</strong>
+              <p>{guideCopy(item.body, language)}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section className="guide-section" aria-labelledby="guide-glossary-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "术语表", "Glossary")}</span>
+          <h2 id="guide-glossary-title">{copy(language, "关键术语", "Key terms")}</h2>
+          <p>
+            {copy(
+              language,
+              "这些术语在今日简报、生产日报、来源页和方法论里反复出现。",
+              "These terms recur across Today's Brief, Production Reports, Sources, and Methodology.",
+            )}
+          </p>
+        </div>
+        <dl className="guide-glossary-grid">
+          {guideGlossary.map((item) => (
+            <div key={item.term}>
+              <dt>
+                <span>{item.term}</span>
+                <strong>{guideCopy(item.label, language)}</strong>
+              </dt>
+              <dd>{guideCopy(item.definition, language)}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section className="guide-section guide-boundary-section" aria-labelledby="guide-boundary-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "证据边界", "Evidence boundary")}</span>
+          <h2 id="guide-boundary-title">{copy(language, "不要把这些层级混起来", "Do not merge these layers")}</h2>
+          <p>
+            {copy(
+              language,
+              "local checks、browser smoke、public artifact smoke、long-run/formal acceptance、science/public claim 是不同证据层。这个站点目前提供的是公开可检查的运行/状态与演示材料，不提供投资建议、交易性指令、科学验证结论或业绩证明。",
+              "Local checks, browser smoke, public artifact smoke, long-run/formal acceptance, and science/public claim are separate evidence layers. This site currently provides inspectable public runtime/status and demo materials, not investment advice, trading signals, science proof, or performance proof.",
+            )}
+          </p>
+        </div>
+        <div className="today-boundary-grid">
+          {[
+            copy(language, "研究信息，不是投资建议", "Research information, not investment advice"),
+            copy(language, "不是交易信号或仓位指令", "Not a trading signal or position instruction"),
+            copy(language, "不是业绩证明或未来表现保证", "Not performance proof or a return promise"),
+            copy(language, "不是科学/公开有效性证明", "Not science/public validity proof"),
+            copy(language, "Full Analyst 是 candidate/canary", "Full Analyst remains candidate/canary"),
+            copy(language, "内部 Alaya 不是外部服务", "Internal Alaya is not an external service"),
+          ].map((item) => (
+            <article key={item}>
+              <span>{copy(language, "边界", "Boundary")}</span>
+              <strong>{item}</strong>
+            </article>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -2907,6 +3156,8 @@ function App() {
           </>
         ) : null}
 
+        {route.name === "guide" ? <GuidePage language={language} /> : null}
+
         {route.name === "today" ? <TodayPage state={dailyBriefState} language={language} /> : null}
 
         {route.name === "ledger" ? (
@@ -3043,7 +3294,7 @@ function App() {
         {route.name === "notes" ? <NotesPage language={language} /> : null}
         {route.name === "note" ? <NoteDetailPage item={activeNote} language={language} /> : null}
 
-        {route.name === "home" || route.name === "today" || route.name === "notes" || route.name === "note" ? <Subscribe language={language} /> : null}
+        {route.name === "home" || route.name === "guide" || route.name === "today" || route.name === "notes" || route.name === "note" ? <Subscribe language={language} /> : null}
         <SiteFooter metadata={dataset.metadata} language={language} />
       </main>
     </div>
