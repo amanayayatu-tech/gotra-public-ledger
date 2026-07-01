@@ -3180,6 +3180,11 @@ h1 {
   text-transform: uppercase;
 }
 
+.full-analyst-pilot-grid span,
+.full-analyst-monitor-grid span {
+  text-transform: none;
+}
+
 .full-analyst-monitor-grid strong {
   display: block;
   margin-top: 5px;
