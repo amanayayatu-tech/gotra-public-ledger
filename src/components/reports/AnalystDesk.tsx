@@ -172,21 +172,21 @@ function fullAnalystPilotHeadline(status: FullAnalystPilotStatus | null, languag
   if (!status) {
     return copy(
       language,
-      "Full Analyst 金丝雀状态产物尚未发布；不会影响五个日报定时器。",
+      "Full Analyst 先行试跑状态产物尚未发布；不会影响五个日报定时器。",
       "Full Analyst Canary status is not published yet; the five daily timers are unaffected.",
     );
   }
   if (status.statusLabel === "Running") {
     return copy(
       language,
-      `金丝雀运行中：阶段 ${fullAnalystStageText(language, status.phase)}，最新心跳 ${status.lastHeartbeatUtc ?? "n/a"}。`,
+      `先行试跑运行中：阶段 ${fullAnalystStageText(language, status.phase)}，最新心跳 ${status.lastHeartbeatUtc ?? "n/a"}。`,
       `Canary running: phase=${status.phase}, last heartbeat ${status.lastHeartbeatUtc ?? "n/a"}.`,
     );
   }
   if (status.statusLabel === "Stale") {
     return copy(
       language,
-      `金丝雀心跳超过 10 分钟未更新；当前不能显示为健康运行。最近心跳 ${status.lastHeartbeatUtc ?? "n/a"}。`,
+      `先行试跑心跳超过 10 分钟未更新；当前不能显示为健康运行。最近心跳 ${status.lastHeartbeatUtc ?? "n/a"}。`,
       `Canary heartbeat is more than 10 minutes stale; it is not a healthy running state. Last heartbeat ${status.lastHeartbeatUtc ?? "n/a"}.`,
     );
   }
@@ -200,16 +200,16 @@ function fullAnalystPilotHeadline(status: FullAnalystPilotStatus | null, languag
   if (status.statusLabel === "Review items") {
     return copy(
       language,
-      `金丝雀产物已写出，但保留 ${status.needsReviewCount} 个复核项和 ${status.dataGapCount} 个数据缺口。`,
+      `先行试跑产物已写出，但保留 ${status.needsReviewCount} 个复核项和 ${status.dataGapCount} 个数据缺口。`,
       `Canary artifact was written with ${status.needsReviewCount} review item(s) and ${status.dataGapCount} data gap(s).`,
     );
   }
   if (status.statusLabel === "Artifact write failed") {
-    return copy(language, "金丝雀产物写入失败；需要先复核运行目录和 web root 权限。", "Canary artifact write failed; review runtime and web-root ownership first.");
+    return copy(language, "先行试跑产物写入失败；需要先复核运行目录和 web root 权限。", "Canary artifact write failed; review runtime and web-root ownership first.");
   }
   return copy(
     language,
-    `金丝雀被阻断：${status.blockedCount} 个已阻断，${status.failedCount} 个失败，${status.alayaFailedCount} 个内部 Alaya 同步失败，${status.alayaReadbackFailedCount} 个回读失败。`,
+    `先行试跑被阻断：${status.blockedCount} 个已阻断，${status.failedCount} 个失败，${status.alayaFailedCount} 个内部 Alaya 同步失败，${status.alayaReadbackFailedCount} 个回读失败。`,
     `Canary blocked: ${status.blockedCount} blocked, ${status.failedCount} failed, ${status.alayaFailedCount} Alaya sync failed, ${status.alayaReadbackFailedCount} readback failed.`,
   );
 }
@@ -546,7 +546,7 @@ export function AnalystDesk({
             <p className="desk-source-note">
               {copy(
                 language,
-                `生产金丝雀证据层级：${fullAnalystPilot?.evidenceLayer ?? "local checks + status artifact"}；不是正式验收、科学证明、业绩证明、交易信号或投资建议。`,
+                `生产先行试跑证据层级：${fullAnalystPilot?.evidenceLayer ?? "local checks + status artifact"}；不是正式验收、科学证明、业绩证明、交易信号或投资建议。`,
                 `Production canary evidence layer: ${fullAnalystPilot?.evidenceLayer ?? "local checks + status artifact"}; not formal acceptance, science proof, performance proof, a trading signal, or investment advice.`,
               )}
             </p>

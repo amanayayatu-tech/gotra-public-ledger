@@ -99,6 +99,33 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+function localized(zh, en = zh) {
+  const safeZh = String(zh ?? "").trim();
+  const safeEn = String(en ?? zh ?? "").trim();
+  return {
+    zh: safeZh || safeEn,
+    en: safeEn || safeZh,
+  };
+}
+
+function isLocalized(value) {
+  return value && typeof value === "object" && !Array.isArray(value) && typeof value.zh === "string" && typeof value.en === "string";
+}
+
+function textValue(value) {
+  if (isLocalized(value)) {
+    return value.zh === value.en ? value.zh : `${value.zh} / ${value.en}`;
+  }
+  return String(value ?? "");
+}
+
+function englishValue(value) {
+  if (isLocalized(value)) {
+    return value.en || value.zh;
+  }
+  return String(value ?? "");
+}
+
 function routeToFile(route) {
   if (route === "/") {
     return path.join(distRoot, "index.html");
@@ -583,7 +610,7 @@ function reportsPage(source) {
         <ul>
           <li><strong>行情覆盖日报 / Coverage daily report:</strong> <a href="/reports/latest.md">latest.md</a> is the coverage daily alias, not the Full Analyst research report.</li>
           <li><strong>Full Analyst 研究报告 / Full Analyst report:</strong> candidate/canary per-symbol research output.</li>
-          <li><strong>金丝雀监控 / Canary Monitor:</strong> heartbeat, freshness, public scan, and rollback status.</li>
+          <li><strong>先行试跑监控 / Canary Monitor:</strong> heartbeat, freshness, public scan, and rollback status.</li>
           <li><strong>状态 JSON / Status JSON:</strong> public runtime fields for coverage, failed_symbols, and data_gap.</li>
         </ul>
       </section>
@@ -613,7 +640,7 @@ function guidePage() {
     ["/reports/daily_reader_brief.json", "今日简报 JSON / Daily Reader Brief JSON", "Public-safe reader summary powering /today."],
     ["/reports/latest.md", "行情覆盖日报 latest.md / Coverage daily alias", "latest.md is the coverage daily alias, not the Full Analyst research report."],
     ["/reports/full_analyst_evening_hk_2026-06-30.md", "Full Analyst 研究报告 / Full Analyst report", "Canary candidate research report with per-symbol agent analysis; source text may be English original."],
-    ["/reports/status_full_analyst_monitor.json", "金丝雀监控 / Canary Monitor", "Full Analyst heartbeat, freshness, public scan, and rollback status."],
+    ["/reports/status_full_analyst_monitor.json", "先行试跑监控 / Canary Monitor", "Full Analyst heartbeat, freshness, public scan, and rollback status."],
     ["/reports/status.json", "状态 JSON / Status JSON", "Production audit fields for run_status, coverage, failed_symbols, and data_gap."],
   ];
 
@@ -644,11 +671,16 @@ function guidePage() {
 
 function todayPage(source) {
   const brief = source.dailyReaderBrief;
-  const title = brief?.title ?? "GOTRA Daily Research Brief";
-  const subtitle = brief?.subtitle ?? "Daily reader brief artifact is unavailable in this repository build.";
+  const title = textValue(brief?.title ?? localized("GOTRA 今日研究简报", "GOTRA Daily Research Brief"));
+  const subtitle = textValue(brief?.subtitle ?? localized("daily_reader_brief.json 在本次仓库构建中不可用。", "Daily reader brief artifact is unavailable in this repository build."));
   const tldr =
-    brief?.tldr ??
-    "This raw HTML page exposes the reader-first daily brief route, but this build has no public/reports/daily_reader_brief.json artifact. It does not infer facts from private or raw artifacts.";
+    textValue(
+      brief?.tldr ??
+        localized(
+          "这个 raw HTML 页面公开 reader-first 今日简报入口，但本次构建没有 public/reports/daily_reader_brief.json；不会从私有或 raw 产物推断事实。",
+          "This raw HTML page exposes the reader-first daily brief route, but this build has no public/reports/daily_reader_brief.json artifact. It does not infer facts from private or raw artifacts.",
+        ),
+    );
   const topItems = Array.isArray(brief?.top_items) ? brief.top_items : [];
   const watchlist = Array.isArray(brief?.watchlist) ? brief.watchlist : [];
   const knownGaps = Array.isArray(brief?.known_gaps) ? brief.known_gaps : [];
@@ -665,13 +697,13 @@ function todayPage(source) {
     title: "GOTRA Daily Research Brief | Raw HTML",
     description:
       "Crawler-readable daily reader brief summarizing production reports, known data gaps, watchlist items, Full Analyst Canary health, and next watch points. Not investment advice or a trading signal.",
-    extraJsonLd: [
+	    extraJsonLd: [
       {
         "@context": "https://schema.org",
         "@type": "Article",
-        headline: title,
-        url: `${baseUrl}/today`,
-        description: tldr,
+	        headline: englishValue(brief?.title ?? "GOTRA Daily Research Brief"),
+	        url: `${baseUrl}/today`,
+	        description: englishValue(brief?.tldr ?? tldr),
         datePublished: brief?.brief_date ?? "",
         dateModified: brief?.generated_at ?? "",
       },
@@ -697,7 +729,7 @@ function todayPage(source) {
             ["blocked_count", fullAnalyst.blocked_count ?? "artifact_unavailable"],
             ["failed_count", fullAnalyst.failed_count ?? "artifact_unavailable"],
             ["data_gap_count", fullAnalyst.data_gap_count ?? "artifact_unavailable"],
-            ["summary", fullAnalyst.summary ?? "Full Analyst rich brief unavailable."],
+	            ["summary", textValue(fullAnalyst.summary ?? localized("Full Analyst rich brief unavailable.", "Full Analyst rich brief unavailable."))],
           ],
         )}
       </section>
@@ -709,10 +741,10 @@ function todayPage(source) {
                 ["symbol", "research_summary", "red_team_review", "risk_factors", "watch_items"],
                 agentItems.slice(0, 12).map((item) => [
                   item.symbol,
-                  item.research_summary,
-                  Array.isArray(item.red_team_review) ? item.red_team_review.slice(0, 2).join(" | ") : "",
-                  Array.isArray(item.risk_factors) ? item.risk_factors.slice(0, 2).join(" | ") : "",
-                  Array.isArray(item.watch_items) ? item.watch_items.slice(0, 2).join(" | ") : "",
+	                  textValue(item.research_summary),
+	                  Array.isArray(item.red_team_review) ? item.red_team_review.slice(0, 2).map(textValue).join(" | ") : "",
+	                  Array.isArray(item.risk_factors) ? item.risk_factors.slice(0, 2).map(textValue).join(" | ") : "",
+	                  Array.isArray(item.watch_items) ? item.watch_items.slice(0, 2).map(textValue).join(" | ") : "",
                 ]),
               )
             : "<p>Full Analyst rich brief unavailable; no per-symbol agent analysis is inferred.</p>"
@@ -722,7 +754,7 @@ function todayPage(source) {
         <h2>Top items / 今日重点</h2>
         ${
           topItems.length > 0
-            ? table(["label", "summary", "why_it_matters"], topItems.map((item) => [item.label, item.summary, item.why_it_matters]))
+	            ? table(["label", "summary", "why_it_matters"], topItems.map((item) => [textValue(item.label), textValue(item.summary), textValue(item.why_it_matters)]))
             : "<p>daily_reader_brief.json is unavailable; no top items are inferred.</p>"
         }
       </section>
@@ -730,16 +762,16 @@ function todayPage(source) {
         <h2>Watchlist / 观察清单</h2>
         ${
           researchWatchlist.length > 0
-            ? table(["symbol", "question", "reason", "next_check", "source"], researchWatchlist.map((item) => [item.symbol, item.question, item.reason, item.next_check, item.source]))
-            : watchlist.length > 0
-              ? table(["symbol", "reason", "reader_takeaway"], watchlist.map((item) => [item.symbol, item.reason, item.reader_takeaway]))
+	            ? table(["symbol", "question", "reason", "next_check", "source"], researchWatchlist.map((item) => [item.symbol, textValue(item.question), textValue(item.reason), textValue(item.next_check), item.source]))
+	            : watchlist.length > 0
+	              ? table(["symbol", "reason", "reader_takeaway"], watchlist.map((item) => [item.symbol, textValue(item.reason), textValue(item.reader_takeaway)]))
             : "<p>No public data-gap watch item is marked in this build.</p>"
         }
       </section>
       <section>
         <h2>Prompt/run framework / 提示词与运行框架摘要</h2>
         <ul>
-          ${(Array.isArray(promptFramework.task_structure) ? promptFramework.task_structure : ["Full Analyst rich brief unavailable."]).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+	          ${(Array.isArray(promptFramework.task_structure) ? promptFramework.task_structure : ["Full Analyst rich brief unavailable."]).map((item) => `<li>${escapeHtml(textValue(item))}</li>`).join("")}
           <li>${escapeHtml(promptFramework.judge_gate ?? "judge_gate=artifact_unavailable")}</li>
           <li>${escapeHtml(promptFramework.public_safety_scan ?? "public_safety_scan=artifact_unavailable")}</li>
           <li>${escapeHtml(promptFramework.raw_io_policy ?? "No raw prompt/model I/O is embedded in this raw page.")}</li>
@@ -755,7 +787,7 @@ function todayPage(source) {
             ["failed_count", internalAlaya.failed_count ?? "artifact_unavailable"],
             ["readback_verified_count", internalAlaya.readback_verified_count ?? "artifact_unavailable"],
             ["readback_failed_count", internalAlaya.readback_failed_count ?? "artifact_unavailable"],
-            ["interpretation", internalAlaya.interpretation ?? "Internal Alaya summary unavailable; no outside service is inferred."],
+	            ["interpretation", textValue(internalAlaya.interpretation ?? localized("Internal Alaya summary unavailable; no outside service is inferred.", "Internal Alaya summary unavailable; no outside service is inferred."))],
           ],
         )}
       </section>
@@ -763,7 +795,7 @@ function todayPage(source) {
         <h2>Known gaps / 已知缺口</h2>
         ${
           knownGaps.length > 0
-            ? table(["symbol", "reason", "affected_report"], knownGaps.map((gap) => [gap.symbol, gap.reason, gap.affected_report]))
+	            ? table(["symbol", "reason", "affected_report"], knownGaps.map((gap) => [gap.symbol ?? gap.code, textValue(gap.explanation ?? gap.reason), gap.affected_report ?? textValue(gap.label)]))
             : "<p>No public known gap artifact is available in this build.</p>"
         }
       </section>
@@ -776,7 +808,7 @@ function todayPage(source) {
             ["reports_updated_count", effect.reports_updated_count ?? "artifact_unavailable"],
             ["reports_with_data_gaps_count", effect.reports_with_data_gaps_count ?? "artifact_unavailable"],
             ["canary_status", effect.canary_status ?? "artifact_unavailable"],
-            ["reader_summary", effect.reader_summary ?? "No reader summary is inferred when the artifact is unavailable."],
+	            ["reader_summary", textValue(effect.reader_summary ?? localized("No reader summary is inferred when the artifact is unavailable.", "No reader summary is inferred when the artifact is unavailable."))],
           ],
         )}
         <p>These fields describe process visibility only. They are not performance proof, not a trading signal, and not investment advice.</p>
@@ -785,7 +817,7 @@ function todayPage(source) {
         <h2>Next watch / 下一步观察</h2>
         ${
           nextWatch.length > 0
-            ? `<ul>${nextWatch.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+	            ? `<ul>${nextWatch.map((item) => `<li>${escapeHtml(textValue(item))}</li>`).join("")}</ul>`
             : "<p>Next-watch items require daily_reader_brief.json or runtime synthesis from public status files.</p>"
         }
       </section>
@@ -1228,13 +1260,17 @@ function writeGeneratedReportArtifacts(source) {
   };
   fs.writeFileSync(path.join(reportsDir, "status.json"), `${JSON.stringify(status, null, 2)}\n`);
   const dailyReaderBrief = source.dailyReaderBrief ?? {
-    schema: "gotra.daily_reader_brief.v1",
+    schema_version: "gotra.daily_reader_brief.v2",
+    schema: "gotra.daily_reader_brief.v2",
+    as_of_date: "",
+    mode: "artifact_unavailable",
     brief_date: "",
     generated_at: "",
     evidence_layer: "artifact_unavailable",
-    title: "GOTRA Daily Research Brief",
-    subtitle: "daily_reader_brief.json was not present in this repository build.",
-    tldr: "Full Analyst rich brief unavailable; no reader brief facts are inferred from private or raw artifacts.",
+    title: localized("GOTRA 今日研究简报", "GOTRA Daily Research Brief"),
+    subtitle: localized("daily_reader_brief.json 在本次仓库构建中不可用。", "daily_reader_brief.json was not present in this repository build."),
+    tldr: localized("Full Analyst rich brief unavailable；不会从私有或 raw 产物推断读者简报事实。", "Full Analyst rich brief unavailable; no reader brief facts are inferred from private or raw artifacts."),
+    reader_summary: localized("公开 reader brief artifact 不可用。", "The public reader brief artifact is unavailable."),
     status: "artifact_unavailable",
     note: "public/reports/daily_reader_brief.json was not present in this repository build; no reader brief facts were inferred.",
     daily_report_status: {
@@ -1242,7 +1278,7 @@ function writeGeneratedReportArtifacts(source) {
       reports_updated_count: 0,
       reports_with_data_gaps_count: 0,
       known_gap_count: 0,
-      summary: "ordinary daily report status is unavailable in this repository build.",
+      summary: localized("本次仓库构建中普通日报状态不可用。", "ordinary daily report status is unavailable in this repository build."),
     },
     full_analyst: {
       run_id: "unavailable",
@@ -1256,7 +1292,7 @@ function writeGeneratedReportArtifacts(source) {
       failed_count: 0,
       data_gap_count: 0,
       canary_status: "unavailable",
-      summary: "Full Analyst rich brief unavailable.",
+      summary: localized("Full Analyst rich brief unavailable。", "Full Analyst rich brief unavailable."),
     },
     agent_analysis_items: [],
     prompt_framework_summary: {
@@ -1264,7 +1300,7 @@ function writeGeneratedReportArtifacts(source) {
       runner: null,
       model: null,
       max_concurrency: null,
-      task_structure: ["Full Analyst rich brief unavailable."],
+      task_structure: [localized("Full Analyst rich brief unavailable。", "Full Analyst rich brief unavailable.")],
       judge_gate: "judge_gate=artifact_unavailable",
       public_safety_scan: "public_safety_scan=artifact_unavailable",
       raw_io_policy: "No raw prompt text, provider/model I/O, or credential material is embedded.",
@@ -1277,7 +1313,7 @@ function writeGeneratedReportArtifacts(source) {
       readback_failed_count: 0,
       sync_status: null,
       readback_status: null,
-      interpretation: "Internal Alaya summary unavailable; no outside service is inferred.",
+      interpretation: localized("内部 Alaya 摘要不可用；不会推断外部服务。", "Internal Alaya summary unavailable; no outside service is inferred."),
     },
     research_watchlist: [],
     top_items: [],
@@ -1289,7 +1325,7 @@ function writeGeneratedReportArtifacts(source) {
       reports_updated_count: 0,
       reports_with_data_gaps_count: 0,
       canary_status: "unavailable",
-      reader_summary: "No reader summary is inferred when the artifact is unavailable.",
+      reader_summary: localized("artifact 不可用时不推断读者摘要。", "No reader summary is inferred when the artifact is unavailable."),
     },
     system_health: {
       daily_reports: "unavailable",
@@ -1297,12 +1333,20 @@ function writeGeneratedReportArtifacts(source) {
     },
     next_watch: [],
     boundary: [
-      "research information only",
-      "not investment advice",
-      "not a trading signal",
-      "not performance proof",
-      "not science/public proof",
+      localized("研究信息，不是投资建议。", "research information only"),
+      localized("不是交易信号。", "not a trading signal"),
+      localized("不是业绩证明。", "not performance proof"),
+      localized("不是科学或公开证明。", "not science/public proof"),
     ],
+    technical_status: {
+      run_id: "unavailable",
+      run_status: "unavailable",
+      judge_gate: "judge_gate=artifact_unavailable",
+      public_safety_scan: "public_safety_scan=artifact_unavailable",
+      alaya_readback: "unavailable",
+      schema: "gotra.daily_reader_brief.v2",
+      artifact_path: "/reports/daily_reader_brief.json",
+    },
     links: {
       latest_report: "/reports/latest.md",
       full_analyst_report: "/reports/full_analyst_evening_hk_YYYY-MM-DD.md",

@@ -8,6 +8,8 @@ const siteHeaderSource = fs.readFileSync(path.join(process.cwd(), "src/component
 const geoGeneratorSource = fs.readFileSync(path.join(process.cwd(), "scripts/generate-geo-pages.mjs"), "utf8");
 const geoSmokeSource = fs.readFileSync(path.join(process.cwd(), "scripts/geo-smoke.mjs"), "utf8");
 const stylesSource = fs.readFileSync(path.join(process.cwd(), "src/styles.css"), "utf8");
+const guideSource = fs.readFileSync(path.join(process.cwd(), "src/data/guide.ts"), "utf8");
+const glossarySource = fs.readFileSync(path.join(process.cwd(), "src/data/glossary.ts"), "utf8");
 
 describe("public ledger information architecture contract", () => {
   it("keeps notes as a transparency article archive instead of a production report entry", () => {
@@ -43,7 +45,7 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("报告类型怎么分");
     expect(appSource).toContain("关键术语");
     expect(appSource).toContain("不要把这些层级混起来");
-    expect(appSource).toContain("Full Analyst 是 candidate/canary");
+    expect(guideSource).toContain("Full Analyst 是先行试跑");
     expect(appSource).toContain("内部 Alaya 不是外部服务");
     expect(appSource).toContain("route.name === \"guide\"");
     expect(appSource).toContain("先看使用指南");
@@ -53,7 +55,6 @@ describe("public ledger information architecture contract", () => {
   });
 
   it("keeps the guide source contract explicit for all required reading and glossary terms", () => {
-    const guideSource = fs.readFileSync(path.join(process.cwd(), "src/data/guide.ts"), "utf8");
     ["/today", "Full Analyst 研究报告", "/reports", "/sources", "/ledger", "/performance", "/methodology"].forEach((phrase) => {
       expect(guideSource).toContain(phrase);
     });
@@ -74,11 +75,13 @@ describe("public ledger information architecture contract", () => {
       "Science/public proof",
       "Trading signal",
     ].forEach((term) => {
-      expect(guideSource).toContain(term);
+      expect(glossarySource).toContain(term);
     });
+    expect(glossarySource).toContain("先行试跑 / 小范围观察");
+    expect(glossarySource).toContain("系统记忆回读 / 内部知识状态回读");
     expect(guideSource).toContain("latest.md");
     expect(guideSource).toContain("Coverage daily alias");
-    expect(guideSource).toContain("GOTRA repo internal cognition flywheel");
+    expect(glossarySource).toContain("GOTRA repo 内部 cognition flywheel");
     expect(guideSource).not.toContain("ALAYA_BASE_URL");
     expect(guideSource).not.toContain("ALAYA_WRITE_PATH");
   });
@@ -139,5 +142,11 @@ describe("public ledger information architecture contract", () => {
     expect(stylesSource).toContain(".full-analyst-pilot-grid span");
     expect(stylesSource).toContain(".full-analyst-monitor-grid span");
     expect(stylesSource).toContain("text-transform: none");
+  });
+
+  it("keeps reader-facing Chinese terminology away from the literal canary translation", () => {
+    expect(appSource).not.toContain("金丝雀");
+    expect(geoGeneratorSource).not.toContain("金丝雀");
+    expect(glossarySource).not.toContain("金丝雀");
   });
 });

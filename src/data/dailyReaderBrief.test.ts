@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildDailyReaderBrief, publicBriefSafetyIssues } from "./dailyReaderBrief";
+import { buildDailyReaderBrief, normalizeDailyReaderBriefArtifact, publicBriefSafetyIssues } from "./dailyReaderBrief";
 import type { LiveReportEntry, LiveReportsSnapshot } from "./liveReports";
 import type { FullAnalystMonitorStatus } from "../components/reports/ReportStatusModel";
 
@@ -110,21 +110,25 @@ describe("daily reader brief builder", () => {
   it("summarizes completed reports as reader-first top items", () => {
     const brief = buildDailyReaderBrief(snapshot(), { now });
 
-    expect(brief.schema).toBe("gotra.daily_reader_brief.v1");
+    expect(brief.schema_version).toBe("gotra.daily_reader_brief.v2");
+    expect(brief.schema).toBe("gotra.daily_reader_brief.v2");
     expect(brief.brief_date).toBe("2026-07-01");
-    expect(brief.title).toBe("7月1日市场研究简报");
+    expect(brief.title.zh).toBe("7月1日市场研究简报");
+    expect(brief.title.en).toBe("Market research brief for 2026-07-01");
     expect(brief.evidence_layer).toContain("public-safe artifact smoke");
     expect(brief.daily_report_status.status).toBe("reports_updated");
     expect(brief.full_analyst.report_markdown).toBe("/reports/full_analyst_evening_hk_2026-06-30.md");
-    expect(brief.full_analyst.summary).toContain("candidate/canary");
+    expect(brief.full_analyst.summary.en).toContain("Canary");
     expect(brief.prompt_framework_summary.raw_io_policy).toContain("No raw prompt");
-    expect(brief.internal_alaya.interpretation).toContain("GOTRA 内部 Alaya cognition flywheel");
+    expect(brief.internal_alaya.interpretation.zh).toContain("GOTRA 内部 Alaya cognition flywheel");
     expect(brief.agent_analysis_items).toEqual([]);
-    expect(brief.top_items[0]?.label).toContain("覆盖完整");
+    expect(brief.top_items[0]?.label.zh).toContain("覆盖完整");
     expect(brief.known_gaps).toEqual([]);
     expect(brief.research_effectiveness.daily_update_status).toBe("reports_updated");
     expect(brief.system_health.full_analyst_canary).toBe("healthy");
-    expect(brief.tldr).toContain("不构成投资建议或交易信号");
+    expect(brief.tldr.zh).toContain("不构成投资建议或交易信号");
+    expect(brief.tldr.en).toContain("not investment advice");
+    expect(brief.boundary.every((item) => item.zh && item.en)).toBe(true);
   });
 
   it("keeps completed_with_allowed_data_gaps visible in watchlist and known gaps", () => {
@@ -171,7 +175,7 @@ describe("daily reader brief builder", () => {
       source: "daily_gap",
     });
     expect(brief.known_gaps[0]?.affected_report).toBe("美股晚报");
-    expect(brief.next_watch.join("\n")).toContain("NYSE:CWAN");
+    expect(brief.next_watch.map((item) => `${item.zh}\n${item.en}`).join("\n")).toContain("NYSE:CWAN");
   });
 
   it("marks partial or failed public reports as needs_review without inventing advice", () => {
@@ -204,8 +208,8 @@ describe("daily reader brief builder", () => {
     );
 
     expect(brief.system_health.daily_reports).toBe("needs_review");
-    expect(brief.top_items.some((item) => item.label.includes("需要复核"))).toBe(true);
-    expect(JSON.stringify(brief)).not.toMatch(/buy|sell|position size/i);
+    expect(brief.top_items.some((item) => item.label.zh.includes("需要复核"))).toBe(true);
+    expect(JSON.stringify(brief)).not.toMatch(/\bstrong buy\b|\bshould buy\b|\bshould sell\b/i);
   });
 
   it("falls back safely when status artifacts are missing", () => {
@@ -219,16 +223,52 @@ describe("daily reader brief builder", () => {
 
     expect(brief.system_health.daily_reports).toBe("unavailable");
     expect(brief.research_effectiveness.canary_status).toBe("unavailable");
-    expect(brief.top_items[0]?.label).toContain("暂不可完整读取");
+    expect(brief.top_items[0]?.label.zh).toContain("暂不可完整读取");
   });
 
   it("surfaces healthy and degraded Full Analyst canary states", () => {
     const healthyBrief = buildDailyReaderBrief(snapshot({ fullAnalystMonitor: monitor("healthy") }), { now });
     const degradedBrief = buildDailyReaderBrief(snapshot({ fullAnalystMonitor: monitor("degraded") }), { now });
 
-    expect(healthyBrief.top_items.some((item) => item.summary.includes("内部 Alaya 回读正常"))).toBe(true);
+    expect(healthyBrief.top_items.some((item) => item.summary.zh.includes("内部 Alaya 回读正常"))).toBe(true);
     expect(degradedBrief.system_health.full_analyst_canary).toBe("degraded");
-    expect(degradedBrief.next_watch.join("\n")).toContain("金丝雀");
+    expect(degradedBrief.next_watch.map((item) => item.zh).join("\n")).toContain("先行试跑");
+  });
+
+  it("normalizes v1 artifacts into the v2 localized contract", () => {
+    const built = buildDailyReaderBrief(snapshot(), { now });
+    const v1Artifact = {
+      schema: "gotra.daily_reader_brief.v1",
+      brief_date: built.brief_date,
+      generated_at: built.generated_at,
+      evidence_layer: built.evidence_layer,
+      title: "旧版标题",
+      subtitle: "旧版副标题",
+      tldr: "旧版摘要",
+      daily_report_status: { ...built.daily_report_status, summary: "旧版日报摘要" },
+      full_analyst: { ...built.full_analyst, summary: "旧版 Full Analyst 摘要" },
+      agent_analysis_items: [],
+      prompt_framework_summary: { ...built.prompt_framework_summary, task_structure: ["旧版任务结构"] },
+      internal_alaya: { ...built.internal_alaya, interpretation: "旧版内部 Alaya 摘要" },
+      research_watchlist: [],
+      top_items: [{ label: "旧版重点", summary: "旧版重点摘要", why_it_matters: "旧版原因" }],
+      watchlist: [],
+      changes_since_last_brief: ["旧版变化"],
+      known_gaps: [],
+      research_effectiveness: { ...built.research_effectiveness, reader_summary: "旧版读者摘要" },
+      system_health: built.system_health,
+      next_watch: ["旧版下一步"],
+      boundary: ["旧版边界"],
+      links: built.links,
+    };
+
+    const normalized = normalizeDailyReaderBriefArtifact(v1Artifact);
+
+    expect(normalized?.schema_version).toBe("gotra.daily_reader_brief.v2");
+    expect(normalized?.title.zh).toBe("旧版标题");
+    expect(normalized?.title.en).toBe("GOTRA Daily Research Brief");
+    expect(normalized?.top_items[0]?.summary.en).toBe("旧版重点摘要");
+    expect(normalized?.technical_status.schema).toBe("gotra.daily_reader_brief.v1");
   });
 
   it("keeps generated brief free of raw-provider and secret-bearing terms", () => {

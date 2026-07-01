@@ -72,7 +72,7 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       zhTitle: "GOTRA Public Ledger | 生产日报、Demo 账本与公开研究边界",
       enTitle: "GOTRA Public Ledger | Production Reports, Demo Ledger, and Research Boundaries",
       zhDescription:
-        "GOTRA Public Ledger 展示最新生产日报、Full Analyst 金丝雀、冻结 Demo 账本和透明度文章。研究信息，不是投资建议、交易信号、业绩证明或科学/公开证明。",
+        "GOTRA Public Ledger 展示最新生产日报、Full Analyst 先行试跑、冻结 Demo 账本和透明度文章。研究信息，不是投资建议、交易信号、业绩证明或科学/公开证明。",
       enDescription:
         "GOTRA Public Ledger separates production daily reports, the Full Analyst Canary, a frozen demo ledger, and transparency articles. Research information only; not investment advice, not a trading signal, not performance proof, and not science/public proof.",
     },
@@ -88,7 +88,7 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       zhTitle: "GOTRA 使用指南 | 如何阅读 GOTRA",
       enTitle: "GOTRA Guide | How to read GOTRA",
       zhDescription:
-        "GOTRA 使用指南说明七步阅读顺序、生产日报系统流、Full Analyst 金丝雀、内部 Alaya 认知飞轮、术语表和证据边界。不是投资建议、交易信号、业绩证明或科学/公开证明。",
+        "GOTRA 使用指南说明七步阅读顺序、生产日报系统流、Full Analyst 先行试跑、内部 Alaya 认知飞轮、术语表和证据边界。不是投资建议、交易信号、业绩证明或科学/公开证明。",
       enDescription:
         "The GOTRA Guide explains the seven-step reading order, production daily flow, Full Analyst Canary, internal Alaya cognition flywheel, glossary, and evidence boundaries. Not investment advice, trading signals, performance proof, or science/public proof.",
     },
@@ -96,7 +96,7 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       zhTitle: "生产日报审计 | GOTRA Public Ledger",
       enTitle: "Production Daily Reports Audit | GOTRA Public Ledger",
       zhDescription:
-        "生产日报页面展示港股早报、港股晚报、美股早报、美股晚报、全局汇总和 Full Analyst 金丝雀公开安全产物。不是投资建议、交易信号、业绩证明或科学/公开证明。",
+        "生产日报页面展示港股早报、港股晚报、美股早报、美股晚报、全局汇总和 Full Analyst 先行试跑公开安全产物。不是投资建议、交易信号、业绩证明或科学/公开证明。",
       enDescription:
         "Production Daily Reports show HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary public-safe artifacts. Not investment advice, not a trading signal, not performance proof, and not science/public proof.",
     },

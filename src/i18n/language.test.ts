@@ -3,12 +3,13 @@ import {
   artifactStatusText,
   fullAnalystLabelText,
   fullAnalystStageText,
+  pickLocalized,
   runtimeStatusText,
 } from "./language";
 
 describe("language label maps", () => {
   it("localizes common Full Analyst monitor labels in Chinese mode", () => {
-    expect(fullAnalystLabelText("zh", "canary")).toBe("Full Analyst 金丝雀");
+    expect(fullAnalystLabelText("zh", "canary")).toBe("Full Analyst 先行试跑");
     expect(fullAnalystLabelText("zh", "service_timer")).toBe("服务 / 定时器");
     expect(fullAnalystLabelText("zh", "timer_state")).toBe("定时器状态");
     expect(fullAnalystLabelText("zh", "run_id")).toBe("运行 ID");
@@ -48,5 +49,12 @@ describe("language label maps", () => {
 
     expect(zhLabels).not.toMatch(/SERVICE|TIMER STATE|RUN_ID|PHASE|UNIVERSE|PUBLIC SCAN/i);
     expect(zhLabels).not.toMatch(/data fetch|judge\/gate|public publish/i);
+  });
+
+  it("picks localized report fields with explicit fallback", () => {
+    expect(pickLocalized("zh", { zh: "中文摘要", en: "English summary" })).toBe("中文摘要");
+    expect(pickLocalized("en", { zh: "中文摘要", en: "English summary" })).toBe("English summary");
+    expect(pickLocalized("zh", { zh: "", en: "English original" })).toBe("English original");
+    expect(pickLocalized("en", { zh: "中文原文", en: "" })).toBe("中文原文");
   });
 });

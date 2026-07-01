@@ -85,9 +85,9 @@ const navGroups: NavGroup[] = [
       {
         href: `${routeHref("/reports")}?focus=canary`,
         path: "/reports",
-        zh: "金丝雀监控",
+        zh: "先行试跑监控",
         en: "Canary Monitoring",
-        zhDescription: "查看 Full Analyst 金丝雀、心跳、公开扫描和回滚状态。",
+        zhDescription: "查看 Full Analyst 先行试跑、心跳、公开扫描和回滚状态。",
         enDescription: "Inspect Full Analyst Canary, heartbeat, public scan, and rollback state.",
       },
       {

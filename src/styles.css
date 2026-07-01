@@ -5889,6 +5889,52 @@ h1::after {
   text-transform: uppercase;
 }
 
+.live-artifact-mobile-cards {
+  display: none;
+}
+
+.live-artifact-mobile-cards article {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.live-artifact-mobile-cards span,
+.live-artifact-mobile-cards dt {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.live-artifact-mobile-cards strong,
+.live-artifact-mobile-cards p,
+.live-artifact-mobile-cards dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.live-artifact-mobile-cards dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.live-artifact-mobile-cards dd {
+  margin: 2px 0 0;
+}
+
+.artifact-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .content-card,
 .note-detail section {
   min-width: 0;
@@ -7499,6 +7545,19 @@ h1::after {
 
   .reader-guide {
     padding: 14px;
+  }
+
+  .live-artifact-table-wrap {
+    display: none;
+  }
+
+  .live-artifact-table {
+    min-width: 0;
+  }
+
+  .live-artifact-mobile-cards {
+    display: grid;
+    gap: 10px;
   }
 
   .reader-guide-grid,
