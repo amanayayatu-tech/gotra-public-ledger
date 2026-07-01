@@ -111,7 +111,11 @@ function main() {
   assertIncludes(pages.get("/ledger"), "Download the full JSON dataset", "/ledger");
   assertIncludes(pages.get("/reports"), "Production Daily Reports", "/reports");
   assertIncludes(pages.get("/reports"), "Full Analyst Canary", "/reports");
-  assertIncludes(pages.get("/reports"), "artifact_unavailable", "/reports");
+  if (manifest.source_report_status === "artifact_unavailable") {
+    assertIncludes(pages.get("/reports"), "artifact_unavailable", "/reports");
+  } else {
+    assertNotIncludes(pages.get("/reports"), "artifact_unavailable", "/reports");
+  }
   assertIncludes(pages.get("/reports/latest"), "Interpretation boundary", "/reports/latest");
   assertIncludes(pages.get("/reports/latest"), 'href="/reports/latest.md"', "/reports/latest");
   assertIncludes(pages.get("/reports/latest"), 'href="/reports/status.json"', "/reports/latest");
