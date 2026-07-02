@@ -581,11 +581,16 @@ ${safeRows.map((row) => `          <tr>${row.map((cell) => `<td>${cell}</td>`).j
         <h2>Resolved-only boundary</h2>
         <p>Resolved-only summaries count only rows with public-safe numeric <code>actual_change_pct</code>, numeric <code>error</code>, and boolean <code>direction_correct</code>. Pending and frozen-pending rows remain visible but are excluded from resolved-only summaries. This is a demo snapshot / not current production and not performance proof.</p>
         <p>No row on this page is a buy, sell, hold, portfolio, or position instruction.</p>
-        <p><a href="/data/ledger.demo.json">Download the full JSON dataset</a>.</p>
       </section>
       <section>
         <h2>First 50 public ledger rows</h2>
         ${tableHtml}
+        <details>
+          <summary>Raw artifact / Open JSON</summary>
+          <p>This JSON is the source artifact behind the frozen demo ledger. It is for audit and reproducibility, not the default reader surface and not current production evidence.</p>
+          <p><a href="/data/ledger.demo.json">Open ledger.demo.json raw artifact</a>.</p>
+          <p><a href="/ledger">Return to the productized ledger page</a>.</p>
+        </details>
       </section>`,
   });
 }
