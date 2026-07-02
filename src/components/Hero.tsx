@@ -240,7 +240,14 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
 
       <div className="hero-side">
         <figure className="hero-asset-frame">
-          <img src={heroAsset} alt={copy(language, "公开研究账本、证据链和错误复盘的抽象视觉", "Abstract visual of public research ledger, evidence chain, and error review")} />
+          <img
+            src={heroAsset}
+            alt={copy(language, "公开研究账本、证据链和错误复盘的抽象视觉", "Abstract visual of public research ledger, evidence chain, and error review")}
+            width={1200}
+            height={760}
+            loading="eager"
+            decoding="async"
+          />
         </figure>
         <div className="hero-stat-grid" aria-label="Dataset summary">
           <div>
