@@ -901,11 +901,15 @@ function methodologyPage(summary) {
     route: "/methodology",
     title: "GOTRA Methodology | Raw HTML",
     description: "Crawler-readable methodology for public-safe demo data, resolved-only measurement, and visible errors.",
-    body: `      <h1>GOTRA Methodology</h1>
+    body: `      <h1>GOTRA Methodology / 方法</h1>
       ${definitionBlock()}
       <section>
         <h2>How GOTRA records research objects</h2>
         <p>Each public record keeps a prediction identifier, ticker, company, sector, prediction date, horizon, direction, confidence, public-safe evidence labels, and outcome fields only when public-safe resolution data exists.</p>
+      </section>
+      <section>
+        <h2>Data boundary / 数据边界</h2>
+        <p>The method fixes the public universe, resolver, reporting scope, and data boundary before interpreting records, so crawler-readable pages do not backfill private run data or upgrade smoke evidence into acceptance claims.</p>
       </section>
       <section>
         <h2>What public-safe demo data means</h2>
