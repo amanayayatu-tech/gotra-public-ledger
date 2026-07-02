@@ -179,6 +179,20 @@ function routeActivePath(route: AppRoute): string {
   return route.path;
 }
 
+function routeRequiresLedgerDataset(route: AppRoute): boolean {
+  return (
+    route.name === "home" ||
+    route.name === "ledger" ||
+    route.name === "prediction" ||
+    route.name === "performance" ||
+    route.name === "methodology"
+  );
+}
+
+function routeShouldLoadLedgerDataset(route: AppRoute): boolean {
+  return routeRequiresLedgerDataset(route) || route.name === "sources";
+}
+
 function PageIntro({
   eyebrow,
   title,
@@ -1157,17 +1171,9 @@ function SystemRulesPage({ language }: { language: Language }) {
 function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; language: Language }) {
   if (state.kind === "loading") {
     return (
-      <>
-        <PageIntro
-          eyebrow={copy(language, "今日简报", "Today")}
-          title={copy(language, "今日研究简报", "Daily Research Brief")}
-          body={copy(language, "正在读取公开日报状态和 reader brief artifact。", "Loading public report status and the reader brief artifact.")}
-          icon={BookOpenCheck}
-        />
-        <section className="route-panel edge-state-note" role="status">
-          {copy(language, "正在加载今日简报。", "Loading today's brief.")}
-        </section>
-      </>
+      <span className="sr-only" role="status">
+        {copy(language, "正在加载今日简报。", "Loading today's brief.")}
+      </span>
     );
   }
 
@@ -1872,10 +1878,12 @@ function SourcesPage({
   liveReportsState,
   language,
 }: {
-  dataset: LedgerDataset;
+  dataset: LedgerDataset | null;
   liveReportsState: LiveReportsLoadState;
   language: Language;
 }) {
+  const showSourceDetails = liveReportsState.kind !== "loading" && dataset !== null;
+
   return (
     <>
       <PageIntro
@@ -1885,52 +1893,56 @@ function SourcesPage({
         icon={Database}
       />
       <LiveArtifactSources state={liveReportsState} language={language} />
-      <StaticDemoArtifacts dataset={dataset} language={language} />
-      <section className="route-panel" aria-labelledby="sources-title">
-        <h2 id="sources-title">{copy(language, "公开可检查的数据面", "What public data can be inspected")}</h2>
-        <p>
-          {copy(language, "以下摘要来自静态演示 / 归档材料：演示账本、证据索引、清单、内容索引和生成的公开安全快照。它们不是最新生产状态；最新生产状态在上方生产公开产物。", "The following summaries come from static demo/archive materials: demo ledger, evidence index, manifest, content index, and generated public-safe snapshots. They are not the latest production status; live artifacts above are the current production state.")}
-        </p>
-        <ContentTypeChart language={language} />
-        <div className="source-reader-grid" aria-label="Public-safe data surfaces">
-          <div>
-            <span>{copy(language, "账本快照", "Ledger snapshot")}</span>
-            <strong>{dataset.metadata.record_count} {copy(language, "条记录", "records")}</strong>
-            <p>{copy(language, "包含预测、状态、证据摘要和边界元数据的公开安全演示记录。", "Public-safe demo records with prediction, status, evidence summary, and boundary metadata.")}</p>
-          </div>
-          <div>
-            <span>{copy(language, "快照日期", "Snapshot date")}</span>
-            <strong>{dataset.metadata.snapshot_date}</strong>
-            <p>{copy(language, "当前公开数据切片的读者日期。", "Reader-facing date for the current public data cut.")}</p>
-          </div>
-          <div>
-            <span>{copy(language, "内容索引", "Content index")}</span>
-            <strong>{contentItems.length} {copy(language, "篇简报", "notes")}</strong>
-            <p>{copy(language, "带声明边界和关联预测链接的公开简报 / 报告。", "Public notes and reports with claim boundaries and related prediction links.")}</p>
-          </div>
-        </div>
-        <details className="audit-details">
-          <summary>{copy(language, "技术来源", "Technical provenance")}</summary>
-          <dl className="source-grid">
-            <div>
-              <dt>dataset_id</dt>
-              <dd>{dataset.metadata.dataset_id}</dd>
+      {showSourceDetails ? (
+        <>
+          <StaticDemoArtifacts dataset={dataset} language={language} />
+          <section className="route-panel" aria-labelledby="sources-title">
+            <h2 id="sources-title">{copy(language, "公开可检查的数据面", "What public data can be inspected")}</h2>
+            <p>
+              {copy(language, "以下摘要来自静态演示 / 归档材料：演示账本、证据索引、清单、内容索引和生成的公开安全快照。它们不是最新生产状态；最新生产状态在上方生产公开产物。", "The following summaries come from static demo/archive materials: demo ledger, evidence index, manifest, content index, and generated public-safe snapshots. They are not the latest production status; live artifacts above are the current production state.")}
+            </p>
+            <ContentTypeChart language={language} />
+            <div className="source-reader-grid" aria-label="Public-safe data surfaces">
+              <div>
+                <span>{copy(language, "账本快照", "Ledger snapshot")}</span>
+                <strong>{dataset.metadata.record_count} {copy(language, "条记录", "records")}</strong>
+                <p>{copy(language, "包含预测、状态、证据摘要和边界元数据的公开安全演示记录。", "Public-safe demo records with prediction, status, evidence summary, and boundary metadata.")}</p>
+              </div>
+              <div>
+                <span>{copy(language, "快照日期", "Snapshot date")}</span>
+                <strong>{dataset.metadata.snapshot_date}</strong>
+                <p>{copy(language, "当前公开数据切片的读者日期。", "Reader-facing date for the current public data cut.")}</p>
+              </div>
+              <div>
+                <span>{copy(language, "内容索引", "Content index")}</span>
+                <strong>{contentItems.length} {copy(language, "篇简报", "notes")}</strong>
+                <p>{copy(language, "带声明边界和关联预测链接的公开简报 / 报告。", "Public notes and reports with claim boundaries and related prediction links.")}</p>
+              </div>
             </div>
-            <div>
-              <dt>dataset_type</dt>
-              <dd>{dataset.metadata.dataset_type}</dd>
-            </div>
-            <div>
-              <dt>manifest</dt>
-              <dd>public/data/manifest.json</dd>
-            </div>
-            <div>
-              <dt>evidence_index</dt>
-              <dd>public/data/evidence-index.json</dd>
-            </div>
-          </dl>
-        </details>
-      </section>
+            <details className="audit-details">
+              <summary>{copy(language, "技术来源", "Technical provenance")}</summary>
+              <dl className="source-grid">
+                <div>
+                  <dt>dataset_id</dt>
+                  <dd>{dataset.metadata.dataset_id}</dd>
+                </div>
+                <div>
+                  <dt>dataset_type</dt>
+                  <dd>{dataset.metadata.dataset_type}</dd>
+                </div>
+                <div>
+                  <dt>manifest</dt>
+                  <dd>public/data/manifest.json</dd>
+                </div>
+                <div>
+                  <dt>evidence_index</dt>
+                  <dd>public/data/evidence-index.json</dd>
+                </div>
+              </dl>
+            </details>
+          </section>
+        </>
+      ) : null}
     </>
   );
 }
@@ -2949,7 +2961,10 @@ function App() {
   const [reportStatusState, setReportStatusState] = useState<DailyDeskSnapshotState>({ kind: "loading" });
   const [liveReportsState, setLiveReportsState] = useState<LiveReportsLoadState>({ kind: "loading" });
   const [dailyBriefState, setDailyBriefState] = useState<DailyReaderBriefLoadState>({ kind: "loading" });
+  const [homeDetailsReady, setHomeDetailsReady] = useState(false);
   const dashboardLoadRef = useRef<HTMLElement | null>(null);
+  const routeNeedsDataset = routeRequiresLedgerDataset(route);
+  const routeShouldLoadDataset = routeShouldLoadLedgerDataset(route);
 
   useEffect(() => {
     const handleRouteChange = () => {
@@ -2972,10 +2987,20 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (!routeShouldLoadDataset) {
+      setError(null);
+      setDataset(null);
+      return;
+    }
     loadDataset();
-  }, [loadDataset]);
+  }, [loadDataset, routeShouldLoadDataset]);
 
   useEffect(() => {
+    const needsLiveReports = route.name === "ledger" || route.name === "performance" || route.name === "sources";
+    if (!needsLiveReports) {
+      return;
+    }
+
     let cancelled = false;
     setLiveReportsState({ kind: "loading" });
     loadLiveReportsSnapshot()
@@ -2995,9 +3020,13 @@ function App() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [route.name]);
 
   useEffect(() => {
+    if (route.name !== "today") {
+      return;
+    }
+
     let cancelled = false;
     setDailyBriefState({ kind: "loading" });
     loadDailyReaderBrief()
@@ -3023,9 +3052,13 @@ function App() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [route.name]);
 
   useEffect(() => {
+    if (route.name !== "home") {
+      return;
+    }
+
     let cancelled = false;
 
     Promise.allSettled([fetchJson<ReportRawStatus>(reportAssetPath("status.json")), fetchMarketReportStatuses()])
@@ -3070,7 +3103,7 @@ function App() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [route.name]);
 
   const views = useMemo(() => {
     if (!dataset) {
@@ -3184,7 +3217,28 @@ function App() {
     writeStoredLanguage(nextLanguage);
   };
 
-  if (error) {
+  const hasDataset = dataset !== null && metrics !== null;
+  const routeDataPending =
+    (route.name === "today" && dailyBriefState.kind === "loading") ||
+    (route.name === "sources" && liveReportsState.kind === "loading") ||
+    (route.name === "home" && hasDataset && !homeDetailsReady);
+
+  const showSubscribe =
+    !routeDataPending && (route.name === "home" || route.name === "guide" || route.name === "today" || route.name === "notes" || route.name === "note");
+  const pageShellClassName = route.name === "today" && dailyBriefState.kind === "loading" ? "page-shell today-pending-shell" : "page-shell";
+
+  useEffect(() => {
+    if (route.name !== "home" || !hasDataset) {
+      setHomeDetailsReady(false);
+      return;
+    }
+
+    setHomeDetailsReady(false);
+    const timeout = window.setTimeout(() => setHomeDetailsReady(true), 750);
+    return () => window.clearTimeout(timeout);
+  }, [hasDataset, route.name]);
+
+  if (error && routeNeedsDataset) {
     return (
       <main className="error-screen">
         <AlertCircle aria-hidden="true" size={24} />
@@ -3197,11 +3251,11 @@ function App() {
     );
   }
 
-  if (!dataset || !metrics) {
+  if (routeNeedsDataset && !hasDataset) {
     return <LedgerLoadingSkeleton />;
   }
 
-  if (!activeTicker) {
+  if (routeNeedsDataset && !activeTicker) {
     return (
       <main className="error-screen">
         <AlertCircle aria-hidden="true" size={24} />
@@ -3214,33 +3268,37 @@ function App() {
   return (
     <div className="app-shell">
       <AnalyticsProvider />
-      <SeoHead dataset={dataset} records={views} activeRecord={routeRecord} route={route} language={language} />
+      {dataset ? <SeoHead dataset={dataset} records={views} activeRecord={routeRecord} route={route} language={language} /> : null}
       <SiteHeader activePath={routeActivePath(route)} language={language} onLanguageChange={handleLanguageChange} />
 
-      <main className="page-shell">
-        {route.name === "home" ? (
+      <main className={pageShellClassName}>
+        {route.name === "home" && hasDataset ? (
           <>
             <Hero dataset={dataset} metrics={metrics} records={views} language={language} />
             <DailyDeskSnapshot reportStatus={reportStatusState} language={language} reportsHref={routeHref("/reports")} />
-            <HowToReadGotra language={language} />
-            <HowItWorks language={language} />
-            <TrustStrip records={views} language={language} />
-            {dashboardRequested ? (
-              <Suspense fallback={<ChartLoadingSkeleton />}>
-                <CognitionDashboard
-                  dataset={dataset}
-                  records={views}
-                  tickers={tickers}
-                  selectedTicker={activeTicker}
-                  language={language}
-                  onTickerChange={setSelectedTicker}
-                  onSelectRecord={openRecord}
-                />
-              </Suspense>
-            ) : (
-              <ChartLoadingSkeleton containerRef={dashboardLoadRef} />
-            )}
-            <CredibilityDashboard records={views} language={language} />
+            {homeDetailsReady ? (
+              <>
+                <HowToReadGotra language={language} />
+                <HowItWorks language={language} />
+                <TrustStrip records={views} language={language} />
+                {dashboardRequested ? (
+                  <Suspense fallback={<ChartLoadingSkeleton />}>
+                    <CognitionDashboard
+                      dataset={dataset}
+                      records={views}
+                      tickers={tickers}
+                      selectedTicker={activeTicker}
+                      language={language}
+                      onTickerChange={setSelectedTicker}
+                      onSelectRecord={openRecord}
+                    />
+                  </Suspense>
+                ) : (
+                  <ChartLoadingSkeleton containerRef={dashboardLoadRef} />
+                )}
+                <CredibilityDashboard records={views} language={language} />
+              </>
+            ) : null}
           </>
         ) : null}
 
@@ -3248,7 +3306,7 @@ function App() {
 
         {route.name === "today" ? <TodayPage state={dailyBriefState} language={language} /> : null}
 
-        {route.name === "ledger" ? (
+        {route.name === "ledger" && hasDataset ? (
           <>
             <PageIntro
               eyebrow={copy(language, "Demo 账本", "Demo Ledger")}
@@ -3363,11 +3421,11 @@ function App() {
           </>
         ) : null}
 
-        {route.name === "prediction" ? (
+        {route.name === "prediction" && hasDataset ? (
           <PredictionDetailPage record={routeRecord} missingPredictionId={missingPredictionId} dataset={dataset} language={language} />
         ) : null}
 
-        {route.name === "performance" ? (
+        {route.name === "performance" && hasDataset ? (
           <PerformancePage
             ledgerMetrics={metrics}
             snapshot={latestPaperPortfolioSnapshot}
@@ -3376,14 +3434,14 @@ function App() {
           />
         ) : null}
         {route.name === "system" ? <SystemRulesPage language={language} /> : null}
-        {route.name === "methodology" ? <MethodologyPage dataset={dataset} records={views} language={language} /> : null}
+        {route.name === "methodology" && hasDataset ? <MethodologyPage dataset={dataset} records={views} language={language} /> : null}
         {route.name === "sources" ? <SourcesPage dataset={dataset} liveReportsState={liveReportsState} language={language} /> : null}
         {route.name === "reports" ? <ReportsPage language={language} /> : null}
         {route.name === "notes" ? <NotesPage language={language} /> : null}
         {route.name === "note" ? <NoteDetailPage item={activeNote} language={language} /> : null}
 
-        {route.name === "home" || route.name === "guide" || route.name === "today" || route.name === "notes" || route.name === "note" ? <Subscribe language={language} /> : null}
-        <SiteFooter metadata={dataset.metadata} language={language} />
+        {showSubscribe ? <Subscribe language={language} /> : null}
+        {!routeDataPending && dataset ? <SiteFooter metadata={dataset.metadata} language={language} /> : null}
       </main>
     </div>
   );

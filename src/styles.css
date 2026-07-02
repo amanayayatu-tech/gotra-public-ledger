@@ -5385,6 +5385,10 @@ h1::after {
   margin-top: 14px;
 }
 
+.today-pending-shell {
+  min-height: 8200px;
+}
+
 .today-card-grid,
 .today-effect-grid {
   display: grid;
