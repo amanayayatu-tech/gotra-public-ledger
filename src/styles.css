@@ -2596,6 +2596,15 @@ h1 {
   min-height: 94px;
 }
 
+.home-loading-side {
+  display: grid;
+  align-items: center;
+}
+
+.home-loading-side .loading-shell {
+  width: 100%;
+}
+
 .chart-skeleton {
   display: grid;
   gap: 14px;

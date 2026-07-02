@@ -10,12 +10,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AnalyticsProvider, trackEvent } from "./analytics";
-import { BoundaryPanel } from "./components/BoundaryPanel";
-import { CredibilityDashboard } from "./components/CredibilityDashboard";
 import { Hero } from "./components/Hero";
-import { HowItWorks } from "./components/HowItWorks";
 import { LedgerTable, type SortKey, type SortState } from "./components/LedgerTable";
-import { AnalystDesk } from "./components/reports/AnalystDesk";
 import { DailyDeskSnapshot, type DailyDeskSnapshotState } from "./components/reports/DailyDeskSnapshot";
 import {
   REPORT_SCHEDULES,
@@ -34,10 +30,9 @@ import { SeoHead } from "./components/SeoHead";
 import { SiteFooter } from "./components/SiteFooter";
 import { SiteHeader } from "./components/SiteHeader";
 import { Subscribe } from "./components/Subscribe";
-import { TrustStrip } from "./components/TrustStrip";
 import { buildTickerList } from "./data/cognition";
 import { contentIndex, contentItems, findContentItem } from "./data/content";
-import { loadDailyReaderBrief, type DailyReaderBrief } from "./data/dailyReaderBrief";
+import type { DailyReaderBrief } from "./data/dailyReaderBrief";
 import {
   guideGlossary,
   guideReadingOrder,
@@ -82,6 +77,13 @@ import { noteRouteHref, parseBrowserRoute, parseHashRoute, predictionRouteHref, 
 const CognitionDashboard = lazy(() =>
   import("./components/CognitionDashboard").then((module) => ({ default: module.CognitionDashboard })),
 );
+const AnalystDesk = lazy(() => import("./components/reports/AnalystDesk").then((module) => ({ default: module.AnalystDesk })));
+const BoundaryPanel = lazy(() => import("./components/BoundaryPanel").then((module) => ({ default: module.BoundaryPanel })));
+const CredibilityDashboard = lazy(() =>
+  import("./components/CredibilityDashboard").then((module) => ({ default: module.CredibilityDashboard })),
+);
+const HowItWorks = lazy(() => import("./components/HowItWorks").then((module) => ({ default: module.HowItWorks })));
+const TrustStrip = lazy(() => import("./components/TrustStrip").then((module) => ({ default: module.TrustStrip })));
 
 type StatusFilter = "all" | LedgerStatus;
 type DirectionFilter = "all" | RecordView["direction"];
@@ -142,6 +144,50 @@ function LedgerLoadingSkeleton() {
       </div>
       <span>Loading ledger.demo.json</span>
     </main>
+  );
+}
+
+function HomeLoadingHero({ language }: { language: Language }) {
+  return (
+    <section className="hero-section home-loading-hero" aria-labelledby="home-loading-title" aria-busy="true">
+      <div className="hero-copy">
+        <div className="hero-boundary-note">
+          <ShieldCheck aria-hidden="true" size={16} />
+          {copy(language, "研究信息 · 非投资建议 · 非交易信号", "Research information · not advice · not a trading signal")}
+        </div>
+        <p className="hero-brand-motif">{copy(language, "AI 股票研究认知系统 · 不是交易机器", "AI stock research cognition system · not a trading machine")}</p>
+        <h1 id="home-loading-title" className="hero-title">
+          {language === "zh" ? (
+            <>
+              把研究过程
+              <br />
+              变成可审计资产
+            </>
+          ) : (
+            "Turn the research process into an auditable asset"
+          )}
+        </h1>
+        <p>
+          {copy(
+            language,
+            "正在读取公开安全 demo 账本。页面先展示研究边界，数据到达后再展示记录数、错误复盘和可审计证据链。",
+            "Loading the public-safe demo ledger. The page shows the research boundary first, then renders records, error review, and audit evidence when data arrives.",
+          )}
+        </p>
+      </div>
+      <div className="hero-side home-loading-side" aria-hidden="true">
+        <div className="loading-shell">
+          <div className="skeleton-line wide" />
+          <div className="skeleton-line" />
+          <div className="skeleton-grid">
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -1867,8 +1913,10 @@ function MethodologyPage({ dataset, records, language }: { dataset: LedgerDatase
         icon={BookOpenCheck}
       />
       <MethodologyProcessGraphic language={language} />
-      <BoundaryPanel metadata={dataset.metadata} language={language} />
-      <CredibilityDashboard records={records} language={language} />
+      <Suspense fallback={<ChartLoadingSkeleton />}>
+        <BoundaryPanel metadata={dataset.metadata} language={language} />
+        <CredibilityDashboard records={records} language={language} />
+      </Suspense>
     </>
   );
 }
@@ -2468,13 +2516,15 @@ function ReportsPage({ language }: { language: Language }) {
         </section>
       ) : null}
       {loadState.kind !== "loading" ? (
-        <AnalystDesk
-          language={language}
-          {...deskProps}
-          isRefreshing={isRefreshing}
-          onRefresh={loadReports}
-          assetHref={reportAssetPath}
-        />
+        <Suspense fallback={<ChartLoadingSkeleton />}>
+          <AnalystDesk
+            language={language}
+            {...deskProps}
+            isRefreshing={isRefreshing}
+            onRefresh={loadReports}
+            assetHref={reportAssetPath}
+          />
+        </Suspense>
       ) : null}
     </>
   );
@@ -2962,6 +3012,8 @@ function App() {
   const [liveReportsState, setLiveReportsState] = useState<LiveReportsLoadState>({ kind: "loading" });
   const [dailyBriefState, setDailyBriefState] = useState<DailyReaderBriefLoadState>({ kind: "loading" });
   const [homeDetailsReady, setHomeDetailsReady] = useState(false);
+  const [homeReportStatusRequested, setHomeReportStatusRequested] = useState(false);
+  const reportStatusLoadRef = useRef<HTMLDivElement | null>(null);
   const dashboardLoadRef = useRef<HTMLElement | null>(null);
   const routeNeedsDataset = routeRequiresLedgerDataset(route);
   const routeShouldLoadDataset = routeShouldLoadLedgerDataset(route);
@@ -2992,8 +3044,16 @@ function App() {
       setDataset(null);
       return;
     }
+
+    if (route.name === "home") {
+      setError(null);
+      setDataset(null);
+      const timeout = window.setTimeout(loadDataset, 1800);
+      return () => window.clearTimeout(timeout);
+    }
+
     loadDataset();
-  }, [loadDataset, routeShouldLoadDataset]);
+  }, [loadDataset, route.name, routeShouldLoadDataset]);
 
   useEffect(() => {
     const needsLiveReports = route.name === "ledger" || route.name === "performance" || route.name === "sources";
@@ -3029,7 +3089,8 @@ function App() {
 
     let cancelled = false;
     setDailyBriefState({ kind: "loading" });
-    loadDailyReaderBrief()
+    import("./data/dailyReaderBrief")
+      .then((module) => module.loadDailyReaderBrief())
       .then((result) => {
         if (cancelled) {
           return;
@@ -3055,7 +3116,7 @@ function App() {
   }, [route.name]);
 
   useEffect(() => {
-    if (route.name !== "home") {
+    if (route.name !== "home" || !homeReportStatusRequested) {
       return;
     }
 
@@ -3103,7 +3164,33 @@ function App() {
     return () => {
       cancelled = true;
     };
-  }, [route.name]);
+  }, [homeReportStatusRequested, route.name]);
+
+  useEffect(() => {
+    if (route.name !== "home") {
+      setHomeReportStatusRequested(false);
+      return;
+    }
+
+    if (homeReportStatusRequested || !dataset) {
+      return;
+    }
+
+    const element = reportStatusLoadRef.current;
+    if (!element || !("IntersectionObserver" in window)) {
+      const timeout = window.setTimeout(() => setHomeReportStatusRequested(true), 3000);
+      return () => window.clearTimeout(timeout);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        setHomeReportStatusRequested(true);
+        observer.disconnect();
+      }
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [dataset, homeReportStatusRequested, route.name]);
 
   const views = useMemo(() => {
     if (!dataset) {
@@ -3251,6 +3338,18 @@ function App() {
     );
   }
 
+  if (route.name === "home" && !hasDataset) {
+    return (
+      <div className="app-shell">
+        <AnalyticsProvider />
+        <SiteHeader activePath={routeActivePath(route)} language={language} onLanguageChange={handleLanguageChange} />
+        <main className="page-shell">
+          <HomeLoadingHero language={language} />
+        </main>
+      </div>
+    );
+  }
+
   if (routeNeedsDataset && !hasDataset) {
     return <LedgerLoadingSkeleton />;
   }
@@ -3275,12 +3374,16 @@ function App() {
         {route.name === "home" && hasDataset ? (
           <>
             <Hero dataset={dataset} metrics={metrics} records={views} language={language} />
-            <DailyDeskSnapshot reportStatus={reportStatusState} language={language} reportsHref={routeHref("/reports")} />
+            <div ref={reportStatusLoadRef}>
+              <DailyDeskSnapshot reportStatus={reportStatusState} language={language} reportsHref={routeHref("/reports")} />
+            </div>
             {homeDetailsReady ? (
               <>
                 <HowToReadGotra language={language} />
-                <HowItWorks language={language} />
-                <TrustStrip records={views} language={language} />
+                <Suspense fallback={<ChartLoadingSkeleton />}>
+                  <HowItWorks language={language} />
+                  <TrustStrip records={views} language={language} />
+                </Suspense>
                 {dashboardRequested ? (
                   <Suspense fallback={<ChartLoadingSkeleton />}>
                     <CognitionDashboard
@@ -3296,7 +3399,9 @@ function App() {
                 ) : (
                   <ChartLoadingSkeleton containerRef={dashboardLoadRef} />
                 )}
-                <CredibilityDashboard records={views} language={language} />
+                <Suspense fallback={<ChartLoadingSkeleton />}>
+                  <CredibilityDashboard records={views} language={language} />
+                </Suspense>
               </>
             ) : null}
           </>
