@@ -6,8 +6,11 @@ It is research information only. It is not investment advice, not a trading sign
 ## Primary reader routes
 
 - https://gotra.me/today - Daily Research Brief. Reader-first Full Analyst research brief with agent analysis items, red-team review, risk factors, internal Alaya readback, known data gaps, and next watch points.
+- https://gotra.me/why-gotra - Why GOTRA. Research discipline for seeing what changed, what is known, and what still needs review.
 - https://gotra.me/guide - Guide. Seven-step reading order, daily system flow, report type labels, glossary, internal Alaya boundary, and evidence boundaries.
 - https://gotra.me/reports - Production Daily Reports. Live production/status artifacts for HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary.
+- https://gotra.me/reports/latest/ - Coverage Report Reader. Productized HTML reader for the latest public coverage report; raw Markdown appears only in audit disclosure.
+- https://gotra.me/reports/full-analyst/ - Full Analyst Research Reader. Productized per-symbol research reader; raw Markdown appears only in audit disclosure.
 - https://gotra.me/notes - Transparency Articles. Static article archive, not latest production daily reports.
 - https://gotra.me/ledger - Frozen Demo Ledger. snapshot_date=2026-06-20 demo snapshot, not current production.
 - https://gotra.me/performance - Performance Notes. No production performance tracking yet; paper portfolio is a future-dated demo fixture.
@@ -15,7 +18,7 @@ It is research information only. It is not investment advice, not a trading sign
 - https://gotra.me/system - System Overview. Draft research-cognition operating contract and evidence boundaries.
 - https://gotra.me/methodology - Methodology. Universe, resolver, paper portfolio, and data-boundary method notes.
 
-## Public artifacts
+## Raw public artifacts
 
 - https://gotra.me/reports/daily_reader_brief.json
 - https://gotra.me/reports/status.json

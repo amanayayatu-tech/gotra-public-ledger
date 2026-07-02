@@ -215,7 +215,7 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
             <span>{copy(language, "今日阅读入口", "Today entry")}</span>
             <strong>{copy(language, "今日研究简报", "Daily Research Brief")}</strong>
             <p>
-              <a href="#/today">{copy(language, "阅读今日简报", "Read today's brief")}</a>
+              <a href="/#/today">{copy(language, "阅读今日简报", "Read today's brief")}</a>
             </p>
           </article>
           <article>
@@ -225,14 +225,14 @@ export function Hero({ dataset, metrics, records, language }: HeroProps) {
           </article>
         </div>
         <div className="hero-actions" aria-label="Page shortcuts">
-          <a className="primary-action" href="#/today">
+          <a className="primary-action" href="/#/today">
             {copy(language, "阅读今日简报", "Read today's brief")}
             <ArrowDown aria-hidden="true" size={16} />
           </a>
-          <a className="secondary-action" href="#/reports">
+          <a className="secondary-action" href="/#/reports">
             {copy(language, "查看生产日报", "View production reports")}
           </a>
-          <a className="secondary-action" href="#/ledger" onClick={() => reportCtaClick("full-ledger")}>
+          <a className="secondary-action" href="/#/ledger" onClick={() => reportCtaClick("full-ledger")}>
             {copy(language, "浏览 Demo 账本", "Browse demo ledger")}
           </a>
         </div>

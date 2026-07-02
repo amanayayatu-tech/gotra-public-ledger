@@ -25,9 +25,9 @@ describe("public ledger information architecture contract", () => {
   it("adds a reader-first daily brief entrypoint separate from production audit details", () => {
     expect(appSource).toContain("function TodayPage({ state, language }");
     expect(appSource).toContain("今日研究简报");
-    expect(appSource).toContain("一句话摘要");
+    expect(appSource).toContain("今天先读什么");
     expect(appSource).toContain("英文原文 / English original");
-    expect(appSource).toContain("Full Analyst 研究报告");
+    expect(appSource).toContain("Full Analyst reader");
     expect(appSource).toContain("Agent 分析矩阵");
     expect(appSource).toContain("提示词 / 运行框架摘要");
     expect(appSource).toContain("GOTRA 内部 Alaya 认知飞轮");
@@ -37,6 +37,9 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("研究过程效果");
     expect(appSource).toContain("下一步观察");
     expect(appSource).toContain("生产日报审计");
+    expect(appSource).toContain("Raw artifact / Open JSON / Open Markdown");
+    expect(appSource).toContain("function WhyGotraPage");
+    expect(appSource).toContain("function FullAnalystReaderPage");
   });
 
   it("adds a first-level bilingual guide with reading order, system flow, glossary, and report type labels", () => {
@@ -57,7 +60,7 @@ describe("public ledger information architecture contract", () => {
   });
 
   it("keeps the guide source contract explicit for all required reading and glossary terms", () => {
-    ["/today", "Full Analyst 研究报告", "/reports", "/sources", "/ledger", "/performance", "/methodology"].forEach((phrase) => {
+    ["/today", "/why-gotra", "Full Analyst 研究阅读器", "/reports/full-analyst", "/reports", "/sources", "/ledger", "/performance", "/methodology"].forEach((phrase) => {
       expect(guideSource).toContain(phrase);
     });
     [
@@ -81,8 +84,8 @@ describe("public ledger information architecture contract", () => {
     });
     expect(glossarySource).toContain("先行试跑 / 小范围观察");
     expect(glossarySource).toContain("系统记忆回读 / 内部知识状态回读");
-    expect(guideSource).toContain("latest.md");
-    expect(guideSource).toContain("Coverage daily alias");
+    expect(guideSource).toContain("/reports/latest/");
+    expect(guideSource).toContain("Coverage report reader");
     expect(glossarySource).toContain("GOTRA repo 内部 cognition flywheel");
     expect(guideSource).not.toContain("ALAYA_BASE_URL");
     expect(guideSource).not.toContain("ALAYA_WRITE_PATH");
@@ -131,17 +134,21 @@ describe("public ledger information architecture contract", () => {
   it("keeps generated GEO pages discoverable without relying only on hash routes", () => {
     expect(geoGeneratorSource).toContain("function performancePage");
     expect(geoGeneratorSource).toContain("function todayPage");
+    expect(geoGeneratorSource).toContain("function whyGotraPage");
+    expect(geoGeneratorSource).toContain("function fullAnalystReportPage");
     expect(geoGeneratorSource).toContain("function guidePage");
     expect(geoGeneratorSource).toContain('"/today"');
+    expect(geoGeneratorSource).toContain('"/why-gotra"');
+    expect(geoGeneratorSource).toContain('"/reports/full-analyst/"');
     expect(geoGeneratorSource).toContain('"/guide"');
     expect(geoGeneratorSource).toContain("daily_reader_brief.json");
     expect(geoGeneratorSource).toContain("Seven-step reading order");
     expect(geoGeneratorSource).toContain("guideGlossaryRows");
-    expect(geoGeneratorSource).toContain("Agent analysis matrix");
-    expect(geoGeneratorSource).toContain("GOTRA internal Alaya cognition flywheel");
+    expect(geoGeneratorSource).toContain("Symbol briefs");
+    expect(geoGeneratorSource).toContain("Alaya here means GOTRA repo internal cognition flywheel");
     expect(geoGeneratorSource).toContain('"/performance"');
     expect(geoGeneratorSource).toContain("function llmsTxt");
-    expect(geoGeneratorSource).toContain("Live production artifacts");
+    expect(geoGeneratorSource).toContain("Product reading surfaces");
     expect(geoGeneratorSource).toContain("Static demo/archive artifacts");
     expect(geoSmokeSource).toContain('readDist("llms.txt")');
     expect(geoSmokeSource).toContain("https://gotra.me/today");

@@ -14,7 +14,7 @@ type NavChild = {
 };
 
 type NavGroup = {
-  id: "today" | "guide" | "home" | "ledger" | "reports" | "system";
+  id: "today" | "whyGotra" | "guide" | "home" | "ledger" | "reports" | "system";
   zh: string;
   en: string;
   href?: string;
@@ -29,6 +29,13 @@ const navGroups: NavGroup[] = [
     zh: "今日简报",
     en: "Today",
     paths: ["/today"],
+  },
+  {
+    id: "whyGotra",
+    href: routeHref("/why-gotra"),
+    zh: "为什么是 GOTRA",
+    en: "Why GOTRA",
+    paths: ["/why-gotra"],
   },
   {
     id: "guide",
@@ -121,6 +128,14 @@ const navGroups: NavGroup[] = [
         en: "Methodology",
         zhDescription: "查看股票池、结算器、假设组合和数据边界方法。",
         enDescription: "Review universe, resolver, paper portfolio, and data-boundary methods.",
+      },
+      {
+        href: routeHref("/why-gotra"),
+        path: "/why-gotra",
+        zh: "为什么是 GOTRA",
+        en: "Why GOTRA",
+        zhDescription: "理解 GOTRA 为什么把审慎、缺口和复核变成研究价值。",
+        enDescription: "Understand how GOTRA turns discipline, gaps, and review into research value.",
       },
       {
         href: routeHref("/sources"),

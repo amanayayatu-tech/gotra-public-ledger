@@ -84,6 +84,22 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       enDescription:
         "A public-safe daily reader brief with Full Analyst research summaries, the agent analysis matrix, red-team review, risk factors, internal Alaya readback, data gaps, and next watch points. Not investment advice or a trading signal.",
     },
+    "/why-gotra": {
+      zhTitle: "为什么是 GOTRA | 研究纪律而不是交易信号",
+      enTitle: "Why GOTRA | Research Discipline, Not Signals",
+      zhDescription:
+        "GOTRA 的价值不是替你下结论，而是把每日变化、证据边界、data_gap、needs_review、红队复核和内部 Alaya 回读摊开。",
+      enDescription:
+        "GOTRA's value is not deciding for you; it lays out daily changes, evidence boundaries, data_gap, needs_review, red-team review, and internal Alaya readback.",
+    },
+    "/reports/full-analyst": {
+      zhTitle: "Full Analyst 研究阅读器 | GOTRA Public Ledger",
+      enTitle: "Full Analyst Research Reader | GOTRA Public Ledger",
+      zhDescription:
+        "Full Analyst Markdown 的产品化阅读层，默认展示单票摘要、正反两面、red-team、风险和下一步观察；raw Markdown 仅在审计折叠区打开。",
+      enDescription:
+        "The product reader for the Full Analyst Markdown artifact, showing symbol summaries, both sides, red-team notes, risks, and next watch items before raw Markdown audit links.",
+    },
     "/guide": {
       zhTitle: "GOTRA 使用指南 | 如何阅读 GOTRA",
       enTitle: "GOTRA Guide | How to read GOTRA",

@@ -519,11 +519,28 @@ export function AnalystDesk({
                         : copy(language, "等待首次运行。", "Awaiting first run.")}
                   </p>
                   {marketStatusNote(item.mode, itemStatus, language) ? <p>{marketStatusNote(item.mode, itemStatus, language)}</p> : null}
-                  <a href={assetHref(itemStatus?.statusFile ?? item.statusFile)}>{item.statusFile}</a>
+                  <span className="mono">{item.statusFile}</span>
                 </article>
               );
             })}
           </div>
+          <details className="audit-details raw-artifact-disclosure">
+            <summary>{copy(language, "Raw artifact / Open JSON", "Raw artifact / Open JSON")}</summary>
+            <p className="desk-source-note">
+              {copy(
+                language,
+                "分市场 status JSON 只用于 Evidence Center 审计；普通阅读请使用上方状态卡片、/today、/reports/latest/ 或 Full Analyst reader。",
+                "Market status JSON is only for Evidence Center audit; use the status cards above, /today, /reports/latest/, or the Full Analyst reader for normal reading.",
+              )}
+            </p>
+            <div className="public-artifact-links compact">
+              {marketStatuses.map((item) => (
+                <a href={assetHref(item.status?.statusFile ?? item.statusFile)} key={`${item.mode}-${item.statusFile}`}>
+                  {item.statusFile}
+                </a>
+              ))}
+            </div>
+          </details>
         </section>
       ) : null}
 
@@ -727,19 +744,33 @@ export function AnalystDesk({
           </div>
         ) : null}
         <div className="public-artifact-links compact">
-          <a href={assetHref(fullAnalystPilot?.statusFile ?? "status_full_analyst_evening_hk.json")}>
-            /reports/{fullAnalystPilot?.statusFile ?? "status_full_analyst_evening_hk.json"}
-          </a>
-          <a href={assetHref("status_full_analyst_monitor.json")}>/reports/status_full_analyst_monitor.json</a>
-          <a href={assetHref(fullAnalystPilot?.latestPublicReportFile ?? "full_analyst_evening_hk_2026-06-30.md")}>
-            {fullAnalystPilot?.latestPublicReportFile ?? "full_analyst_evening_hk_2026-06-30.md"}
-          </a>
-          {fullAnalystMonitor?.links.rollbackRunbook ? (
-            <a href={fullAnalystMonitor.links.rollbackRunbook} target="_blank" rel="noreferrer">
-              {fullAnalystLabelText(language, "rollback_runbook")}
-            </a>
-          ) : null}
+          <a href="/#/reports/full-analyst">{copy(language, "Full Analyst reader", "Full Analyst reader")}</a>
+          <a href="/#/today">{copy(language, "今日简报", "Daily brief")}</a>
         </div>
+        <details className="audit-details raw-artifact-disclosure">
+          <summary>{copy(language, "Raw artifact / Open JSON / Open Markdown", "Raw artifact / Open JSON / Open Markdown")}</summary>
+          <p className="desk-source-note">
+            {copy(
+              language,
+              "以下链接用于审计先行试跑状态和 Markdown 原文；默认阅读请打开 Full Analyst reader。",
+              "These links audit canary status and the Markdown original; use the Full Analyst reader for default reading.",
+            )}
+          </p>
+          <div className="public-artifact-links compact">
+            <a href={assetHref(fullAnalystPilot?.statusFile ?? "status_full_analyst_evening_hk.json")}>
+              /reports/{fullAnalystPilot?.statusFile ?? "status_full_analyst_evening_hk.json"}
+            </a>
+            <a href={assetHref("status_full_analyst_monitor.json")}>/reports/status_full_analyst_monitor.json</a>
+            <a href={assetHref(fullAnalystPilot?.latestPublicReportFile ?? "full_analyst_evening_hk_2026-06-30.md")}>
+              {fullAnalystPilot?.latestPublicReportFile ?? "full_analyst_evening_hk_2026-06-30.md"}
+            </a>
+            {fullAnalystMonitor?.links.rollbackRunbook ? (
+              <a href={fullAnalystMonitor.links.rollbackRunbook} target="_blank" rel="noreferrer">
+                {fullAnalystLabelText(language, "rollback_runbook")}
+              </a>
+            ) : null}
+          </div>
+        </details>
       </section>
 
       <div className="desk-controls" aria-label={copy(language, "报告操作", "Report controls")}>
@@ -912,35 +943,60 @@ export function AnalystDesk({
       <section className="desk-section" aria-labelledby="desk-preview-title">
         <div className="desk-section-head">
           <span>04</span>
-          <h3 id="desk-preview-title">{copy(language, "公开产物预览", "Public Artifact Preview")}</h3>
+          <h3 id="desk-preview-title">{copy(language, "覆盖日报 reader", "Coverage Report Reader")}</h3>
         </div>
-        {markdown ? (
-          <pre className="report-markdown-reader artifact-preview">{markdown}</pre>
-        ) : (
-          <div className="edge-state-note" role="status">
-            {copy(language, "latest.md 预览不可用。", "latest.md preview unavailable.")}
-            {markdownError ? <> <span className="mono">{markdownError}</span></> : null}
-          </div>
-        )}
+        <p className="desk-source-note">
+          {copy(
+            language,
+            "默认打开产品化 HTML reader；Markdown 原文只在下方 raw artifact 折叠区查看。",
+            "Open the productized HTML reader by default; view the Markdown original only in the raw artifact disclosure below.",
+          )}
+        </p>
+        <div className="public-artifact-links">
+          <a href="/reports/latest/">{copy(language, "打开 coverage report reader", "Open coverage report reader")}</a>
+          <a href="/#/reports/full-analyst">{copy(language, "打开 Full Analyst reader", "Open Full Analyst reader")}</a>
+          <a href="/#/why-gotra">{copy(language, "理解 Why GOTRA", "Understand Why GOTRA")}</a>
+        </div>
+        <details className="audit-details raw-artifact-disclosure">
+          <summary>{copy(language, "Raw artifact / Open Markdown preview", "Raw artifact / Open Markdown preview")}</summary>
+          {markdown ? (
+            <pre className="report-markdown-reader artifact-preview">{markdown}</pre>
+          ) : (
+            <div className="edge-state-note" role="status">
+              {copy(language, "latest.md 预览不可用。", "latest.md preview unavailable.")}
+              {markdownError ? <> <span className="mono">{markdownError}</span></> : null}
+            </div>
+          )}
+        </details>
       </section>
 
       <section className="desk-section" aria-labelledby="desk-artifacts-title">
         <div className="desk-section-head">
           <span>05</span>
-          <h3 id="desk-artifacts-title">{copy(language, "公开产物链接", "Public Artifact Links")}</h3>
-        </div>
-        <div className="public-artifact-links">
-          <a href={assetHref(status?.statusFile ?? "status.json")}>/reports/status.json</a>
-          <a href={assetHref(status?.latestFile ?? "latest.md")}>/reports/latest.md</a>
-          {status?.reportFile ? <a href={assetHref(status.reportFile)}>{status.reportFile}</a> : null}
+          <h3 id="desk-artifacts-title">{copy(language, "Evidence Center raw links", "Evidence Center raw links")}</h3>
         </div>
         <p className="desk-source-note">
           {copy(
             language,
-            "仅公开产物。本页不暴露私有运行日志、环境文件、数据库文件或原始数据源/模型输入输出。",
-            "Public artifacts only. No private runtime logs, environment files, database files, or raw provider/model I/O are exposed here.",
+            "raw JSON / Markdown 只用于审计；默认阅读路径是 /today、/reports/latest/ 和 Full Analyst reader。",
+            "Raw JSON / Markdown is for audit only; the default reading path is /today, /reports/latest/, and the Full Analyst reader.",
           )}
         </p>
+        <details className="audit-details raw-artifact-disclosure">
+          <summary>{copy(language, "Raw artifact / Open JSON / Open Markdown", "Raw artifact / Open JSON / Open Markdown")}</summary>
+          <div className="public-artifact-links">
+            <a href={assetHref(status?.statusFile ?? "status.json")}>/reports/status.json</a>
+            <a href={assetHref(status?.latestFile ?? "latest.md")}>/reports/latest.md</a>
+            {status?.reportFile ? <a href={assetHref(status.reportFile)}>{status.reportFile}</a> : null}
+          </div>
+          <p className="desk-source-note">
+            {copy(
+              language,
+              "仅公开产物。本页不暴露私有运行日志、环境文件、数据库文件或原始数据源/模型输入输出。",
+              "Public artifacts only. No private runtime logs, environment files, database files, or raw provider/model I/O are exposed here.",
+            )}
+          </p>
+        </details>
         {status?.source ? <p className="desk-source-note">{copy(language, "来源", "Source")}: {status.source}</p> : null}
       </section>
 

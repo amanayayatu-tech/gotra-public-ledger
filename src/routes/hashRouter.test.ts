@@ -12,9 +12,9 @@ describe("hash router", () => {
   it("normalizes empty and core hash paths", () => {
     expect(normalizeHashPath("")).toBe("/");
     expect(normalizeHashPath("#/ledger/")).toBe("/ledger");
-    expect(routeHref("/performance")).toBe("#/performance");
-    expect(routeHref("/today")).toBe("#/today");
-    expect(routeHref("/guide")).toBe("#/guide");
+    expect(routeHref("/performance")).toBe("/#/performance");
+    expect(routeHref("/today")).toBe("/#/today");
+    expect(routeHref("/guide")).toBe("/#/guide");
     expect(parseHashRoute("#/today").name).toBe("today");
     expect(parseHashRoute("#/guide").name).toBe("guide");
     expect(parseHashRoute("#/system").name).toBe("system");
@@ -25,7 +25,7 @@ describe("hash router", () => {
     const route = parseHashRoute("#/ledger/PRED-20260203-TSM-0054");
     expect(route.name).toBe("prediction");
     expect(route.name === "prediction" ? route.predictionId : "").toBe("PRED-20260203-TSM-0054");
-    expect(predictionRouteHref("PRED 1")).toBe("#/ledger/PRED%201");
+    expect(predictionRouteHref("PRED 1")).toBe("/#/ledger/PRED%201");
   });
 
   it("parses note detail routes", () => {
@@ -34,7 +34,7 @@ describe("hash router", () => {
     expect(route.name === "note" ? route.slug : "").toBe("weekly-ledger-update-2026-06-25");
     const eveningRoute = parseHashRoute("#/notes/error-review-first-public-snapshot");
     expect(eveningRoute.name === "note" ? eveningRoute.slug : "").toBe("error-review-first-public-snapshot");
-    expect(noteRouteHref("alpha note")).toBe("#/notes/alpha%20note");
+    expect(noteRouteHref("alpha note")).toBe("/#/notes/alpha%20note");
   });
 
   it("falls unknown paths back to home", () => {
