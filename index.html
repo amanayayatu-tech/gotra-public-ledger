@@ -65,9 +65,7 @@
             ? "/reports/"
             : href.includes("#/sources")
               ? "/sources/"
-              : href.includes("#/methodology")
-                ? "/methodology/"
-                : null;
+              : null;
         if (window.location.pathname === "/" && target) {
           window.location.replace(target);
         }
