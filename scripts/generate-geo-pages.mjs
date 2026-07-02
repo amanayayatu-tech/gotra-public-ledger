@@ -614,7 +614,7 @@ function reportsPage(source) {
   ];
   const rows = fields.map((field) => {
     const value = source.status?.[field];
-    return [field, value === undefined ? "artifact_unavailable" : Array.isArray(value) ? value.join(", ") : String(value)];
+    return [field, value === undefined ? "artifact_unavailable" : value];
   });
 
   return pageShell({
