@@ -18,8 +18,8 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
       note: copy(language, "每日先读读者化摘要、观察清单、数据缺口和下一步观察。", "Start with the reader brief, watchlist, data gaps, and next watch."),
       links: [
         { href: routeHref("/today"), label: copy(language, "今日研究简报", "Daily Research Brief") },
+        { href: routeHref("/why-gotra"), label: copy(language, "为什么是 GOTRA", "Why GOTRA") },
         { href: routeHref("/guide"), label: copy(language, "如何阅读 GOTRA", "How to read GOTRA") },
-        { href: "/reports/daily_reader_brief.json", label: copy(language, "简报 JSON", "Brief JSON") },
       ],
     },
     {
@@ -44,6 +44,8 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
       note: copy(language, "生产日报是完整状态、覆盖率、缺口和公开产物链接的审计面板。", "Production reports are the audit panel for complete status, coverage, gaps, and public artifact links."),
       links: [
         { href: routeHref("/reports"), label: copy(language, "生产日报审计", "Production Daily Reports Audit") },
+        { href: "/reports/latest/", label: copy(language, "覆盖日报 reader", "Coverage report reader") },
+        { href: routeHref("/reports/full-analyst"), label: copy(language, "Full Analyst reader", "Full Analyst reader") },
         { href: `${routeHref("/reports")}?focus=canary`, label: copy(language, "先行试跑监控", "Canary Monitoring") },
         { href: routeHref("/notes"), label: copy(language, "透明度文章", "Transparency Articles") },
       ],

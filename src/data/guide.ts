@@ -35,7 +35,7 @@ export type GuideReportType = {
 export const guideReadingOrder: GuideReadingStep[] = [
   {
     id: "today",
-    href: "#/today",
+    href: "/#/today",
     route: "/today",
     title: { zh: "今日简报", en: "Daily Research Brief" },
     body: {
@@ -44,18 +44,28 @@ export const guideReadingOrder: GuideReadingStep[] = [
     },
   },
   {
-    id: "full-analyst",
-    href: "/reports/full_analyst_evening_hk_2026-06-30.md",
-    route: "Full Analyst report",
-    title: { zh: "Full Analyst 研究报告", en: "Full Analyst report" },
+    id: "why-gotra",
+    href: "/#/why-gotra",
+    route: "/why-gotra",
+    title: { zh: "为什么是 GOTRA", en: "Why GOTRA" },
     body: {
-      zh: "再打开 Full Analyst Markdown 原文，核对每个标的的 agent 分析、反方审查、风险因素和公开安全状态。",
-      en: "Then open the Full Analyst Markdown original to inspect per-symbol agent analysis, red-team review, risk factors, and public-safe status.",
+      zh: "理解 GOTRA 为什么把 data_gap、needs_review、red-team 和内部 Alaya 回读做成研究纪律，而不是把不确定性包装成结论。",
+      en: "Understand why GOTRA treats data_gap, needs_review, red-team review, and internal Alaya readback as research discipline instead of hiding uncertainty inside conclusions.",
+    },
+  },
+  {
+    id: "full-analyst",
+    href: "/#/reports/full-analyst",
+    route: "/reports/full-analyst",
+    title: { zh: "Full Analyst 研究阅读器", en: "Full Analyst reader" },
+    body: {
+      zh: "再用产品化 reader 核对每个标的的 agent 分析、反方审查、风险因素和观察项；Markdown 原文只在审计折叠区打开。",
+      en: "Then use the product reader to inspect per-symbol agent analysis, red-team review, risk factors, and watch items; the Markdown original opens only inside the audit disclosure.",
     },
   },
   {
     id: "reports",
-    href: "#/reports",
+    href: "/#/reports",
     route: "/reports",
     title: { zh: "报告归档 / 生产日报审计", en: "Report Archive / Production Daily Reports Audit" },
     body: {
@@ -65,7 +75,7 @@ export const guideReadingOrder: GuideReadingStep[] = [
   },
   {
     id: "sources",
-    href: "#/sources",
+    href: "/#/sources",
     route: "/sources",
     title: { zh: "来源与产物", en: "Sources and Artifacts" },
     body: {
@@ -75,7 +85,7 @@ export const guideReadingOrder: GuideReadingStep[] = [
   },
   {
     id: "ledger",
-    href: "#/ledger",
+    href: "/#/ledger",
     route: "/ledger",
     title: { zh: "Demo 账本", en: "Demo Ledger" },
     body: {
@@ -85,7 +95,7 @@ export const guideReadingOrder: GuideReadingStep[] = [
   },
   {
     id: "performance",
-    href: "#/performance",
+    href: "/#/performance",
     route: "/performance",
     title: { zh: "表现说明", en: "Performance Notes" },
     body: {
@@ -95,7 +105,7 @@ export const guideReadingOrder: GuideReadingStep[] = [
   },
   {
     id: "methodology",
-    href: "#/methodology",
+    href: "/#/methodology",
     route: "/methodology",
     title: { zh: "方法论", en: "Methodology" },
     body: {
@@ -181,47 +191,47 @@ export const guideGlossary: GuideGlossaryTerm[] = termList.map((item) => ({
 export const guideReportTypes: GuideReportType[] = [
   {
     id: "daily-reader-brief",
-    href: "/reports/daily_reader_brief.json",
-    label: { zh: "今日简报 JSON / Daily Reader Brief JSON", en: "Daily Reader Brief JSON / 今日简报 JSON" },
+    href: "/#/today",
+    label: { zh: "今日简报 reader / Daily Brief reader", en: "Daily Brief reader / 今日简报 reader" },
     body: {
-      zh: "驱动 `#/today` 的读者化公开安全摘要。",
-      en: "The public-safe reader summary that powers `#/today`.",
+      zh: "`daily_reader_brief.json` 是数据源；默认阅读入口是 `#/today`，raw JSON 只在审计区打开。",
+      en: "`daily_reader_brief.json` is the data source; the default reading entry is `#/today`, and raw JSON opens only in audit areas.",
     },
   },
   {
     id: "coverage-daily",
-    href: "/reports/latest.md",
-    label: { zh: "行情覆盖日报 latest.md / Coverage daily alias", en: "Coverage daily alias latest.md / 行情覆盖日报" },
+    href: "/reports/latest/",
+    label: { zh: "行情覆盖日报 reader / Coverage report reader", en: "Coverage report reader / 行情覆盖日报 reader" },
     body: {
-      zh: "`latest.md` 是行情覆盖日报别名，不是 Full Analyst 研究报告。",
-      en: "`latest.md` is the coverage daily alias, not the Full Analyst research report.",
+      zh: "`/reports/latest/` 是默认 reader；`latest.md` 是审计折叠区中的 Markdown 原文。",
+      en: "`/reports/latest/` is the default reader; `latest.md` is the Markdown original inside the audit disclosure.",
     },
   },
   {
     id: "full-analyst",
-    href: "/reports/full_analyst_evening_hk_2026-06-30.md",
-    label: { zh: "Full Analyst 研究报告 / Full Analyst report", en: "Full Analyst report / Full Analyst 研究报告" },
+    href: "/#/reports/full-analyst",
+    label: { zh: "Full Analyst 研究阅读器 / Full Analyst reader", en: "Full Analyst reader / Full Analyst 研究阅读器" },
     body: {
-      zh: "先行试跑候选研究报告，包含 per-symbol agent 分析；原文可能是英文原文。",
-      en: "The canary candidate research report with per-symbol agent analysis; the source text may be English original.",
+      zh: "先行试跑候选研究的产品化阅读层；Markdown 原文只作为审计 raw artifact 保留。",
+      en: "The productized reading layer for canary candidate research; the Markdown original remains only as an audit raw artifact.",
     },
   },
   {
     id: "canary-monitor",
-    href: "/reports/status_full_analyst_monitor.json",
-    label: { zh: "先行试跑监控 / Canary Monitor", en: "Canary Monitor / 先行试跑监控" },
+    href: "/#/reports",
+    label: { zh: "先行试跑监控审计 / Canary Monitor audit", en: "Canary Monitor audit / 先行试跑监控审计" },
     body: {
-      zh: "Full Analyst 心跳、新鲜度、公开扫描和回滚状态。",
-      en: "Full Analyst heartbeat, freshness, public scan, and rollback status.",
+      zh: "Full Analyst 心跳、新鲜度、公开扫描和回滚状态在审计中心查看；raw JSON 只在折叠区打开。",
+      en: "Full Analyst heartbeat, freshness, public scan, and rollback status live in the audit center; raw JSON opens only in disclosures.",
     },
   },
   {
     id: "status-json",
-    href: "/reports/status.json",
-    label: { zh: "状态 JSON / Status JSON", en: "Status JSON / 状态 JSON" },
+    href: "/#/reports",
+    label: { zh: "状态审计 / Status audit", en: "Status audit / 状态审计" },
     body: {
-      zh: "生产日报审计字段，适合核对 run_status、coverage、failed_symbols 和 data_gap。",
-      en: "Production audit fields for run_status, coverage, failed_symbols, and data_gap.",
+      zh: "生产日报审计字段在审计中心产品化展示；raw status.json 只在 Raw artifact 折叠区打开。",
+      en: "Production audit fields are productized in the audit center; raw status.json opens only in the Raw artifact disclosure.",
     },
   },
 ];

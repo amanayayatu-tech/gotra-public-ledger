@@ -5948,6 +5948,286 @@ h1::after {
   gap: 8px;
 }
 
+.productized-today-hero {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(173, 132, 86, 0.38);
+  background:
+    linear-gradient(135deg, rgba(18, 28, 35, 0.94), rgba(9, 14, 18, 0.98)),
+    radial-gradient(circle at 82% 18%, rgba(173, 132, 86, 0.22), transparent 34%);
+}
+
+.today-reader-kicker {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 7px 10px;
+  border: 1px solid rgba(242, 190, 99, 0.35);
+  border-radius: 8px;
+  background: rgba(242, 190, 99, 0.08);
+  color: #f6cf8f;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.today-focus-row,
+.today-context-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.today-focus-row span,
+.today-focus-row strong {
+  display: inline-flex;
+  max-width: 100%;
+  padding: 6px 9px;
+  border-radius: 8px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.today-focus-row span {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  color: var(--faint);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.today-focus-row strong {
+  border: 1px solid rgba(105, 167, 255, 0.3);
+  background: rgba(105, 167, 255, 0.08);
+  color: #b9d8ff;
+  font-size: 12px;
+}
+
+.context-explainer {
+  min-width: min(100%, 210px);
+  max-width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.context-explainer summary {
+  cursor: pointer;
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.context-explainer p {
+  margin: 0;
+  padding: 0 10px 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.today-visual-panel,
+.why-visual-frame {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  align-content: stretch;
+}
+
+.today-visual-panel img,
+.why-visual-frame img {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  max-height: 520px;
+  object-fit: cover;
+  border: 1px solid rgba(173, 132, 86, 0.32);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.symbol-brief-lede {
+  display: grid;
+  gap: 6px;
+  padding: 11px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.symbol-brief-lede span {
+  color: #f6cf8f;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.symbol-brief-lede p {
+  margin: 0;
+}
+
+.symbol-brief-columns {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.today-reader-boundary {
+  padding: 14px;
+  border: 1px solid rgba(173, 132, 86, 0.28);
+  border-radius: 8px;
+  background: rgba(173, 132, 86, 0.07);
+}
+
+.raw-artifact-disclosure {
+  border-color: rgba(242, 190, 99, 0.34);
+  background: rgba(242, 190, 99, 0.055);
+}
+
+.raw-artifact-disclosure summary {
+  color: #f6cf8f;
+}
+
+.why-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+  gap: 18px;
+  align-items: stretch;
+  overflow: hidden;
+  border-color: rgba(173, 132, 86, 0.38);
+  background:
+    linear-gradient(135deg, rgba(18, 28, 35, 0.96), rgba(9, 14, 18, 0.99)),
+    radial-gradient(circle at 88% 12%, rgba(242, 190, 99, 0.18), transparent 30%);
+}
+
+.why-hero-copy {
+  display: grid;
+  gap: 16px;
+  align-content: center;
+  min-width: 0;
+}
+
+.why-hero h1 {
+  margin: 0;
+  font-size: clamp(38px, 5vw, 72px);
+  line-height: 1.02;
+}
+
+.why-hero p {
+  max-width: 760px;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.why-section {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.why-problem-grid,
+.why-workflow,
+.why-two-column,
+.full-analyst-reader-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.why-problem-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.why-workflow {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.why-two-column {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.why-problem-grid article,
+.why-workflow article,
+.why-two-column article,
+.daily-brief-preview,
+.why-boundary-card {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 8px;
+  background: rgba(7, 12, 16, 0.32);
+}
+
+.why-problem-grid strong,
+.why-workflow h3,
+.why-two-column h2,
+.daily-brief-preview h2,
+.why-boundary-card h2 {
+  color: var(--text);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.why-workflow span,
+.why-two-column > article > span,
+.daily-brief-preview > span,
+.why-boundary-card > span {
+  color: #f6cf8f;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.why-workflow p,
+.why-two-column p,
+.daily-brief-preview li,
+.why-boundary-card li {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.why-comparison-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.why-comparison-table th,
+.why-comparison-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(58, 75, 89, 0.72);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.why-comparison-table th {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.daily-brief-preview ul,
+.why-boundary-card ul {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 10px 0 0;
+  list-style: none;
+}
+
+.full-analyst-reader-hero {
+  grid-template-columns: minmax(0, 1fr) auto;
+  border-color: rgba(105, 167, 255, 0.32);
+}
+
+.full-analyst-reader-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .content-card,
 .note-detail section {
   min-width: 0;
@@ -6385,8 +6665,13 @@ h1::after {
   .report-two-column,
   .report-queue-grid,
   .today-hero,
+  .why-hero,
+  .why-problem-grid,
+  .why-workflow,
+  .why-two-column,
   .today-card-grid,
   .today-agent-grid,
+  .full-analyst-reader-grid,
   .today-watchlist,
   .today-effect-grid,
   .system-summary-grid,
@@ -6455,11 +6740,23 @@ h1::after {
   .live-report-facts,
   .live-strip-items,
   .today-hero,
+  .why-hero,
+  .why-problem-grid,
+  .why-workflow,
+  .why-two-column,
   .today-card-grid,
   .today-agent-grid,
+  .full-analyst-reader-grid,
   .today-agent-columns,
+  .symbol-brief-columns,
   .today-watchlist,
   .today-effect-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .today-context-row,
+  .today-focus-row {
+    display: grid;
     grid-template-columns: 1fr;
   }
 
@@ -6470,6 +6767,16 @@ h1::after {
 
   .today-hero h1 {
     font-size: 34px;
+  }
+
+  .why-hero h1 {
+    font-size: 36px;
+  }
+
+  .today-visual-panel img,
+  .why-visual-frame img {
+    min-height: 240px;
+    max-height: 360px;
   }
 
   .today-tldr p {

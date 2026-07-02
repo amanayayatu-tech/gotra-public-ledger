@@ -1,7 +1,9 @@
 export type AppRoute =
   | { name: "home"; path: "/" }
   | { name: "today"; path: "/today" }
+  | { name: "whyGotra"; path: "/why-gotra" }
   | { name: "guide"; path: "/guide" }
+  | { name: "fullAnalystReport"; path: "/reports/full-analyst" }
   | { name: "ledger"; path: "/ledger" }
   | { name: "prediction"; path: "/ledger/:id"; predictionId: string }
   | { name: "performance"; path: "/performance" }
@@ -12,7 +14,7 @@ export type AppRoute =
   | { name: "notes"; path: "/notes" }
   | { name: "note"; path: "/notes/:slug"; slug: string };
 
-const corePaths = new Set(["/", "/today", "/guide", "/ledger", "/performance", "/system", "/methodology", "/sources", "/reports", "/notes"]);
+const corePaths = new Set(["/", "/today", "/why-gotra", "/guide", "/ledger", "/performance", "/system", "/methodology", "/sources", "/reports", "/reports/full-analyst", "/notes"]);
 
 export function normalizeHashPath(hash: string): string {
   const raw = hash.startsWith("#") ? hash.slice(1) : hash;
@@ -29,6 +31,8 @@ export function parseHashRoute(hash: string): AppRoute {
         return { name: "ledger", path };
       case "/today":
         return { name: "today", path };
+      case "/why-gotra":
+        return { name: "whyGotra", path };
       case "/guide":
         return { name: "guide", path };
       case "/performance":
@@ -41,6 +45,8 @@ export function parseHashRoute(hash: string): AppRoute {
         return { name: "sources", path };
       case "/reports":
         return { name: "reports", path };
+      case "/reports/full-analyst":
+        return { name: "fullAnalystReport", path };
       case "/notes":
         return { name: "notes", path };
       default:
@@ -78,7 +84,7 @@ export function parseBrowserRoute(pathname: string, hash: string): AppRoute {
 }
 
 export function routeHref(path: string): string {
-  return `#${path}`;
+  return `/#${path}`;
 }
 
 export function predictionRouteHref(predictionId: string): string {

@@ -18,10 +18,11 @@ const chineseBoundarySentence =
   "GOTRA Public Ledger 仅提供公开安全的研究信息。它不是投资建议、不是交易信号、不是实时交易、不是业绩证明，也不保证未来结果。";
 const guideReadingOrder = [
   ["/today", "今日简报 / Daily Research Brief", "Start with the reader summary, Full Analyst summary, data gaps, watchlist, and next watch."],
+  ["/why-gotra", "为什么是 GOTRA / Why GOTRA", "Understand why GOTRA is research discipline, not a signal machine."],
   [
-    "/reports/full_analyst_evening_hk_2026-06-30.md",
-    "Full Analyst 研究报告 / Full Analyst report",
-    "Open the Full Analyst Markdown original for per-symbol agent analysis, red-team review, risk factors, and public-safe status.",
+    "/reports/full-analyst/",
+    "Full Analyst 研究阅读器 / Full Analyst reader",
+    "Open the productized Full Analyst reader for per-symbol agent analysis, red-team review, risk factors, and watch items.",
   ],
   ["/reports", "生产日报审计 / Production Daily Reports Audit", "Audit the five daily reports, coverage, exceptions, Full Analyst Canary, status JSON, and public artifact links."],
   ["/sources", "来源与产物 / Sources and Artifacts", "Separate live production artifacts from static demo/archive/fixture materials."],
@@ -36,7 +37,7 @@ const guideFlowRows = [
   ["Judge gate", "Structure, coverage, data gaps, and boundaries are checked before publication."],
   ["Public safety scan", "Raw prompts, provider/model I/O, secrets, databases, and private logs are not published."],
   ["Internal Alaya", "Alaya here means GOTRA repo internal cognition flywheel, knowledge memory, feedback state, and hash-chain/readback state only."],
-  ["Public artifacts", "Public outputs include Today's Brief, daily Markdown, status JSON, Full Analyst report, sources, and no-JS raw HTML."],
+  ["Public artifacts", "Public outputs include Today's Brief, productized report readers, daily Markdown, status JSON, Full Analyst report, sources, and no-JS HTML."],
   ["Evidence boundary", "Local checks, browser smoke, public artifact smoke, formal acceptance, and science/public claims are separate layers."],
 ];
 const guideGlossaryRows = [
@@ -326,12 +327,14 @@ function pageShell({ route, title, description, body, extraJsonLd = [] }) {
       <nav aria-label="Primary">
         <a href="/">Home</a>
         <a href="/today">Daily Research Brief</a>
+        <a href="/why-gotra">Why GOTRA</a>
         <a href="/guide">Guide</a>
         <a href="/reports">Production Daily Reports</a>
+        <a href="/reports/full-analyst/">Full Analyst reader</a>
         <a href="/notes">Transparency Articles</a>
         <a href="/ledger">Frozen Demo Ledger</a>
         <a href="/performance">Performance Notes</a>
-        <a href="/reports/latest">Latest report</a>
+        <a href="/reports/latest/">Latest report</a>
         <a href="/methodology">Methodology</a>
         <a href="/claim-boundary">Claim boundary</a>
         <a href="/faq">FAQ</a>
@@ -384,7 +387,9 @@ function homeFallback(summary) {
         <h2>Core public pages</h2>
         <ul>
           <li><a href="/today">今日研究简报 / Daily Research Brief</a></li>
+          <li><a href="/why-gotra">为什么是 GOTRA / Why GOTRA</a></li>
           <li><a href="/guide">使用指南 / Guide</a></li>
+          <li><a href="/reports/full-analyst/">Full Analyst reader</a></li>
           <li><a href="/reports">生产日报 / Production Daily Reports</a></li>
           <li><a href="/notes">透明度文章 / Transparency Articles</a></li>
           <li><a href="/ledger">冻结 Demo 账本 / Frozen Demo Ledger</a></li>
@@ -586,18 +591,24 @@ ${safeRows.map((row) => `          <tr>${row.map((cell) => `<td>${cell}</td>`).j
 }
 
 function reportsPage(source) {
-  const liveArtifacts = [
-    ["/reports/daily_reader_brief.json", "Daily reader brief JSON"],
-    ["/reports/status.json", "Latest production status alias"],
-    ["/reports/latest.md", "Coverage daily report alias, not the Full Analyst research report"],
-    ["/reports/full_analyst_evening_hk_2026-06-30.md", "Full Analyst research report Markdown"],
-    ["/reports/status_morning_hk.json", "HK morning production daily report status"],
-    ["/reports/status_evening_hk.json", "HK evening production daily report status"],
-    ["/reports/status_morning_us.json", "US morning production daily report status"],
-    ["/reports/status_evening_us.json", "US evening production daily report status"],
-    ["/reports/status_morning_global.json", "Global summary production daily report status"],
-    ["/reports/status_full_analyst_monitor.json", "Full Analyst Canary monitor status"],
-    ["/reports/status_full_analyst_evening_hk.json", "Full Analyst Canary report status"],
+  const productSurfaces = [
+    ["/today", "Daily reader brief", "Default reader route powered by daily_reader_brief.json."],
+    ["/why-gotra", "Why GOTRA", "Explains why data_gap and needs_review are research discipline, not failure."],
+    ["/reports/latest/", "Coverage report reader", "Default HTML reader for the latest coverage report."],
+    ["/reports/full-analyst/", "Full Analyst reader", "Productized reader for per-symbol research before raw Markdown."],
+  ];
+  const rawArtifacts = [
+    ["/reports/daily_reader_brief.json", "Daily reader brief JSON", "Data source for /today; not a reader destination."],
+    ["/reports/status.json", "Latest production status alias", "Audit JSON only."],
+    ["/reports/latest.md", "Coverage daily Markdown", "Raw Markdown original for the coverage reader."],
+    ["/reports/full_analyst_evening_hk_2026-06-30.md", "Full Analyst Markdown", "Raw Markdown original for the Full Analyst reader."],
+    ["/reports/status_morning_hk.json", "HK morning production daily report status", "Audit JSON only."],
+    ["/reports/status_evening_hk.json", "HK evening production daily report status", "Audit JSON only."],
+    ["/reports/status_morning_us.json", "US morning production daily report status", "Audit JSON only."],
+    ["/reports/status_evening_us.json", "US evening production daily report status", "Audit JSON only."],
+    ["/reports/status_morning_global.json", "Global summary production daily report status", "Audit JSON only."],
+    ["/reports/status_full_analyst_monitor.json", "Full Analyst Canary monitor status", "Audit JSON only."],
+    ["/reports/status_full_analyst_evening_hk.json", "Full Analyst Canary report status", "Audit JSON only."],
   ];
   const fields = [
     "mode",
@@ -631,10 +642,10 @@ function reportsPage(source) {
       <section>
         <h2>Report type labels / 报告类型</h2>
         <ul>
-          <li><strong>行情覆盖日报 / Coverage daily report:</strong> <a href="/reports/latest.md">latest.md</a> is the coverage daily alias, not the Full Analyst research report.</li>
-          <li><strong>Full Analyst 研究报告 / Full Analyst report:</strong> candidate/canary per-symbol research output.</li>
+          <li><strong>行情覆盖日报 / Coverage daily report:</strong> <a href="/reports/latest/">/reports/latest/</a> is the default reader; <code>latest.md</code> is the audit original.</li>
+          <li><strong>Full Analyst 研究阅读器 / Full Analyst reader:</strong> <a href="/reports/full-analyst/">/reports/full-analyst/</a> productizes candidate/canary per-symbol research output.</li>
           <li><strong>先行试跑监控 / Canary Monitor:</strong> heartbeat, freshness, public scan, and rollback status.</li>
-          <li><strong>状态 JSON / Status JSON:</strong> public runtime fields for coverage, failed_symbols, and data_gap.</li>
+          <li><strong>状态 JSON / Status JSON:</strong> public runtime fields for coverage, failed_symbols, and data_gap; raw JSON opens only in the audit disclosure below.</li>
         </ul>
       </section>
       <section class="notice">
@@ -643,28 +654,31 @@ function reportsPage(source) {
         <p>If <code>public/reports/status.json</code> or <code>public/reports/latest.md</code> is missing in this build, this page reports artifact-unavailable instead of inventing report facts.</p>
       </section>
       <section>
-        <h2>Live production artifacts</h2>
-        ${table(["artifact", "type"], liveArtifacts)}
+        <h2>Product reading surfaces</h2>
+        ${table(["route", "surface", "reader meaning"], productSurfaces)}
       </section>
       <section>
         <h2>Latest report status fields</h2>
         ${table(["field", "value"], rows)}
         <ul>
-          <li><a href="/reports/latest">Latest report HTML</a></li>
-          <li><a href="/reports/latest.md">Coverage daily report latest.md</a></li>
-          <li><a href="/reports/status.json">Report status JSON</a></li>
+          <li><a href="/reports/latest/">Latest report HTML</a></li>
         </ul>
+        <details class="notice">
+          <summary>Raw artifact / Open JSON / Open Markdown</summary>
+          <p>These links are for audit and evidence review. Return to <a href="/today">/today</a>, <a href="/reports/latest/">/reports/latest/</a>, or <a href="/reports/full-analyst/">/reports/full-analyst/</a> for productized reading.</p>
+          ${table(["artifact", "type", "audit meaning"], rawArtifacts)}
+        </details>
       </section>`,
   });
 }
 
 function guidePage() {
   const reportTypeRows = [
-    ["/reports/daily_reader_brief.json", "今日简报 JSON / Daily Reader Brief JSON", "Public-safe reader summary powering /today."],
-    ["/reports/latest.md", "行情覆盖日报 latest.md / Coverage daily alias", "latest.md is the coverage daily alias, not the Full Analyst research report."],
-    ["/reports/full_analyst_evening_hk_2026-06-30.md", "Full Analyst 研究报告 / Full Analyst report", "Canary candidate research report with per-symbol agent analysis; source text may be English original."],
-    ["/reports/status_full_analyst_monitor.json", "先行试跑监控 / Canary Monitor", "Full Analyst heartbeat, freshness, public scan, and rollback status."],
-    ["/reports/status.json", "状态 JSON / Status JSON", "Production audit fields for run_status, coverage, failed_symbols, and data_gap."],
+    ["/today", "今日简报 reader / Daily Brief reader", "daily_reader_brief.json is the data source; /today is the reader destination."],
+    ["/why-gotra", "为什么是 GOTRA / Why GOTRA", "Explains why data_gap, needs_review, red-team review, and internal Alaya readback are value signals for research discipline."],
+    ["/reports/latest/", "行情覆盖日报 reader / Coverage report reader", "/reports/latest/ is the default HTML reader; latest.md is audit raw Markdown."],
+    ["/reports/full-analyst/", "Full Analyst 研究阅读器 / Full Analyst reader", "Productized canary candidate research with per-symbol agent analysis before raw Markdown."],
+    ["/reports", "审计中心 / Audit center", "Raw JSON and Markdown links are available only as explicit audit artifacts."],
   ];
 
   return pageShell({
@@ -692,6 +706,81 @@ function guidePage() {
   });
 }
 
+function whyGotraPage() {
+  return pageShell({
+    route: "/why-gotra",
+    title: "Why GOTRA | Research discipline for uncertain markets",
+    description:
+      "Why GOTRA explains the value of research discipline, evidence boundaries, data_gap, needs_review, red-team review, and internal Alaya readback. Research information only, not a trading signal.",
+    extraJsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: "Why GOTRA",
+        url: `${baseUrl}/why-gotra`,
+        description:
+          "GOTRA is not a signal machine. It is a research discipline for seeing what changed, what is known, and what still needs review.",
+      },
+    ],
+    body: `      <h1>Why GOTRA / 为什么是 GOTRA</h1>
+      <p class="lede">GOTRA is not a signal machine. It is a research discipline for seeing what changed, what is known, and what still needs review.</p>
+      <p class="lede">GOTRA 不是信号机器。它是一套研究纪律：看清发生了什么、证据够不够、哪里还需要复核。</p>
+      <section class="notice">
+        <h2>The problem with direct advice / 直接建议的问题</h2>
+        <p>Direct answers can hide uncertainty, compress evidence into a false sense of certainty, encourage action without source review, ignore data gaps, and make confidence look cheaper than it is.</p>
+        <p>GOTRA 的价值不是替你下结论，而是把结论之前的研究过程摊开。</p>
+      </section>
+      <section>
+        <h2>What GOTRA does instead</h2>
+        ${table(
+          ["research discipline", "reader value"],
+          [
+            ["Tracks daily changes", "Start with what changed instead of a forced answer."],
+            ["Separates facts, scenarios, risks, and review items", "Readers can see what is known and what remains conditional."],
+            ["Preserves data gaps", "Incomplete evidence is visible instead of being filled with stale or private data."],
+            ["Runs judge gate and red-team review", "Weak assumptions are marked before they become reader-facing certainty."],
+            ["Records internal memory/readback", "Alaya means GOTRA-internal cognition, knowledge memory, feedback, and readback state only."],
+            ["Publishes public-safe summaries", "The public surface keeps raw provider/model I/O and secrets out."],
+          ],
+        )}
+      </section>
+      <section>
+        <h2>Why data_gap matters</h2>
+        <p>When evidence is insufficient, the system should stop instead of inventing a polished answer. A data_gap tells readers what public coverage is missing, what must not be treated as current, and what to check next.</p>
+      </section>
+      <section>
+        <h2>Why needs_review matters</h2>
+        <p>needs_review is quality control, not failure. Red-team review surfaces weak assumptions, conflicting sources, and the places a reader should not trust yet.</p>
+      </section>
+      <section>
+        <h2>GOTRA vs signal tools</h2>
+        ${table(
+          ["dimension", "signal tool", "GOTRA"],
+          [
+            ["Default output", "Compresses evidence into an action answer.", "Separates changes, evidence, gaps, counterpoints, and next checks."],
+            ["data_gap", "Often hidden or papered over with stale data.", "Tells readers exactly where evidence is incomplete."],
+            ["needs_review", "Can be packaged as certainty.", "Kept as a visible review gate."],
+            ["Alaya", "Can be mistaken for an external black box.", "Only GOTRA-internal cognition / memory / feedback / readback state."],
+          ],
+        )}
+      </section>
+      <section>
+        <h2>How to use GOTRA</h2>
+        <ul>
+          <li>Start with <a href="/today">/today</a> for today's top observations.</li>
+          <li>Open <a href="/reports/full-analyst/">/reports/full-analyst/</a> for symbol briefs, both sides, red-team caveats, risks, and watch items.</li>
+          <li>Treat data_gap as research still to complete.</li>
+          <li>When needs_review appears, read the review reason before relying on the claim.</li>
+          <li>Use <a href="/sources">/sources</a> and <a href="/methodology">/methodology</a> to audit evidence and boundaries.</li>
+        </ul>
+      </section>
+      <section class="notice">
+        <h2>What GOTRA will not do</h2>
+        <p>GOTRA does not provide buy/sell/hold instructions, target prices, allocation guidance, promised outcomes, hidden provider I/O, or claims that incomplete evidence is complete.</p>
+      </section>`,
+  });
+}
+
 function todayPage(source) {
   const brief = source.dailyReaderBrief;
   const title = textValue(brief?.title ?? localized("GOTRA 今日研究简报", "GOTRA Daily Research Brief"));
@@ -714,10 +803,20 @@ function todayPage(source) {
   const internalAlaya = brief?.internal_alaya ?? {};
   const promptFramework = brief?.prompt_framework_summary ?? {};
   const effect = brief?.research_effectiveness ?? {};
+  const reviewCount = Number(fullAnalyst.needs_review_count ?? 0) + Number(fullAnalyst.data_gap_count ?? 0);
+  const topFocus = agentItems.slice(0, 5).map((item) => item.symbol).filter(Boolean);
+  const rawArtifacts = [
+    [brief?.links?.daily_reader_brief ?? "/reports/daily_reader_brief.json", "daily_reader_brief.json", "Data source for this reader, not the reading destination."],
+    [brief?.links?.latest_report ?? "/reports/latest.md", "Coverage Markdown", "Raw Markdown original for /reports/latest/."],
+    [brief?.links?.full_analyst_report ?? fullAnalyst.report_markdown ?? "/reports/full_analyst_evening_hk_YYYY-MM-DD.md", "Full Analyst Markdown", "Raw Markdown original for /reports/full-analyst/."],
+    [brief?.links?.status_json ?? "/reports/status.json", "status.json", "Production audit JSON."],
+    [brief?.links?.full_analyst_status ?? fullAnalyst.status_json ?? "/reports/status_full_analyst_evening_hk.json", "Full Analyst status JSON", "Audit JSON."],
+    [brief?.links?.full_analyst_monitor ?? "/reports/status_full_analyst_monitor.json", "Full Analyst monitor JSON", "Audit JSON."],
+  ];
 
   return pageShell({
     route: "/today",
-    title: "GOTRA Daily Research Brief | Raw HTML",
+    title: "GOTRA Daily Research Brief",
     description:
       "Crawler-readable daily reader brief summarizing production reports, known data gaps, watchlist items, Full Analyst Canary health, and next watch points. Not investment advice or a trading signal.",
 	    extraJsonLd: [
@@ -732,54 +831,52 @@ function todayPage(source) {
       },
     ],
     body: `      <h1>${escapeHtml(title)}</h1>
-      ${definitionBlock()}
+      <p class="lede">Research brief, not a trading signal. Some items require review.</p>
+      <p class="lede">研究简报，不是交易信号。部分项目仍需复核。</p>
       <section class="notice">
-        <h2>TLDR / 一句话摘要</h2>
+        <h2>What to read first / 今天先读什么</h2>
         <p>${escapeHtml(tldr)}</p>
         <p>${escapeHtml(subtitle)}</p>
+        <p><a href="/why-gotra">Why GOTRA explains why data_gap and needs_review are value signals for research discipline.</a></p>
       </section>
-      ${guideReadingOrderHtml()}
       <section>
-        <h2>Full Analyst research summary / Full Analyst 今日研究摘要</h2>
+        <h2>Daily research snapshot / 今日研究快照</h2>
         ${table(
-          ["field", "value"],
+          ["signal", "reader meaning"],
           [
-            ["run_id", fullAnalyst.run_id ?? "artifact_unavailable"],
-            ["run_status", fullAnalyst.run_status ?? "artifact_unavailable"],
-            ["report_markdown", fullAnalyst.report_markdown ?? "artifact_unavailable"],
-            ["publish_count", fullAnalyst.publish_count ?? "artifact_unavailable"],
-            ["needs_review_count", fullAnalyst.needs_review_count ?? "artifact_unavailable"],
-            ["blocked_count", fullAnalyst.blocked_count ?? "artifact_unavailable"],
-            ["failed_count", fullAnalyst.failed_count ?? "artifact_unavailable"],
-            ["data_gap_count", fullAnalyst.data_gap_count ?? "artifact_unavailable"],
-	            ["summary", textValue(fullAnalyst.summary ?? localized("Full Analyst rich brief unavailable.", "Full Analyst rich brief unavailable."))],
+            ["Top focus", topFocus.length > 0 ? topFocus.join(", ") : "No public symbol focus is available in this build."],
+            ["Public summaries", fullAnalyst.publish_count ?? "artifact_unavailable"],
+            ["Review / gaps", reviewCount],
+            ["Research state", textValue(fullAnalyst.summary ?? localized("Full Analyst rich brief unavailable.", "Full Analyst rich brief unavailable."))],
           ],
         )}
       </section>
       <section>
-        <h2>Agent analysis matrix / Agent 分析矩阵</h2>
+        <h2>Top observations / 今日重点</h2>
+        ${
+          topItems.length > 0
+		        ? table(["label", "summary", "why it matters"], topItems.map((item) => [textValue(item.label), textValue(item.summary), textValue(item.why_it_matters)]))
+            : "<p>daily_reader_brief.json is unavailable; no top items are inferred.</p>"
+        }
+      </section>
+      <section>
+        <h2>Symbol briefs / 单票研究</h2>
         ${
           agentItems.length > 0
             ? table(
-                ["symbol", "research_summary", "red_team_review", "risk_factors", "watch_items"],
+                ["symbol", "what changed", "positive case", "negative case", "red-team caveat", "watch next"],
                 agentItems.slice(0, 12).map((item) => [
                   item.symbol,
-	                  textValue(item.research_summary),
-	                  Array.isArray(item.red_team_review) ? item.red_team_review.slice(0, 2).map(textValue).join(" | ") : "",
-	                  Array.isArray(item.risk_factors) ? item.risk_factors.slice(0, 2).map(textValue).join(" | ") : "",
-	                  Array.isArray(item.watch_items) ? item.watch_items.slice(0, 2).map(textValue).join(" | ") : "",
+                  Array.isArray(item.key_updates) && item.key_updates[0] ? textValue(item.key_updates[0]) : textValue(item.research_summary),
+                  Array.isArray(item.positive_case) ? item.positive_case.slice(0, 2).map(textValue).join(" | ") : "",
+                  Array.isArray(item.negative_case) ? item.negative_case.slice(0, 2).map(textValue).join(" | ") : "",
+                  Array.isArray(item.red_team_review) ? item.red_team_review.slice(0, 2).map(textValue).join(" | ") : "",
+                  Array.isArray(item.watch_items) ? item.watch_items.slice(0, 2).map(textValue).join(" | ") : "",
                 ]),
               )
             : "<p>Full Analyst rich brief unavailable; no per-symbol agent analysis is inferred.</p>"
         }
-      </section>
-      <section>
-        <h2>Top items / 今日重点</h2>
-        ${
-          topItems.length > 0
-	            ? table(["label", "summary", "why_it_matters"], topItems.map((item) => [textValue(item.label), textValue(item.summary), textValue(item.why_it_matters)]))
-            : "<p>daily_reader_brief.json is unavailable; no top items are inferred.</p>"
-        }
+        <p><a href="/reports/full-analyst/">Open the Full Analyst reader for the productized full research view.</a></p>
       </section>
       <section>
         <h2>Watchlist / 观察清单</h2>
@@ -792,49 +889,12 @@ function todayPage(source) {
         }
       </section>
       <section>
-        <h2>Prompt/run framework / 提示词与运行框架摘要</h2>
-        <ul>
-	          ${(Array.isArray(promptFramework.task_structure) ? promptFramework.task_structure : ["Full Analyst rich brief unavailable."]).map((item) => `<li>${escapeHtml(textValue(item))}</li>`).join("")}
-          <li>${escapeHtml(promptFramework.judge_gate ?? "judge_gate=artifact_unavailable")}</li>
-          <li>${escapeHtml(promptFramework.public_safety_scan ?? "public_safety_scan=artifact_unavailable")}</li>
-          <li>${escapeHtml(promptFramework.raw_io_policy ?? "No raw prompt/model I/O is embedded in this raw page.")}</li>
-        </ul>
-      </section>
-      <section>
-        <h2>GOTRA internal Alaya cognition flywheel / 内部 Alaya 认知飞轮</h2>
-        ${table(
-          ["field", "value"],
-          [
-            ["mode", internalAlaya.mode ?? "artifact_unavailable"],
-            ["synced_count", internalAlaya.synced_count ?? "artifact_unavailable"],
-            ["failed_count", internalAlaya.failed_count ?? "artifact_unavailable"],
-            ["readback_verified_count", internalAlaya.readback_verified_count ?? "artifact_unavailable"],
-            ["readback_failed_count", internalAlaya.readback_failed_count ?? "artifact_unavailable"],
-	            ["interpretation", textValue(internalAlaya.interpretation ?? localized("Internal Alaya summary unavailable; no outside service is inferred.", "Internal Alaya summary unavailable; no outside service is inferred."))],
-          ],
-        )}
-      </section>
-      <section>
         <h2>Known gaps / 已知缺口</h2>
         ${
           knownGaps.length > 0
 	            ? table(["symbol", "reason", "affected_report"], knownGaps.map((gap) => [gap.symbol ?? gap.code, textValue(gap.explanation ?? gap.reason), gap.affected_report ?? textValue(gap.label)]))
             : "<p>No public known gap artifact is available in this build.</p>"
         }
-      </section>
-      <section>
-        <h2>Research process effectiveness / 研究过程效果</h2>
-        ${table(
-          ["field", "value"],
-          [
-            ["daily_update_status", effect.daily_update_status ?? "artifact_unavailable"],
-            ["reports_updated_count", effect.reports_updated_count ?? "artifact_unavailable"],
-            ["reports_with_data_gaps_count", effect.reports_with_data_gaps_count ?? "artifact_unavailable"],
-            ["canary_status", effect.canary_status ?? "artifact_unavailable"],
-	            ["reader_summary", textValue(effect.reader_summary ?? localized("No reader summary is inferred when the artifact is unavailable.", "No reader summary is inferred when the artifact is unavailable."))],
-          ],
-        )}
-        <p>These fields describe process visibility only. They are not performance proof, not a trading signal, and not investment advice.</p>
       </section>
       <section>
         <h2>Next watch / 下一步观察</h2>
@@ -844,75 +904,172 @@ function todayPage(source) {
             : "<p>Next-watch items require daily_reader_brief.json or runtime synthesis from public status files.</p>"
         }
       </section>
-      ${guideGlossaryHtml()}
-      ${guideBoundaryHtml()}
       <section>
-        <h2>Public artifacts</h2>
+        <h2>Continue reading / 继续阅读</h2>
         <ul>
-          <li><a href="/reports/daily_reader_brief.json">Daily reader brief JSON</a></li>
-          <li><a href="/reports/status.json">Latest production status JSON</a></li>
-          <li><a href="${escapeHtml(fullAnalyst.report_markdown ?? "/reports/full_analyst_evening_hk_YYYY-MM-DD.md")}">Full Analyst research report Markdown</a></li>
-          <li><a href="${escapeHtml(fullAnalyst.status_json ?? "/reports/status_full_analyst_evening_hk.json")}">Full Analyst status JSON</a></li>
-          <li><a href="/reports/latest.md">Coverage daily latest.md</a></li>
-          <li><a href="/reports/status_full_analyst_monitor.json">Full Analyst Canary monitor JSON</a></li>
+          <li><a href="/why-gotra">Why GOTRA</a></li>
+          <li><a href="/reports/full-analyst/">Full Analyst reader</a></li>
+          <li><a href="/reports/latest/">Coverage report reader</a></li>
           <li><a href="/reports">Production Daily Reports Audit</a></li>
+          <li><a href="/sources">Sources and artifacts</a></li>
         </ul>
+        <details class="notice">
+          <summary>Raw artifact / Open JSON / Open Markdown</summary>
+          <p>These links are for audit review only. Return to <a href="/today">/today</a>, <a href="/why-gotra">/why-gotra</a>, <a href="/reports/latest/">/reports/latest/</a>, or <a href="/reports/full-analyst/">/reports/full-analyst/</a> for productized reading.</p>
+          ${table(["artifact", "type", "audit meaning"], rawArtifacts)}
+          <h3>Audit status fields</h3>
+          ${table(
+            ["field", "value"],
+            [
+              ["schema", brief?.schema_version ?? "artifact_unavailable"],
+              ["generated_at", brief?.generated_at ?? "artifact_unavailable"],
+              ["judge_gate", promptFramework.judge_gate ?? "artifact_unavailable"],
+              ["public_safety_scan", promptFramework.public_safety_scan ?? "artifact_unavailable"],
+              ["internal_alaya_readback", internalAlaya.readback_status ?? "artifact_unavailable"],
+              ["research_process", textValue(effect.reader_summary ?? localized("No process summary is inferred when the artifact is unavailable.", "No process summary is inferred when the artifact is unavailable."))],
+            ],
+          )}
+        </details>
       </section>`,
+  });
+}
+
+function fullAnalystReportPage(source) {
+  const brief = source.dailyReaderBrief;
+  const fullAnalyst = brief?.full_analyst ?? {};
+  const agentItems = Array.isArray(brief?.agent_analysis_items) ? brief.agent_analysis_items : [];
+  const rawMarkdownHref = brief?.links?.full_analyst_report ?? fullAnalyst.report_markdown ?? "/reports/full_analyst_evening_hk_YYYY-MM-DD.md";
+  const rawStatusHref = brief?.links?.full_analyst_status ?? fullAnalyst.status_json ?? "/reports/status_full_analyst_evening_hk.json";
+  const rawMonitorHref = brief?.links?.full_analyst_monitor ?? "/reports/status_full_analyst_monitor.json";
+
+  return pageShell({
+    route: "/reports/full-analyst/",
+    title: "Full Analyst Research Reader | GOTRA Public Ledger",
+    description:
+      "Productized Full Analyst reader for per-symbol research summaries, positive and negative cases, red-team review, risks, and watch items. Raw Markdown opens only in an audit disclosure.",
+    extraJsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: "Full Analyst Research Reader",
+        url: `${baseUrl}/reports/full-analyst/`,
+        description:
+          "A productized reading layer for the Full Analyst public-safe research artifact. Research information only, not investment advice or a trading signal.",
+      },
+    ],
+    body: `      <h1>Full Analyst Research Reader / Full Analyst 研究阅读器</h1>
+      <p class="lede">This page turns the Markdown original into a reader-first structure: what changed, positive case, negative case, red-team caveat, risk factors, and watch next.</p>
+      <p class="lede">这是 Markdown 原文的产品化阅读层；raw Markdown 只放在下方审计折叠区。</p>
+      <section class="notice">
+        <h2>Reader summary</h2>
+        <p>${escapeHtml(textValue(fullAnalyst.summary ?? localized("Full Analyst rich brief unavailable.", "Full Analyst rich brief unavailable.")))}</p>
+        <p><a href="/today">Back to today's brief</a> · <a href="/reports">Open audit center</a> · <a href="/why-gotra">Why GOTRA</a></p>
+      </section>
+      <section>
+        <h2>Structured symbol research</h2>
+        ${
+          agentItems.length > 0
+            ? table(
+                ["symbol", "what changed", "positive case", "negative case", "red-team caveat", "risks", "watch next"],
+                agentItems.slice(0, 24).map((item) => [
+                  item.symbol,
+                  Array.isArray(item.key_updates) && item.key_updates[0] ? textValue(item.key_updates[0]) : textValue(item.research_summary),
+                  Array.isArray(item.positive_case) ? item.positive_case.slice(0, 2).map(textValue).join(" | ") : "",
+                  Array.isArray(item.negative_case) ? item.negative_case.slice(0, 2).map(textValue).join(" | ") : "",
+                  Array.isArray(item.red_team_review) ? item.red_team_review.slice(0, 2).map(textValue).join(" | ") : "",
+                  Array.isArray(item.risk_factors) ? item.risk_factors.slice(0, 2).map(textValue).join(" | ") : "",
+                  Array.isArray(item.watch_items) ? item.watch_items.slice(0, 2).map(textValue).join(" | ") : "",
+                ]),
+              )
+            : "<p>Full Analyst rich brief unavailable; no per-symbol research is inferred from private or raw artifacts.</p>"
+        }
+      </section>
+      <details class="notice">
+        <summary>Raw artifact / Open JSON / Open Markdown</summary>
+        <p>These links are for audit review only. Return to <a href="/reports/full-analyst/">/reports/full-analyst/</a> or <a href="/today">/today</a> for productized reading.</p>
+        ${table(
+          ["artifact", "type", "audit meaning"],
+          [
+            [rawMarkdownHref, "Full Analyst Markdown", "Raw Markdown original; not the default reader."],
+            [rawStatusHref, "Full Analyst status JSON", "Audit JSON."],
+            [rawMonitorHref, "Full Analyst monitor JSON", "Audit JSON."],
+          ],
+        )}
+      </details>`,
   });
 }
 
 function latestReportPage(source) {
   const statusRows = Object.entries(source.status ?? { status: "artifact_unavailable" });
-  const latestText = source.latestMarkdown
-    ? `<pre>${escapeHtml(source.latestMarkdown.slice(0, 12000))}</pre>`
-    : `<p>The source Markdown artifact <code>public/reports/latest.md</code> is not available in this repository build. No report facts are inferred from private artifacts or stale local output.</p>`;
+  const markdownHighlights = source.latestMarkdown
+    ? source.latestMarkdown
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line && !line.startsWith("|") && !line.startsWith("---"))
+        .slice(0, 12)
+        .map((line) => `<li>${escapeHtml(line.replace(/^#+\s*/, "").replace(/^-+\s*/, ""))}</li>`)
+        .join("")
+    : "<li>The source Markdown artifact public/reports/latest.md is not available in this repository build. No report facts are inferred from private artifacts or stale local output.</li>";
 
   return pageShell({
-    route: "/reports/latest",
-    title: "GOTRA Latest Report | Raw HTML",
-    description: "Crawler-readable latest report placeholder or public-safe report artifact when available.",
+    route: "/reports/latest/",
+    title: "GOTRA Coverage Report Reader",
+    description: "Productized HTML reader for the latest public coverage report. Raw Markdown and status JSON open only in an audit disclosure.",
     extraJsonLd: [
       {
         "@context": "https://schema.org",
         "@type": "Article",
         headline: "GOTRA Latest Public Report",
-        url: `${baseUrl}/reports/latest`,
+        url: `${baseUrl}/reports/latest/`,
         description: "Public-safe report artifact status. Research information only; not investment advice.",
       },
     ],
-    body: `      <h1>Latest Public Report</h1>
-      ${definitionBlock()}
-      <section>
-        <h2>Run metadata</h2>
-        ${table(["field", "value"], statusRows)}
+    body: `      <h1>Coverage Report Reader / 行情覆盖日报 reader</h1>
+      <p class="lede">This is the default HTML reader for the latest public coverage report. It summarizes status and readable highlights before exposing raw artifacts.</p>
+      <p class="lede">这是 latest coverage report 的默认 HTML 阅读页；raw Markdown 与 status JSON 只在审计折叠区打开。</p>
+      <section class="notice">
+        <h2>Report state</h2>
+        ${table(
+          ["field", "reader value"],
+          [
+            ["source", source.state],
+            ["as_of_date", source.status?.as_of_date ?? source.status?.trading_date ?? "artifact_unavailable"],
+            ["run_status", source.status?.run_status ?? source.status?.exit_status ?? "artifact_unavailable"],
+            ["success_count", source.status?.success_count ?? "artifact_unavailable"],
+            ["failed_count", source.status?.failed_count ?? "artifact_unavailable"],
+            ["allowed_missing_count", source.status?.allowed_missing_count ?? "artifact_unavailable"],
+          ],
+        )}
       </section>
       <section>
-        <h2>Exchange coverage table</h2>
-        ${table(["status", "detail"], [["artifact_unavailable", "No public exchange coverage artifact was found in public/reports for this build."]])}
+        <h2>Readable highlights</h2>
+        <ul>${markdownHighlights}</ul>
       </section>
       <section>
-        <h2>Failed symbols table</h2>
-        ${table(["status", "symbols"], [["artifact_unavailable", tableCellText(source.status?.failed_symbols) || "No public failed-symbol artifact was found."]])}
-      </section>
-      <section>
-        <h2>Close data table</h2>
-        ${table(["status", "detail"], [["artifact_unavailable", "No public close-data artifact was found in public/reports for this build."]])}
-      </section>
-      <section>
-        <h2>Report body</h2>
-        ${latestText}
-      </section>
-      <section>
-        <h2>Source artifacts</h2>
+        <h2>Continue reading</h2>
         <ul>
-          <li><a href="/reports/latest.md">Latest report Markdown artifact</a></li>
-          <li><a href="/reports/status.json">Latest report status JSON artifact</a></li>
+          <li><a href="/today">Daily Research Brief</a></li>
+          <li><a href="/reports/full-analyst/">Full Analyst reader</a></li>
+          <li><a href="/reports">Production audit center</a></li>
+          <li><a href="/why-gotra">Why GOTRA</a></li>
         </ul>
       </section>
-      <section>
-        <h2>Interpretation boundary</h2>
-        <p>${escapeHtml(boundarySentence)}</p>
-      </section>`,
+      <details class="notice">
+        <summary>Raw artifact / Open JSON / Open Markdown</summary>
+        <p>These links are for audit and evidence review. Return to <a href="/reports/latest/">/reports/latest/</a> for productized reading.</p>
+        <ul>
+          <li><a href="/reports/latest.md">Open latest.md Markdown original</a></li>
+          <li><a href="/reports/status.json">Open status.json audit artifact</a></li>
+        </ul>
+        <h3>Status JSON fields</h3>
+        ${table(["field", "value"], statusRows)}
+        <h3>Markdown original preview</h3>
+        ${
+          source.latestMarkdown
+            ? `<pre>${escapeHtml(source.latestMarkdown.slice(0, 12000))}</pre>`
+            : `<p>The source Markdown artifact <code>public/reports/latest.md</code> is not available in this repository build.</p>`
+        }
+      </details>`,
   });
 }
 
@@ -1081,6 +1238,13 @@ function faqPage(summary) {
 }
 
 function sourcesPage(manifest, evidenceIndex, contentIndex) {
+  const readerRows = [
+    ["/today", "Daily brief reader", "Reader-first daily research brief."],
+    ["/why-gotra", "Why GOTRA", "Research philosophy and evidence boundary explanation."],
+    ["/reports/latest/", "Coverage report reader", "Productized HTML reader for latest coverage."],
+    ["/reports/full-analyst/", "Full Analyst reader", "Productized per-symbol research reader."],
+    ["/reports", "Audit center", "Status and evidence surface with raw artifact disclosures."],
+  ];
   const liveArtifactRows = [
     ["/reports/daily_reader_brief.json", "Daily reader brief JSON"],
     ["/reports/status.json", "production status alias"],
@@ -1134,15 +1298,22 @@ function sourcesPage(manifest, evidenceIndex, contentIndex) {
         <p>This page lists public-safe repository data only. It does not expose raw provider/model I/O, private run logs, local experiment artifacts, databases, auth files, or secrets.</p>
       </section>
       <section>
-        <h2>Live production artifacts</h2>
-        <p>These report artifacts are the current public production/status surface. They are runtime evidence only, not performance proof and not a trading signal.</p>
-        ${table(["artifact", "type"], liveArtifactRows)}
+        <h2>Product reading surfaces</h2>
+        <p>Start with these pages. Raw JSON and Markdown stay in the explicit audit disclosures below.</p>
+        ${table(["route", "surface", "reader meaning"], readerRows)}
       </section>
       <section>
         <h2>Static demo/archive artifacts</h2>
-        <p>These files are static, demo, archive, or fixture materials. They are not current production and do not upgrade evidence claims.</p>
-        ${table(["artifact", "type", "snapshot_date", "boundary"], staticArtifactRows)}
+        <p>These files are static, demo, archive, or fixture materials. They are not current production and do not upgrade evidence claims. Raw JSON is available only inside the audit disclosure.</p>
       </section>
+      <details class="notice">
+        <summary>Raw artifact / Open JSON / Open Markdown</summary>
+        <p>These links are for source and evidence audit only. Return to <a href="/today">/today</a>, <a href="/why-gotra">/why-gotra</a>, <a href="/reports/latest/">/reports/latest/</a>, or <a href="/reports/full-analyst/">/reports/full-analyst/</a> for productized reading.</p>
+        <h2>Live production raw artifacts</h2>
+        ${table(["artifact", "type"], liveArtifactRows)}
+        <h2>Static demo/archive raw artifacts</h2>
+        ${table(["artifact", "type", "snapshot_date", "boundary"], staticArtifactRows)}
+      </details>
       <section>
         <h2>Manifest files</h2>
         ${table(["path", "category", "record_count", "sha256"], manifestRows)}
@@ -1476,8 +1647,11 @@ It is research information only. It is not investment advice, not a trading sign
 ## Primary reader routes
 
 - https://gotra.me/today - Daily Research Brief. Reader-first Full Analyst research brief with agent analysis items, red-team review, risk factors, internal Alaya readback, known data gaps, and next watch points.
+- https://gotra.me/why-gotra - Why GOTRA. Research discipline for seeing what changed, what is known, and what still needs review.
 - https://gotra.me/guide - Guide. Seven-step reading order, daily system flow, report type labels, glossary, internal Alaya boundary, and evidence boundaries.
 - https://gotra.me/reports - Production Daily Reports. Live production/status artifacts for HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary.
+- https://gotra.me/reports/latest/ - Coverage Report Reader. Productized HTML reader for the latest public coverage report; raw Markdown appears only in audit disclosure.
+- https://gotra.me/reports/full-analyst/ - Full Analyst Research Reader. Productized per-symbol research reader; raw Markdown appears only in audit disclosure.
 - https://gotra.me/notes - Transparency Articles. Static article archive, not latest production daily reports.
 - https://gotra.me/ledger - Frozen Demo Ledger. snapshot_date=2026-06-20 demo snapshot, not current production.
 - https://gotra.me/performance - Performance Notes. No production performance tracking yet; paper portfolio is a future-dated demo fixture.
@@ -1485,7 +1659,7 @@ It is research information only. It is not investment advice, not a trading sign
 - https://gotra.me/system - System Overview. Draft research-cognition operating contract and evidence boundaries.
 - https://gotra.me/methodology - Methodology. Universe, resolver, paper portfolio, and data-boundary method notes.
 
-## Public artifacts
+## Raw public artifacts
 
 - https://gotra.me/reports/daily_reader_brief.json
 - https://gotra.me/reports/status.json
@@ -1535,10 +1709,12 @@ function main() {
   const generated = [];
   const corePages = [
     ["/today", todayPage(source)],
+    ["/why-gotra", whyGotraPage()],
     ["/guide", guidePage()],
     ["/ledger", ledgerPage(ledger, summary)],
     ["/reports", reportsPage(source)],
-    ["/reports/latest", latestReportPage(source)],
+    ["/reports/latest/", latestReportPage(source)],
+    ["/reports/full-analyst/", fullAnalystReportPage(source)],
     ["/performance", performancePage(portfolio)],
     ["/system", systemPage(summary, manifest)],
     ["/methodology", methodologyPage(summary)],
@@ -1561,10 +1737,12 @@ function main() {
   const routes = [
     "/",
     "/today",
+    "/why-gotra",
     "/guide",
     "/ledger",
     "/reports",
-    "/reports/latest",
+    "/reports/latest/",
+    "/reports/full-analyst/",
     "/reports/latest.md",
     "/reports/status.json",
     "/reports/daily_reader_brief.json",

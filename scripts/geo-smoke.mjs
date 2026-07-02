@@ -61,9 +61,11 @@ function main() {
   const requiredRoutes = [
     "/",
     "/today",
+    "/why-gotra",
     "/guide",
     "/ledger",
     "/reports",
+    "/reports/full-analyst/",
     "/performance",
     "/methodology",
     "/claim-boundary",
@@ -71,7 +73,7 @@ function main() {
     "/sources",
     "/system",
     "/notes",
-    "/reports/latest",
+    "/reports/latest/",
   ];
 
   const pages = new Map();
@@ -92,13 +94,15 @@ function main() {
 
   assertIncludes(pages.get("/"), "GOTRA Public Ledger 是一个可审计的 AI 股票研究公开预测账本", "/");
   assertIncludes(pages.get("/today"), "Daily Research Brief", "/today");
-  assertIncludes(pages.get("/today"), "七步阅读顺序", "/today");
-  assertIncludes(pages.get("/today"), "术语表", "/today");
-  assertIncludes(pages.get("/today"), "Full Analyst research summary", "/today");
-  assertIncludes(pages.get("/today"), "Agent analysis matrix", "/today");
-  assertIncludes(pages.get("/today"), "GOTRA internal Alaya cognition flywheel", "/today");
-  assertIncludes(pages.get("/today"), "Research process effectiveness", "/today");
-  assertIncludes(pages.get("/today"), "not investment advice", "/today");
+  assertIncludes(pages.get("/today"), "What to read first", "/today");
+  assertIncludes(pages.get("/today"), "Symbol briefs", "/today");
+  assertIncludes(pages.get("/today"), "/reports/full-analyst/", "/today");
+  assertIncludes(pages.get("/today"), "Raw artifact / Open JSON / Open Markdown", "/today");
+  assertIncludes(pages.get("/why-gotra"), "Why GOTRA", "/why-gotra");
+  assertIncludes(pages.get("/why-gotra"), "GOTRA is not a signal machine", "/why-gotra");
+  assertIncludes(pages.get("/why-gotra"), "Why data_gap matters", "/why-gotra");
+  assertIncludes(pages.get("/why-gotra"), "Why needs_review matters", "/why-gotra");
+  assertIncludes(pages.get("/why-gotra"), "Alaya means GOTRA-internal", "/why-gotra");
   assertIncludes(pages.get("/guide"), "How to Read GOTRA", "/guide");
   assertIncludes(pages.get("/guide"), "Seven-step reading order", "/guide");
   assertIncludes(pages.get("/guide"), "Daily system flow", "/guide");
@@ -111,14 +115,21 @@ function main() {
   assertIncludes(pages.get("/ledger"), "Download the full JSON dataset", "/ledger");
   assertIncludes(pages.get("/reports"), "Production Daily Reports", "/reports");
   assertIncludes(pages.get("/reports"), "Full Analyst Canary", "/reports");
+  assertIncludes(pages.get("/reports"), "Product reading surfaces", "/reports");
+  assertIncludes(pages.get("/reports"), "Raw artifact / Open JSON / Open Markdown", "/reports");
   if (manifest.source_report_status === "artifact_unavailable") {
     assertIncludes(pages.get("/reports"), "artifact_unavailable", "/reports");
   } else {
     assertNotIncludes(pages.get("/reports"), "artifact_unavailable", "/reports");
   }
-  assertIncludes(pages.get("/reports/latest"), "Interpretation boundary", "/reports/latest");
-  assertIncludes(pages.get("/reports/latest"), 'href="/reports/latest.md"', "/reports/latest");
-  assertIncludes(pages.get("/reports/latest"), 'href="/reports/status.json"', "/reports/latest");
+  assertIncludes(pages.get("/reports/latest/"), "Coverage Report Reader", "/reports/latest/");
+  assertIncludes(pages.get("/reports/latest/"), "Readable highlights", "/reports/latest/");
+  assertIncludes(pages.get("/reports/latest/"), "Raw artifact / Open JSON / Open Markdown", "/reports/latest/");
+  assertIncludes(pages.get("/reports/latest/"), 'href="/reports/latest.md"', "/reports/latest/");
+  assertIncludes(pages.get("/reports/latest/"), 'href="/reports/status.json"', "/reports/latest/");
+  assertIncludes(pages.get("/reports/full-analyst/"), "Full Analyst Research Reader", "/reports/full-analyst/");
+  assertIncludes(pages.get("/reports/full-analyst/"), "Structured symbol research", "/reports/full-analyst/");
+  assertIncludes(pages.get("/reports/full-analyst/"), "Raw artifact / Open JSON / Open Markdown", "/reports/full-analyst/");
   assertIncludes(pages.get("/performance"), "No production performance tracking yet", "/performance");
   assertIncludes(pages.get("/performance"), "demo fixture and future-dated sample", "/performance");
   assertIncludes(pages.get("/performance"), "not performance proof", "/performance");
@@ -126,8 +137,9 @@ function main() {
   assertIncludes(pages.get("/claim-boundary"), "Not investment advice.", "/claim-boundary");
   assertIncludes(pages.get("/faq"), "FAQPage", "/faq");
   assertIncludes(pages.get("/sources"), "Manifest files", "/sources");
-  assertIncludes(pages.get("/sources"), "Live production artifacts", "/sources");
+  assertIncludes(pages.get("/sources"), "Product reading surfaces", "/sources");
   assertIncludes(pages.get("/sources"), "Static demo/archive artifacts", "/sources");
+  assertIncludes(pages.get("/sources"), "Raw artifact / Open JSON / Open Markdown", "/sources");
   assertIncludes(pages.get("/system"), "Evidence layers", "/system");
   assertIncludes(pages.get("/notes"), "Transparency Articles", "/notes");
   assertIncludes(pages.get("/notes"), "Static article archive", "/notes");
@@ -152,10 +164,12 @@ function main() {
   [
     "https://gotra.me/",
     "https://gotra.me/today",
+    "https://gotra.me/why-gotra",
     "https://gotra.me/guide",
     "https://gotra.me/ledger",
     "https://gotra.me/reports",
-    "https://gotra.me/reports/latest",
+    "https://gotra.me/reports/latest/",
+    "https://gotra.me/reports/full-analyst/",
     "https://gotra.me/reports/latest.md",
     "https://gotra.me/reports/status.json",
     "https://gotra.me/reports/daily_reader_brief.json",
@@ -190,6 +204,8 @@ function main() {
   [
     "Production Daily Reports",
     "Daily Research Brief",
+    "Why GOTRA",
+    "Full Analyst Research Reader",
     "Guide",
     "Transparency Articles",
     "Frozen Demo Ledger",
