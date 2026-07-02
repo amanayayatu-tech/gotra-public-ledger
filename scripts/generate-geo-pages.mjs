@@ -301,9 +301,16 @@ function pageShell({ route, title, description, body, extraJsonLd = [] }) {
         padding: 8px;
         text-align: left;
         vertical-align: top;
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
       th { background: var(--soft); }
       code { background: var(--soft); padding: 0.1rem 0.25rem; border-radius: 4px; }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
       footer {
         margin-top: 48px;
         padding: 24px 0 40px;
@@ -431,11 +438,27 @@ function table(headers, rows) {
 ${rows
   .map(
     (row) =>
-      `          <tr>${row.map((cell) => `<td>${cell === null || cell === undefined ? "" : escapeHtml(cell)}</td>`).join("")}</tr>`,
+      `          <tr>${row.map((cell) => `<td>${escapeHtml(tableCellText(cell))}</td>`).join("")}</tr>`,
   )
   .join("\n")}
         </tbody>
       </table>`;
+}
+
+function tableCellText(cell) {
+  if (cell === null || cell === undefined) {
+    return "";
+  }
+  if (Array.isArray(cell)) {
+    return cell.map(tableCellText).filter(Boolean).join(", ");
+  }
+  if (isLocalized(cell)) {
+    return textValue(cell);
+  }
+  if (typeof cell === "object") {
+    return JSON.stringify(cell);
+  }
+  return String(cell);
 }
 
 function guideReadingOrderHtml() {
@@ -839,10 +862,7 @@ function todayPage(source) {
 }
 
 function latestReportPage(source) {
-  const statusRows = Object.entries(source.status ?? { status: "artifact_unavailable" }).map(([key, value]) => [
-    key,
-    Array.isArray(value) ? value.join(", ") : typeof value === "object" && value !== null ? JSON.stringify(value) : String(value),
-  ]);
+  const statusRows = Object.entries(source.status ?? { status: "artifact_unavailable" });
   const latestText = source.latestMarkdown
     ? `<pre>${escapeHtml(source.latestMarkdown.slice(0, 12000))}</pre>`
     : `<p>The source Markdown artifact <code>public/reports/latest.md</code> is not available in this repository build. No report facts are inferred from private artifacts or stale local output.</p>`;
@@ -872,7 +892,7 @@ function latestReportPage(source) {
       </section>
       <section>
         <h2>Failed symbols table</h2>
-        ${table(["status", "symbols"], [["artifact_unavailable", source.status?.failed_symbols?.join(", ") ?? "No public failed-symbol artifact was found."]])}
+        ${table(["status", "symbols"], [["artifact_unavailable", tableCellText(source.status?.failed_symbols) || "No public failed-symbol artifact was found."]])}
       </section>
       <section>
         <h2>Close data table</h2>
