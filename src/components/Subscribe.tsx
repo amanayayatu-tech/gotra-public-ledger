@@ -2,9 +2,10 @@ import { FormEvent, useId, useState } from "react";
 import { ArrowUpRight, CheckCircle2, FileText, Mail, ShieldCheck, Users } from "lucide-react";
 import type { Language } from "../i18n/language";
 import { copy, shortBoundarySentence } from "../i18n/language";
+import { routeHref } from "../routes/hashRouter";
 
-const notesUrl = "#/notes";
-const sourcesUrl = "#/sources";
+const notesUrl = routeHref("/notes");
+const sourcesUrl = routeHref("/sources");
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
 

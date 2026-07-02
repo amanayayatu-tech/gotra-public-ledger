@@ -112,7 +112,9 @@ function main() {
   assertIncludes(pages.get("/ledger"), "Frozen Demo Ledger", "/ledger");
   assertIncludes(pages.get("/ledger"), "not current production", "/ledger");
   assertIncludes(pages.get("/ledger"), "First 50 public ledger rows", "/ledger");
-  assertIncludes(pages.get("/ledger"), "Download the full JSON dataset", "/ledger");
+  assertIncludes(pages.get("/ledger"), "Raw artifact / Open JSON", "/ledger");
+  assertIncludes(pages.get("/ledger"), "Open ledger.demo.json raw artifact", "/ledger");
+  assertIncludes(pages.get("/ledger"), "Return to the productized ledger page", "/ledger");
   assertIncludes(pages.get("/reports"), "Production Daily Reports", "/reports");
   assertIncludes(pages.get("/reports"), "Full Analyst Canary", "/reports");
   assertIncludes(pages.get("/reports"), "Product reading surfaces", "/reports");
