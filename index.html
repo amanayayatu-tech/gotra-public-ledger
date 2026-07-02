@@ -67,6 +67,7 @@
               ? "/sources/"
               : null;
         if (window.location.pathname === "/" && target) {
+          window.__GOTRA_STATIC_REDIRECT_TARGET__ = target;
           window.location.replace(target);
         }
       })();
@@ -141,7 +142,9 @@
     </div>
     <script type="module">
       const mountGotraApp = () => import("/src/main.tsx");
-      if (window.location.pathname === "/" && !window.location.hash) {
+      if (window.__GOTRA_STATIC_REDIRECT_TARGET__) {
+        // Navigation is already moving to a crawler-readable static page.
+      } else if (window.location.pathname === "/" && !window.location.hash) {
         window.setTimeout(mountGotraApp, 2200);
       } else {
         mountGotraApp();
