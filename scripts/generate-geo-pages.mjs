@@ -120,6 +120,10 @@ function textValue(value) {
   return String(value ?? "");
 }
 
+function listText(value, fallback = "") {
+  return Array.isArray(value) && value.length > 0 ? value.slice(0, 3).map(textValue).join(" | ") : fallback;
+}
+
 function englishValue(value) {
   if (isLocalized(value)) {
     return value.en || value.zh;
@@ -918,14 +922,16 @@ function todayPage(source) {
         ${
           agentItems.length > 0
             ? table(
-                ["symbol", "what changed", "positive case", "negative case", "red-team caveat", "watch next"],
+                ["symbol", "research status", "chairman synthesis", "K deep research", "F view", "W view", "red-team audit", "watch conditions"],
                 agentItems.slice(0, 12).map((item) => [
                   item.symbol,
-                  Array.isArray(item.key_updates) && item.key_updates[0] ? textValue(item.key_updates[0]) : textValue(item.research_summary),
-                  Array.isArray(item.positive_case) ? item.positive_case.slice(0, 2).map(textValue).join(" | ") : "",
-                  Array.isArray(item.negative_case) ? item.negative_case.slice(0, 2).map(textValue).join(" | ") : "",
-                  Array.isArray(item.red_team_review) ? item.red_team_review.slice(0, 2).map(textValue).join(" | ") : "",
-                  Array.isArray(item.watch_items) ? item.watch_items.slice(0, 2).map(textValue).join(" | ") : "",
+                  item.research_status ?? "",
+                  listText(item.chairman_synthesis, textValue(item.research_summary)),
+                  listText(item.k_deep_research, listText(item.key_updates, textValue(item.research_summary))),
+                  listText(item.f_partner_view, listText(item.positive_case)),
+                  listText(item.w_partner_view, listText(item.negative_case)),
+                  listText(item.red_team_audit, listText(item.red_team_review)),
+                  listText(item.watch_conditions, listText(item.watch_items)),
                 ]),
               )
             : "<p>Full Analyst rich brief unavailable; no per-symbol agent analysis is inferred.</p>"
@@ -1000,7 +1006,7 @@ function fullAnalystReportPage(source) {
     route: "/reports/full-analyst/",
     title: "Full Analyst Research Reader | GOTRA Public Ledger",
     description:
-      "Productized Full Analyst reader for per-symbol research summaries, positive and negative cases, red-team review, risks, and watch items. Raw Markdown opens only in an audit disclosure.",
+      "Productized Full Analyst reader for Ksana 4.1-lite per-symbol research, F/W/G views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions. Raw Markdown opens only in an audit disclosure.",
     extraJsonLd: [
       {
         "@context": "https://schema.org",
@@ -1012,8 +1018,8 @@ function fullAnalystReportPage(source) {
       },
     ],
     body: `      <h1>Full Analyst Research Reader / Full Analyst 研究阅读器</h1>
-      <p class="lede">This page turns the Markdown original into a reader-first structure: what changed, positive case, negative case, red-team caveat, risk factors, and watch next.</p>
-      <p class="lede">这是 Markdown 原文的产品化阅读层；raw Markdown 只放在下方审计折叠区。</p>
+      <p class="lede">This page turns the Full Analyst artifact into a reader-first structure: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions.</p>
+      <p class="lede">这是 Full Analyst v2 的产品化阅读层；raw Markdown 只放在下方审计折叠区。执行模型如公开状态所示，不把 single-call multi-perspective 伪装成 independent agents。</p>
       <section class="notice">
         <h2>Reader summary</h2>
         <p>${escapeHtml(textValue(fullAnalyst.summary ?? localized("Full Analyst rich brief unavailable.", "Full Analyst rich brief unavailable.")))}</p>
@@ -1024,15 +1030,18 @@ function fullAnalystReportPage(source) {
         ${
           agentItems.length > 0
             ? table(
-                ["symbol", "what changed", "positive case", "negative case", "red-team caveat", "risks", "watch next"],
+                ["symbol", "research status", "chairman synthesis", "K deep research", "F view", "W view", "G view", "red-team audit", "evidence gaps", "watch conditions"],
                 agentItems.slice(0, 24).map((item) => [
                   item.symbol,
-                  Array.isArray(item.key_updates) && item.key_updates[0] ? textValue(item.key_updates[0]) : textValue(item.research_summary),
-                  Array.isArray(item.positive_case) ? item.positive_case.slice(0, 2).map(textValue).join(" | ") : "",
-                  Array.isArray(item.negative_case) ? item.negative_case.slice(0, 2).map(textValue).join(" | ") : "",
-                  Array.isArray(item.red_team_review) ? item.red_team_review.slice(0, 2).map(textValue).join(" | ") : "",
-                  Array.isArray(item.risk_factors) ? item.risk_factors.slice(0, 2).map(textValue).join(" | ") : "",
-                  Array.isArray(item.watch_items) ? item.watch_items.slice(0, 2).map(textValue).join(" | ") : "",
+                  item.research_status ?? "",
+                  listText(item.chairman_synthesis, textValue(item.research_summary)),
+                  listText(item.k_deep_research, listText(item.key_updates, textValue(item.research_summary))),
+                  listText(item.f_partner_view, listText(item.positive_case)),
+                  listText(item.w_partner_view, listText(item.negative_case)),
+                  listText(item.g_partner_view, listText(item.risk_factors)),
+                  listText(item.red_team_audit, listText(item.red_team_review)),
+                  listText(item.evidence_gaps),
+                  listText(item.watch_conditions, listText(item.watch_items)),
                 ]),
               )
             : "<p>Full Analyst rich brief unavailable; no per-symbol research is inferred from private or raw artifacts.</p>"

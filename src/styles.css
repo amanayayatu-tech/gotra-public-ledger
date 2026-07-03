@@ -5554,6 +5554,20 @@ h1::after {
   overflow-wrap: anywhere;
 }
 
+.research-status-pill {
+  justify-self: end;
+  border: 1px solid rgba(246, 207, 143, 0.28);
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: #f6cf8f;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
 .today-agent-card p,
 .today-agent-card li,
 .today-source-notes li {
@@ -6093,6 +6107,15 @@ h1::after {
 
 .raw-artifact-disclosure summary {
   color: #f6cf8f;
+}
+
+.symbol-confidence-boundary {
+  margin: 2px 0 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+  padding-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .why-hero {
