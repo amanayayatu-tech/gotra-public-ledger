@@ -40,6 +40,10 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("Raw artifact / Open JSON / Open Markdown");
     expect(appSource).toContain("function WhyGotraPage");
     expect(appSource).toContain("function FullAnalystReaderPage");
+    expect(appSource).toContain("independent agent calls");
+    expect(appSource).toContain("Agent statuses");
+    expect(appSource).toContain("Agent timings");
+    expect(appSource).toContain("Independent hashes");
   });
 
   it("adds a first-level bilingual guide with reading order, system flow, glossary, and report type labels", () => {
@@ -145,6 +149,8 @@ describe("public ledger information architecture contract", () => {
     expect(geoGeneratorSource).toContain("Seven-step reading order");
     expect(geoGeneratorSource).toContain("guideGlossaryRows");
     expect(geoGeneratorSource).toContain("Symbol briefs");
+    expect(geoGeneratorSource).toContain("agent statuses");
+    expect(geoGeneratorSource).toContain("independent hashes");
     expect(geoGeneratorSource).toContain("Alaya here means GOTRA repo internal cognition flywheel");
     expect(geoGeneratorSource).toContain('"/performance"');
     expect(geoGeneratorSource).toContain("function llmsTxt");

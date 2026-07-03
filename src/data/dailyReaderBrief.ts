@@ -35,6 +35,12 @@ export type DailyReaderBriefDailyReportStatus = {
 export type DailyReaderBriefFullAnalyst = {
   run_id: string;
   run_status: string;
+  prompt_template_version?: string | null;
+  methodology_version?: string | null;
+  execution_model?: string | null;
+  symbol_schema?: string | null;
+  alaya_event_schema?: string | null;
+  agent_parallelism?: number | null;
   report_markdown: string;
   status_json: string;
   evidence_layer: string;
@@ -66,6 +72,12 @@ export type DailyReaderBriefAgentAnalysisItem = {
   evidence_gaps: LocalizedText[];
   watch_conditions: LocalizedText[];
   confidence_boundary?: LocalizedText;
+  agent_statuses?: Record<string, string>;
+  agent_hashes?: Record<string, string>;
+  agent_timings?: Record<string, number | string>;
+  parallelism?: Record<string, number | string | boolean>;
+  red_team_verdict?: string;
+  public_payload_hash?: string;
   positive_case: LocalizedText[];
   negative_case: LocalizedText[];
   red_team_review: LocalizedText[];
@@ -106,8 +118,8 @@ export type DailyReaderBriefResearchWatchItem = {
 };
 
 export type DailyReaderBrief = {
-  schema_version: "gotra.daily_reader_brief.v2";
-  schema: "gotra.daily_reader_brief.v2";
+  schema_version: "gotra.daily_reader_brief.v2" | "gotra.daily_reader_brief.v3";
+  schema: "gotra.daily_reader_brief.v2" | "gotra.daily_reader_brief.v3";
   as_of_date: string;
   mode: string;
   brief_date: string;
@@ -310,6 +322,49 @@ function readerSafeLocalizedList(value: unknown): LocalizedText[] {
   return Array.isArray(value) ? value.map((item) => readerSafeLocalized(item, "")).filter((item) => item.zh || item.en) : [];
 }
 
+function readerSafeStringRecord(value: unknown): Record<string, string> | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+  const entries = Object.entries(value)
+    .map(([key, item]) => [readerSafeText(key), readerSafeText(item)] as const)
+    .filter(([key, item]) => key && item);
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
+function readerSafePrimitiveRecord(value: unknown): Record<string, number | string | boolean> | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+  const entries = Object.entries(value)
+    .map(([key, item]) => {
+      if (typeof item === "number" && Number.isFinite(item)) {
+        return [readerSafeText(key), item] as const;
+      }
+      if (typeof item === "boolean") {
+        return [readerSafeText(key), item] as const;
+      }
+      return [readerSafeText(key), readerSafeText(item)] as const;
+    })
+    .filter(([key, item]) => key && item !== "");
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
+function readerSafeNumberStringRecord(value: unknown): Record<string, number | string> | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+  const entries = Object.entries(value)
+    .map(([key, item]) => {
+      if (typeof item === "number" && Number.isFinite(item)) {
+        return [readerSafeText(key), item] as const;
+      }
+      return [readerSafeText(key), readerSafeText(item)] as const;
+    })
+    .filter(([key, item]) => key && item !== "");
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
 function englishDailyLabel(label: string): string {
   const labels: Record<string, string> = {
     港股早报: "HK morning report",
@@ -329,13 +384,15 @@ function isLocalizedText(value: unknown): value is LocalizedText {
   return isRecord(value) && typeof value.zh === "string" && typeof value.en === "string" && value.zh.trim() !== "" && value.en.trim() !== "";
 }
 
-function isDailyReaderBriefV2(value: unknown): value is DailyReaderBrief {
+function isDailyReaderBriefV2OrV3(value: unknown): value is DailyReaderBrief {
   if (!isRecord(value)) {
     return false;
   }
+  const schema = value.schema;
+  const schemaVersion = value.schema_version;
   return (
-    value.schema_version === "gotra.daily_reader_brief.v2" &&
-    value.schema === "gotra.daily_reader_brief.v2" &&
+    (schemaVersion === "gotra.daily_reader_brief.v2" || schemaVersion === "gotra.daily_reader_brief.v3") &&
+    (schema === "gotra.daily_reader_brief.v2" || schema === "gotra.daily_reader_brief.v3") &&
     typeof value.as_of_date === "string" &&
     typeof value.mode === "string" &&
     typeof value.brief_date === "string" &&
@@ -519,6 +576,12 @@ function normalizeAgentAnalysisItem(value: unknown, index: number): DailyReaderB
     evidence_gaps: readerSafeLocalizedList(item.evidence_gaps),
     watch_conditions: readerSafeLocalizedList(item.watch_conditions),
     confidence_boundary: item.confidence_boundary === undefined ? undefined : readerSafeLocalized(item.confidence_boundary, ""),
+    agent_statuses: readerSafeStringRecord(item.agent_statuses),
+    agent_hashes: readerSafeStringRecord(item.agent_hashes),
+    agent_timings: readerSafeNumberStringRecord(item.agent_timings),
+    parallelism: readerSafePrimitiveRecord(item.parallelism),
+    red_team_verdict: stringValue(item.red_team_verdict) ?? undefined,
+    public_payload_hash: stringValue(item.public_payload_hash) ?? undefined,
     positive_case: readerSafeLocalizedList(item.positive_case),
     negative_case: readerSafeLocalizedList(item.negative_case),
     red_team_review: readerSafeLocalizedList(item.red_team_review),
@@ -529,16 +592,28 @@ function normalizeAgentAnalysisItem(value: unknown, index: number): DailyReaderB
   };
 }
 
-function normalizeV2Brief(value: DailyReaderBrief): DailyReaderBrief {
+function normalizeV2OrV3Brief(value: DailyReaderBrief): DailyReaderBrief {
   return {
     ...value,
+    full_analyst: {
+      ...value.full_analyst,
+      prompt_template_version: stringValue(value.full_analyst.prompt_template_version) ?? null,
+      methodology_version: stringValue(value.full_analyst.methodology_version) ?? null,
+      execution_model: stringValue(value.full_analyst.execution_model) ?? null,
+      symbol_schema: stringValue(value.full_analyst.symbol_schema) ?? null,
+      alaya_event_schema: stringValue(value.full_analyst.alaya_event_schema) ?? null,
+      agent_parallelism:
+        typeof value.full_analyst.agent_parallelism === "number" && Number.isFinite(value.full_analyst.agent_parallelism)
+          ? value.full_analyst.agent_parallelism
+          : null,
+    },
     agent_analysis_items: value.agent_analysis_items.map(normalizeAgentAnalysisItem),
   };
 }
 
 export function normalizeDailyReaderBriefArtifact(value: unknown): DailyReaderBrief | null {
-  if (isDailyReaderBriefV2(value)) {
-    return normalizeV2Brief(value);
+  if (isDailyReaderBriefV2OrV3(value)) {
+    return normalizeV2OrV3Brief(value);
   }
   if (isDailyReaderBriefV1(value)) {
     return normalizeV1Brief(value);

@@ -271,6 +271,69 @@ describe("daily reader brief builder", () => {
     expect(normalized?.technical_status.schema).toBe("gotra.daily_reader_brief.v1");
   });
 
+  it("normalizes v3 independent-agent artifacts with audit metadata", () => {
+    const built = buildDailyReaderBrief(snapshot(), { now });
+    const v3Artifact = {
+      ...built,
+      schema_version: "gotra.daily_reader_brief.v3",
+      schema: "gotra.daily_reader_brief.v3",
+      full_analyst: {
+        ...built.full_analyst,
+        prompt_template_version: "gotra.full_analyst.prompt.v3.independent_agents",
+        methodology_version: "ksana_4_1_independent_agents",
+        execution_model: "independent_agent_calls",
+        symbol_schema: "gotra.full_analyst.symbol.v3",
+        alaya_event_schema: "gotra.cognition_flywheel.full_analyst_memory.v3",
+        agent_parallelism: 4,
+      },
+      agent_analysis_items: [
+        {
+          symbol: "HKEX:0700",
+          title: { zh: "HKEX:0700 研究摘要", en: "HKEX:0700 research summary" },
+          execution_model: "independent_agent_calls",
+          research_status: "watch",
+          research_summary: { zh: "独立 agent 研究摘要", en: "Independent-agent research summary" },
+          key_updates: [],
+          research_context: [],
+          k_deep_research: [{ zh: "K 证据边界", en: "K evidence boundary" }],
+          f_partner_view: [{ zh: "F 正向条件", en: "F constructive conditions" }],
+          w_partner_view: [{ zh: "W 反向条件", en: "W bear-case conditions" }],
+          g_partner_view: [{ zh: "G 结构视角", en: "G structure view" }],
+          chairman_synthesis: [{ zh: "主席冲突总结", en: "Chairman conflict synthesis" }],
+          red_team_audit: [{ zh: "红队质疑", en: "Red-team challenge" }],
+          evidence_gaps: [{ zh: "缺少最新公告复核", en: "Latest disclosure needs verification" }],
+          watch_conditions: [{ zh: "等待下一次公开更新", en: "Wait for next public update" }],
+          agent_statuses: {
+            k_deep_research: "ok",
+            f_partner_view: "ok",
+            w_partner_view: "ok",
+            g_partner_view: "ok",
+            chairman_synthesis: "ok",
+            red_team_audit: "ok",
+          },
+          agent_hashes: { k_deep_research: "abc123def456abc123def456" },
+          agent_timings: { k_deep_research_seconds: 0.12, total_wall_clock_seconds: 0.44 },
+          parallelism: { symbol_parallelism: 3, agent_parallelism: 4, kfwg_ran_in_parallel: true },
+          positive_case: [],
+          negative_case: [],
+          red_team_review: [],
+          risk_factors: [],
+          watch_items: [],
+          source_notes: [],
+        },
+      ],
+    };
+
+    const normalized = normalizeDailyReaderBriefArtifact(v3Artifact);
+
+    expect(normalized?.schema).toBe("gotra.daily_reader_brief.v3");
+    expect(normalized?.full_analyst.execution_model).toBe("independent_agent_calls");
+    expect(normalized?.full_analyst.agent_parallelism).toBe(4);
+    expect(normalized?.agent_analysis_items[0]?.agent_statuses?.red_team_audit).toBe("ok");
+    expect(normalized?.agent_analysis_items[0]?.agent_timings?.total_wall_clock_seconds).toBe(0.44);
+    expect(JSON.stringify(normalized)).not.toContain("[object Object]");
+  });
+
   it("keeps generated brief free of raw-provider and secret-bearing terms", () => {
     const brief = buildDailyReaderBrief(snapshot(), { now });
     const forbidden = [

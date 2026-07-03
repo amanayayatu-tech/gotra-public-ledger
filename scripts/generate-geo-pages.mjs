@@ -124,6 +124,21 @@ function listText(value, fallback = "") {
   return Array.isArray(value) && value.length > 0 ? value.slice(0, 3).map(textValue).join(" | ") : fallback;
 }
 
+function recordText(value, limit = 6, valueFormatter = (item) => item) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return "";
+  }
+  return Object.entries(value)
+    .slice(0, limit)
+    .map(([key, item]) => `${key.replace(/_/g, " ")}: ${valueFormatter(String(item ?? ""))}`)
+    .join(" | ");
+}
+
+function shortHash(value) {
+  const text = String(value ?? "");
+  return text.length > 18 ? `${text.slice(0, 12)}...${text.slice(-6)}` : text;
+}
+
 function englishValue(value) {
   if (isLocalized(value)) {
     return value.en || value.zh;
@@ -1001,6 +1016,7 @@ function fullAnalystReportPage(source) {
   const rawMarkdownHref = brief?.links?.full_analyst_report ?? fullAnalyst.report_markdown ?? "/reports/full_analyst_evening_hk_YYYY-MM-DD.md";
   const rawStatusHref = brief?.links?.full_analyst_status ?? fullAnalyst.status_json ?? "/reports/status_full_analyst_evening_hk.json";
   const rawMonitorHref = brief?.links?.full_analyst_monitor ?? "/reports/status_full_analyst_monitor.json";
+  const v3Reader = brief?.schema === "gotra.daily_reader_brief.v3" || fullAnalyst.execution_model === "independent_agent_calls";
 
   return pageShell({
     route: "/reports/full-analyst/",
@@ -1018,11 +1034,12 @@ function fullAnalystReportPage(source) {
       },
     ],
     body: `      <h1>Full Analyst Research Reader / Full Analyst 研究阅读器</h1>
-      <p class="lede">This page turns the Full Analyst artifact into a reader-first structure: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions.</p>
-      <p class="lede">这是 Full Analyst v2 的产品化阅读层；raw Markdown 只放在下方审计折叠区。执行模型如公开状态所示，不把 single-call multi-perspective 伪装成 independent agents。</p>
+      <p class="lede">${v3Reader ? "This page turns the Full Analyst v3 artifact into a reader-first structure: independent agent calls, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent statuses, timings, hashes, evidence gaps, and watch conditions." : "This page turns the Full Analyst artifact into a reader-first structure: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions."}</p>
+      <p class="lede">${v3Reader ? "这是 Full Analyst v3 的产品化阅读层；execution model: independent agent calls。raw Markdown 只放在下方审计折叠区。" : "这是 Full Analyst v2 的产品化阅读层；raw Markdown 只放在下方审计折叠区。执行模型如公开状态所示，不把 single-call multi-perspective 伪装成 independent agents。"}</p>
       <section class="notice">
         <h2>Reader summary</h2>
         <p>${escapeHtml(textValue(fullAnalyst.summary ?? localized("Full Analyst rich brief unavailable.", "Full Analyst rich brief unavailable.")))}</p>
+        <p>Execution model: ${escapeHtml(fullAnalyst.execution_model ?? "not_reported")} · Methodology: ${escapeHtml(fullAnalyst.methodology_version ?? "not_reported")} · Agent parallelism: ${escapeHtml(fullAnalyst.agent_parallelism ?? "not_applicable")}</p>
         <p><a href="/today">Back to today's brief</a> · <a href="/reports">Open audit center</a> · <a href="/why-gotra">Why GOTRA</a></p>
       </section>
       <section>
@@ -1030,10 +1047,29 @@ function fullAnalystReportPage(source) {
         ${
           agentItems.length > 0
             ? table(
-                ["symbol", "research status", "chairman synthesis", "K deep research", "F view", "W view", "G view", "red-team audit", "evidence gaps", "watch conditions"],
+                [
+                  "symbol",
+                  "execution model",
+                  "research status",
+                  "agent statuses",
+                  "agent timings",
+                  "independent hashes",
+                  "chairman synthesis",
+                  "K deep research",
+                  "F view",
+                  "W view",
+                  "G view",
+                  "red-team audit",
+                  "evidence gaps",
+                  "watch conditions",
+                ],
                 agentItems.slice(0, 24).map((item) => [
                   item.symbol,
+                  item.execution_model ?? fullAnalyst.execution_model ?? "",
                   item.research_status ?? "",
+                  recordText(item.agent_statuses),
+                  recordText(item.agent_timings, 7, (value) => `${value}s`),
+                  recordText(item.agent_hashes, 6, shortHash),
                   listText(item.chairman_synthesis, textValue(item.research_summary)),
                   listText(item.k_deep_research, listText(item.key_updates, textValue(item.research_summary))),
                   listText(item.f_partner_view, listText(item.positive_case)),

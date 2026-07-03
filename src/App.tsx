@@ -1327,6 +1327,39 @@ function analystSectionRows(item: DailyReaderBriefAgentAnalysisItem, language: L
   return rows.filter(([, list]) => list.length > 0);
 }
 
+function metadataEntries(record: Record<string, string | number | boolean> | undefined, limit = 6): Array<[string, string]> {
+  if (!record) {
+    return [];
+  }
+  return Object.entries(record)
+    .map(([key, value]) => [key.replace(/_/g, " "), String(value)] as [string, string])
+    .filter(([key, value]) => key.trim() && value.trim())
+    .slice(0, limit);
+}
+
+function shortHash(value: string): string {
+  return value.length > 18 ? `${value.slice(0, 12)}...${value.slice(-6)}` : value;
+}
+
+function fullAnalystExecutionText(brief: DailyReaderBrief, language: Language): string {
+  const executionModel = brief.full_analyst.execution_model;
+  if (executionModel === "independent_agent_calls" || brief.schema === "gotra.daily_reader_brief.v3") {
+    return copy(
+      language,
+      "execution model: independent agent calls；K/F/W/G 独立运行，Chairman 在四个输出后综合，Red Team 在 Chairman 后独立审计。",
+      "execution model: independent agent calls; K/F/W/G run independently, Chairman synthesizes after those outputs, and Red Team audits after Chairman.",
+    );
+  }
+  if (executionModel === "multi_perspective_single_call") {
+    return copy(
+      language,
+      "execution model: single-call multi-perspective；不是 independent agents。",
+      "execution model: single-call multi-perspective; not independent agents.",
+    );
+  }
+  return copy(language, "execution model: 公开状态未报告。", "execution model: not reported by the public status.");
+}
+
 function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; language: Language }) {
   if (state.kind === "loading") {
     return (
@@ -2101,6 +2134,7 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
 
   const { brief } = state;
   const items = brief.agent_analysis_items.slice(0, 24);
+  const v3Reader = brief.schema === "gotra.daily_reader_brief.v3" || brief.full_analyst.execution_model === "independent_agent_calls";
 
   return (
     <>
@@ -2111,8 +2145,12 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
           <p>
             {copy(
               language,
-              "这是 Full Analyst v2 的产品化阅读层：默认展示 Ksana 4.1-lite 的 K 深度研究、F/W/G 伙伴视角、Chairman synthesis、红队审计、证据缺口和观察条件。Raw Markdown 只放在下方审计折叠区。",
-              "This is the product reader for Full Analyst v2: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions are shown first. Raw Markdown is only in the audit disclosure below.",
+              v3Reader
+                ? "这是 Full Analyst v3 的产品化阅读层：默认展示 independent agent calls、K/F/W/G 独立视角、Chairman synthesis、Red Team audit、agent timing/status、证据缺口和观察条件。Raw Markdown 只放在下方审计折叠区。"
+                : "这是 Full Analyst v2 的产品化阅读层：默认展示 Ksana 4.1-lite 的 K 深度研究、F/W/G 伙伴视角、Chairman synthesis、红队审计、证据缺口和观察条件。Raw Markdown 只放在下方审计折叠区。",
+              v3Reader
+                ? "This is the product reader for Full Analyst v3: independent agent calls, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent timing/status, evidence gaps, and watch conditions are shown first. Raw Markdown is only in the audit disclosure below."
+                : "This is the product reader for Full Analyst v2: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions are shown first. Raw Markdown is only in the audit disclosure below.",
             )}
           </p>
           <div className="hero-actions">
@@ -2138,12 +2176,52 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
               </div>
               <div className="symbol-brief-lede">
                 <span>{copy(language, "Execution model", "Execution model")}</span>
-                <p>
-                  {item.execution_model === "multi_perspective_single_call"
-                    ? copy(language, "single-call multi-perspective；不是 independent agents。", "single-call multi-perspective; not independent agents.")
-                    : item.execution_model ?? copy(language, "公开状态未报告执行模型。", "Execution model is not reported in the public status.")}
-                </p>
+                <p>{item.execution_model === "independent_agent_calls" ? fullAnalystExecutionText(brief, language) : item.execution_model === "multi_perspective_single_call" ? copy(language, "single-call multi-perspective；不是 independent agents。", "single-call multi-perspective; not independent agents.") : item.execution_model ?? fullAnalystExecutionText(brief, language)}</p>
               </div>
+              {item.execution_model === "independent_agent_calls" ? (
+                <div className="symbol-agent-audit-grid" aria-label={copy(language, "v3 agent audit summary", "v3 agent audit summary")}>
+                  {metadataEntries(item.agent_statuses, 6).length > 0 ? (
+                    <div>
+                      <h3>{copy(language, "Agent statuses", "Agent statuses")}</h3>
+                      <ul>
+                        {metadataEntries(item.agent_statuses, 6).map(([key, value]) => (
+                          <li key={`${item.symbol}-status-${key}`}>{key}: {value}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {metadataEntries(item.agent_timings, 7).length > 0 ? (
+                    <div>
+                      <h3>{copy(language, "Agent timings", "Agent timings")}</h3>
+                      <ul>
+                        {metadataEntries(item.agent_timings, 7).map(([key, value]) => (
+                          <li key={`${item.symbol}-timing-${key}`}>{key}: {value}s</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {metadataEntries(item.agent_hashes, 6).length > 0 ? (
+                    <div>
+                      <h3>{copy(language, "Independent hashes", "Independent hashes")}</h3>
+                      <ul>
+                        {metadataEntries(item.agent_hashes, 6).map(([key, value]) => (
+                          <li key={`${item.symbol}-hash-${key}`}>{key}: {shortHash(value)}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                  {metadataEntries(item.parallelism, 3).length > 0 ? (
+                    <div>
+                      <h3>{copy(language, "Parallelism", "Parallelism")}</h3>
+                      <ul>
+                        {metadataEntries(item.parallelism, 3).map(([key, value]) => (
+                          <li key={`${item.symbol}-parallel-${key}`}>{key}: {value}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
               <div className="today-agent-columns symbol-brief-columns">
                 {analystSectionRows(item, language).map(([title, list]) => (
                   <div key={String(title)}>
