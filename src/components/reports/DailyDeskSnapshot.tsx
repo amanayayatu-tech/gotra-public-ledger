@@ -15,6 +15,7 @@ export type DailyDeskSnapshotState =
 export type DailyDeskSnapshotProps = {
   language: Language;
   reportStatus: DailyDeskSnapshotState;
+  todayHref: string;
   reportsHref: string;
 };
 
@@ -108,7 +109,7 @@ function exceptionKindText(severity: string, language: Language): string {
     : copy(language, "意外失败", "Unexpected failure");
 }
 
-export function DailyDeskSnapshot({ language, reportStatus, reportsHref }: DailyDeskSnapshotProps) {
+export function DailyDeskSnapshot({ language, reportStatus, todayHref, reportsHref }: DailyDeskSnapshotProps) {
   const locale = localeFor(language);
   const status = reportStatus.kind === "ready" ? reportStatus.status : null;
   const marketStatuses = reportStatus.kind === "ready" ? reportStatus.marketStatuses ?? [] : [];
@@ -132,13 +133,19 @@ export function DailyDeskSnapshot({ language, reportStatus, reportsHref }: Daily
               ? statusSentence(status, language)
               : reportStatus.kind === "loading"
                 ? copy(language, "正在读取 /reports/status.json。", "Reading /reports/status.json.")
-                : copy(language, "状态产物不可用；可打开 /reports 查看公开链接。", "Status artifact unavailable; open /reports for the raw public links.")}
+                : copy(language, "状态产物不可用；请打开今日简报或生产日报审计页复核。", "Status artifact unavailable; open today's brief or the production reports audit page.")}
           </p>
         </div>
-        <a className="secondary-action daily-desk-link" href={reportsHref}>
-          {copy(language, "打开报告", "Open reports")}
-          <ArrowRight aria-hidden="true" size={15} />
-        </a>
+        <div className="daily-desk-actions">
+          <a className="primary-action daily-desk-link" href={todayHref}>
+            {copy(language, "今日简报", "Today")}
+            <ArrowRight aria-hidden="true" size={15} />
+          </a>
+          <a className="secondary-action daily-desk-link" href={reportsHref}>
+            {copy(language, "生产日报", "Reports")}
+            <ArrowRight aria-hidden="true" size={15} />
+          </a>
+        </div>
       </div>
 
       <div className="daily-desk-summary-grid">

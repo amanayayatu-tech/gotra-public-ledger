@@ -61,23 +61,24 @@ reports, latest report, system boundary, methodology, claim boundary, FAQ, sourc
 prediction detail routes. The generated pages use only public-safe repository
 data and preserve the research-only boundary.
 
-For static hosting notes and Markdown/JSON/HTML Content-Type guidance, see
+For production runtime boundaries, static hosting notes, and Markdown/JSON/HTML
+Content-Type guidance, see `docs/PRODUCTION_RUNTIME_RUNBOOK.md` and
 `docs/GEO_STATIC_HOSTING.md`. Future manual GEO audit notes should use
 `docs/GEO_AUDIT_TEMPLATE.md`.
 
 ## GitHub Pages Deployment
 
 GitHub Pages deployment is handled by `.github/workflows/pages.yml`.
-GitHub Pages remains a fallback static publishing target; the canonical public
-entry point for readers and SEO is https://gotra.me/.
+GitHub Pages is a manual fallback/debug static publishing target; the canonical
+public production entry point for readers, SEO, and report status is
+https://gotra.me/.
 
 Deployment triggers:
 
-- `push` to `main`
 - manual `workflow_dispatch`
 
-The PR branch does not automatically deploy to Pages. After this PR is reviewed
-and merged, the `main` push workflow builds the frontend with
+The PR branch and `main` push do not automatically deploy to Pages. If a
+maintainer intentionally uses the manual workflow, it builds the frontend with
 `GITHUB_PAGES=true npm run build` so Vite uses the project Pages base path:
 
 ```text

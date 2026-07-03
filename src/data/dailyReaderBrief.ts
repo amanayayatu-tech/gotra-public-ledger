@@ -238,6 +238,64 @@ function localized(zh: string, en?: string): LocalizedText {
   };
 }
 
+const READER_FIELD_LABELS: Record<string, string> = {
+  analyst_frame: "Analyst frame",
+  coverage_note: "Coverage note",
+  data_basis: "Data basis",
+  price_context: "Price context",
+  scope: "Scope",
+};
+
+function readerFieldLabel(key: string): string {
+  return READER_FIELD_LABELS[key] ?? key.replace(/_/g, " ");
+}
+
+function formatDictLikeText(value: string): string | null {
+  const pairs = [...value.matchAll(/['"]([A-Za-z][A-Za-z0-9_ -]*)['"]\s*:\s*['"]([^'"]*)['"]/g)];
+  if (pairs.length === 0) {
+    return null;
+  }
+  const prefix = value.slice(0, Math.max(0, value.indexOf("{"))).trim().replace(/[：:]\s*$/, "");
+  const formatted = pairs
+    .map((match) => `${readerFieldLabel(match[1])}: ${match[2].trim()}`)
+    .filter((text) => text.trim())
+    .join("; ");
+  return prefix ? `${prefix}: ${formatted}` : formatted;
+}
+
+function readerSafeText(value: unknown, fallback = ""): string {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => readerSafeText(item)).filter(Boolean).join("; ") || fallback;
+  }
+  if (isRecord(value)) {
+    const text = Object.entries(value)
+      .map(([key, item]) => `${readerFieldLabel(key)}: ${readerSafeText(item)}`)
+      .filter((line) => !line.endsWith(": "))
+      .join("; ");
+    return text || fallback;
+  }
+  const raw = String(value).trim();
+  if (!raw) {
+    return fallback;
+  }
+  return formatDictLikeText(raw) ?? raw;
+}
+
+function readerSafeLocalized(value: unknown, fallback: string): LocalizedText {
+  if (isLocalizedText(value)) {
+    return localized(readerSafeText(value.zh, fallback), readerSafeText(value.en, value.zh || fallback));
+  }
+  const text = readerSafeText(value, fallback);
+  return localized(text, text);
+}
+
+function readerSafeLocalizedList(value: unknown): LocalizedText[] {
+  return Array.isArray(value) ? value.map((item) => readerSafeLocalized(item, "")).filter((item) => item.zh || item.en) : [];
+}
+
 function englishDailyLabel(label: string): string {
   const labels: Record<string, string> = {
     港股早报: "HK morning report",
@@ -355,15 +413,15 @@ function normalizeV1Brief(value: DailyReaderBriefV1): DailyReaderBrief {
     agent_analysis_items: value.agent_analysis_items.map((item) => ({
       symbol: item.symbol,
       title: localized(`${item.symbol} 研究摘要`, `${item.symbol} research summary`),
-      research_summary: localized(item.research_summary, item.research_summary),
-      key_updates: item.key_updates.map((text) => localized(text, text)),
-      positive_case: item.positive_case.map((text) => localized(text, text)),
-      negative_case: item.negative_case.map((text) => localized(text, text)),
-      red_team_review: item.red_team_review.map((text) => localized(text, text)),
-      risk_factors: item.risk_factors.map((text) => localized(text, text)),
-      watch_items: item.watch_items.map((text) => localized(text, text)),
-      source_notes: item.source_notes.map((text) => localized(text, text)),
-      raw_markdown: item.research_summary,
+      research_summary: readerSafeLocalized(item.research_summary, `${item.symbol} research summary unavailable.`),
+      key_updates: readerSafeLocalizedList(item.key_updates),
+      positive_case: readerSafeLocalizedList(item.positive_case),
+      negative_case: readerSafeLocalizedList(item.negative_case),
+      red_team_review: readerSafeLocalizedList(item.red_team_review),
+      risk_factors: readerSafeLocalizedList(item.risk_factors),
+      watch_items: readerSafeLocalizedList(item.watch_items),
+      source_notes: readerSafeLocalizedList(item.source_notes),
+      raw_markdown: readerSafeText(item.research_summary),
     })),
     prompt_framework_summary: {
       ...value.prompt_framework_summary,
@@ -413,9 +471,37 @@ function normalizeV1Brief(value: DailyReaderBriefV1): DailyReaderBrief {
   };
 }
 
+function normalizeAgentAnalysisItem(value: unknown, index: number): DailyReaderBriefAgentAnalysisItem {
+  const item = isRecord(value) ? value : {};
+  const symbol = stringValue(item.symbol) ?? `symbol_${index + 1}`;
+  const title = item.title ?? `${symbol} research summary`;
+  const rawMarkdown = item.raw_markdown === undefined ? undefined : readerSafeText(item.raw_markdown);
+
+  return {
+    symbol,
+    title: readerSafeLocalized(title, `${symbol} research summary`),
+    research_summary: readerSafeLocalized(item.research_summary, `${symbol} research summary unavailable.`),
+    key_updates: readerSafeLocalizedList(item.key_updates),
+    positive_case: readerSafeLocalizedList(item.positive_case),
+    negative_case: readerSafeLocalizedList(item.negative_case),
+    red_team_review: readerSafeLocalizedList(item.red_team_review),
+    risk_factors: readerSafeLocalizedList(item.risk_factors),
+    watch_items: readerSafeLocalizedList(item.watch_items),
+    source_notes: readerSafeLocalizedList(item.source_notes),
+    ...(rawMarkdown ? { raw_markdown: rawMarkdown } : {}),
+  };
+}
+
+function normalizeV2Brief(value: DailyReaderBrief): DailyReaderBrief {
+  return {
+    ...value,
+    agent_analysis_items: value.agent_analysis_items.map(normalizeAgentAnalysisItem),
+  };
+}
+
 export function normalizeDailyReaderBriefArtifact(value: unknown): DailyReaderBrief | null {
   if (isDailyReaderBriefV2(value)) {
-    return value;
+    return normalizeV2Brief(value);
   }
   if (isDailyReaderBriefV1(value)) {
     return normalizeV1Brief(value);

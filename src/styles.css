@@ -3452,11 +3452,19 @@ h1 {
   max-width: 820px;
 }
 
+.daily-desk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 230px;
+}
+
 .daily-desk-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #9cc8ff;
+  white-space: nowrap;
 }
 
 .daily-desk-summary-grid {
@@ -7396,6 +7404,7 @@ h1::after {
     display: grid;
   }
 
+  .daily-desk-actions,
   .daily-desk-link {
     justify-content: center;
     width: 100%;
