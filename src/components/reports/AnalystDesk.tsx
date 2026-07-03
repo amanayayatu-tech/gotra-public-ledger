@@ -985,9 +985,9 @@ export function AnalystDesk({
         <details className="audit-details raw-artifact-disclosure">
           <summary>{copy(language, "Raw artifact / Open JSON / Open Markdown", "Raw artifact / Open JSON / Open Markdown")}</summary>
           <div className="public-artifact-links">
-            <a href={assetHref(status?.statusFile ?? "status.json")}>/reports/status.json</a>
-            <a href={assetHref(status?.latestFile ?? "latest.md")}>/reports/latest.md</a>
-            {status?.reportFile ? <a href={assetHref(status.reportFile)}>{status.reportFile}</a> : null}
+            <a href={assetHref(status?.statusFile ?? "status.json")}>{copy(language, "Raw JSON: /reports/status.json", "Raw JSON: /reports/status.json")}</a>
+            <a href={assetHref(status?.latestFile ?? "latest.md")}>{copy(language, "Raw Markdown: /reports/latest.md", "Raw Markdown: /reports/latest.md")}</a>
+            {status?.reportFile ? <a href={assetHref(status.reportFile)}>{copy(language, `Raw Markdown: ${status.reportFile}`, `Raw Markdown: ${status.reportFile}`)}</a> : null}
           </div>
           <p className="desk-source-note">
             {copy(

@@ -149,45 +149,48 @@ function LedgerLoadingSkeleton() {
 
 function HomeLoadingHero({ language }: { language: Language }) {
   return (
-    <section className="hero-section home-loading-hero" aria-labelledby="home-loading-title" aria-busy="true">
-      <div className="hero-copy">
-        <div className="hero-boundary-note">
-          <ShieldCheck aria-hidden="true" size={16} />
-          {copy(language, "研究信息 · 非投资建议 · 非交易信号", "Research information · not advice · not a trading signal")}
+    <>
+      <section className="hero-section home-loading-hero" aria-labelledby="home-loading-title" aria-busy="true">
+        <div className="hero-copy">
+          <div className="hero-boundary-note">
+            <ShieldCheck aria-hidden="true" size={16} />
+            {copy(language, "研究信息 · 非投资建议 · 非交易信号", "Research information · not advice · not a trading signal")}
+          </div>
+          <p className="hero-brand-motif">{copy(language, "AI 股票研究认知系统 · 不是交易机器", "AI stock research cognition system · not a trading machine")}</p>
+          <h1 id="home-loading-title" className="hero-title">
+            {language === "zh" ? (
+              <>
+                把研究过程
+                <br />
+                变成可审计资产
+              </>
+            ) : (
+              "Turn the research process into an auditable asset"
+            )}
+          </h1>
+          <p>
+            {copy(
+              language,
+              "正在读取公开安全 demo 账本。先展示 v3.5 研究系统价值：研究任务、证据包、独立视角、复核和内部 Alaya readback。",
+              "Loading the public-safe demo ledger. The v3.5 research system value is shown first: research task, evidence packet, independent views, review, and internal Alaya readback.",
+            )}
+          </p>
         </div>
-        <p className="hero-brand-motif">{copy(language, "AI 股票研究认知系统 · 不是交易机器", "AI stock research cognition system · not a trading machine")}</p>
-        <h1 id="home-loading-title" className="hero-title">
-          {language === "zh" ? (
-            <>
-              把研究过程
-              <br />
-              变成可审计资产
-            </>
-          ) : (
-            "Turn the research process into an auditable asset"
-          )}
-        </h1>
-        <p>
-          {copy(
-            language,
-            "正在读取公开安全 demo 账本。页面先展示研究边界，数据到达后再展示记录数、错误复盘和可审计证据链。",
-            "Loading the public-safe demo ledger. The page shows the research boundary first, then renders records, error review, and audit evidence when data arrives.",
-          )}
-        </p>
-      </div>
-      <div className="hero-side home-loading-side" aria-hidden="true">
-        <div className="loading-shell">
-          <div className="skeleton-line wide" />
-          <div className="skeleton-line" />
-          <div className="skeleton-grid">
-            <span />
-            <span />
-            <span />
-            <span />
+        <div className="hero-side home-loading-side" aria-hidden="true">
+          <div className="loading-shell">
+            <div className="skeleton-line wide" />
+            <div className="skeleton-line" />
+            <div className="skeleton-grid">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+      <V35ResearchSystemPanel language={language} compact />
+    </>
   );
 }
 
@@ -1315,6 +1318,8 @@ function analystSectionRows(item: DailyReaderBriefAgentAnalysisItem, language: L
   const redTeam = item.red_team_audit.length > 0 ? item.red_team_audit : item.red_team_review;
   const watch = item.watch_conditions.length > 0 ? item.watch_conditions : item.watch_items;
   const rows: Array<[string, LocalizedText[]]> = [
+    [copy(language, "研究任务书", "Research task"), item.research_task ?? []],
+    [copy(language, "证据包", "Evidence packet"), item.evidence_packet ?? []],
     [copy(language, "Chairman synthesis", "Chairman synthesis"), chairman],
     [copy(language, "K 深度研究", "K deep research"), item.k_deep_research],
     [copy(language, "F 伙伴视角", "F partner view"), item.f_partner_view.length > 0 ? item.f_partner_view : item.positive_case],
@@ -1358,6 +1363,75 @@ function fullAnalystExecutionText(brief: DailyReaderBrief, language: Language): 
     );
   }
   return copy(language, "execution model: 公开状态未报告。", "execution model: not reported by the public status.");
+}
+
+function V35ResearchSystemPanel({ language, compact = false }: { language: Language; compact?: boolean }) {
+  const cards = [
+    [
+      copy(language, "Research task / 研究任务", "Research task"),
+      copy(
+        language,
+        "先说明为什么今天研究这只股票、核心问题是什么、哪些证据缺失时不能下结论。",
+        "Defines why the stock is studied today, the core questions, and what cannot be concluded without missing evidence.",
+      ),
+    ],
+    [
+      copy(language, "Evidence packet / 证据包", "Evidence packet"),
+      copy(
+        language,
+        "把公开来源、freshness、missing required sources、data_gap 和限制条件放在 agent 之前。",
+        "Places public sources, freshness, missing required sources, data_gap, and limitations before the agents write.",
+      ),
+    ],
+    [
+      copy(language, "K/F/W/G independent views", "K/F/W/G independent views"),
+      copy(
+        language,
+        "四个视角基于同一任务书和证据包独立输出，保留分歧，而不是把不确定性压扁。",
+        "Four views use the same task and evidence packet independently, preserving disagreement instead of flattening uncertainty.",
+      ),
+    ],
+    [
+      copy(language, "Chairman synthesis + Red Team audit", "Chairman synthesis + Red Team audit"),
+      copy(
+        language,
+        "Chairman 综合冲突与证据强弱；Red Team audit 专门检查薄弱假设、overclaim 和 needs_review。",
+        "Chairman synthesizes conflicts and evidence strength; Red Team audit checks weak assumptions, overclaiming, and needs_review.",
+      ),
+    ],
+    [
+      copy(language, "Alaya internal readback", "Alaya internal readback"),
+      copy(
+        language,
+        "Alaya 只指 GOTRA 内部 cognition flywheel / knowledge memory / feedback state / readback，不是外部项目。",
+        "Alaya only means GOTRA internal cognition flywheel / knowledge memory / feedback state / readback, not an external project.",
+      ),
+    ],
+  ];
+
+  return (
+    <section className={`v35-system-panel ${compact ? "compact" : ""}`} aria-label={copy(language, "v3.5 研究系统说明", "v3.5 research system explanation")}>
+      <div className="section-heading compact">
+        <span>{copy(language, "v3.5 研究系统", "v3.5 research system")}</span>
+        <h2>{copy(language, "从研究任务到证据包，再到独立复核", "From research task to evidence packet to independent review")}</h2>
+        <p>
+          {copy(
+            language,
+            "v3.5 的价值不在于给一个动作答案，而是把 research_task、evidence_packet、K/F/W/G、Chairman、Red Team 和内部 Alaya readback 串成可审计研究链路。",
+            "v3.5 is not an action-answer layer; it turns research_task, evidence_packet, K/F/W/G, Chairman, Red Team, and internal Alaya readback into an auditable research chain.",
+          )}
+        </p>
+      </div>
+      <div className="v35-system-grid">
+        {cards.map(([title, body]) => (
+          <article key={title}>
+            <h3>{title}</h3>
+            <p>{body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; language: Language }) {
@@ -1464,6 +1538,8 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           </div>
         </aside>
       </section>
+
+      <V35ResearchSystemPanel language={language} compact />
 
       <section className="today-section" aria-labelledby="today-top-items-title">
         <div className="section-heading compact">
@@ -2033,6 +2109,8 @@ function WhyGotraPage({ language }: { language: Language }) {
         </div>
       </section>
 
+      <V35ResearchSystemPanel language={language} />
+
       <section className="why-section why-two-column" aria-label={copy(language, "缺口与复核价值", "Value of gaps and review")}>
         <article>
           <span>{copy(language, "Why data gaps matter", "Why data gaps matter")}</span>
@@ -2134,7 +2212,10 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
 
   const { brief } = state;
   const items = brief.agent_analysis_items.slice(0, 24);
-  const v3Reader = brief.schema === "gotra.daily_reader_brief.v3" || brief.full_analyst.execution_model === "independent_agent_calls";
+  const v35Reader =
+    brief.schema === "gotra.daily_reader_brief.v3_5" ||
+    brief.full_analyst.execution_model === "research_task_evidence_independent_agent_calls";
+  const v3Reader = v35Reader || brief.schema === "gotra.daily_reader_brief.v3" || brief.full_analyst.execution_model === "independent_agent_calls";
 
   return (
     <>
@@ -2145,10 +2226,14 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
           <p>
             {copy(
               language,
-              v3Reader
+              v35Reader
+                ? "这是 Full Analyst v3.5 的产品化阅读层：默认先展示 research task、evidence packet、缺失必需来源，再展示基于证据包的 K/F/W/G 独立视角、Chairman synthesis、Red Team audit、agent timing/status 和 hash。Raw Markdown 只放在下方审计折叠区。"
+                : v3Reader
                 ? "这是 Full Analyst v3 的产品化阅读层：默认展示 independent agent calls、K/F/W/G 独立视角、Chairman synthesis、Red Team audit、agent timing/status、证据缺口和观察条件。Raw Markdown 只放在下方审计折叠区。"
                 : "这是 Full Analyst v2 的产品化阅读层：默认展示 Ksana 4.1-lite 的 K 深度研究、F/W/G 伙伴视角、Chairman synthesis、红队审计、证据缺口和观察条件。Raw Markdown 只放在下方审计折叠区。",
-              v3Reader
+              v35Reader
+                ? "This is the product reader for Full Analyst v3.5: research task, evidence packet, missing required sources, evidence-based K/F/W/G independent views, Chairman synthesis, Red Team audit, agent timing/status, and hashes are shown first. Raw Markdown is only in the audit disclosure below."
+                : v3Reader
                 ? "This is the product reader for Full Analyst v3: independent agent calls, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent timing/status, evidence gaps, and watch conditions are shown first. Raw Markdown is only in the audit disclosure below."
                 : "This is the product reader for Full Analyst v2: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions are shown first. Raw Markdown is only in the audit disclosure below.",
             )}
@@ -2166,6 +2251,7 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
           <h2 id="full-analyst-symbols-title">{copy(language, "按阅读结构展开", "Structured for reading")}</h2>
           <p>{pickLocalized(language, brief.full_analyst.summary)}</p>
         </div>
+        {v35Reader ? <V35ResearchSystemPanel language={language} compact /> : null}
         <div className="today-agent-grid full-analyst-reader-grid">
           {items.map((item) => (
             <article className="today-agent-card" key={item.symbol}>
@@ -2176,51 +2262,89 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
               </div>
               <div className="symbol-brief-lede">
                 <span>{copy(language, "Execution model", "Execution model")}</span>
-                <p>{item.execution_model === "independent_agent_calls" ? fullAnalystExecutionText(brief, language) : item.execution_model === "multi_perspective_single_call" ? copy(language, "single-call multi-perspective；不是 independent agents。", "single-call multi-perspective; not independent agents.") : item.execution_model ?? fullAnalystExecutionText(brief, language)}</p>
+                <p>
+                  {item.execution_model === "research_task_evidence_independent_agent_calls"
+                    ? copy(language, "research task + evidence packet + independent agent calls；K/F/W/G 基于证据包运行。", "research task + evidence packet + independent agent calls; K/F/W/G run from the evidence packet.")
+                    : item.execution_model === "independent_agent_calls"
+                      ? fullAnalystExecutionText(brief, language)
+                      : item.execution_model === "multi_perspective_single_call"
+                        ? copy(language, "single-call multi-perspective；不是 independent agents。", "single-call multi-perspective; not independent agents.")
+                        : item.execution_model ?? fullAnalystExecutionText(brief, language)}
+                </p>
               </div>
-              {item.execution_model === "independent_agent_calls" ? (
-                <div className="symbol-agent-audit-grid" aria-label={copy(language, "v3 agent audit summary", "v3 agent audit summary")}>
-                  {metadataEntries(item.agent_statuses, 6).length > 0 ? (
-                    <div>
-                      <h3>{copy(language, "Agent statuses", "Agent statuses")}</h3>
-                      <ul>
-                        {metadataEntries(item.agent_statuses, 6).map(([key, value]) => (
-                          <li key={`${item.symbol}-status-${key}`}>{key}: {value}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {metadataEntries(item.agent_timings, 7).length > 0 ? (
-                    <div>
-                      <h3>{copy(language, "Agent timings", "Agent timings")}</h3>
-                      <ul>
-                        {metadataEntries(item.agent_timings, 7).map(([key, value]) => (
-                          <li key={`${item.symbol}-timing-${key}`}>{key}: {value}s</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {metadataEntries(item.agent_hashes, 6).length > 0 ? (
-                    <div>
-                      <h3>{copy(language, "Independent hashes", "Independent hashes")}</h3>
-                      <ul>
-                        {metadataEntries(item.agent_hashes, 6).map(([key, value]) => (
-                          <li key={`${item.symbol}-hash-${key}`}>{key}: {shortHash(value)}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {metadataEntries(item.parallelism, 3).length > 0 ? (
-                    <div>
-                      <h3>{copy(language, "Parallelism", "Parallelism")}</h3>
-                      <ul>
-                        {metadataEntries(item.parallelism, 3).map(([key, value]) => (
-                          <li key={`${item.symbol}-parallel-${key}`}>{key}: {value}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </div>
+              {item.execution_model === "independent_agent_calls" || item.execution_model === "research_task_evidence_independent_agent_calls" ? (
+                <details className="audit-details symbol-agent-audit-details">
+                  <summary>{copy(language, "Show audit metadata", "Show audit metadata")}</summary>
+                  <p className="muted">
+                    {copy(
+                      language,
+                      "hash、timing、parallelism 和 retry/public-safety trigger 只用于审计；默认阅读应先看研究任务、证据包、独立观点与红队复核。",
+                      "Hashes, timings, parallelism, and retry/public-safety triggers are audit metadata; default reading should start with the research task, evidence packet, independent views, and red-team review.",
+                    )}
+                  </p>
+                  <div className="symbol-agent-audit-grid" aria-label={copy(language, "v3 agent audit summary", "v3 agent audit summary")}>
+                    {metadataEntries(item.agent_statuses, 6).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Agent statuses", "Agent statuses")}</h3>
+                        <ul>
+                          {metadataEntries(item.agent_statuses, 6).map(([key, value]) => (
+                            <li key={`${item.symbol}-status-${key}`}>{key}: {value}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(item.agent_timings, 7).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Agent timings", "Agent timings")}</h3>
+                        <ul>
+                          {metadataEntries(item.agent_timings, 7).map(([key, value]) => (
+                            <li key={`${item.symbol}-timing-${key}`}>{key}: {value}s</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(item.agent_retry_counts, 6).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Retry counts", "Retry counts")}</h3>
+                        <ul>
+                          {metadataEntries(item.agent_retry_counts, 6).map(([key, value]) => (
+                            <li key={`${item.symbol}-retry-${key}`}>{key}: {value}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(item.agent_public_safety_triggers, 6).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Public-safety triggers", "Public-safety triggers")}</h3>
+                        <ul>
+                          {metadataEntries(item.agent_public_safety_triggers, 6).map(([key, value]) => (
+                            <li key={`${item.symbol}-trigger-${key}`}>{key}: {value || "none"}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(item.agent_hashes, 6).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Independent hashes", "Independent hashes")}</h3>
+                        <ul>
+                          {metadataEntries(item.agent_hashes, 6).map(([key, value]) => (
+                            <li key={`${item.symbol}-hash-${key}`}>{key}: {shortHash(value)}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(item.parallelism, 3).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Parallelism", "Parallelism")}</h3>
+                        <ul>
+                          {metadataEntries(item.parallelism, 3).map(([key, value]) => (
+                            <li key={`${item.symbol}-parallel-${key}`}>{key}: {value}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
+                </details>
               ) : null}
               <div className="today-agent-columns symbol-brief-columns">
                 {analystSectionRows(item, language).map(([title, list]) => (
@@ -2478,6 +2602,7 @@ function MethodologyPage({ dataset, records, language }: { dataset: LedgerDatase
         body={copy(language, "方法页把股票池、预测窗口、结算器、假设组合和数据边界放在结果之前，防止上线后口径漂移。", "This page places universe, horizon, resolver, portfolio, and data boundaries before interpretation so the public product cannot drift after launch.")}
         icon={BookOpenCheck}
       />
+      <V35ResearchSystemPanel language={language} />
       <MethodologyProcessGraphic language={language} />
       <section className="route-panel" aria-labelledby="methodology-next-title">
         <div className="section-heading compact">
@@ -2527,6 +2652,7 @@ function SourcesPage({
         body={copy(language, "来源页先展示生产公开产物，再展示静态演示 / 归档产物；不会公开私有 GOTRA 原始产物。", "The sources page shows live production artifacts first, then static demo/archive artifacts; it never publishes private GOTRA raw artifacts.")}
         icon={Database}
       />
+      <V35ResearchSystemPanel language={language} />
       <LiveArtifactSources state={liveReportsState} language={language} />
       {showSourceDetails ? (
         <>
@@ -3138,6 +3264,15 @@ function ReportTypeIndex({ language }: { language: Language }) {
             <p>{guideCopy(item.body, language)}</p>
           </a>
         ))}
+      </div>
+      <div className="evidence-boundary">
+        <p className="desk-source-note">
+          {copy(
+            language,
+            "v3.5 的 reports 审计层会追踪 research_task、evidence_packet、K/F/W/G、Chairman、Red Team 与 GOTRA 内部 Alaya readback；Alaya 只指 repo 内部 cognition flywheel / knowledge memory / feedback state，不是外部服务。",
+            "The v3.5 reports audit layer tracks research_task, evidence_packet, K/F/W/G, Chairman, Red Team, and GOTRA internal Alaya readback; Alaya only means the repo-internal cognition flywheel / knowledge memory / feedback state, not an external service.",
+          )}
+        </p>
       </div>
     </section>
   );

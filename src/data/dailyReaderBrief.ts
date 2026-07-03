@@ -59,7 +59,12 @@ export type DailyReaderBriefAgentAnalysisItem = {
   prompt_template_version?: string;
   methodology_version?: string;
   execution_model?: string;
+  symbol_schema?: string;
+  alaya_event_schema?: string;
   research_status?: string;
+  research_task?: LocalizedText[];
+  evidence_packet?: LocalizedText[];
+  missing_required_sources?: LocalizedText[];
   research_summary: LocalizedText;
   key_updates: LocalizedText[];
   research_context: LocalizedText[];
@@ -75,6 +80,8 @@ export type DailyReaderBriefAgentAnalysisItem = {
   agent_statuses?: Record<string, string>;
   agent_hashes?: Record<string, string>;
   agent_timings?: Record<string, number | string>;
+  agent_retry_counts?: Record<string, number | string>;
+  agent_public_safety_triggers?: Record<string, string>;
   parallelism?: Record<string, number | string | boolean>;
   red_team_verdict?: string;
   public_payload_hash?: string;
@@ -118,8 +125,8 @@ export type DailyReaderBriefResearchWatchItem = {
 };
 
 export type DailyReaderBrief = {
-  schema_version: "gotra.daily_reader_brief.v2" | "gotra.daily_reader_brief.v3";
-  schema: "gotra.daily_reader_brief.v2" | "gotra.daily_reader_brief.v3";
+  schema_version: "gotra.daily_reader_brief.v2" | "gotra.daily_reader_brief.v3" | "gotra.daily_reader_brief.v3_5";
+  schema: "gotra.daily_reader_brief.v2" | "gotra.daily_reader_brief.v3" | "gotra.daily_reader_brief.v3_5";
   as_of_date: string;
   mode: string;
   brief_date: string;
@@ -390,9 +397,12 @@ function isDailyReaderBriefV2OrV3(value: unknown): value is DailyReaderBrief {
   }
   const schema = value.schema;
   const schemaVersion = value.schema_version;
+  const allowedSchemas = new Set(["gotra.daily_reader_brief.v2", "gotra.daily_reader_brief.v3", "gotra.daily_reader_brief.v3_5"]);
   return (
-    (schemaVersion === "gotra.daily_reader_brief.v2" || schemaVersion === "gotra.daily_reader_brief.v3") &&
-    (schema === "gotra.daily_reader_brief.v2" || schema === "gotra.daily_reader_brief.v3") &&
+    typeof schemaVersion === "string" &&
+    allowedSchemas.has(schemaVersion) &&
+    typeof schema === "string" &&
+    allowedSchemas.has(schema) &&
     typeof value.as_of_date === "string" &&
     typeof value.mode === "string" &&
     typeof value.brief_date === "string" &&
@@ -563,7 +573,12 @@ function normalizeAgentAnalysisItem(value: unknown, index: number): DailyReaderB
     prompt_template_version: stringValue(item.prompt_template_version) ?? undefined,
     methodology_version: stringValue(item.methodology_version) ?? undefined,
     execution_model: stringValue(item.execution_model) ?? undefined,
+    symbol_schema: stringValue(item.symbol_schema) ?? undefined,
+    alaya_event_schema: stringValue(item.alaya_event_schema) ?? undefined,
     research_status: stringValue(item.research_status) ?? undefined,
+    research_task: readerSafeLocalizedList(item.research_task),
+    evidence_packet: readerSafeLocalizedList(item.evidence_packet),
+    missing_required_sources: readerSafeLocalizedList(item.missing_required_sources),
     research_summary: readerSafeLocalized(item.research_summary, `${symbol} research summary unavailable.`),
     key_updates: readerSafeLocalizedList(item.key_updates),
     research_context: readerSafeLocalizedList(item.research_context),
@@ -579,6 +594,8 @@ function normalizeAgentAnalysisItem(value: unknown, index: number): DailyReaderB
     agent_statuses: readerSafeStringRecord(item.agent_statuses),
     agent_hashes: readerSafeStringRecord(item.agent_hashes),
     agent_timings: readerSafeNumberStringRecord(item.agent_timings),
+    agent_retry_counts: readerSafeNumberStringRecord(item.agent_retry_counts),
+    agent_public_safety_triggers: readerSafeStringRecord(item.agent_public_safety_triggers),
     parallelism: readerSafePrimitiveRecord(item.parallelism),
     red_team_verdict: stringValue(item.red_team_verdict) ?? undefined,
     public_payload_hash: stringValue(item.public_payload_hash) ?? undefined,

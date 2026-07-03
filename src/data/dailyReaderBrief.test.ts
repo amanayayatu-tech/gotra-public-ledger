@@ -313,6 +313,8 @@ describe("daily reader brief builder", () => {
           },
           agent_hashes: { k_deep_research: "abc123def456abc123def456" },
           agent_timings: { k_deep_research_seconds: 0.12, total_wall_clock_seconds: 0.44 },
+          agent_retry_counts: { red_team_audit: 1, k_deep_research: 0 },
+          agent_public_safety_triggers: { red_team_audit: ["raw_io_or_secret_wording"], k_deep_research: [] },
           parallelism: { symbol_parallelism: 3, agent_parallelism: 4, kfwg_ran_in_parallel: true },
           positive_case: [],
           negative_case: [],
@@ -331,6 +333,8 @@ describe("daily reader brief builder", () => {
     expect(normalized?.full_analyst.agent_parallelism).toBe(4);
     expect(normalized?.agent_analysis_items[0]?.agent_statuses?.red_team_audit).toBe("ok");
     expect(normalized?.agent_analysis_items[0]?.agent_timings?.total_wall_clock_seconds).toBe(0.44);
+    expect(normalized?.agent_analysis_items[0]?.agent_retry_counts?.red_team_audit).toBe(1);
+    expect(normalized?.agent_analysis_items[0]?.agent_public_safety_triggers?.red_team_audit).toBe("raw_io_or_secret_wording");
     expect(JSON.stringify(normalized)).not.toContain("[object Object]");
   });
 
