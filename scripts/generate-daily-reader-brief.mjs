@@ -85,6 +85,63 @@ function arrayValue(value) {
   return Array.isArray(value) ? value : [];
 }
 
+const structuredTextKeys = [
+  "summary",
+  "detail",
+  "finding",
+  "gap",
+  "impact",
+  "handling",
+  "reason",
+  "title",
+  "official_name",
+  "provider_ticker",
+  "overall_confidence",
+];
+
+function extractStructuredValues(text) {
+  const values = [];
+  for (const key of structuredTextKeys) {
+    const doubleQuoted = new RegExp(`['"]${key}['"]\\s*:\\s*"([^"]{2,900})"`, "gi");
+    const singleQuoted = new RegExp(`['"]${key}['"]\\s*:\\s*'([^']{2,900})'`, "gi");
+    for (const pattern of [doubleQuoted, singleQuoted]) {
+      for (const match of text.matchAll(pattern)) {
+        const value = sanitizePlainText(match[1]);
+        if (value && !values.includes(value)) {
+          values.push(value);
+        }
+      }
+    }
+  }
+  return values;
+}
+
+function sanitizePlainText(value) {
+  return String(value ?? "")
+    .replace(/\\[nrt]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function humanizeStructuredText(value) {
+  const text = sanitizePlainText(value);
+  if (!/[{[]/.test(text) || !/['"][a-z_]+['"]\s*:/.test(text)) {
+    return text;
+  }
+  const withoutLeadLabel = text.replace(/^\s*(summary|detail|finding|gap|impact|reason|title)\s*:\s*/i, "");
+  const extracted = extractStructuredValues(withoutLeadLabel);
+  if (extracted.length > 0) {
+    return extracted.join(" ");
+  }
+  return withoutLeadLabel
+    .replace(/[{}[\]"]/g, " ")
+    .replace(/'([a-z_]+)'\s*:/gi, "$1:")
+    .replace(/'([^']*)'/g, "$1")
+    .replace(/\s*[,;]\s*/g, "; ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function formatShanghaiIso(now) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Shanghai",
@@ -127,7 +184,8 @@ function sanitizePublicText(value, maxLength = 900) {
     .replace(/https?:\/\/([^\s/)]+)[^\s)]*/gi, "https://$1/...")
     .replace(/\s+/g, " ")
     .trim();
-  const cleaned = withoutUrls
+  const humanized = humanizeStructuredText(withoutUrls);
+  const cleaned = humanized
     .replace(/\bstrong[-\s]buy\b/gi, "external rating label")
     .replace(/\bbuy[-\s]rating\b/gi, "external rating label")
     .replace(/\bsell[-\s]rating\b/gi, "external rating label")
