@@ -126,6 +126,46 @@
         font-size: 18px;
         line-height: 1.72;
       }
+
+      .gotra-boot-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 4px;
+      }
+
+      .gotra-boot-grid div {
+        min-width: 0;
+        padding: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      .gotra-boot-grid strong {
+        display: block;
+        color: #edf4f2;
+        font-size: 13px;
+        line-height: 1.25;
+      }
+
+      .gotra-boot-grid span {
+        display: block;
+        margin-top: 6px;
+        color: #9aa9b5;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      @media (max-width: 900px) {
+        .gotra-boot-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .gotra-boot-card h1 {
+          font-size: 40px;
+        }
+      }
     </style>
     <title>GOTRA Public Ledger | AI股票研究公开预测账本</title>
   </head>
@@ -139,6 +179,28 @@
             GOTRA Public Ledger 是一个可审计的 AI 股票研究公开预测账本。Research information only. Not investment advice, not a trading signal, not
             performance proof, and not science/public proof.
           </p>
+          <div class="gotra-boot-grid" aria-label="v3.5 research system">
+            <div>
+              <strong>Research task / 研究任务</strong>
+              <span>先说明今天研究什么、为什么研究、缺什么证据不能下结论。</span>
+            </div>
+            <div>
+              <strong>Evidence packet / 证据包</strong>
+              <span>公开来源、freshness、missing required sources 和 data_gap 先于结论。</span>
+            </div>
+            <div>
+              <strong>K/F/W/G independent views</strong>
+              <span>独立视角保留分歧，不把不确定性压扁。</span>
+            </div>
+            <div>
+              <strong>Chairman + Red Team audit</strong>
+              <span>综合冲突，再用 Red Team 检查 overclaim 和 needs_review。</span>
+            </div>
+            <div>
+              <strong>Alaya internal readback</strong>
+              <span>Alaya 只指 GOTRA 内部 cognition / memory / feedback / readback。</span>
+            </div>
+          </div>
         </section>
       </main>
     </div>

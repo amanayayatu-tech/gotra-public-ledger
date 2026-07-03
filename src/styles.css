@@ -5629,6 +5629,51 @@ h1::after {
   margin-top: 0;
 }
 
+.v35-system-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 18px;
+  border: 1px solid rgba(105, 167, 255, 0.26);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(105, 167, 255, 0.08), rgba(117, 216, 143, 0.05)),
+    rgba(255, 255, 255, 0.03);
+}
+
+.v35-system-panel.compact {
+  padding: 16px;
+}
+
+.v35-system-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.v35-system-grid article {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 8px;
+  background: rgba(7, 12, 16, 0.34);
+}
+
+.v35-system-grid h3 {
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.v35-system-grid p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
 .today-alaya-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 12px 0;
@@ -6725,6 +6770,7 @@ h1::after {
   .report-queue-grid,
   .today-hero,
   .why-hero,
+  .v35-system-grid,
   .why-problem-grid,
   .why-workflow,
   .why-two-column,
@@ -6800,6 +6846,7 @@ h1::after {
   .live-strip-items,
   .today-hero,
   .why-hero,
+  .v35-system-grid,
   .why-problem-grid,
   .why-workflow,
   .why-two-column,

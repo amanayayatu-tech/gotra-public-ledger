@@ -149,45 +149,48 @@ function LedgerLoadingSkeleton() {
 
 function HomeLoadingHero({ language }: { language: Language }) {
   return (
-    <section className="hero-section home-loading-hero" aria-labelledby="home-loading-title" aria-busy="true">
-      <div className="hero-copy">
-        <div className="hero-boundary-note">
-          <ShieldCheck aria-hidden="true" size={16} />
-          {copy(language, "研究信息 · 非投资建议 · 非交易信号", "Research information · not advice · not a trading signal")}
+    <>
+      <section className="hero-section home-loading-hero" aria-labelledby="home-loading-title" aria-busy="true">
+        <div className="hero-copy">
+          <div className="hero-boundary-note">
+            <ShieldCheck aria-hidden="true" size={16} />
+            {copy(language, "研究信息 · 非投资建议 · 非交易信号", "Research information · not advice · not a trading signal")}
+          </div>
+          <p className="hero-brand-motif">{copy(language, "AI 股票研究认知系统 · 不是交易机器", "AI stock research cognition system · not a trading machine")}</p>
+          <h1 id="home-loading-title" className="hero-title">
+            {language === "zh" ? (
+              <>
+                把研究过程
+                <br />
+                变成可审计资产
+              </>
+            ) : (
+              "Turn the research process into an auditable asset"
+            )}
+          </h1>
+          <p>
+            {copy(
+              language,
+              "正在读取公开安全 demo 账本。先展示 v3.5 研究系统价值：研究任务、证据包、独立视角、复核和内部 Alaya readback。",
+              "Loading the public-safe demo ledger. The v3.5 research system value is shown first: research task, evidence packet, independent views, review, and internal Alaya readback.",
+            )}
+          </p>
         </div>
-        <p className="hero-brand-motif">{copy(language, "AI 股票研究认知系统 · 不是交易机器", "AI stock research cognition system · not a trading machine")}</p>
-        <h1 id="home-loading-title" className="hero-title">
-          {language === "zh" ? (
-            <>
-              把研究过程
-              <br />
-              变成可审计资产
-            </>
-          ) : (
-            "Turn the research process into an auditable asset"
-          )}
-        </h1>
-        <p>
-          {copy(
-            language,
-            "正在读取公开安全 demo 账本。页面先展示研究边界，数据到达后再展示记录数、错误复盘和可审计证据链。",
-            "Loading the public-safe demo ledger. The page shows the research boundary first, then renders records, error review, and audit evidence when data arrives.",
-          )}
-        </p>
-      </div>
-      <div className="hero-side home-loading-side" aria-hidden="true">
-        <div className="loading-shell">
-          <div className="skeleton-line wide" />
-          <div className="skeleton-line" />
-          <div className="skeleton-grid">
-            <span />
-            <span />
-            <span />
-            <span />
+        <div className="hero-side home-loading-side" aria-hidden="true">
+          <div className="loading-shell">
+            <div className="skeleton-line wide" />
+            <div className="skeleton-line" />
+            <div className="skeleton-grid">
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+      <V35ResearchSystemPanel language={language} compact />
+    </>
   );
 }
 
@@ -1362,6 +1365,75 @@ function fullAnalystExecutionText(brief: DailyReaderBrief, language: Language): 
   return copy(language, "execution model: 公开状态未报告。", "execution model: not reported by the public status.");
 }
 
+function V35ResearchSystemPanel({ language, compact = false }: { language: Language; compact?: boolean }) {
+  const cards = [
+    [
+      copy(language, "Research task / 研究任务", "Research task"),
+      copy(
+        language,
+        "先说明为什么今天研究这只股票、核心问题是什么、哪些证据缺失时不能下结论。",
+        "Defines why the stock is studied today, the core questions, and what cannot be concluded without missing evidence.",
+      ),
+    ],
+    [
+      copy(language, "Evidence packet / 证据包", "Evidence packet"),
+      copy(
+        language,
+        "把公开来源、freshness、missing required sources、data_gap 和限制条件放在 agent 之前。",
+        "Places public sources, freshness, missing required sources, data_gap, and limitations before the agents write.",
+      ),
+    ],
+    [
+      copy(language, "K/F/W/G independent views", "K/F/W/G independent views"),
+      copy(
+        language,
+        "四个视角基于同一任务书和证据包独立输出，保留分歧，而不是把不确定性压扁。",
+        "Four views use the same task and evidence packet independently, preserving disagreement instead of flattening uncertainty.",
+      ),
+    ],
+    [
+      copy(language, "Chairman synthesis + Red Team audit", "Chairman synthesis + Red Team audit"),
+      copy(
+        language,
+        "Chairman 综合冲突与证据强弱；Red Team audit 专门检查薄弱假设、overclaim 和 needs_review。",
+        "Chairman synthesizes conflicts and evidence strength; Red Team audit checks weak assumptions, overclaiming, and needs_review.",
+      ),
+    ],
+    [
+      copy(language, "Alaya internal readback", "Alaya internal readback"),
+      copy(
+        language,
+        "Alaya 只指 GOTRA 内部 cognition flywheel / knowledge memory / feedback state / readback，不是外部项目。",
+        "Alaya only means GOTRA internal cognition flywheel / knowledge memory / feedback state / readback, not an external project.",
+      ),
+    ],
+  ];
+
+  return (
+    <section className={`v35-system-panel ${compact ? "compact" : ""}`} aria-label={copy(language, "v3.5 研究系统说明", "v3.5 research system explanation")}>
+      <div className="section-heading compact">
+        <span>{copy(language, "v3.5 研究系统", "v3.5 research system")}</span>
+        <h2>{copy(language, "从研究任务到证据包，再到独立复核", "From research task to evidence packet to independent review")}</h2>
+        <p>
+          {copy(
+            language,
+            "v3.5 的价值不在于给一个动作答案，而是把 research_task、evidence_packet、K/F/W/G、Chairman、Red Team 和内部 Alaya readback 串成可审计研究链路。",
+            "v3.5 is not an action-answer layer; it turns research_task, evidence_packet, K/F/W/G, Chairman, Red Team, and internal Alaya readback into an auditable research chain.",
+          )}
+        </p>
+      </div>
+      <div className="v35-system-grid">
+        {cards.map(([title, body]) => (
+          <article key={title}>
+            <h3>{title}</h3>
+            <p>{body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; language: Language }) {
   if (state.kind === "loading") {
     return (
@@ -1466,6 +1538,8 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           </div>
         </aside>
       </section>
+
+      <V35ResearchSystemPanel language={language} compact />
 
       <section className="today-section" aria-labelledby="today-top-items-title">
         <div className="section-heading compact">
@@ -2035,6 +2109,8 @@ function WhyGotraPage({ language }: { language: Language }) {
         </div>
       </section>
 
+      <V35ResearchSystemPanel language={language} />
+
       <section className="why-section why-two-column" aria-label={copy(language, "缺口与复核价值", "Value of gaps and review")}>
         <article>
           <span>{copy(language, "Why data gaps matter", "Why data gaps matter")}</span>
@@ -2175,6 +2251,7 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
           <h2 id="full-analyst-symbols-title">{copy(language, "按阅读结构展开", "Structured for reading")}</h2>
           <p>{pickLocalized(language, brief.full_analyst.summary)}</p>
         </div>
+        {v35Reader ? <V35ResearchSystemPanel language={language} compact /> : null}
         <div className="today-agent-grid full-analyst-reader-grid">
           {items.map((item) => (
             <article className="today-agent-card" key={item.symbol}>
@@ -2495,6 +2572,7 @@ function MethodologyPage({ dataset, records, language }: { dataset: LedgerDatase
         body={copy(language, "方法页把股票池、预测窗口、结算器、假设组合和数据边界放在结果之前，防止上线后口径漂移。", "This page places universe, horizon, resolver, portfolio, and data boundaries before interpretation so the public product cannot drift after launch.")}
         icon={BookOpenCheck}
       />
+      <V35ResearchSystemPanel language={language} />
       <MethodologyProcessGraphic language={language} />
       <section className="route-panel" aria-labelledby="methodology-next-title">
         <div className="section-heading compact">
@@ -2544,6 +2622,7 @@ function SourcesPage({
         body={copy(language, "来源页先展示生产公开产物，再展示静态演示 / 归档产物；不会公开私有 GOTRA 原始产物。", "The sources page shows live production artifacts first, then static demo/archive artifacts; it never publishes private GOTRA raw artifacts.")}
         icon={Database}
       />
+      <V35ResearchSystemPanel language={language} />
       <LiveArtifactSources state={liveReportsState} language={language} />
       {showSourceDetails ? (
         <>

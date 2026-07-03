@@ -440,6 +440,7 @@ function homeFallback(summary, source) {
       <h1>GOTRA Public Ledger</h1>
       ${definitionBlock()}
       ${latestReportHealthHtml(source)}
+      ${v35ResearchSystemHtml()}
       <section class="summary-grid" aria-label="Snapshot metadata">
         <div class="metric"><strong>${escapeHtml(summary.snapshotDate)}</strong><span>Snapshot date</span></div>
         <div class="metric"><strong>${summary.totalRecords}</strong><span>Public prediction records</span></div>
@@ -476,8 +477,8 @@ function injectHomepage(summary, source) {
   const html = fs.readFileSync(indexPath, "utf8");
   const fallback = `<noscript>\n${homeFallback(summary, source)}\n    </noscript>`;
   const injected = html.includes("geo-crawler-home")
-    ? html
-    : html.replace(/<div id="root"><\/div>/, `${fallback}\n    <div id="root"></div>`);
+    ? html.replace(/<noscript>\s*<main id="geo-crawler-home"[\s\S]*?<\/main>\s*<\/noscript>/, fallback)
+    : html.replace(/(<body>\s*)/, `$1\n    ${fallback}\n`);
   fs.writeFileSync(indexPath, injected);
 }
 
@@ -698,7 +699,12 @@ function reportsPage(source) {
   ];
   const rows = fields.map((field) => {
     const value = source.status?.[field];
-    return [field, value === undefined ? "artifact_unavailable" : value];
+    return [
+      field,
+      value === undefined || value === "artifact_unavailable"
+        ? "Coverage status alias unavailable; use report-specific status files and the v3.5 readers."
+        : value,
+    ];
   });
 
   return pageShell({
@@ -854,6 +860,24 @@ function whyGotraPage() {
   });
 }
 
+function v35ResearchSystemHtml() {
+  return `<section class="notice">
+        <h2>v3.5 research system / v3.5 研究系统</h2>
+        <p>v3.5 turns research_task, evidence_packet, K/F/W/G independent views, Chairman synthesis, Red Team audit, and internal Alaya readback into an auditable research chain. It is research discipline, not an action-answer layer.</p>
+        <p>v3.5 把研究任务、证据包、K/F/W/G 独立视角、Chairman synthesis、Red Team audit 和内部 Alaya readback 串成可审计研究链路；它不是动作答案层。</p>
+        ${table(
+          ["step", "reader value"],
+          [
+            ["Research task / 研究任务", "Explains why this stock is studied today, the core questions, required sources, and what cannot be concluded without missing evidence."],
+            ["Evidence packet / 证据包", "Collects public source types, freshness, missing required sources, stale items, data_gap, and limitations before agent writing."],
+            ["K/F/W/G independent views", "Separate evidence-based research views that preserve disagreement instead of flattening uncertainty."],
+            ["Chairman synthesis + Red Team audit", "Chairman synthesizes conflicts and evidence strength; Red Team audit attacks weak assumptions, overclaiming, and needs_review."],
+            ["Alaya internal readback", "Alaya means GOTRA internal cognition flywheel / knowledge memory / feedback state / readback only, not an external project."],
+          ],
+        )}
+      </section>`;
+}
+
 function todayPage(source) {
   const brief = source.dailyReaderBrief;
   const title = textValue(brief?.title ?? localized("GOTRA 今日研究简报", "GOTRA Daily Research Brief"));
@@ -912,6 +936,7 @@ function todayPage(source) {
         <p>${escapeHtml(subtitle)}</p>
         <p><a href="/why-gotra">Why GOTRA explains why data_gap and needs_review are value signals for research discipline.</a></p>
       </section>
+      ${v35ResearchSystemHtml()}
       <section>
         <h2>Daily research snapshot / 今日研究快照</h2>
         ${table(
@@ -937,10 +962,12 @@ function todayPage(source) {
         ${
           agentItems.length > 0
             ? table(
-                ["symbol", "research status", "chairman synthesis", "K deep research", "F view", "W view", "red-team audit", "watch conditions"],
+                ["symbol", "research status", "research task", "evidence packet", "chairman synthesis", "K deep research", "F view", "W view", "red-team audit", "watch conditions"],
                 agentItems.slice(0, 12).map((item) => [
                   item.symbol,
                   item.research_status ?? "",
+                  listText(item.research_task),
+                  listText(item.evidence_packet),
                   listText(item.chairman_synthesis, textValue(item.research_summary)),
                   listText(item.k_deep_research, listText(item.key_updates, textValue(item.research_summary))),
                   listText(item.f_partner_view, listText(item.positive_case)),
@@ -1045,6 +1072,7 @@ function fullAnalystReportPage(source) {
         <p>Execution model: ${escapeHtml(fullAnalyst.execution_model ?? "not_reported")} · Methodology: ${escapeHtml(fullAnalyst.methodology_version ?? "not_reported")} · Agent parallelism: ${escapeHtml(fullAnalyst.agent_parallelism ?? "not_applicable")}</p>
         <p><a href="/today">Back to today's brief</a> · <a href="/reports">Open audit center</a> · <a href="/why-gotra">Why GOTRA</a></p>
       </section>
+      ${v35ResearchSystemHtml()}
       <section>
         <h2>Structured symbol research</h2>
         ${
@@ -1147,6 +1175,7 @@ function latestReportPage(source) {
           ],
         )}
       </section>
+      ${v35ResearchSystemHtml()}
       <section>
         <h2>Readable highlights</h2>
         <ul>${markdownHighlights}</ul>
@@ -1186,6 +1215,7 @@ function methodologyPage(summary) {
     description: "Crawler-readable methodology for public-safe demo data, resolved-only measurement, and visible errors.",
     body: `      <h1>GOTRA Methodology / 方法</h1>
       ${definitionBlock()}
+      ${v35ResearchSystemHtml()}
       <section>
         <h2>How GOTRA records research objects</h2>
         <p>Each public record keeps a prediction identifier, ticker, company, sector, prediction date, horizon, direction, confidence, public-safe evidence labels, and outcome fields only when public-safe resolution data exists.</p>
@@ -1402,6 +1432,12 @@ function sourcesPage(manifest, evidenceIndex, contentIndex) {
       <section>
         <h2>Public source boundary</h2>
         <p>This page lists public-safe repository data only. It does not expose raw provider/model I/O, private run logs, local experiment artifacts, databases, auth files, or secrets.</p>
+      </section>
+      ${v35ResearchSystemHtml()}
+      <section>
+        <h2>Evidence packet source types</h2>
+        <p>The v3.5 evidence_packet describes source_type, source_name, freshness_status, missing_required_sources, stale_sources, data_gaps, and public_safe limitations. If a required source is unavailable, the reader sees data_gap or needs_review instead of a polished unsupported conclusion.</p>
+        <p>证据包把 source type、freshness、missing required sources、stale/data_gap 和 public-safe 限制放在明面上；缺来源时保留 data_gap / needs_review，而不是包装成完整结论。</p>
       </section>
       <section>
         <h2>Product reading surfaces</h2>
