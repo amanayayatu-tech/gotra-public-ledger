@@ -26,6 +26,10 @@ const listFields = new Set([
   "red_team_audit",
   "evidence_gaps",
   "watch_conditions",
+  "agent_statuses",
+  "agent_hashes",
+  "agent_timings",
+  "parallelism",
 ]);
 
 function argValue(name, fallback) {
@@ -331,7 +335,22 @@ function fullAnalystVersionMetadata(status) {
     execution_model: stringValue(status?.execution_model) ?? undefined,
     symbol_schema: stringValue(status?.symbol_schema) ?? undefined,
     alaya_event_schema: stringValue(status?.alaya_event_schema) ?? undefined,
+    agent_parallelism: numberValue(status?.agent_parallelism ?? status?.agent_concurrency, null),
   };
+}
+
+function keyValueRecord(values, valueParser = (value) => value) {
+  const record = {};
+  for (const value of sanitizeList(values, 12, 500)) {
+    const [key, ...rest] = value.split(":");
+    const normalizedKey = stringValue(key);
+    const normalizedValue = stringValue(rest.join(":"));
+    if (!normalizedKey || !normalizedValue) {
+      continue;
+    }
+    record[normalizedKey] = valueParser(normalizedValue);
+  }
+  return Object.keys(record).length > 0 ? record : undefined;
 }
 
 function normalizeAgentItem(symbol, fields, metadata = {}) {
@@ -370,6 +389,24 @@ function normalizeAgentItem(symbol, fields, metadata = {}) {
     confidence_boundary: fields.confidence_boundary
       ? localizedOriginal(fields.confidence_boundary, "置信边界")
       : undefined,
+    agent_statuses: keyValueRecord(fields.agent_statuses),
+    agent_hashes: keyValueRecord(fields.agent_hashes),
+    agent_timings: keyValueRecord(fields.agent_timings, (value) => {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : value;
+    }),
+    parallelism: keyValueRecord(fields.parallelism, (value) => {
+      if (value === "true") {
+        return true;
+      }
+      if (value === "false") {
+        return false;
+      }
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : value;
+    }),
+    red_team_verdict: stringValue(fields.red_team_verdict) ?? undefined,
+    public_payload_hash: stringValue(fields.public_payload_hash) ?? undefined,
     positive_case: sanitizeList(fields.positive_case, 7).map((text) => localizedOriginal(text, "正方观察")),
     negative_case: sanitizeList(fields.negative_case, 7).map((text) => localizedOriginal(text, "反方观察")),
     red_team_review: sanitizeList(fields.red_team_review, 7).map((text) => localizedOriginal(text, "反方审查")),
@@ -481,6 +518,7 @@ function fullAnalystSummary(status, monitor, agentItems) {
     run_id: stringValue(status?.run_id) ?? stringValue(monitor?.latest_run?.run_id) ?? "unavailable",
     run_status: runStatus,
     ...versionMetadata,
+    agent_parallelism: versionMetadata.agent_parallelism,
     report_markdown: reportMarkdown,
     status_json: statusJson,
     evidence_layer: stringValue(status?.evidence_layer) ?? "runtime/status evidence + public-safe artifact smoke",
@@ -512,6 +550,7 @@ function promptFrameworkSummary(status) {
     runner: stringValue(status?.llm_runner),
     model: stringValue(status?.llm_model),
     max_concurrency: numberValue(status?.max_concurrency, null),
+    agent_parallelism: numberValue(status?.agent_parallelism ?? status?.agent_concurrency, null),
     task_structure: [
       localized(
         methodology === "ksana_4_1_lite" ? "Ksana 4.1-lite 公开安全 Full Analyst 先行试跑" : "public-safe 全池 Full Analyst 先行试跑",
@@ -522,8 +561,16 @@ function promptFrameworkSummary(status) {
         "per-symbol K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions",
       ),
       localized(
-        executionModel === "multi_perspective_single_call" ? "执行模型明确标记为 single-call multi-perspective，不伪装成 independent agents" : "执行模型以公开状态文件为准",
-        executionModel === "multi_perspective_single_call" ? "Execution is explicitly single-call multi-perspective, not claimed as independent agents" : "Execution model follows the public status artifact",
+        executionModel === "independent_agent_calls"
+          ? "执行模型明确标记为 independent agent calls；K/F/W/G 独立运行，Chairman 和 Red Team 依赖顺序运行"
+          : executionModel === "multi_perspective_single_call"
+            ? "执行模型明确标记为 single-call multi-perspective，不伪装成 independent agents"
+            : "执行模型以公开状态文件为准",
+        executionModel === "independent_agent_calls"
+          ? "Execution is explicitly independent agent calls; K/F/W/G run independently, then Chairman and Red Team run in dependency order"
+          : executionModel === "multi_perspective_single_call"
+            ? "Execution is explicitly single-call multi-perspective, not claimed as independent agents"
+            : "Execution model follows the public status artifact",
       ),
       localized("公开产物发布前经过 judge gate", "judge gate before public artifact publishing"),
       localized("读者页面曝光前经过 public safety scan", "public safety scan before reader-facing exposure"),
@@ -645,6 +692,7 @@ function buildBrief() {
   const monitor = readJson("status_full_analyst_monitor.json");
   const fullStatus = readJson("status_full_analyst_evening_hk.json");
   const versionMetadata = fullAnalystVersionMetadata(fullStatus);
+  const briefSchema = versionMetadata.execution_model === "independent_agent_calls" ? "gotra.daily_reader_brief.v3" : "gotra.daily_reader_brief.v2";
   const reportHref =
     normalizeReportHref(fullStatus?.latest_public_report_file ?? fullStatus?.report_file, null) ??
     normalizeReportHref(monitor?.links?.report_markdown, null);
@@ -690,8 +738,8 @@ function buildBrief() {
         );
 
   return {
-    schema_version: "gotra.daily_reader_brief.v2",
-    schema: "gotra.daily_reader_brief.v2",
+    schema_version: briefSchema,
+    schema: briefSchema,
     as_of_date: briefDate,
     mode: "public_status_synthesis",
     brief_date: briefDate,
@@ -768,7 +816,7 @@ function buildBrief() {
       judge_gate: promptFrameworkSummary(fullStatus).judge_gate,
       public_safety_scan: promptFrameworkSummary(fullStatus).public_safety_scan,
       alaya_readback: stringValue(fullStatus?.alaya_readback_status) ?? stringValue(monitor?.checks?.alaya_readback),
-      schema: "gotra.daily_reader_brief.v2",
+      schema: briefSchema,
       artifact_path: "/reports/daily_reader_brief.json",
     },
     links: {
