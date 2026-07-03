@@ -3846,7 +3846,7 @@ function App() {
           <>
             <Hero dataset={dataset} metrics={metrics} records={views} language={language} />
             <div ref={reportStatusLoadRef}>
-              <DailyDeskSnapshot reportStatus={reportStatusState} language={language} reportsHref={routeHref("/reports")} />
+              <DailyDeskSnapshot reportStatus={reportStatusState} language={language} todayHref={routeHref("/today")} reportsHref={routeHref("/reports")} />
             </div>
             {homeDetailsReady ? (
               <>

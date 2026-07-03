@@ -371,10 +371,56 @@ function definitionBlock() {
       </section>`;
 }
 
-function homeFallback(summary) {
+function countText(value) {
+  return Number.isFinite(Number(value)) ? String(Number(value)) : "unavailable";
+}
+
+function latestReportHealthHtml(source) {
+  const status = source.status;
+  if (!status) {
+    return `<section class="notice" aria-label="Latest report health">
+        <h2>Latest report health / 最新报告状态</h2>
+        <p>Status artifact unavailable. This static homepage does not infer report facts from private or raw artifacts.</p>
+        <p>状态产物不可用。本静态首页不会从私有产物或 raw 产物推断报告事实。</p>
+        <p><a href="/today">Open today's brief</a> · <a href="/reports">Open production reports audit</a></p>
+      </section>`;
+  }
+
+  const rows = [
+    ["mode", status.mode ?? "unavailable"],
+    ["as_of_date", status.as_of_date ?? "unavailable"],
+    ["trading_date", status.trading_date ?? "unavailable"],
+    ["run_status", status.run_status ?? status.status ?? "unavailable"],
+    ["ok", status.ok === true ? "true" : "false"],
+    ["success_count", countText(status.success_count)],
+    ["failed_count", countText(status.failed_count)],
+    ["allowed_missing_count", countText(status.allowed_missing_count)],
+    ["unexpected_failed_count", countText(status.unexpected_failed_count)],
+  ];
+  const failedRows = Array.isArray(status.failed_symbols)
+    ? status.failed_symbols.slice(0, 6).map((row) => [
+        row.exchange ?? "",
+        row.symbol ?? "",
+        row.provider_ticker ?? "",
+        row.reason ?? "unknown",
+      ])
+    : [];
+
+  return `<section class="notice" aria-label="Latest report health">
+        <h2>Latest report health / 最新报告状态</h2>
+        <p>Research information only. Not investment advice. Not a trading signal. This is runtime/status evidence only.</p>
+        <p>仅为研究信息和运行状态证据。不是投资建议，不是交易信号。</p>
+        ${table(["field", "value"], rows)}
+        ${failedRows.length > 0 ? table(["exchange", "symbol", "provider_ticker", "reason"], failedRows) : "<p>No failed symbols reported by the latest status artifact.</p>"}
+        <p><a href="/today">Open today's brief</a> · <a href="/reports">Open production reports audit</a></p>
+      </section>`;
+}
+
+function homeFallback(summary, source) {
   return `<main id="geo-crawler-home" aria-label="GOTRA crawler-readable summary">
       <h1>GOTRA Public Ledger</h1>
       ${definitionBlock()}
+      ${latestReportHealthHtml(source)}
       <section class="summary-grid" aria-label="Snapshot metadata">
         <div class="metric"><strong>${escapeHtml(summary.snapshotDate)}</strong><span>Snapshot date</span></div>
         <div class="metric"><strong>${summary.totalRecords}</strong><span>Public prediction records</span></div>
@@ -403,13 +449,13 @@ function homeFallback(summary) {
     </main>`;
 }
 
-function injectHomepage(summary) {
+function injectHomepage(summary, source) {
   const indexPath = path.join(distRoot, "index.html");
   if (!fs.existsSync(indexPath)) {
     fail("dist/index.html is missing. Run vite build before geo generation.");
   }
   const html = fs.readFileSync(indexPath, "utf8");
-  const fallback = `<noscript>\n${homeFallback(summary)}\n    </noscript>`;
+  const fallback = `<noscript>\n${homeFallback(summary, source)}\n    </noscript>`;
   const injected = html.includes("geo-crawler-home")
     ? html
     : html.replace(/<div id="root"><\/div>/, `${fallback}\n    <div id="root"></div>`);
@@ -461,7 +507,10 @@ function tableCellText(cell) {
     return textValue(cell);
   }
   if (typeof cell === "object") {
-    return JSON.stringify(cell);
+    return Object.entries(cell)
+      .map(([key, value]) => `${key.replaceAll("_", " ")}: ${tableCellText(value)}`)
+      .filter((text) => !text.endsWith(": "))
+      .join("; ");
   }
   return String(cell);
 }
@@ -1709,7 +1758,7 @@ function main() {
   const summary = summarizeLedger(ledger);
   const source = reportSource();
 
-  injectHomepage(summary);
+  injectHomepage(summary, source);
 
   const generated = [];
   const corePages = [
