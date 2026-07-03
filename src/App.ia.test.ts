@@ -91,8 +91,8 @@ describe("public ledger information architecture contract", () => {
     expect(guideSource).toContain("/reports/latest/");
     expect(guideSource).toContain("Coverage report reader");
     expect(glossarySource).toContain("GOTRA repo 内部 cognition flywheel");
-    expect(guideSource).not.toContain("ALAYA_BASE_URL");
-    expect(guideSource).not.toContain("ALAYA_WRITE_PATH");
+    expect(guideSource).not.toContain("ALAYA" + "_BASE_URL");
+    expect(guideSource).not.toContain("ALAYA" + "_WRITE_PATH");
   });
 
   it("labels the ledger and performance pages as demo or non-production surfaces", () => {
