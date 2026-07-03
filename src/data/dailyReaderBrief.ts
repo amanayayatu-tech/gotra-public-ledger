@@ -50,8 +50,22 @@ export type DailyReaderBriefFullAnalyst = {
 export type DailyReaderBriefAgentAnalysisItem = {
   symbol: string;
   title: LocalizedText;
+  prompt_template_version?: string;
+  methodology_version?: string;
+  execution_model?: string;
+  research_status?: string;
   research_summary: LocalizedText;
   key_updates: LocalizedText[];
+  research_context: LocalizedText[];
+  k_deep_research: LocalizedText[];
+  f_partner_view: LocalizedText[];
+  w_partner_view: LocalizedText[];
+  g_partner_view: LocalizedText[];
+  chairman_synthesis: LocalizedText[];
+  red_team_audit: LocalizedText[];
+  evidence_gaps: LocalizedText[];
+  watch_conditions: LocalizedText[];
+  confidence_boundary?: LocalizedText;
   positive_case: LocalizedText[];
   negative_case: LocalizedText[];
   red_team_review: LocalizedText[];
@@ -415,6 +429,15 @@ function normalizeV1Brief(value: DailyReaderBriefV1): DailyReaderBrief {
       title: localized(`${item.symbol} 研究摘要`, `${item.symbol} research summary`),
       research_summary: readerSafeLocalized(item.research_summary, `${item.symbol} research summary unavailable.`),
       key_updates: readerSafeLocalizedList(item.key_updates),
+      research_context: [],
+      k_deep_research: [],
+      f_partner_view: [],
+      w_partner_view: [],
+      g_partner_view: [],
+      chairman_synthesis: [],
+      red_team_audit: [],
+      evidence_gaps: [],
+      watch_conditions: [],
       positive_case: readerSafeLocalizedList(item.positive_case),
       negative_case: readerSafeLocalizedList(item.negative_case),
       red_team_review: readerSafeLocalizedList(item.red_team_review),
@@ -480,8 +503,22 @@ function normalizeAgentAnalysisItem(value: unknown, index: number): DailyReaderB
   return {
     symbol,
     title: readerSafeLocalized(title, `${symbol} research summary`),
+    prompt_template_version: stringValue(item.prompt_template_version) ?? undefined,
+    methodology_version: stringValue(item.methodology_version) ?? undefined,
+    execution_model: stringValue(item.execution_model) ?? undefined,
+    research_status: stringValue(item.research_status) ?? undefined,
     research_summary: readerSafeLocalized(item.research_summary, `${symbol} research summary unavailable.`),
     key_updates: readerSafeLocalizedList(item.key_updates),
+    research_context: readerSafeLocalizedList(item.research_context),
+    k_deep_research: readerSafeLocalizedList(item.k_deep_research),
+    f_partner_view: readerSafeLocalizedList(item.f_partner_view),
+    w_partner_view: readerSafeLocalizedList(item.w_partner_view),
+    g_partner_view: readerSafeLocalizedList(item.g_partner_view),
+    chairman_synthesis: readerSafeLocalizedList(item.chairman_synthesis),
+    red_team_audit: readerSafeLocalizedList(item.red_team_audit),
+    evidence_gaps: readerSafeLocalizedList(item.evidence_gaps),
+    watch_conditions: readerSafeLocalizedList(item.watch_conditions),
+    confidence_boundary: item.confidence_boundary === undefined ? undefined : readerSafeLocalized(item.confidence_boundary, ""),
     positive_case: readerSafeLocalizedList(item.positive_case),
     negative_case: readerSafeLocalizedList(item.negative_case),
     red_team_review: readerSafeLocalizedList(item.red_team_review),

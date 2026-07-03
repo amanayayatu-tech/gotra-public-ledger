@@ -32,7 +32,7 @@ import { SiteHeader } from "./components/SiteHeader";
 import { Subscribe } from "./components/Subscribe";
 import { buildTickerList } from "./data/cognition";
 import { contentIndex, contentItems, findContentItem } from "./data/content";
-import type { DailyReaderBrief } from "./data/dailyReaderBrief";
+import type { DailyReaderBrief, DailyReaderBriefAgentAnalysisItem } from "./data/dailyReaderBrief";
 import {
   guideGlossary,
   guideReadingOrder,
@@ -1310,6 +1310,23 @@ function SystemRulesPage({ language }: { language: Language }) {
   );
 }
 
+function analystSectionRows(item: DailyReaderBriefAgentAnalysisItem, language: Language): Array<[string, LocalizedText[]]> {
+  const chairman = item.chairman_synthesis.length > 0 ? item.chairman_synthesis : [item.research_summary];
+  const redTeam = item.red_team_audit.length > 0 ? item.red_team_audit : item.red_team_review;
+  const watch = item.watch_conditions.length > 0 ? item.watch_conditions : item.watch_items;
+  const rows: Array<[string, LocalizedText[]]> = [
+    [copy(language, "Chairman synthesis", "Chairman synthesis"), chairman],
+    [copy(language, "K 深度研究", "K deep research"), item.k_deep_research],
+    [copy(language, "F 伙伴视角", "F partner view"), item.f_partner_view.length > 0 ? item.f_partner_view : item.positive_case],
+    [copy(language, "W 伙伴视角", "W partner view"), item.w_partner_view.length > 0 ? item.w_partner_view : item.negative_case],
+    [copy(language, "G 伙伴视角", "G partner view"), item.g_partner_view.length > 0 ? item.g_partner_view : item.risk_factors],
+    [copy(language, "红队审计", "Red-team audit"), redTeam],
+    [copy(language, "证据缺口", "Evidence gaps"), item.evidence_gaps],
+    [copy(language, "观察条件", "Watch conditions"), watch],
+  ];
+  return rows.filter(([, list]) => list.length > 0);
+}
+
 function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; language: Language }) {
   if (state.kind === "loading") {
     return (
@@ -1574,44 +1591,52 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
                 <div className="today-agent-head">
                   <span>{copy(language, "单票研究", "Symbol brief")}</span>
                   <strong>{item.symbol}</strong>
+                  {item.research_status ? <em className="research-status-pill">{item.research_status}</em> : null}
                 </div>
                 <div className="symbol-brief-lede">
-                  <span>{copy(language, "What changed", "What changed")}</span>
-                  <p>{firstLocalized(item.key_updates, language, pickLocalized(language, item.research_summary))}</p>
+                  <span>{copy(language, "Chairman synthesis", "Chairman synthesis")}</span>
+                  <p>{firstLocalized(item.chairman_synthesis, language, pickLocalized(language, item.research_summary))}</p>
                 </div>
-                <div className="symbol-brief-lede">
-                  <span>{copy(language, "Why it matters", "Why it matters")}</span>
-                  <p>{pickLocalized(language, item.research_summary)}</p>
-                </div>
+                {item.k_deep_research.length > 0 ? (
+                  <div className="symbol-brief-lede">
+                    <span>{copy(language, "K deep research", "K deep research")}</span>
+                    <p>{firstLocalized(item.k_deep_research, language, pickLocalized(language, item.research_summary))}</p>
+                  </div>
+                ) : (
+                  <div className="symbol-brief-lede">
+                    <span>{copy(language, "Why it matters", "Why it matters")}</span>
+                    <p>{pickLocalized(language, item.research_summary)}</p>
+                  </div>
+                )}
                 <div className="today-agent-columns symbol-brief-columns">
                   <div>
-                    <h3>{copy(language, "Positive case", "Positive case")}</h3>
+                    <h3>{item.f_partner_view.length > 0 ? copy(language, "F 伙伴视角", "F partner view") : copy(language, "Positive case", "Positive case")}</h3>
                     <ul>
-                      {item.positive_case.slice(0, 2).map((value) => (
+                      {(item.f_partner_view.length > 0 ? item.f_partner_view : item.positive_case).slice(0, 2).map((value) => (
                         <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
                       ))}
                     </ul>
                   </div>
                   <div>
-                    <h3>{copy(language, "Negative case", "Negative case")}</h3>
+                    <h3>{item.w_partner_view.length > 0 ? copy(language, "W 伙伴视角", "W partner view") : copy(language, "Negative case", "Negative case")}</h3>
                     <ul>
-                      {item.negative_case.slice(0, 2).map((value) => (
+                      {(item.w_partner_view.length > 0 ? item.w_partner_view : item.negative_case).slice(0, 2).map((value) => (
                         <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
                       ))}
                     </ul>
                   </div>
                   <div>
-                    <h3>{copy(language, "Red-team caveat", "Red-team caveat")}</h3>
+                    <h3>{item.red_team_audit.length > 0 ? copy(language, "红队审计", "Red-team audit") : copy(language, "Red-team caveat", "Red-team caveat")}</h3>
                     <ul>
-                      {item.red_team_review.slice(0, 2).map((value) => (
+                      {(item.red_team_audit.length > 0 ? item.red_team_audit : item.red_team_review).slice(0, 2).map((value) => (
                         <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
                       ))}
                     </ul>
                   </div>
                   <div>
-                    <h3>{copy(language, "Watch next", "Watch next")}</h3>
+                    <h3>{item.watch_conditions.length > 0 ? copy(language, "观察条件", "Watch conditions") : copy(language, "Watch next", "Watch next")}</h3>
                     <ul>
-                      {item.watch_items.slice(0, 2).map((value) => (
+                      {(item.watch_conditions.length > 0 ? item.watch_conditions : item.watch_items).slice(0, 2).map((value) => (
                         <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
                       ))}
                     </ul>
@@ -2086,8 +2111,8 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
           <p>
             {copy(
               language,
-              "这是 Markdown 原文的产品化阅读层：默认展示单票摘要、正反两面、red-team、风险和下一步观察。Raw Markdown 只放在下方审计折叠区。",
-              "This is the product reader for the Markdown original: symbol summaries, both sides, red-team notes, risks, and next watch items are shown first. Raw Markdown is only in the audit disclosure below.",
+              "这是 Full Analyst v2 的产品化阅读层：默认展示 Ksana 4.1-lite 的 K 深度研究、F/W/G 伙伴视角、Chairman synthesis、红队审计、证据缺口和观察条件。Raw Markdown 只放在下方审计折叠区。",
+              "This is the product reader for Full Analyst v2: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions are shown first. Raw Markdown is only in the audit disclosure below.",
             )}
           </p>
           <div className="hero-actions">
@@ -2109,30 +2134,31 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
               <div className="today-agent-head">
                 <span>{copy(language, "symbol", "symbol")}</span>
                 <strong>{item.symbol}</strong>
+                {item.research_status ? <em className="research-status-pill">{item.research_status}</em> : null}
               </div>
               <div className="symbol-brief-lede">
-                <span>{copy(language, "What changed", "What changed")}</span>
-                <p>{firstLocalized(item.key_updates, language, pickLocalized(language, item.research_summary))}</p>
+                <span>{copy(language, "Execution model", "Execution model")}</span>
+                <p>
+                  {item.execution_model === "multi_perspective_single_call"
+                    ? copy(language, "single-call multi-perspective；不是 independent agents。", "single-call multi-perspective; not independent agents.")
+                    : item.execution_model ?? copy(language, "公开状态未报告执行模型。", "Execution model is not reported in the public status.")}
+                </p>
               </div>
               <div className="today-agent-columns symbol-brief-columns">
-                {[
-                  [copy(language, "Why it matters", "Why it matters"), [item.research_summary]],
-                  [copy(language, "Positive case", "Positive case"), item.positive_case.slice(0, 2)],
-                  [copy(language, "Negative case", "Negative case"), item.negative_case.slice(0, 2)],
-                  [copy(language, "Red-team caveat", "Red-team caveat"), item.red_team_review.slice(0, 2)],
-                  [copy(language, "Watch next", "Watch next"), item.watch_items.slice(0, 2)],
-                  [copy(language, "Risk factors", "Risk factors"), item.risk_factors.slice(0, 2)],
-                ].map(([title, list]) => (
+                {analystSectionRows(item, language).map(([title, list]) => (
                   <div key={String(title)}>
                     <h3>{String(title)}</h3>
                     <ul>
-                      {(list as LocalizedText[]).map((value) => (
+                      {list.slice(0, 3).map((value) => (
                         <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
                       ))}
                     </ul>
                   </div>
                 ))}
               </div>
+              {item.confidence_boundary ? (
+                <p className="symbol-confidence-boundary">{pickLocalized(language, item.confidence_boundary)}</p>
+              ) : null}
             </article>
           ))}
         </div>

@@ -10,7 +10,23 @@ const reportSchedules = [
   { key: "morning-global", label: "全局汇总", labelEn: "Global summary", statusFile: "status_morning_global.json" },
 ];
 
-const listFields = new Set(["key_updates", "positive_case", "negative_case", "red_team_review", "risk_factors", "watch_items", "source_notes"]);
+const listFields = new Set([
+  "key_updates",
+  "positive_case",
+  "negative_case",
+  "red_team_review",
+  "risk_factors",
+  "watch_items",
+  "source_notes",
+  "research_context",
+  "k_deep_research",
+  "f_partner_view",
+  "w_partner_view",
+  "g_partner_view",
+  "red_team_audit",
+  "evidence_gaps",
+  "watch_conditions",
+]);
 
 function argValue(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -309,15 +325,39 @@ function parseSummaryText(value) {
 }
 
 function normalizeAgentItem(symbol, fields) {
-  const researchSummary = parseSummaryText(fields.research_summary ?? "");
+  const researchSummary = parseSummaryText(fields.chairman_synthesis ?? fields.research_summary ?? "");
   if (!researchSummary) {
     return null;
   }
+  const kDeep = sanitizeList(fields.k_deep_research, 7).map((text) => localizedOriginal(text, "K 深度研究"));
+  const fView = sanitizeList(fields.f_partner_view, 7).map((text) => localizedOriginal(text, "F 伙伴视角"));
+  const wView = sanitizeList(fields.w_partner_view, 7).map((text) => localizedOriginal(text, "W 伙伴视角"));
+  const gView = sanitizeList(fields.g_partner_view, 7).map((text) => localizedOriginal(text, "G 伙伴视角"));
+  const chairman = sanitizeList(fields.chairman_synthesis ? [fields.chairman_synthesis] : [researchSummary], 3).map((text) => localizedOriginal(text, "Chairman synthesis"));
+  const redTeam = sanitizeList(fields.red_team_audit ?? fields.red_team_review, 7).map((text) => localizedOriginal(text, "红队审计"));
+  const evidenceGaps = sanitizeList(fields.evidence_gaps, 7).map((text) => localizedOriginal(text, "证据缺口"));
+  const watchConditions = sanitizeList(fields.watch_conditions ?? fields.watch_items, 7).map((text) => localizedOriginal(text, "观察条件"));
   return {
     symbol,
     title: localized(`${symbol} 研究摘要`, `${symbol} research summary`),
+    prompt_template_version: stringValue(fields.prompt_template_version) ?? undefined,
+    methodology_version: stringValue(fields.methodology_version) ?? undefined,
+    execution_model: stringValue(fields.execution_model) ?? undefined,
+    research_status: stringValue(fields.research_status) ?? undefined,
     research_summary: localizedOriginal(researchSummary, `${symbol} 研究摘要`),
     key_updates: sanitizeList(fields.key_updates, 8).map((text) => localizedOriginal(text, "关键观察")),
+    research_context: sanitizeList(fields.research_context, 7).map((text) => localizedOriginal(text, "研究上下文")),
+    k_deep_research: kDeep,
+    f_partner_view: fView,
+    w_partner_view: wView,
+    g_partner_view: gView,
+    chairman_synthesis: chairman,
+    red_team_audit: redTeam,
+    evidence_gaps: evidenceGaps,
+    watch_conditions: watchConditions,
+    confidence_boundary: fields.confidence_boundary
+      ? localizedOriginal(fields.confidence_boundary, "置信边界")
+      : undefined,
     positive_case: sanitizeList(fields.positive_case, 7).map((text) => localizedOriginal(text, "正方观察")),
     negative_case: sanitizeList(fields.negative_case, 7).map((text) => localizedOriginal(text, "反方观察")),
     red_team_review: sanitizeList(fields.red_team_review, 7).map((text) => localizedOriginal(text, "反方审查")),
@@ -451,14 +491,26 @@ function fullAnalystSummary(status, monitor, agentItems) {
 
 function promptFrameworkSummary(status) {
   const stages = status?.stage_statuses && typeof status.stage_statuses === "object" ? status.stage_statuses : {};
+  const methodology = stringValue(status?.methodology_version);
+  const executionModel = stringValue(status?.execution_model);
   return {
     prompt_template_version: stringValue(status?.prompt_template_version),
     runner: stringValue(status?.llm_runner),
     model: stringValue(status?.llm_model),
     max_concurrency: numberValue(status?.max_concurrency, null),
     task_structure: [
-      localized("public-safe 全池 Full Analyst 先行试跑", "public-safe full-pool candidate/canary run"),
-      localized("per-symbol research_summary、key_updates、positive_case、negative_case、red_team_review、risk_factors、watch_items、source_notes", "per-symbol research_summary, key_updates, positive_case, negative_case, red_team_review, risk_factors, watch_items, source_notes"),
+      localized(
+        methodology === "ksana_4_1_lite" ? "Ksana 4.1-lite 公开安全 Full Analyst 先行试跑" : "public-safe 全池 Full Analyst 先行试跑",
+        methodology === "ksana_4_1_lite" ? "Ksana 4.1-lite public-safe Full Analyst candidate/canary run" : "public-safe full-pool candidate/canary run",
+      ),
+      localized(
+        "per-symbol K 深度研究、F/W/G 伙伴视角、Chairman synthesis、红队审计、证据缺口和观察条件",
+        "per-symbol K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions",
+      ),
+      localized(
+        executionModel === "multi_perspective_single_call" ? "执行模型明确标记为 single-call multi-perspective，不伪装成 independent agents" : "执行模型以公开状态文件为准",
+        executionModel === "multi_perspective_single_call" ? "Execution is explicitly single-call multi-perspective, not claimed as independent agents" : "Execution model follows the public status artifact",
+      ),
       localized("公开产物发布前经过 judge gate", "judge gate before public artifact publishing"),
       localized("读者页面曝光前经过 public safety scan", "public safety scan before reader-facing exposure"),
       localized("发布闸门后写入 GOTRA 内部 Alaya cognition flywheel / knowledge memory / readback state", "GOTRA internal Alaya cognition flywheel / knowledge memory / readback state after publish gate"),
