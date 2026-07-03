@@ -456,8 +456,8 @@ function selectedAgentItems(items, limit = 8) {
 function fullAnalystSummary(status, monitor, agentItems) {
   const canary = canaryStatus(monitor);
   const reportMarkdown =
-    normalizeReportHref(monitor?.links?.report_markdown, null) ??
-    normalizeReportHref(status?.latest_public_report_file ?? status?.report_file, "/reports/full_analyst_evening_hk_YYYY-MM-DD.md");
+    normalizeReportHref(status?.latest_public_report_file ?? status?.report_file, null) ??
+    normalizeReportHref(monitor?.links?.report_markdown, "/reports/full_analyst_evening_hk_YYYY-MM-DD.md");
   const statusJson = normalizeReportHref(monitor?.links?.status_json, "/reports/status_full_analyst_evening_hk.json");
   const publishCount = numberValue(status?.publish_count, 0);
   const universeCount = numberValue(status?.universe_count, numberValue(status?.symbol_count, publishCount));
@@ -631,8 +631,8 @@ function buildBrief() {
   const monitor = readJson("status_full_analyst_monitor.json");
   const fullStatus = readJson("status_full_analyst_evening_hk.json");
   const reportHref =
-    normalizeReportHref(monitor?.links?.report_markdown, null) ??
-    normalizeReportHref(fullStatus?.latest_public_report_file ?? fullStatus?.report_file, null);
+    normalizeReportHref(fullStatus?.latest_public_report_file ?? fullStatus?.report_file, null) ??
+    normalizeReportHref(monitor?.links?.report_markdown, null);
   const markdown = reportHref ? readText(fileNameFromHref(reportHref)) : null;
   const agentItems = parseFullAnalystMarkdown(markdown);
   const canary = canaryStatus(monitor);
