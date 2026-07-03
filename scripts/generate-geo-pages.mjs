@@ -1016,7 +1016,10 @@ function fullAnalystReportPage(source) {
   const rawMarkdownHref = brief?.links?.full_analyst_report ?? fullAnalyst.report_markdown ?? "/reports/full_analyst_evening_hk_YYYY-MM-DD.md";
   const rawStatusHref = brief?.links?.full_analyst_status ?? fullAnalyst.status_json ?? "/reports/status_full_analyst_evening_hk.json";
   const rawMonitorHref = brief?.links?.full_analyst_monitor ?? "/reports/status_full_analyst_monitor.json";
-  const v3Reader = brief?.schema === "gotra.daily_reader_brief.v3" || fullAnalyst.execution_model === "independent_agent_calls";
+  const v35Reader =
+    brief?.schema === "gotra.daily_reader_brief.v3_5" ||
+    fullAnalyst.execution_model === "research_task_evidence_independent_agent_calls";
+  const v3Reader = v35Reader || brief?.schema === "gotra.daily_reader_brief.v3" || fullAnalyst.execution_model === "independent_agent_calls";
 
   return pageShell({
     route: "/reports/full-analyst/",
@@ -1034,8 +1037,8 @@ function fullAnalystReportPage(source) {
       },
     ],
     body: `      <h1>Full Analyst Research Reader / Full Analyst 研究阅读器</h1>
-      <p class="lede">${v3Reader ? "This page turns the Full Analyst v3 artifact into a reader-first structure: independent agent calls, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent statuses, timings, hashes, evidence gaps, and watch conditions." : "This page turns the Full Analyst artifact into a reader-first structure: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions."}</p>
-      <p class="lede">${v3Reader ? "这是 Full Analyst v3 的产品化阅读层；execution model: independent agent calls。raw Markdown 只放在下方审计折叠区。" : "这是 Full Analyst v2 的产品化阅读层；raw Markdown 只放在下方审计折叠区。执行模型如公开状态所示，不把 single-call multi-perspective 伪装成 independent agents。"}</p>
+      <p class="lede">${v35Reader ? "This page turns the Full Analyst v3.5 artifact into a reader-first structure: research task, evidence packet, missing required sources, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent statuses, timings, hashes, evidence gaps, and watch conditions." : v3Reader ? "This page turns the Full Analyst v3 artifact into a reader-first structure: independent agent calls, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent statuses, timings, hashes, evidence gaps, and watch conditions." : "This page turns the Full Analyst artifact into a reader-first structure: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions."}</p>
+      <p class="lede">${v35Reader ? "这是 Full Analyst v3.5 的产品化阅读层；execution model: research task + evidence packet + independent agent calls。raw Markdown 只放在下方审计折叠区。" : v3Reader ? "这是 Full Analyst v3 的产品化阅读层；execution model: independent agent calls。raw Markdown 只放在下方审计折叠区。" : "这是 Full Analyst v2 的产品化阅读层；raw Markdown 只放在下方审计折叠区。执行模型如公开状态所示，不把 single-call multi-perspective 伪装成 independent agents。"}</p>
       <section class="notice">
         <h2>Reader summary</h2>
         <p>${escapeHtml(textValue(fullAnalyst.summary ?? localized("Full Analyst rich brief unavailable.", "Full Analyst rich brief unavailable.")))}</p>
@@ -1051,6 +1054,8 @@ function fullAnalystReportPage(source) {
                   "symbol",
                   "execution model",
                   "research status",
+                  "research task",
+                  "evidence packet",
                   "agent statuses",
                   "agent timings",
                   "independent hashes",
@@ -1067,6 +1072,8 @@ function fullAnalystReportPage(source) {
                   item.symbol,
                   item.execution_model ?? fullAnalyst.execution_model ?? "",
                   item.research_status ?? "",
+                  listText(item.research_task),
+                  listText(item.evidence_packet),
                   recordText(item.agent_statuses),
                   recordText(item.agent_timings, 7, (value) => `${value}s`),
                   recordText(item.agent_hashes, 6, shortHash),

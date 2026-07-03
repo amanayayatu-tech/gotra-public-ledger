@@ -10,7 +10,16 @@ const reportSchedules = [
   { key: "morning-global", label: "全局汇总", labelEn: "Global summary", statusFile: "status_morning_global.json" },
 ];
 
+const EXECUTION_MODEL_V3 = "independent_agent_calls";
+const EXECUTION_MODEL_V35 = "research_task_evidence_independent_agent_calls";
+const DAILY_READER_SCHEMA_V2 = "gotra.daily_reader_brief.v2";
+const DAILY_READER_SCHEMA_V3 = "gotra.daily_reader_brief.v3";
+const DAILY_READER_SCHEMA_V35 = "gotra.daily_reader_brief.v3_5";
+
 const listFields = new Set([
+  "research_task",
+  "evidence_packet",
+  "missing_required_sources",
   "key_updates",
   "positive_case",
   "negative_case",
@@ -416,6 +425,9 @@ function normalizeAgentItem(symbol, fields, metadata = {}) {
   if (!researchSummary) {
     return null;
   }
+  const researchTask = sanitizeList(fields.research_task, 12, 700).map((text) => localizedOriginal(text, "研究任务书"));
+  const evidencePacket = sanitizeList(fields.evidence_packet, 12, 700).map((text) => localizedOriginal(text, "证据包"));
+  const missingRequiredSources = sanitizeList(fields.missing_required_sources, 10, 360).map((text) => localizedOriginal(text, "缺失必需来源"));
   const kDeep = sanitizeList(fields.k_deep_research, 7).map((text) => localizedOriginal(text, "K 深度研究"));
   const fView = sanitizeList(fields.f_partner_view, 7).map((text) => localizedOriginal(text, "F 伙伴视角"));
   const wView = sanitizeList(fields.w_partner_view, 7).map((text) => localizedOriginal(text, "W 伙伴视角"));
@@ -433,6 +445,9 @@ function normalizeAgentItem(symbol, fields, metadata = {}) {
     symbol_schema: metadata.symbol_schema,
     alaya_event_schema: metadata.alaya_event_schema,
     research_status: stringValue(fields.research_status) ?? undefined,
+    research_task: researchTask,
+    evidence_packet: evidencePacket,
+    missing_required_sources: missingRequiredSources,
     research_summary: localizedOriginal(researchSummary, `${symbol} 研究摘要`),
     key_updates: sanitizeList(fields.key_updates, 8).map((text) => localizedOriginal(text, "关键观察")),
     research_context: sanitizeList(fields.research_context, 7).map((text) => localizedOriginal(text, "研究上下文")),
@@ -603,6 +618,7 @@ function promptFrameworkSummary(status) {
   const stages = status?.stage_statuses && typeof status.stage_statuses === "object" ? status.stage_statuses : {};
   const methodology = stringValue(status?.methodology_version);
   const executionModel = stringValue(status?.execution_model);
+  const v35Execution = executionModel === EXECUTION_MODEL_V35;
   return {
     prompt_template_version: stringValue(status?.prompt_template_version),
     runner: stringValue(status?.llm_runner),
@@ -611,8 +627,16 @@ function promptFrameworkSummary(status) {
     agent_parallelism: numberValue(status?.agent_parallelism ?? status?.agent_concurrency, null),
     task_structure: [
       localized(
-        methodology === "ksana_4_1_lite" ? "Ksana 4.1-lite 公开安全 Full Analyst 先行试跑" : "public-safe 全池 Full Analyst 先行试跑",
-        methodology === "ksana_4_1_lite" ? "Ksana 4.1-lite public-safe Full Analyst candidate/canary run" : "public-safe full-pool candidate/canary run",
+        v35Execution
+          ? "v3.5 先生成研究任务书和证据包，再运行独立 agent"
+          : methodology === "ksana_4_1_lite"
+            ? "Ksana 4.1-lite 公开安全 Full Analyst 先行试跑"
+            : "public-safe 全池 Full Analyst 先行试跑",
+        v35Execution
+          ? "v3.5 generates a research task and evidence packet before independent agent calls"
+          : methodology === "ksana_4_1_lite"
+            ? "Ksana 4.1-lite public-safe Full Analyst candidate/canary run"
+            : "public-safe full-pool candidate/canary run",
       ),
       localized(
         "per-symbol K 深度研究、F/W/G 伙伴视角、Chairman synthesis、红队审计、证据缺口和观察条件",
@@ -621,11 +645,15 @@ function promptFrameworkSummary(status) {
       localized(
         executionModel === "independent_agent_calls"
           ? "执行模型明确标记为 independent agent calls；K/F/W/G 独立运行，Chairman 和 Red Team 依赖顺序运行"
+          : executionModel === EXECUTION_MODEL_V35
+            ? "执行模型明确标记为 research task + evidence packet + independent agent calls；K/F/W/G 基于证据包独立运行，Chairman 和 Red Team 依赖顺序运行"
           : executionModel === "multi_perspective_single_call"
             ? "执行模型明确标记为 single-call multi-perspective，不伪装成 independent agents"
             : "执行模型以公开状态文件为准",
         executionModel === "independent_agent_calls"
           ? "Execution is explicitly independent agent calls; K/F/W/G run independently, then Chairman and Red Team run in dependency order"
+          : executionModel === EXECUTION_MODEL_V35
+            ? "Execution is explicitly research task + evidence packet + independent agent calls; K/F/W/G run independently from the evidence packet, then Chairman and Red Team run in dependency order"
           : executionModel === "multi_perspective_single_call"
             ? "Execution is explicitly single-call multi-perspective, not claimed as independent agents"
             : "Execution model follows the public status artifact",
@@ -750,7 +778,12 @@ function buildBrief() {
   const monitor = readJson("status_full_analyst_monitor.json");
   const fullStatus = readJson("status_full_analyst_evening_hk.json");
   const versionMetadata = fullAnalystVersionMetadata(fullStatus);
-  const briefSchema = versionMetadata.execution_model === "independent_agent_calls" ? "gotra.daily_reader_brief.v3" : "gotra.daily_reader_brief.v2";
+  const briefSchema =
+    versionMetadata.execution_model === EXECUTION_MODEL_V35
+      ? DAILY_READER_SCHEMA_V35
+      : versionMetadata.execution_model === EXECUTION_MODEL_V3
+        ? DAILY_READER_SCHEMA_V3
+        : DAILY_READER_SCHEMA_V2;
   const reportHref =
     normalizeReportHref(fullStatus?.latest_public_report_file ?? fullStatus?.report_file, null) ??
     normalizeReportHref(monitor?.links?.report_markdown, null);

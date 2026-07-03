@@ -1315,6 +1315,8 @@ function analystSectionRows(item: DailyReaderBriefAgentAnalysisItem, language: L
   const redTeam = item.red_team_audit.length > 0 ? item.red_team_audit : item.red_team_review;
   const watch = item.watch_conditions.length > 0 ? item.watch_conditions : item.watch_items;
   const rows: Array<[string, LocalizedText[]]> = [
+    [copy(language, "研究任务书", "Research task"), item.research_task ?? []],
+    [copy(language, "证据包", "Evidence packet"), item.evidence_packet ?? []],
     [copy(language, "Chairman synthesis", "Chairman synthesis"), chairman],
     [copy(language, "K 深度研究", "K deep research"), item.k_deep_research],
     [copy(language, "F 伙伴视角", "F partner view"), item.f_partner_view.length > 0 ? item.f_partner_view : item.positive_case],
@@ -2134,7 +2136,10 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
 
   const { brief } = state;
   const items = brief.agent_analysis_items.slice(0, 24);
-  const v3Reader = brief.schema === "gotra.daily_reader_brief.v3" || brief.full_analyst.execution_model === "independent_agent_calls";
+  const v35Reader =
+    brief.schema === "gotra.daily_reader_brief.v3_5" ||
+    brief.full_analyst.execution_model === "research_task_evidence_independent_agent_calls";
+  const v3Reader = v35Reader || brief.schema === "gotra.daily_reader_brief.v3" || brief.full_analyst.execution_model === "independent_agent_calls";
 
   return (
     <>
@@ -2145,10 +2150,14 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
           <p>
             {copy(
               language,
-              v3Reader
+              v35Reader
+                ? "这是 Full Analyst v3.5 的产品化阅读层：默认先展示 research task、evidence packet、缺失必需来源，再展示基于证据包的 K/F/W/G 独立视角、Chairman synthesis、Red Team audit、agent timing/status 和 hash。Raw Markdown 只放在下方审计折叠区。"
+                : v3Reader
                 ? "这是 Full Analyst v3 的产品化阅读层：默认展示 independent agent calls、K/F/W/G 独立视角、Chairman synthesis、Red Team audit、agent timing/status、证据缺口和观察条件。Raw Markdown 只放在下方审计折叠区。"
                 : "这是 Full Analyst v2 的产品化阅读层：默认展示 Ksana 4.1-lite 的 K 深度研究、F/W/G 伙伴视角、Chairman synthesis、红队审计、证据缺口和观察条件。Raw Markdown 只放在下方审计折叠区。",
-              v3Reader
+              v35Reader
+                ? "This is the product reader for Full Analyst v3.5: research task, evidence packet, missing required sources, evidence-based K/F/W/G independent views, Chairman synthesis, Red Team audit, agent timing/status, and hashes are shown first. Raw Markdown is only in the audit disclosure below."
+                : v3Reader
                 ? "This is the product reader for Full Analyst v3: independent agent calls, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent timing/status, evidence gaps, and watch conditions are shown first. Raw Markdown is only in the audit disclosure below."
                 : "This is the product reader for Full Analyst v2: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions are shown first. Raw Markdown is only in the audit disclosure below.",
             )}
@@ -2176,9 +2185,17 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
               </div>
               <div className="symbol-brief-lede">
                 <span>{copy(language, "Execution model", "Execution model")}</span>
-                <p>{item.execution_model === "independent_agent_calls" ? fullAnalystExecutionText(brief, language) : item.execution_model === "multi_perspective_single_call" ? copy(language, "single-call multi-perspective；不是 independent agents。", "single-call multi-perspective; not independent agents.") : item.execution_model ?? fullAnalystExecutionText(brief, language)}</p>
+                <p>
+                  {item.execution_model === "research_task_evidence_independent_agent_calls"
+                    ? copy(language, "research task + evidence packet + independent agent calls；K/F/W/G 基于证据包运行。", "research task + evidence packet + independent agent calls; K/F/W/G run from the evidence packet.")
+                    : item.execution_model === "independent_agent_calls"
+                      ? fullAnalystExecutionText(brief, language)
+                      : item.execution_model === "multi_perspective_single_call"
+                        ? copy(language, "single-call multi-perspective；不是 independent agents。", "single-call multi-perspective; not independent agents.")
+                        : item.execution_model ?? fullAnalystExecutionText(brief, language)}
+                </p>
               </div>
-              {item.execution_model === "independent_agent_calls" ? (
+              {item.execution_model === "independent_agent_calls" || item.execution_model === "research_task_evidence_independent_agent_calls" ? (
                 <div className="symbol-agent-audit-grid" aria-label={copy(language, "v3 agent audit summary", "v3 agent audit summary")}>
                   {metadataEntries(item.agent_statuses, 6).length > 0 ? (
                     <div>
