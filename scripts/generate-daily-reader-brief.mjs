@@ -324,7 +324,17 @@ function parseSummaryText(value) {
   return summaryMatch ? sanitizePublicText(summaryMatch[1], 900) : text;
 }
 
-function normalizeAgentItem(symbol, fields) {
+function fullAnalystVersionMetadata(status) {
+  return {
+    prompt_template_version: stringValue(status?.prompt_template_version) ?? undefined,
+    methodology_version: stringValue(status?.methodology_version) ?? undefined,
+    execution_model: stringValue(status?.execution_model) ?? undefined,
+    symbol_schema: stringValue(status?.symbol_schema) ?? undefined,
+    alaya_event_schema: stringValue(status?.alaya_event_schema) ?? undefined,
+  };
+}
+
+function normalizeAgentItem(symbol, fields, metadata = {}) {
   const researchSummary = parseSummaryText(fields.chairman_synthesis ?? fields.research_summary ?? "");
   if (!researchSummary) {
     return null;
@@ -340,9 +350,11 @@ function normalizeAgentItem(symbol, fields) {
   return {
     symbol,
     title: localized(`${symbol} 研究摘要`, `${symbol} research summary`),
-    prompt_template_version: stringValue(fields.prompt_template_version) ?? undefined,
-    methodology_version: stringValue(fields.methodology_version) ?? undefined,
-    execution_model: stringValue(fields.execution_model) ?? undefined,
+    prompt_template_version: stringValue(fields.prompt_template_version) ?? metadata.prompt_template_version,
+    methodology_version: stringValue(fields.methodology_version) ?? metadata.methodology_version,
+    execution_model: stringValue(fields.execution_model) ?? metadata.execution_model,
+    symbol_schema: metadata.symbol_schema,
+    alaya_event_schema: metadata.alaya_event_schema,
     research_status: stringValue(fields.research_status) ?? undefined,
     research_summary: localizedOriginal(researchSummary, `${symbol} 研究摘要`),
     key_updates: sanitizeList(fields.key_updates, 8).map((text) => localizedOriginal(text, "关键观察")),
@@ -368,7 +380,7 @@ function normalizeAgentItem(symbol, fields) {
   };
 }
 
-function parseFullAnalystMarkdown(markdown) {
+function parseFullAnalystMarkdown(markdown, metadata = {}) {
   if (!markdown) {
     return [];
   }
@@ -431,7 +443,7 @@ function parseFullAnalystMarkdown(markdown) {
           }
         }
       }
-      return normalizeAgentItem(section.symbol, fields);
+      return normalizeAgentItem(section.symbol, fields, metadata);
     })
     .filter(Boolean);
 }
@@ -455,6 +467,7 @@ function selectedAgentItems(items, limit = 8) {
 
 function fullAnalystSummary(status, monitor, agentItems) {
   const canary = canaryStatus(monitor);
+  const versionMetadata = fullAnalystVersionMetadata(status);
   const reportMarkdown =
     normalizeReportHref(status?.latest_public_report_file ?? status?.report_file, null) ??
     normalizeReportHref(monitor?.links?.report_markdown, "/reports/full_analyst_evening_hk_YYYY-MM-DD.md");
@@ -467,6 +480,7 @@ function fullAnalystSummary(status, monitor, agentItems) {
   return {
     run_id: stringValue(status?.run_id) ?? stringValue(monitor?.latest_run?.run_id) ?? "unavailable",
     run_status: runStatus,
+    ...versionMetadata,
     report_markdown: reportMarkdown,
     status_json: statusJson,
     evidence_layer: stringValue(status?.evidence_layer) ?? "runtime/status evidence + public-safe artifact smoke",
@@ -630,11 +644,12 @@ function buildBrief() {
   const entries = reportSchedules.map(normalizeEntry);
   const monitor = readJson("status_full_analyst_monitor.json");
   const fullStatus = readJson("status_full_analyst_evening_hk.json");
+  const versionMetadata = fullAnalystVersionMetadata(fullStatus);
   const reportHref =
     normalizeReportHref(fullStatus?.latest_public_report_file ?? fullStatus?.report_file, null) ??
     normalizeReportHref(monitor?.links?.report_markdown, null);
   const markdown = reportHref ? readText(fileNameFromHref(reportHref)) : null;
-  const agentItems = parseFullAnalystMarkdown(markdown);
+  const agentItems = parseFullAnalystMarkdown(markdown, versionMetadata);
   const canary = canaryStatus(monitor);
   const briefDate = maxDate(entries, fullStatus, now);
   const gaps = knownGaps(entries);
@@ -681,6 +696,7 @@ function buildBrief() {
     mode: "public_status_synthesis",
     brief_date: briefDate,
     generated_at: formatShanghaiIso(now),
+    ...versionMetadata,
     evidence_layer: "local checks + runtime/status evidence + public-safe artifact smoke",
     title: localized(titleForDate(briefDate), titleForDateEn(briefDate)),
     subtitle,
