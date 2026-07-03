@@ -2401,6 +2401,27 @@ function MethodologyPage({ dataset, records, language }: { dataset: LedgerDatase
         icon={BookOpenCheck}
       />
       <MethodologyProcessGraphic language={language} />
+      <section className="route-panel" aria-labelledby="methodology-next-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "继续阅读", "Continue reading")}</span>
+          <h2 id="methodology-next-title">{copy(language, "从方法回到产品路径", "Return from methodology to the product path")}</h2>
+          <p>
+            {copy(
+              language,
+              "方法页解释证据边界；日常阅读应回到今日简报、Full Analyst reader、来源页或生产报告审计。",
+              "The methodology page explains evidence boundaries; daily reading should return to Today's Brief, the Full Analyst reader, Sources, or production report audit.",
+            )}
+          </p>
+        </div>
+        <div className="related-prediction-list today-links">
+          <a href={routeHref("/today")}>{copy(language, "今日简报", "Today's brief")}</a>
+          <a href={routeHref("/why-gotra")}>{copy(language, "为什么是 GOTRA", "Why GOTRA")}</a>
+          <a href={routeHref("/reports")}>{copy(language, "生产报告审计", "Production reports audit")}</a>
+          <a href={routeHref("/sources")}>{copy(language, "来源与产物", "Sources and artifacts")}</a>
+          <a href={routeHref("/reports/full-analyst")}>{copy(language, "Full Analyst reader", "Full Analyst reader")}</a>
+          <a href="/reports/latest/">{copy(language, "Latest report reader", "Latest report reader")}</a>
+        </div>
+      </section>
       <Suspense fallback={<ChartLoadingSkeleton />}>
         <BoundaryPanel metadata={dataset.metadata} language={language} />
         <CredibilityDashboard records={records} language={language} />
