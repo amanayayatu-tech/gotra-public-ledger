@@ -61,11 +61,13 @@
         const href = window.location.href;
         const target = href.includes("#/today")
           ? "/today/"
-          : href.includes("#/reports")
-            ? "/reports/index.html"
-            : href.includes("#/sources")
-              ? "/sources/"
-              : null;
+          : href.includes("#/reports/full-analyst")
+            ? "/reports/full-analyst/"
+            : href.includes("#/reports")
+              ? "/reports/index.html"
+              : href.includes("#/sources")
+                ? "/sources/"
+                : null;
         if (window.location.pathname === "/" && target) {
           window.__GOTRA_STATIC_REDIRECT_TARGET__ = target;
           window.location.replace(target);
