@@ -124,6 +124,8 @@ function main() {
   assertIncludes(pages.get("/reports"), "Production Daily Reports", "/reports");
   assertIncludes(pages.get("/reports"), "Full Analyst Canary", "/reports");
   assertIncludes(pages.get("/reports"), "Product reading surfaces", "/reports");
+  assertIncludes(pages.get("/reports"), "v3.5 research system and internal Alaya", "/reports");
+  assertIncludes(pages.get("/reports"), "repo-internal cognition flywheel", "/reports");
   assertIncludes(pages.get("/reports"), "Raw artifact / Open JSON / Open Markdown", "/reports");
   if (manifest.source_report_status === "artifact_unavailable") {
     assertIncludes(pages.get("/reports"), "artifact_unavailable", "/reports");

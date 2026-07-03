@@ -80,6 +80,8 @@ export type DailyReaderBriefAgentAnalysisItem = {
   agent_statuses?: Record<string, string>;
   agent_hashes?: Record<string, string>;
   agent_timings?: Record<string, number | string>;
+  agent_retry_counts?: Record<string, number | string>;
+  agent_public_safety_triggers?: Record<string, string>;
   parallelism?: Record<string, number | string | boolean>;
   red_team_verdict?: string;
   public_payload_hash?: string;
@@ -592,6 +594,8 @@ function normalizeAgentAnalysisItem(value: unknown, index: number): DailyReaderB
     agent_statuses: readerSafeStringRecord(item.agent_statuses),
     agent_hashes: readerSafeStringRecord(item.agent_hashes),
     agent_timings: readerSafeNumberStringRecord(item.agent_timings),
+    agent_retry_counts: readerSafeNumberStringRecord(item.agent_retry_counts),
+    agent_public_safety_triggers: readerSafeStringRecord(item.agent_public_safety_triggers),
     parallelism: readerSafePrimitiveRecord(item.parallelism),
     red_team_verdict: stringValue(item.red_team_verdict) ?? undefined,
     public_payload_hash: stringValue(item.public_payload_hash) ?? undefined,

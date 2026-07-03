@@ -2273,48 +2273,78 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
                 </p>
               </div>
               {item.execution_model === "independent_agent_calls" || item.execution_model === "research_task_evidence_independent_agent_calls" ? (
-                <div className="symbol-agent-audit-grid" aria-label={copy(language, "v3 agent audit summary", "v3 agent audit summary")}>
-                  {metadataEntries(item.agent_statuses, 6).length > 0 ? (
-                    <div>
-                      <h3>{copy(language, "Agent statuses", "Agent statuses")}</h3>
-                      <ul>
-                        {metadataEntries(item.agent_statuses, 6).map(([key, value]) => (
-                          <li key={`${item.symbol}-status-${key}`}>{key}: {value}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {metadataEntries(item.agent_timings, 7).length > 0 ? (
-                    <div>
-                      <h3>{copy(language, "Agent timings", "Agent timings")}</h3>
-                      <ul>
-                        {metadataEntries(item.agent_timings, 7).map(([key, value]) => (
-                          <li key={`${item.symbol}-timing-${key}`}>{key}: {value}s</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {metadataEntries(item.agent_hashes, 6).length > 0 ? (
-                    <div>
-                      <h3>{copy(language, "Independent hashes", "Independent hashes")}</h3>
-                      <ul>
-                        {metadataEntries(item.agent_hashes, 6).map(([key, value]) => (
-                          <li key={`${item.symbol}-hash-${key}`}>{key}: {shortHash(value)}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                  {metadataEntries(item.parallelism, 3).length > 0 ? (
-                    <div>
-                      <h3>{copy(language, "Parallelism", "Parallelism")}</h3>
-                      <ul>
-                        {metadataEntries(item.parallelism, 3).map(([key, value]) => (
-                          <li key={`${item.symbol}-parallel-${key}`}>{key}: {value}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </div>
+                <details className="audit-details symbol-agent-audit-details">
+                  <summary>{copy(language, "Show audit metadata", "Show audit metadata")}</summary>
+                  <p className="muted">
+                    {copy(
+                      language,
+                      "hash、timing、parallelism 和 retry/public-safety trigger 只用于审计；默认阅读应先看研究任务、证据包、独立观点与红队复核。",
+                      "Hashes, timings, parallelism, and retry/public-safety triggers are audit metadata; default reading should start with the research task, evidence packet, independent views, and red-team review.",
+                    )}
+                  </p>
+                  <div className="symbol-agent-audit-grid" aria-label={copy(language, "v3 agent audit summary", "v3 agent audit summary")}>
+                    {metadataEntries(item.agent_statuses, 6).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Agent statuses", "Agent statuses")}</h3>
+                        <ul>
+                          {metadataEntries(item.agent_statuses, 6).map(([key, value]) => (
+                            <li key={`${item.symbol}-status-${key}`}>{key}: {value}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(item.agent_timings, 7).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Agent timings", "Agent timings")}</h3>
+                        <ul>
+                          {metadataEntries(item.agent_timings, 7).map(([key, value]) => (
+                            <li key={`${item.symbol}-timing-${key}`}>{key}: {value}s</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(item.agent_retry_counts, 6).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Retry counts", "Retry counts")}</h3>
+                        <ul>
+                          {metadataEntries(item.agent_retry_counts, 6).map(([key, value]) => (
+                            <li key={`${item.symbol}-retry-${key}`}>{key}: {value}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(item.agent_public_safety_triggers, 6).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Public-safety triggers", "Public-safety triggers")}</h3>
+                        <ul>
+                          {metadataEntries(item.agent_public_safety_triggers, 6).map(([key, value]) => (
+                            <li key={`${item.symbol}-trigger-${key}`}>{key}: {value || "none"}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(item.agent_hashes, 6).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Independent hashes", "Independent hashes")}</h3>
+                        <ul>
+                          {metadataEntries(item.agent_hashes, 6).map(([key, value]) => (
+                            <li key={`${item.symbol}-hash-${key}`}>{key}: {shortHash(value)}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(item.parallelism, 3).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Parallelism", "Parallelism")}</h3>
+                        <ul>
+                          {metadataEntries(item.parallelism, 3).map(([key, value]) => (
+                            <li key={`${item.symbol}-parallel-${key}`}>{key}: {value}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                  </div>
+                </details>
               ) : null}
               <div className="today-agent-columns symbol-brief-columns">
                 {analystSectionRows(item, language).map(([title, list]) => (
@@ -3234,6 +3264,15 @@ function ReportTypeIndex({ language }: { language: Language }) {
             <p>{guideCopy(item.body, language)}</p>
           </a>
         ))}
+      </div>
+      <div className="evidence-boundary">
+        <p className="desk-source-note">
+          {copy(
+            language,
+            "v3.5 的 reports 审计层会追踪 research_task、evidence_packet、K/F/W/G、Chairman、Red Team 与 GOTRA 内部 Alaya readback；Alaya 只指 repo 内部 cognition flywheel / knowledge memory / feedback state，不是外部服务。",
+            "The v3.5 reports audit layer tracks research_task, evidence_packet, K/F/W/G, Chairman, Red Team, and GOTRA internal Alaya readback; Alaya only means the repo-internal cognition flywheel / knowledge memory / feedback state, not an external service.",
+          )}
+        </p>
       </div>
     </section>
   );

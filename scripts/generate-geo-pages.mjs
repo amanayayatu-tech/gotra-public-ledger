@@ -732,6 +732,10 @@ function reportsPage(source) {
         <p>Status: <strong>${escapeHtml(source.state)}</strong>.</p>
         <p>If <code>public/reports/status.json</code> or <code>public/reports/latest.md</code> is missing in this build, this page reports artifact-unavailable instead of inventing report facts.</p>
       </section>
+      <section class="notice">
+        <h2>v3.5 research system and internal Alaya</h2>
+        <p>The v3.5 audit layer tracks <code>research_task</code>, <code>evidence_packet</code>, K/F/W/G independent views, Chairman synthesis, Red Team audit, and GOTRA internal Alaya readback. Alaya means the repo-internal cognition flywheel, knowledge memory, and feedback state; it is not an external service.</p>
+      </section>
       <section>
         <h2>Product reading surfaces</h2>
         ${table(["route", "surface", "reader meaning"], productSurfaces)}
