@@ -8098,6 +8098,81 @@ h1::after {
   font-weight: 850;
 }
 
+.status-explanation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.status-explanation-card {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgba(117, 216, 143, 0.22);
+  border-radius: 8px;
+  background: rgba(117, 216, 143, 0.055);
+}
+
+.status-explanation-card.compact {
+  padding: 12px;
+}
+
+.status-explanation-card h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.status-explanation-card p,
+.status-explanation-card li,
+.status-explanation-card dd {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.status-explanation-card p {
+  margin-top: 7px;
+}
+
+.status-explanation-card dl {
+  display: grid;
+  gap: 7px;
+  margin: 10px 0 0;
+}
+
+.status-explanation-card dt {
+  color: var(--faint);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.status-explanation-card dd {
+  margin: 2px 0 0;
+}
+
+.status-explanation-card ul {
+  display: grid;
+  gap: 5px;
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.status-explanation-card details,
+.inline-status-code {
+  margin-top: 10px;
+}
+
+.status-explanation-card details summary,
+.inline-status-code summary {
+  cursor: pointer;
+  color: #d5e4f5;
+  font-size: 12px;
+  font-weight: 850;
+}
+
 .guide-playbook-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

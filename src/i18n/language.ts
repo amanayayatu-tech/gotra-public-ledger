@@ -156,12 +156,23 @@ export function runtimeStatusText(language: Language, status: string | null | un
     partial: { zh: "部分完成", en: "Partial" },
     pending: { zh: "待产物", en: "Pending" },
     published: { zh: "已发布", en: "Published" },
+    publish_with_boundary: { zh: "带研究边界发布", en: "Publish with boundary" },
     running: { zh: "运行中", en: "Running" },
     running_with_warnings: { zh: "运行中，有警告", en: "Running with warnings" },
     stale: { zh: "已过期", en: "Stale" },
     success: { zh: "成功", en: "Success" },
     unavailable: { zh: "不可用", en: "Unavailable" },
     unknown: { zh: "未知", en: "Unknown" },
+    verified: { zh: "已验证", en: "Verified" },
+    data_gap: { zh: "数据缺口", en: "Data gap" },
+    needs_review: { zh: "需要复核", en: "Needs review" },
+    pass_with_review_items: { zh: "通过但保留复核项", en: "Pass with review items" },
+    PASS_WITH_REVIEW_ITEMS: { zh: "通过但保留复核项", en: "Pass with review items" },
+    PASS_V40_FRONTEND_PRODUCTIZATION_SMOKE: { zh: "前端产品化生产冒烟测试通过", en: "Frontend productization smoke passed" },
+    PASS_WITH_REVIEW_ITEMS_2H_V40_KSANA_COGNITION_FLYWHEEL: {
+      zh: "两小时 v4 压力测试通过，但保留复核项",
+      en: "2h v4 pressure passed with review items",
+    },
   };
   const label = labels[value];
   if (label) {

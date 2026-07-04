@@ -27,8 +27,8 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("今日研究简报");
     expect(appSource).toContain("今天先读什么");
     expect(appSource).toContain("英文原文 / English original");
-    expect(appSource).toContain("Full Analyst reader");
-    expect(appSource).toContain("Agent 分析矩阵");
+    expect(appSource).toContain("完整研究链路阅读器");
+    expect(appSource).toContain("今天研究链路分析了什么");
     expect(appSource).toContain("提示词 / 运行框架摘要");
     expect(appSource).toContain("GOTRA 内部 Alaya 认知飞轮");
     expect(appSource).toContain("今日重点");
@@ -40,10 +40,10 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("Raw artifact / Open JSON / Open Markdown");
     expect(appSource).toContain("function WhyGotraPage");
     expect(appSource).toContain("function FullAnalystReaderPage");
-    expect(appSource).toContain("independent agent calls");
-    expect(appSource).toContain("Agent statuses");
-    expect(appSource).toContain("Agent timings");
-    expect(appSource).toContain("Independent hashes");
+    expect(appSource).toContain("独立 agent 调用");
+    expect(appSource).toContain("Agent 状态");
+    expect(appSource).toContain("Agent 耗时");
+    expect(appSource).toContain("独立输出 hash");
   });
 
   it("adds a first-level bilingual guide with reading order, system flow, glossary, and report type labels", () => {
@@ -150,16 +150,16 @@ describe("public ledger information architecture contract", () => {
     expect(geoGeneratorSource).toContain('"/reports/full-analyst/"');
     expect(geoGeneratorSource).toContain('"/guide"');
     expect(geoGeneratorSource).toContain("daily_reader_brief.json");
-    expect(geoGeneratorSource).toContain("Seven-step reading order");
+    expect(geoGeneratorSource).toContain("七步阅读顺序");
     expect(geoGeneratorSource).toContain("guideGlossaryRows");
-    expect(geoGeneratorSource).toContain("Symbol briefs");
-    expect(geoGeneratorSource).toContain("agent statuses");
-    expect(geoGeneratorSource).toContain("independent hashes");
-    expect(geoGeneratorSource).toContain("Alaya here means GOTRA repo internal cognition flywheel");
+    expect(geoGeneratorSource).toContain("单票研究摘要");
+    expect(geoGeneratorSource).toContain("agent 状态");
+    expect(geoGeneratorSource).toContain("独立 hash");
+    expect(geoGeneratorSource).toContain("Alaya 只指 GOTRA repo 内部 cognition flywheel");
     expect(geoGeneratorSource).toContain('"/performance"');
     expect(geoGeneratorSource).toContain("function llmsTxt");
-    expect(geoGeneratorSource).toContain("Product reading surfaces");
-    expect(geoGeneratorSource).toContain("Static demo/archive artifacts");
+    expect(geoGeneratorSource).toContain("产品化阅读入口");
+    expect(geoGeneratorSource).toContain("静态 demo / 归档产物");
     expect(geoSmokeSource).toContain('readDist("llms.txt")');
     expect(geoSmokeSource).toContain("https://gotra.me/today");
     expect(geoSmokeSource).toContain("https://gotra.me/guide");
