@@ -842,14 +842,27 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
         && text.includes("publicationdecision=publish")
         && (text.includes("尚未生成") || text.includes("not generated"));
     });
-    const unexpectedNetworkErrors = report.networkErrors.filter((item) => {
-      return !(expectedMissingLiveLedger && item.status === 404 && item.url.endsWith("/reports/research_ledger.json"));
+    const expectedMissingMonthlyReports = report.routeResults.some((item) => {
+      const text = normalizeText(item.bodyText || "");
+      return item.route === "monthly_reports"
+        && text.includes("月度透明报告")
+        && (text.includes("不伪造") || text.includes("not fabricate"));
     });
-    const hasOnlyExpectedMissingLedger404 = expectedMissingLiveLedger
+    const isAllowedOptionalReport404 = (item) => {
+      if (item.status !== 404) {
+        return false;
+      }
+      return (expectedMissingLiveLedger && item.url.endsWith("/reports/research_ledger.json"))
+        || (expectedMissingMonthlyReports && item.url.endsWith("/reports/monthly_transparency_reports.json"));
+    };
+    const unexpectedNetworkErrors = report.networkErrors.filter((item) => {
+      return !isAllowedOptionalReport404(item);
+    });
+    const hasOnlyExpectedOptionalReport404s = (expectedMissingLiveLedger || expectedMissingMonthlyReports)
       && report.networkErrors.length > 0
       && unexpectedNetworkErrors.length === 0;
     const blockingConsoleErrors = report.consoleErrors.filter((item) => {
-      return !(hasOnlyExpectedMissingLedger404
+      return !(hasOnlyExpectedOptionalReport404s
         && item.type === "log_error"
         && item.level === "error"
         && item.text.includes("404"));
