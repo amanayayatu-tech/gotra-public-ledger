@@ -13,9 +13,9 @@ type SeoHeadProps = {
 };
 
 const siteUrl = "https://gotra.me/";
-const defaultTitle = "GOTRA Public Ledger | v4 Ksana Cognition Flywheel";
+const defaultTitle = "GOTRA Public Ledger | 可审计 AI 金融研究发布账本";
 const defaultDescription =
-  "GOTRA Public Ledger 展示 v4 Ksana cognition flywheel：研究任务、证据包、K dossier、F/W/G、Chairman、Red Team、Knowledge Gate 和 Reader Boundary。";
+  "GOTRA Public Ledger 是可审计 AI 金融研究发布账本，展示今日研究观察、公开证据、数据缺口、复核项和审计记录。";
 const ogImageUrl = `${siteUrl}og-image.svg`;
 
 type RouteSeo = {
@@ -69,12 +69,12 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
 
   const routes: Record<string, { zhTitle: string; enTitle: string; zhDescription: string; enDescription: string }> = {
     "/": {
-      zhTitle: "GOTRA Public Ledger | v4 Ksana Cognition Flywheel",
-      enTitle: "GOTRA Public Ledger | v4 Ksana Cognition Flywheel",
+      zhTitle: "GOTRA Public Ledger | 可审计 AI 金融研究发布账本",
+      enTitle: "GOTRA Public Ledger | Auditable AI Financial Research Ledger",
       zhDescription:
-        "GOTRA v4 把 Research Task、Evidence Packet、K deep research dossier、F/W/G、Chairman、Red Team、Research Quality Gate、Knowledge Gate 和 Reader Boundary 产品化展示。研究信息，不是投资建议、交易信号、业绩证明或科学/公开证明。",
+        "GOTRA 记录今日研究观察、公开证据、数据缺口、复核项和审计链路。研究信息，不是投资建议、交易信号、业绩证明或科学/公开证明。",
       enDescription:
-        "GOTRA v4 productizes Research Task, Evidence Packet, K deep research dossier, F/W/G perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, and Reader Boundary. Research information only; not investment advice, not a trading signal, not performance proof, and not science/public proof.",
+        "GOTRA records daily research observations, public evidence, data gaps, review items, and audit trails. Research information only; not investment advice, not a trading signal, not performance proof, and not science/public proof.",
     },
     "/today": {
       zhTitle: "GOTRA 今日研究简报 | GOTRA Public Ledger",
@@ -241,12 +241,12 @@ function setJsonLd(dataset: LedgerDataset, records: RecordView[], seo: RouteSeo)
       {
         "@type": "Dataset",
         "@id": `${siteUrl}#dataset`,
-        name: "GOTRA Public Ledger v4 public research artifact",
+        name: "GOTRA public research ledger",
         description: defaultDescription,
         url: siteUrl,
         dateModified: dataset.metadata.snapshot_date,
         license: `${siteUrl}docs/DATA_BOUNDARY.md`,
-        measurementTechnique: "v4 Ksana cognition flywheel public research artifact; not investment advice; not a trading signal",
+        measurementTechnique: "auditable research ledger; not investment advice; not a trading signal",
         variableMeasured: ["prediction_id", "ticker", "decision_date", "expected_change_pct", "actual_change_pct", "error"],
         includedInDataCatalog: {
           "@type": "DataCatalog",
@@ -255,7 +255,7 @@ function setJsonLd(dataset: LedgerDataset, records: RecordView[], seo: RouteSeo)
         creator: {
           "@id": `${siteUrl}#organization`,
         },
-        keywords: ["GOTRA v4", "Ksana cognition flywheel", "K dossier", "Knowledge Gate", "Alaya readback"],
+        keywords: ["GOTRA", "auditable research ledger", "public evidence", "data gaps", "not investment advice"],
         temporalCoverage: dataset.metadata.snapshot_date,
         size: records.length,
       },
@@ -283,7 +283,7 @@ export function SeoHead({ dataset, records, activeRecord, route, language }: Seo
     document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
     document.title = seo.title || defaultTitle;
     setNamedMeta("description", seo.description || defaultDescription);
-    setNamedMeta("keywords", "GOTRA v4, Ksana cognition flywheel, K dossier, Knowledge Gate, Alaya readback, not investment advice");
+    setNamedMeta("keywords", "GOTRA, auditable AI financial research ledger, research ledger, public evidence, not investment advice");
     setNamedMeta("twitter:card", "summary_large_image");
     setNamedMeta("twitter:url", seo.url);
     setNamedMeta("twitter:title", seo.title);

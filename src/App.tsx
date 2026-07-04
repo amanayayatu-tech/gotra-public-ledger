@@ -158,23 +158,23 @@ function HomeLoadingHero({ language }: { language: Language }) {
             <ShieldCheck aria-hidden="true" size={16} />
             {copy(language, "研究信息 · 非投资建议 · 非交易信号", "Research information · not advice · not a trading signal")}
           </div>
-          <p className="hero-brand-motif">{copy(language, "GOTRA v4 · Ksana cognition flywheel", "GOTRA v4 · Ksana cognition flywheel")}</p>
+          <p className="hero-brand-motif">
+            {copy(language, "可审计 AI 金融研究发布账本 · 研究信息", "Auditable AI financial research ledger · research only")}
+          </p>
           <h1 id="home-loading-title" className="hero-title">
             {language === "zh" ? (
               <>
-                把研究过程讲清楚，
-                <br />
-                再交给你判断
+                可审计 AI 金融研究发布账本
               </>
             ) : (
-              "GOTRA v4 shows how the research was made"
+              "Auditable AI financial research publication ledger"
             )}
           </h1>
           <p>
             {copy(
               language,
-              "正在读取 v4 公开简报和页面数据。主路径是 Research Task、Evidence Packet、K dossier、F/W/G、Chairman、Red Team、Quality Gate、Knowledge Gate、内部 Alaya readback 和 Reader Boundary。",
-              "Loading the v4 public brief and page data. The main path is Research Task, Evidence Packet, K dossier, F/W/G, Chairman, Red Team, Quality Gate, Knowledge Gate, internal Alaya readback, and Reader Boundary.",
+              "正在读取今日研究简报、公开证据、数据缺口、复核项和审计记录。内部研究链路会保留在方法论和审计页，不作为首页首屏门槛。",
+              "Loading today's research brief, public evidence, data gaps, review items, and audit records. Internal research-chain terms stay in Methodology and Audit instead of becoming the homepage entry barrier.",
             )}
           </p>
         </div>
