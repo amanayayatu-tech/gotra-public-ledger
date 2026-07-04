@@ -18,6 +18,7 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
       note: copy(language, "每日先读读者化摘要、观察清单、数据缺口和下一步观察。", "Start with the reader brief, watchlist, data gaps, and next watch."),
       links: [
         { href: routeHref("/today"), label: copy(language, "今日研究简报", "Daily Research Brief") },
+        { href: routeHref("/track-record"), label: copy(language, "公开研究账本", "Public research ledger") },
         { href: routeHref("/why-gotra"), label: copy(language, "为什么是 GOTRA", "Why GOTRA") },
         { href: routeHref("/guide"), label: copy(language, "如何阅读 GOTRA", "How to read GOTRA") },
       ],

@@ -614,12 +614,14 @@ function injectHomepage(summary, source) {
 function reportSource() {
   const status = readJson("public/reports/status.json", false);
   const dailyReaderBrief = readJson("public/reports/daily_reader_brief.json", false);
+  const researchLedger = readJson("public/reports/research_ledger.json", false);
   const latestMarkdown = readText("public/reports/latest.md");
-  if (status || latestMarkdown || dailyReaderBrief) {
+  if (status || latestMarkdown || dailyReaderBrief || researchLedger) {
     return {
       state: "source_artifacts_found",
       status,
       dailyReaderBrief,
+      researchLedger,
       latestMarkdown,
     };
   }
@@ -627,6 +629,7 @@ function reportSource() {
     state: "artifact_unavailable",
     status: null,
     dailyReaderBrief: null,
+    researchLedger: null,
     latestMarkdown: null,
   };
 }
@@ -1841,6 +1844,78 @@ function notesPage(contentIndex) {
   });
 }
 
+function trackRecordPage(source) {
+  const manifest = source.researchLedger;
+  const entries = Array.isArray(manifest?.entries) ? manifest.entries : [];
+  const integrity = manifest?.integrity ?? {};
+  const rows = entries.slice(0, 50).map((entry) => [
+    entry.entry_id ?? "",
+    `${entry.exchange ?? ""}:${entry.symbol ?? ""}`,
+    statusLabel(entry.status ?? ""),
+    entry.window_days ?? "",
+    entry.review_due_at ?? "",
+    entry.evidence_packet_link ?? "",
+  ]);
+  const body =
+    manifest && manifest.schema === "gotra.public_research_ledger.v1"
+      ? `      <h1>公开研究账本 / Public Track Record</h1>
+      <p class="lede">读取 live research_ledger.json；只展示 PublicationDecision=publish 的 ResearchSignal。不是冻结 Demo 账本，不是投资建议，不是交易信号。</p>
+      <section class="notice">
+        <h2>账本完整性</h2>
+        ${table(
+          ["field", "value"],
+          [
+            ["schema", manifest.schema],
+            ["generated_at", manifest.generated_at ?? ""],
+            ["entry_count", entries.length],
+            ["integrity", integrity.ok === true ? "ok" : integrity.reason ?? "failed"],
+            ["latest_hash", integrity.latest_hash ?? ""],
+          ],
+        )}
+      </section>
+      <section>
+        <h2>公开判断列表</h2>
+        ${entries.length > 0 ? table(["entry_id", "symbol", "status", "window_days", "review_due_at", "evidence_packet_link"], rows) : "<p>当前 live research_ledger.json 没有 publish entries。</p>"}
+      </section>
+      <section class="notice">
+        <h2>Raw artifact / Open JSON</h2>
+        <p>这是原始审计产物，不是普通阅读页面。普通用户请回到公开账本或今日简报。</p>
+        <p><a href="/reports/research_ledger.json">/reports/research_ledger.json</a></p>
+      </section>`
+      : `      <h1>公开研究账本尚未生成</h1>
+      <p class="lede">Stage 7 定义 append-only LedgerEntry，但本次静态构建没有 public/reports/research_ledger.json。页面不会回退到冻结 Demo 账本，也不会伪造历史判断。</p>
+      <section class="notice">
+        <h2>下一步</h2>
+        <p>后端 v4 发布运行写出 PublicationDecision=publish 的 publish entries 后，/track-record 会显示 live research_ledger.json 表格、筛选和详情页。</p>
+        <p><a href="/today">今日简报</a> · <a href="/reports/full-analyst/">研究阅读器</a> · <a href="/ledger">冻结 Demo 账本</a></p>
+      </section>`;
+  return pageShell({
+    route: "/track-record",
+    title: "Public Track Record | GOTRA Public Ledger",
+    description:
+      "Crawler-readable live public research ledger for published ResearchSignal entries. Append-only hash chain; not investment advice, not a trading signal, not performance proof.",
+    extraJsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        name: "GOTRA Public Research Ledger",
+        description:
+          "Append-only public research ledger for published ResearchSignal entries with hash chain and publication decision references.",
+        url: `${baseUrl}/track-record`,
+        dateModified: manifest?.generated_at ?? "",
+        distribution: [
+          {
+            "@type": "DataDownload",
+            encodingFormat: "application/json",
+            contentUrl: `${baseUrl}/reports/research_ledger.json`,
+          },
+        ],
+      },
+    ],
+    body,
+  });
+}
+
 function predictionPage(record) {
   const route = `/predictions/${encodeURIComponent(record.prediction_id)}`;
   const rows = [
@@ -1999,6 +2074,22 @@ function writeGeneratedReportArtifacts(source) {
     },
   };
   fs.writeFileSync(path.join(reportsDir, "daily_reader_brief.json"), `${JSON.stringify(dailyReaderBrief, null, 2)}\n`);
+  const researchLedger = source.researchLedger ?? {
+    schema: "gotra.public_research_ledger.v1",
+    generated_at: "",
+    entry_count: 0,
+    appended_count: 0,
+    integrity: {
+      ok: true,
+      entry_count: 0,
+      latest_hash: "0000000000000000000000000000000000000000000000000000000000000000",
+    },
+    query_fields: ["symbol", "as_of_date", "window_days", "status"],
+    boundary:
+      "append-only public research ledger placeholder; research information only; not investment advice or trading signal",
+    entries: [],
+  };
+  fs.writeFileSync(path.join(reportsDir, "research_ledger.json"), `${JSON.stringify(researchLedger, null, 2)}\n`);
   if (!source.latestMarkdown) {
     fs.writeFileSync(
       path.join(reportsDir, "latest.md"),
@@ -2097,6 +2188,7 @@ Methodology and Audit still document the internal v4 chain, including K dossier,
 - https://gotra.me/today - Daily Research Brief. Reader-first Full Analyst research brief with agent analysis items, red-team review, risk factors, internal Alaya readback, known data gaps, and next watch points.
 - https://gotra.me/why-gotra - Why GOTRA. Research discipline for seeing what changed, what is known, and what still needs review.
 - https://gotra.me/guide - Guide. Seven-step reading order, daily system flow, report type labels, glossary, internal Alaya boundary, and evidence boundaries.
+- https://gotra.me/track-record - Public Track Record. Live append-only research ledger for published ResearchSignal entries with hash chain and publication decision references.
 - https://gotra.me/reports - Audit Center. Live production/status artifacts, Full Analyst v4 status, raw artifact disclosures, and evidence boundaries.
 - https://gotra.me/reports/latest/ - Coverage Report Reader. Productized HTML reader for the latest public coverage report; raw Markdown appears only in audit disclosure.
 - https://gotra.me/reports/full-analyst/ - Full Analyst Research Reader. Productized per-symbol research reader; raw Markdown appears only in audit disclosure.
@@ -2110,6 +2202,7 @@ Methodology and Audit still document the internal v4 chain, including K dossier,
 ## Raw public artifacts
 
 - https://gotra.me/reports/daily_reader_brief.json
+- https://gotra.me/reports/research_ledger.json
 - https://gotra.me/reports/status.json
 - https://gotra.me/reports/latest.md - coverage daily report alias, not the Full Analyst research report.
 - https://gotra.me/reports/full_analyst_evening_hk_2026-06-30.md
@@ -2159,6 +2252,7 @@ function main() {
     ["/today", todayPage(source)],
     ["/why-gotra", whyGotraPage()],
     ["/guide", guidePage()],
+    ["/track-record", trackRecordPage(source)],
     ["/ledger", ledgerPage(ledger, summary)],
     ["/reports", reportsPage(source)],
     ["/reports/latest/", latestReportPage(source)],
@@ -2188,6 +2282,7 @@ function main() {
     "/today",
     "/why-gotra",
     "/guide",
+    "/track-record",
     "/ledger",
     "/reports",
     "/reports/latest/",
@@ -2196,6 +2291,7 @@ function main() {
     "/reports/latest.md",
     "/reports/status.json",
     "/reports/daily_reader_brief.json",
+    "/reports/research_ledger.json",
     "/reports/full_analyst_evening_hk_2026-06-30.md",
     "/reports/status_full_analyst_evening_hk.json",
     "/reports/status_full_analyst_monitor.json",

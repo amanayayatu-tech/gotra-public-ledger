@@ -17,6 +17,7 @@ const navItems: NavItem[] = [
   { id: "why", href: routeHref("/why-gotra"), path: "/why-gotra", zh: "为什么是 GOTRA", en: "Why GOTRA" },
   { id: "guide", href: routeHref("/guide"), path: "/guide", zh: "使用指南", en: "Guide" },
   { id: "reader", href: routeHref("/reports/full-analyst"), path: "/reports/full-analyst", zh: "研究阅读器", en: "Research Reader" },
+  { id: "track-record", href: routeHref("/track-record"), path: "/track-record", zh: "公开账本", en: "Track Record" },
   { id: "sources", href: routeHref("/sources"), path: "/sources", zh: "证据与来源", en: "Evidence & Sources" },
   { id: "methodology", href: routeHref("/methodology"), path: "/methodology", zh: "方法论", en: "Methodology" },
   { id: "audit", href: routeHref("/reports"), path: "/reports", zh: "审计中心", en: "Audit" },

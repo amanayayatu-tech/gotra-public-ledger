@@ -49,6 +49,13 @@ import {
   type LiveReportsSnapshot,
 } from "./data/liveReports";
 import {
+  loadResearchLedgerManifest,
+  researchLedgerStatuses,
+  researchLedgerSymbols,
+  researchLedgerWindows,
+  type ResearchLedgerLoadState,
+} from "./data/researchLedger";
+import {
   computeSummary,
   formatNumber,
   formatPercent,
@@ -75,7 +82,7 @@ import {
   type LocalizedText,
   type Language,
 } from "./i18n/language";
-import { evidencePacketRouteHref, noteRouteHref, parseBrowserRoute, parseHashRoute, predictionRouteHref, routeHref, type AppRoute } from "./routes/hashRouter";
+import { evidencePacketRouteHref, noteRouteHref, parseBrowserRoute, parseHashRoute, predictionRouteHref, routeHref, trackRecordEntryRouteHref, type AppRoute } from "./routes/hashRouter";
 
 const CognitionDashboard = lazy(() =>
   import("./components/CognitionDashboard").then((module) => ({ default: module.CognitionDashboard })),
@@ -217,6 +224,9 @@ function ChartLoadingSkeleton({ containerRef }: { containerRef?: Ref<HTMLElement
 function routeActivePath(route: AppRoute): string {
   if (route.name === "prediction") {
     return "/ledger";
+  }
+  if (route.name === "trackRecordEntry") {
+    return "/track-record";
   }
   if (route.name === "note") {
     return "/notes";
@@ -1520,6 +1530,287 @@ function fullAnalystExecutionText(brief: DailyReaderBrief, language: Language): 
     );
   }
   return executionModelExplanation(executionModel, language);
+}
+
+function trackRecordStatusLabel(status: string, language: Language): string {
+  if (status === "publish") {
+    return copy(language, "已发布", "Published");
+  }
+  if (status === "blocked") {
+    return copy(language, "已阻断", "Blocked");
+  }
+  if (status === "needs_review") {
+    return copy(language, "需要复核", "Needs review");
+  }
+  return status || copy(language, "未报告", "Not reported");
+}
+
+function TrackRecordPage({ entryId, language }: { entryId?: string; language: Language }) {
+  const [state, setState] = useState<ResearchLedgerLoadState>({ kind: "loading" });
+  const [symbolFilter, setSymbolFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [windowFilter, setWindowFilter] = useState("all");
+
+  useEffect(() => {
+    let cancelled = false;
+    setState({ kind: "loading" });
+    loadResearchLedgerManifest()
+      .then((manifest) => {
+        if (!cancelled) {
+          setState({ kind: "ready", manifest });
+        }
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        if (!cancelled) {
+          setState(message === "research_ledger_unavailable" ? { kind: "unavailable", message } : { kind: "error", message });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (state.kind === "loading") {
+    return (
+      <section className="route-panel edge-state-note" role="status">
+        {copy(language, "正在读取公开研究账本。", "Loading public research ledger.")}
+      </section>
+    );
+  }
+
+  if (state.kind === "unavailable") {
+    return (
+      <>
+        <PageIntro
+          eyebrow={copy(language, "公开账本", "Track record")}
+          title={copy(language, "公开研究账本尚未生成", "Public research ledger is not generated yet")}
+          body={copy(
+            language,
+            "Stage 7 已为 publish 的 ResearchSignal 定义 append-only LedgerEntry；当前生产 reports 目录还没有 research_ledger.json。页面不会回退到冻结 Demo 账本，也不会伪造历史判断。",
+            "Stage 7 defines append-only LedgerEntry rows for published ResearchSignals; the current production reports directory does not yet contain research_ledger.json. This page does not fall back to the frozen demo ledger or fabricate history.",
+          )}
+          icon={Database}
+        />
+        <section className="today-section">
+          <div className="edge-state-note">
+            {copy(language, "请先看今日简报或研究阅读器；公开账本会在后端 v4 发布运行写出 publish entries 后自动出现。", "Use today's brief or the research reader first; the public ledger appears after a backend v4 publication run writes publish entries.")}
+          </div>
+          <div className="related-prediction-list today-links">
+            <a href={routeHref("/today")}>{copy(language, "今日简报", "Today's brief")}</a>
+            <a href={routeHref("/reports/full-analyst")}>{copy(language, "研究阅读器", "Research reader")}</a>
+            <a href={routeHref("/ledger")}>{copy(language, "冻结 Demo 账本", "Frozen demo ledger")}</a>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  if (state.kind === "error") {
+    return (
+      <section className="route-panel edge-state-note" role="alert">
+        {copy(language, "公开研究账本读取失败：", "Public research ledger failed to load:")} {state.message}
+      </section>
+    );
+  }
+
+  const { manifest } = state;
+  const entries = manifest.entries;
+  const symbols = researchLedgerSymbols(entries);
+  const statuses = researchLedgerStatuses(entries);
+  const windows = researchLedgerWindows(entries);
+  const filteredEntries = entries.filter((entry) => {
+    const symbolKey = `${entry.exchange}:${entry.symbol}`;
+    return (
+      (symbolFilter === "all" || symbolFilter === symbolKey) &&
+      (statusFilter === "all" || statusFilter === entry.status) &&
+      (windowFilter === "all" || Number(windowFilter) === entry.window_days)
+    );
+  });
+  const selectedEntry = entryId ? entries.find((entry) => entry.entry_id === entryId) ?? null : null;
+  const versionChain = selectedEntry
+    ? entries.filter((entry) => entry.base_entry_id === selectedEntry.base_entry_id).sort((a, b) => a.version - b.version)
+    : [];
+
+  return (
+    <>
+      <PageIntro
+        eyebrow={copy(language, "公开研究账本", "Public track record")}
+        title={copy(language, "每条公开判断都有 hash chain", "Every public judgment has a hash chain")}
+        body={copy(
+          language,
+          "这里读取 live research_ledger.json，只展示后端 PublicationDecision=publish 的 ResearchSignal。更新会追加新 version，不覆盖旧记录；hash chain 失败时 API 返回 integrity error。",
+          "This page reads live research_ledger.json and shows only ResearchSignals whose PublicationDecision is publish. Updates append a new version instead of overwriting history; API returns an integrity error if the hash chain fails.",
+        )}
+        icon={Database}
+      />
+      <section className="today-section" aria-labelledby="track-record-status-title">
+        <div className="today-effect-grid">
+          <article>
+            <span>{copy(language, "账本条目", "Ledger entries")}</span>
+            <strong>{entries.length}</strong>
+            <p>{copy(language, "来自 live research_ledger.json，不是冻结 Demo。", "From live research_ledger.json, not the frozen demo.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "完整性", "Integrity")}</span>
+            <strong>{manifest.integrity.ok ? copy(language, "通过", "OK") : copy(language, "失败", "Failed")}</strong>
+            <p>{manifest.integrity.latest_hash ? `${copy(language, "最新 hash", "Latest hash")}: ${shortHash(manifest.integrity.latest_hash)}` : copy(language, "还没有 entry hash。", "No entry hash yet.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "生成时间", "Generated at")}</span>
+            <strong>{manifest.generated_at || copy(language, "未报告", "Not reported")}</strong>
+            <p>{copy(language, "证据层级：local checks + smoke evidence。不是 10h/formal acceptance。", "Evidence layer: local checks + smoke evidence. Not 10h/formal acceptance.")}</p>
+          </article>
+        </div>
+      </section>
+
+      {selectedEntry ? (
+        <section className="today-section" aria-labelledby="track-record-detail-title">
+          <div className="section-heading compact">
+            <span>{copy(language, "Entry detail", "Entry detail")}</span>
+            <h2 id="track-record-detail-title">{selectedEntry.exchange}:{selectedEntry.symbol} · v{selectedEntry.version}</h2>
+            <p>{selectedEntry.research_signal?.hypothesis ?? copy(language, "没有公开研究假设摘要。", "No public research hypothesis summary.")}</p>
+          </div>
+          <div className="today-agent-grid full-analyst-reader-grid">
+            <article className="today-agent-card">
+              <h3>{copy(language, "发布决定", "Publication decision")}</h3>
+              <p>{trackRecordStatusLabel(selectedEntry.status, language)}</p>
+              <ul>
+                {(selectedEntry.publication_decision?.reader_safe_reasons ?? []).slice(0, 5).map((reason) => (
+                  <li key={reason}>{reason}</li>
+                ))}
+              </ul>
+              {selectedEntry.evidence_packet_link ? (
+                <a className="inline-audit-link" href={selectedEntry.evidence_packet_link}>
+                  {copy(language, "打开证据包链接", "Open evidence packet link")}
+                </a>
+              ) : null}
+            </article>
+            <article className="today-agent-card">
+              <h3>{copy(language, "反证与不确定性", "Counter-evidence and uncertainty")}</h3>
+              <ul>
+                {(selectedEntry.research_signal?.counter_evidence ?? []).slice(0, 4).map((item) => (
+                  <li key={`counter-${item}`}>{item}</li>
+                ))}
+                {(selectedEntry.research_signal?.uncertainty ?? []).slice(0, 4).map((item) => (
+                  <li key={`uncertainty-${item}`}>{item}</li>
+                ))}
+              </ul>
+            </article>
+            <article className="today-agent-card">
+              <h3>{copy(language, "版本链", "Version chain")}</h3>
+              <ul>
+                {versionChain.map((entry) => (
+                  <li key={entry.entry_id}>
+                    <a href={trackRecordEntryRouteHref(entry.entry_id)}>v{entry.version}</a> · {shortHash(entry.hash)}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          </div>
+          <details className="audit-details">
+            <summary>{copy(language, "查看审计元数据", "Show audit metadata")}</summary>
+            <ul>
+              <li>entry_id: {selectedEntry.entry_id}</li>
+              <li>signal_id: {selectedEntry.signal_id}</li>
+              <li>previous_hash: {shortHash(selectedEntry.previous_hash)}</li>
+              <li>hash: {shortHash(selectedEntry.hash)}</li>
+              <li>research_signal_hash: {shortHash(selectedEntry.research_signal_hash)}</li>
+              <li>publication_decision_hash: {shortHash(selectedEntry.publication_decision_hash)}</li>
+              <li>evidence_packet_hash: {shortHash(selectedEntry.evidence_packet_hash)}</li>
+            </ul>
+          </details>
+        </section>
+      ) : entryId ? (
+        <section className="today-section edge-state-note" role="status">
+          {copy(language, "未找到该公开账本条目。", "This public ledger entry was not found.")}
+        </section>
+      ) : null}
+
+      <section className="ledger-section" id="track-record-ledger" aria-labelledby="track-record-list-title">
+        <div className="ledger-panel">
+          <div className="ledger-toolbar">
+            <div>
+              <span className="section-index">{copy(language, "Stage 7 · live ledger", "Stage 7 · live ledger")}</span>
+              <h2 id="track-record-list-title">{copy(language, "公开判断列表", "Public judgments")}</h2>
+              <p>
+                {copy(language, "支持按 symbol、status、window 筛选。raw JSON 只在审计中心打开，主路径显示 reader-safe 摘要。", "Filter by symbol, status, and window. Raw JSON opens only in the Audit Center; the main path shows reader-safe summaries.")}
+              </p>
+            </div>
+            <div className="filters">
+              <label>
+                <span>{copy(language, "标的", "Symbol")}</span>
+                <select value={symbolFilter} onChange={(event) => setSymbolFilter(event.target.value)}>
+                  <option value="all">{copy(language, "全部标的", "All symbols")}</option>
+                  {symbols.map((symbol) => (
+                    <option value={symbol} key={symbol}>{symbol}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>{copy(language, "状态", "Status")}</span>
+                <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+                  <option value="all">{copy(language, "全部状态", "All statuses")}</option>
+                  {statuses.map((status) => (
+                    <option value={status} key={status}>{trackRecordStatusLabel(status, language)}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <span>{copy(language, "窗口", "Window")}</span>
+                <select value={windowFilter} onChange={(event) => setWindowFilter(event.target.value)}>
+                  <option value="all">{copy(language, "全部窗口", "All windows")}</option>
+                  {windows.map((windowDays) => (
+                    <option value={String(windowDays)} key={windowDays}>{windowDays}d</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </div>
+          <div className="ledger-count-line">
+            {copy(language, `当前显示 ${filteredEntries.length} / ${entries.length} 条公开判断。`, `Showing ${filteredEntries.length} / ${entries.length} public judgments.`)}
+          </div>
+          {filteredEntries.length > 0 ? (
+            <div className="table-scroll">
+              <table className="ledger-table">
+                <thead>
+                  <tr>
+                    <th>{copy(language, "条目", "Entry")}</th>
+                    <th>{copy(language, "标的", "Symbol")}</th>
+                    <th>{copy(language, "状态", "Status")}</th>
+                    <th>{copy(language, "窗口", "Window")}</th>
+                    <th>{copy(language, "复盘到期", "Review due")}</th>
+                    <th>{copy(language, "证据", "Evidence")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEntries.map((entry) => (
+                    <tr key={entry.entry_id}>
+                      <td><a href={trackRecordEntryRouteHref(entry.entry_id)}>v{entry.version} · {shortHash(entry.hash)}</a></td>
+                      <td>{entry.exchange}:{entry.symbol}</td>
+                      <td>{trackRecordStatusLabel(entry.status, language)}</td>
+                      <td>{entry.window_days}d</td>
+                      <td>{entry.review_due_at}</td>
+                      <td>{entry.evidence_packet_link ? <a href={entry.evidence_packet_link}>{copy(language, "证据包", "Evidence packet")}</a> : copy(language, "未报告", "Not reported")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="edge-state-note">{copy(language, "没有匹配筛选条件的公开判断。", "No public judgment matches these filters.")}</div>
+          )}
+          <details className="audit-details">
+            <summary>{copy(language, "Raw artifact / Open JSON", "Raw artifact / Open JSON")}</summary>
+            <p className="muted">
+              {copy(language, "这是原始审计产物，不是普通阅读页面。普通用户请回到公开账本或今日简报。", "This is a raw audit artifact, not the ordinary reading page. Default readers should return to the track record or today's brief.")}
+            </p>
+            <a href="/reports/research_ledger.json">/reports/research_ledger.json</a>
+          </details>
+        </div>
+      </section>
+    </>
+  );
 }
 
 function V40ResearchSystemPanel({ language, compact = false }: { language: Language; compact?: boolean }) {
@@ -4625,6 +4916,8 @@ function App() {
       route.name === "guide" ||
       route.name === "today" ||
       route.name === "whyGotra" ||
+      route.name === "trackRecord" ||
+      route.name === "trackRecordEntry" ||
       route.name === "fullAnalystReport" ||
       route.name === "evidencePacketAudit" ||
       route.name === "notes" ||
@@ -4734,6 +5027,10 @@ function App() {
         {route.name === "fullAnalystReport" ? <FullAnalystReaderPage state={dailyBriefState} language={language} /> : null}
 
         {route.name === "evidencePacketAudit" ? <EvidencePacketAuditPage state={dailyBriefState} language={language} evidenceId={route.evidenceId} /> : null}
+
+        {route.name === "trackRecord" ? <TrackRecordPage language={language} /> : null}
+
+        {route.name === "trackRecordEntry" ? <TrackRecordPage entryId={route.entryId} language={language} /> : null}
 
         {route.name === "ledger" && hasDataset ? (
           <>

@@ -108,6 +108,17 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("未来日期样本");
   });
 
+  it("adds a live track-record route separate from the frozen demo ledger", () => {
+    expect(appSource).toContain("function TrackRecordPage");
+    expect(appSource).toContain("research_ledger.json");
+    expect(appSource).toContain("PublicationDecision=publish");
+    expect(appSource).toContain("不会回退到冻结 Demo 账本");
+    expect(appSource).toContain("route.name === \"trackRecord\"");
+    expect(appSource).toContain("route.name === \"trackRecordEntry\"");
+    expect(siteHeaderSource).toContain("id: \"track-record\"");
+    expect(siteHeaderSource).toContain("zh: \"公开账本\"");
+  });
+
   it("keeps methodology boundary copy bilingual instead of fixed Chinese", () => {
     expect(appSource).toContain("<BoundaryPanel metadata={dataset.metadata} language={language} />");
     expect(boundaryPanelSource).toContain("language: Language");
