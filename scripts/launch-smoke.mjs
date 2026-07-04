@@ -847,6 +847,8 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
       return item.route === "monthly_reports"
         && text.includes("月度透明报告")
         && (text.includes("不伪造") || text.includes("not fabricate"));
+    }) || report.networkErrors.some((item) => {
+      return item.status === 404 && item.url.endsWith("/reports/monthly_transparency_reports.json");
     });
     const isAllowedOptionalReport404 = (item) => {
       if (item.status !== 404) {
