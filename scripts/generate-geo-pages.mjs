@@ -1319,11 +1319,13 @@ function fullAnalystReportPage(source) {
 
 function latestReportPage(source) {
   const statusRows = Object.entries(source.status ?? { status: "artifact_unavailable" });
+  const rawMetadataLinePattern =
+    /^(?:as_of_date|trading_date|mode|reason|session_status|generated_at(?:_utc)?|run_status|universe_count|success_count|failed_count|allowed_missing_count|unexpected_failed_count|failed_symbols|exit_status)\s*:/i;
   const markdownHighlights = source.latestMarkdown
     ? source.latestMarkdown
         .split("\n")
         .map((line) => line.trim())
-        .filter((line) => line && !line.startsWith("|") && !line.startsWith("---"))
+        .filter((line) => line && !line.startsWith("|") && !line.startsWith("---") && !rawMetadataLinePattern.test(line.replace(/^-+\s*/, "")))
         .slice(0, 12)
         .map((line) => `<li>${escapeHtml(line.replace(/^#+\s*/, "").replace(/^-+\s*/, ""))}</li>`)
         .join("")
