@@ -9,9 +9,9 @@ const externalReportsRoot = process.env.GOTRA_REPORTS_DIR ? path.resolve(process
 const baseUrl = "https://gotra.me";
 
 const englishDefinition =
-  "GOTRA Public Ledger is an auditable AI stock-research public ledger and v4 Ksana cognition flywheel reader. It turns Research Task, Evidence Packet, K deep research dossier, F/W/G perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, and Reader Boundary into public-safe research information. It is not investment advice, not a trading signal, not performance proof, and not science/public proof.";
+  "GOTRA Public Ledger is an auditable AI financial research publication ledger. It shows daily research observations, public evidence, data gaps, review items, and audit trails; internal v4 research-chain terms remain available in methodology and audit pages. It is not investment advice, not a trading signal, not performance proof, and not science/public proof.";
 const chineseDefinition =
-  "GOTRA Public Ledger 是可审计的 AI 股票研究公开账本，也是 GOTRA v4 研究认知系统。它把研究任务书（Research Task）、证据包（Evidence Packet）、K 深度研究底稿（K Deep Research Dossier）、F/W/G 独立视角、主席综合、红队反证审计、研究质量闸门、知识闸门、内部 Alaya 回读和读者边界闸门产品化展示。它不是投资建议、不是交易信号、不是业绩证明，也不是科学/公开证明。";
+  "GOTRA Public Ledger 是可审计 AI 金融研究发布账本。它展示今日研究观察、公开证据、数据缺口、复核项和审计记录；内部 v4 研究链路术语保留在方法论和审计页面。它不是投资建议、不是交易信号、不是业绩证明，也不是科学/公开证明。";
 const boundarySentence =
   "GOTRA Public Ledger provides public-safe research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not a guarantee of future outcomes.";
 const chineseBoundarySentence =
@@ -1974,8 +1974,10 @@ function writeRobots() {
 function llmsTxt() {
   return `# GOTRA Public Ledger
 
-GOTRA Public Ledger is a public-safe research ledger, production-report surface, and v4 Ksana cognition flywheel reader.
-It productizes Research Task, Evidence Packet, K deep research dossier, F/W/G perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, internal Alaya readback, and Reader Boundary. It is research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not science/public proof.
+GOTRA Public Ledger is an auditable AI financial research publication ledger and production-report surface.
+GOTRA Public Ledger 是可审计 AI 金融研究发布账本。
+It shows daily research observations, public evidence, data gaps, review items, and audit trails; the internal v4 research chain is documented in Methodology and Audit. It is research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not science/public proof.
+Methodology and Audit still document the internal v4 chain, including K dossier, Knowledge Gate, internal Alaya readback, and Reader Boundary, for evidence review rather than homepage positioning.
 
 ## Primary reader routes
 

@@ -1,7 +1,9 @@
 # GOTRA Public Ledger
 
-GOTRA Public Ledger is a public-safe research ledger, production-report surface, and v4 Ksana cognition flywheel reader.
-It productizes Research Task, Evidence Packet, K deep research dossier, F/W/G perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, internal Alaya readback, and Reader Boundary. It is research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not science/public proof.
+GOTRA Public Ledger is an auditable AI financial research publication ledger and production-report surface.
+GOTRA Public Ledger 是可审计 AI 金融研究发布账本。
+It shows daily research observations, public evidence, data gaps, review items, and audit trails; the internal v4 research chain is documented in Methodology and Audit. It is research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not science/public proof.
+Methodology and Audit still document the internal v4 chain, including K dossier, Knowledge Gate, internal Alaya readback, and Reader Boundary, for evidence review rather than homepage positioning.
 
 ## Primary reader routes
 

@@ -161,19 +161,21 @@ export function Hero({ language }: HeroProps) {
           <ShieldCheck aria-hidden="true" size={16} />
           {shortBoundary(language)}
         </div>
-        <p className="hero-brand-motif">{termLabel("gotra_v4", language)} · {termLabel("ksana_cognition_flywheel", language)}</p>
+        <p className="hero-brand-motif">
+          {copy(language, "可审计 AI 金融研究发布账本 · 研究信息", "Auditable AI financial research ledger · research only")}
+        </p>
         <h1 id="page-title" className="hero-title">
           {copy(
             language,
-            "把研究过程讲清楚，再交给你判断。",
-            "GOTRA v4 shows how the research was made, then leaves the decision to you.",
+            "可审计 AI 金融研究发布账本",
+            "Auditable AI financial research publication ledger",
           )}
         </h1>
         <p>
           {copy(
               language,
-            "GOTRA v4 是一套 Ksana 认知飞轮：K 深度研究底稿先行，F/W/G 基于 K 并行，主席综合冲突，红队做反证审计，知识闸门决定沉淀。它不是荐股 agent，也不是交易信号。",
-            "GOTRA v4 is a Ksana cognition flywheel: K deep research dossier first, F/W/G run in parallel from K, Chairman synthesizes conflicts, Red Team critiques, and Knowledge Gate decides what persists. It is not a stock-picking agent or a trading signal.",
+            "GOTRA 把每日研究观察、公开证据、数据缺口、复核项和审计记录放在同一条公开账本里。内部研究链路仍可在方法论和审计页查看；首页先说明它不是荐股 agent，也不是交易信号。",
+            "GOTRA puts daily research observations, public evidence, data gaps, review items, and audit records into one public ledger. The internal research chain remains available in Methodology and Audit; the homepage first states that this is not a stock-picking agent or a trading signal.",
           )}
         </p>
         <div className="hero-mechanism-strip" aria-label={copy(language, "v4 研究链路", "v4 research chain")}>
@@ -199,7 +201,7 @@ export function Hero({ language }: HeroProps) {
         <figure className="hero-asset-frame v4-flow-frame">
           <img
             src={heroAsset}
-            alt={copy(language, "GOTRA v4 Ksana cognition flywheel: research task, evidence packet, K dossier, F/W/G, Chairman, Red Team, Knowledge Gate, Alaya readback, Reader Boundary, public brief", "GOTRA v4 Ksana cognition flywheel: research task, evidence packet, K dossier, F/W/G, Chairman, Red Team, Knowledge Gate, Alaya readback, Reader Boundary, public brief")}
+            alt={copy(language, "GOTRA 可审计研究账本流程：今日观察、证据包、K 底稿、独立视角、综合、红队、知识闸门、公开简报", "GOTRA auditable research ledger flow: daily observation, evidence packet, K dossier, independent perspectives, synthesis, Red Team, Knowledge Gate, public brief")}
             width={1200}
             height={760}
             loading="eager"

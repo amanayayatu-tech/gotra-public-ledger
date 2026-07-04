@@ -83,10 +83,10 @@ function main() {
 
   const combinedCoreHtml = [...pages.values()].join("\n");
   const requiredPhrases = [
-    "auditable AI stock-research public ledger",
-    "v4 Ksana cognition flywheel",
-    "K deep research dossier",
-    "Knowledge Gate",
+    "auditable AI financial research publication ledger",
+    "可审计 AI 金融研究发布账本",
+    "K 深度研究底稿",
+    "知识闸门",
     "Audit Center",
     "research information only",
     "not investment advice",
@@ -94,11 +94,8 @@ function main() {
   ];
   requiredPhrases.forEach((phrase) => assertIncludes(combinedCoreHtml, phrase, "core routes"));
 
-  assertIncludes(pages.get("/"), "GOTRA Public Ledger 是可审计的 AI 股票研究公开账本", "/");
-  assertIncludes(pages.get("/"), "GOTRA v4 研究认知系统", "/");
-  assertIncludes(pages.get("/"), "K 深度研究底稿", "/");
-  assertIncludes(pages.get("/"), "研究任务书", "/");
-  assertIncludes(pages.get("/"), "证据包", "/");
+  assertIncludes(pages.get("/"), "GOTRA Public Ledger 是可审计 AI 金融研究发布账本", "/");
+  assertIncludes(pages.get("/"), "内部 v4 研究链路术语保留在方法论和审计页面", "/");
   assertIncludes(pages.get("/today"), "Daily Research Brief", "/today");
   assertIncludes(pages.get("/today"), "今天先读什么", "/today");
   assertIncludes(pages.get("/today"), "单票研究摘要", "/today");
@@ -233,7 +230,7 @@ function main() {
     "Frozen Demo Ledger",
     "Performance Notes",
     "Sources and Artifacts",
-    "v4 Ksana cognition flywheel",
+    "可审计 AI 金融研究发布账本",
     "Knowledge Gate",
     "not investment advice",
     "not a trading signal",
