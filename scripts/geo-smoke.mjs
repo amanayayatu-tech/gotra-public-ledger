@@ -128,9 +128,11 @@ function main() {
   assertIncludes(pages.get("/track-record"), "Public Track Record", "/track-record");
   assertIncludes(pages.get("/track-record"), "research_ledger.json", "/track-record");
   assertIncludes(pages.get("/track-record"), "PublicationDecision=publish", "/track-record");
+  assertIncludes(pages.get("/track-record"), "复盘覆盖率", "/track-record");
   assertIncludes(pages.get("/track-record"), "不是投资建议", "/track-record");
   assertIncludes(pages.get(symbolRoute), "个股档案", symbolRoute);
   assertIncludes(pages.get(symbolRoute), "历史判断与观点变化", symbolRoute);
+  assertIncludes(pages.get(symbolRoute), "复盘状态", symbolRoute);
   assertIncludes(pages.get(symbolRoute), "复盘、数据缺口与下一步", symbolRoute);
   assertIncludes(pages.get(symbolRoute), "不会回退到冻结 Demo", symbolRoute);
   assertIncludes(pages.get("/ledger"), "Frozen Demo Ledger", "/ledger");

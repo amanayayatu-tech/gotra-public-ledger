@@ -50,11 +50,16 @@ import {
 } from "./data/liveReports";
 import {
   loadResearchLedgerManifest,
+  researchLedgerReviewResult,
+  researchLedgerReviewStatus,
+  researchLedgerReviewUnavailable,
   researchLedgerStatuses,
   researchLedgerSymbols,
   researchLedgerWindows,
   type ResearchLedgerEntry,
   type ResearchLedgerLoadState,
+  type ResearchReviewResult,
+  type ResearchReviewUnavailableReason,
 } from "./data/researchLedger";
 import {
   computeSummary,
@@ -1546,6 +1551,47 @@ function trackRecordStatusLabel(status: string, language: Language): string {
   return status || copy(language, "未报告", "Not reported");
 }
 
+function reviewStatusLabel(status: "reviewed" | "review_unavailable" | "not_due", language: Language): string {
+  if (status === "reviewed") {
+    return copy(language, "已复盘", "Reviewed");
+  }
+  if (status === "review_unavailable") {
+    return copy(language, "不可复盘", "Review unavailable");
+  }
+  return copy(language, "未到期", "Not due");
+}
+
+function attributionLabel(classification: string | undefined, language: Language): string {
+  if (classification === "above_benchmark") {
+    return copy(language, "高于基准", "Above benchmark");
+  }
+  if (classification === "below_benchmark") {
+    return copy(language, "低于基准", "Below benchmark");
+  }
+  if (classification === "near_benchmark") {
+    return copy(language, "接近基准", "Near benchmark");
+  }
+  return classification || copy(language, "未分类", "Unclassified");
+}
+
+function reviewResultSummary(result: ResearchReviewResult, language: Language): string {
+  const relative = typeof result.attribution.relative_return_pp === "number" ? `${result.attribution.relative_return_pp.toFixed(2)}pp` : "n/a";
+  return copy(
+    language,
+    `raw return ${result.raw_return.toFixed(2)}%，benchmark return ${result.benchmark_return.toFixed(2)}%，相对差 ${relative}。这是历史算术复盘，不是业绩证明。`,
+    `raw return ${result.raw_return.toFixed(2)}%, benchmark return ${result.benchmark_return.toFixed(2)}%, relative ${relative}. Historical arithmetic review only, not performance proof.`,
+  );
+}
+
+function reviewUnavailableSummary(reason: ResearchReviewUnavailableReason, language: Language): string {
+  const missing = reason.missing_fields?.length ? reason.missing_fields.join(", ") : reason.review_unavailable_reason;
+  return copy(
+    language,
+    `到期但不可复盘：缺少 ${missing}。系统不会静默跳过，也不会用私有或过期数据补齐。`,
+    `Due but unavailable: missing ${missing}. The system does not silently skip it or fill with private/stale data.`,
+  );
+}
+
 function normalizeSymbolToken(value: string): string {
   return value.replace(/\.HK$/i, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 }
@@ -1655,6 +1701,8 @@ function SymbolProfilePage({
   const symbolKnownGaps = brief.known_gaps.filter((gap) => symbolMatchesValue(gap.symbol ?? gap.code, symbol));
   const relatedWatch = brief.research_watchlist.filter((watch) => symbolMatchesValue(watch.symbol, symbol));
   const viewChangeRows = ledgerEntries.slice(0, 8);
+  const latestReviewStatus =
+    latestEntry && ledgerState.kind === "ready" ? researchLedgerReviewStatus(ledgerState.manifest, latestEntry.entry_id) : null;
 
   return (
     <>
@@ -1759,6 +1807,7 @@ function SymbolProfilePage({
                   <th>{copy(language, "状态", "Status")}</th>
                   <th>{copy(language, "窗口", "Window")}</th>
                   <th>{copy(language, "复盘到期", "Review due")}</th>
+                  <th>{copy(language, "复盘状态", "Review status")}</th>
                   <th>{copy(language, "研究假设", "Hypothesis")}</th>
                 </tr>
               </thead>
@@ -1770,6 +1819,11 @@ function SymbolProfilePage({
                     <td>{trackRecordStatusLabel(entry.status, language)}</td>
                     <td>{entry.window_days}d</td>
                     <td>{entry.review_due_at}</td>
+                    <td>
+                      {ledgerState.kind === "ready"
+                        ? reviewStatusLabel(researchLedgerReviewStatus(ledgerState.manifest, entry.entry_id), language)
+                        : copy(language, "未报告", "Not reported")}
+                    </td>
                     <td>{entry.research_signal?.hypothesis ?? copy(language, "未报告", "Not reported")}</td>
                   </tr>
                 ))}
@@ -1793,7 +1847,14 @@ function SymbolProfilePage({
             <h3>{copy(language, "复盘安排", "Review plan")}</h3>
             <ul>
               <li>{copy(language, `复盘到期：${reviewDue}`, `Review due: ${reviewDue}`)}</li>
-              <li>{copy(language, "Stage 10 会把 1/7/30/90 天复盘、raw return、benchmark return 和不可复盘原因做成正式复盘引擎。", "Stage 10 will formalize 1/7/30/90 day review, raw return, benchmark return, and non-reviewable reasons.")}</li>
+              <li>
+                {copy(
+                  language,
+                  `复盘状态：${latestReviewStatus ? reviewStatusLabel(latestReviewStatus, language) : "等待 live 账本"}`,
+                  `Review status: ${latestReviewStatus ? reviewStatusLabel(latestReviewStatus, language) : "waiting for live ledger"}`,
+                )}
+              </li>
+              <li>{copy(language, "复盘引擎支持 1/7/30/90 天窗口；到期项必须有 ReviewResult 或不可复盘原因。", "The review engine supports 1/7/30/90 day windows; due items must have a ReviewResult or a review-unavailable reason.")}</li>
             </ul>
           </article>
           <article className="today-agent-card">
@@ -1893,7 +1954,11 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
         />
         <section className="today-section">
           <div className="edge-state-note">
-            {copy(language, "请先看今日简报或研究阅读器；公开账本会在后端 v4 发布运行写出 PublicationDecision=publish entries 后自动出现。", "Use today's brief or the research reader first; the public ledger appears after a backend v4 publication run writes PublicationDecision=publish entries.")}
+            {copy(
+              language,
+              "请先看今日简报或研究阅读器；公开账本会在后端 v4 发布运行写出 PublicationDecision=publish entries 后自动出现，并展示复盘覆盖率。",
+              "Use today's brief or the research reader first; the public ledger appears after a backend v4 publication run writes PublicationDecision=publish entries and review coverage.",
+            )}
           </div>
           <div className="related-prediction-list today-links">
             <a href={routeHref("/today")}>{copy(language, "今日简报", "Today's brief")}</a>
@@ -1915,6 +1980,7 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
 
   const { manifest } = state;
   const entries = manifest.entries;
+  const reviewCoverage = manifest.review_coverage;
   const symbols = researchLedgerSymbols(entries);
   const statuses = researchLedgerStatuses(entries);
   const windows = researchLedgerWindows(entries);
@@ -1930,6 +1996,9 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
   const versionChain = selectedEntry
     ? entries.filter((entry) => entry.base_entry_id === selectedEntry.base_entry_id).sort((a, b) => a.version - b.version)
     : [];
+  const selectedReviewStatus = selectedEntry ? researchLedgerReviewStatus(manifest, selectedEntry.entry_id) : null;
+  const selectedReviewResult = selectedEntry ? researchLedgerReviewResult(manifest, selectedEntry.entry_id) : null;
+  const selectedReviewUnavailable = selectedEntry ? researchLedgerReviewUnavailable(manifest, selectedEntry.entry_id) : null;
 
   return (
     <>
@@ -1959,6 +2028,17 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
             <span>{copy(language, "生成时间", "Generated at")}</span>
             <strong>{manifest.generated_at || copy(language, "未报告", "Not reported")}</strong>
             <p>{copy(language, "证据层级：local checks + smoke evidence。不是 10h/formal acceptance。", "Evidence layer: local checks + smoke evidence. Not 10h/formal acceptance.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "复盘覆盖率", "Review coverage")}</span>
+            <strong>{reviewCoverage.reviewed_count} / {reviewCoverage.due_count}</strong>
+            <p>
+              {copy(
+                language,
+                `不可复盘 ${reviewCoverage.unavailable_count}，未到期 ${reviewCoverage.not_due_count}。复盘是历史算术核对，不是业绩证明。`,
+                `${reviewCoverage.unavailable_count} unavailable, ${reviewCoverage.not_due_count} not due. Review is historical arithmetic, not performance proof.`,
+              )}
+            </p>
           </article>
         </div>
       </section>
@@ -2005,6 +2085,20 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
                   </li>
                 ))}
               </ul>
+            </article>
+            <article className="today-agent-card">
+              <h3>{copy(language, "复盘结果", "Review result")}</h3>
+              <p>{selectedReviewStatus ? reviewStatusLabel(selectedReviewStatus, language) : copy(language, "未报告", "Not reported")}</p>
+              {selectedReviewResult ? (
+                <>
+                  <p>{reviewResultSummary(selectedReviewResult, language)}</p>
+                  <p>{attributionLabel(selectedReviewResult.attribution.classification, language)}</p>
+                </>
+              ) : selectedReviewUnavailable ? (
+                <p>{reviewUnavailableSummary(selectedReviewUnavailable, language)}</p>
+              ) : (
+                <p>{copy(language, "复盘窗口尚未到期；不会提前包装结果。", "Review window is not due yet; no result is packaged early.")}</p>
+              )}
             </article>
           </div>
           <details className="audit-details">
@@ -2079,6 +2173,7 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
                     <th>{copy(language, "状态", "Status")}</th>
                     <th>{copy(language, "窗口", "Window")}</th>
                     <th>{copy(language, "复盘到期", "Review due")}</th>
+                    <th>{copy(language, "复盘状态", "Review status")}</th>
                     <th>{copy(language, "证据", "Evidence")}</th>
                   </tr>
                 </thead>
@@ -2090,6 +2185,7 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
                       <td>{trackRecordStatusLabel(entry.status, language)}</td>
                       <td>{entry.window_days}d</td>
                       <td>{entry.review_due_at}</td>
+                      <td>{reviewStatusLabel(researchLedgerReviewStatus(manifest, entry.entry_id), language)}</td>
                       <td>{entry.evidence_packet_link ? <a href={entry.evidence_packet_link}>{copy(language, "证据包", "Evidence packet")}</a> : copy(language, "未报告", "Not reported")}</td>
                     </tr>
                   ))}
@@ -3548,6 +3644,16 @@ function PerformancePage({
           <a className="primary-action" href={routeHref("/today")}>
             {copy(language, "阅读今日简报", "Read today's brief")}
           </a>
+          <a className="secondary-action" href={routeHref("/track-record")}>
+            {copy(language, "查看复盘覆盖率", "Open review coverage")}
+          </a>
+          <p>
+            {copy(
+              language,
+              "Stage 10 复盘引擎的 ReviewResult、不可复盘原因和错误归因展示在公开研究账本；本页不把它们包装成收益能力、业绩证明或行动指令。",
+              "Stage 10 ReviewResult rows, unavailable reasons, and attribution are shown in the public research ledger; this page does not package them as return capability, performance proof, or action guidance.",
+            )}
+          </p>
         </div>
         <details className="audit-details portfolio-metrics-detail demo-fixture-detail">
           <summary>

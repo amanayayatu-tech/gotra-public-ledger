@@ -109,7 +109,7 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       zhDescription:
         "公开研究账本读取 live research_ledger.json，只展示 PublicationDecision=publish 的 ResearchSignal，并保留 append-only hash chain、版本链、证据包链接和发布决定。",
       enDescription:
-        "The Public Track Record reads live research_ledger.json, showing ResearchSignal entries whose PublicationDecision is publish, with append-only hash chain, version chain, evidence packet links, and publication decisions.",
+        "The Public Track Record reads live research_ledger.json, showing ResearchSignal entries whose PublicationDecision is publish, with append-only hash chain, version chain, evidence packet links, publication decisions, and Stage 10 review coverage.",
     },
     "/guide": {
       zhTitle: "GOTRA 使用指南 | 如何阅读 GOTRA",

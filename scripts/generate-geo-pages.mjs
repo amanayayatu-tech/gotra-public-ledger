@@ -505,6 +505,21 @@ function statusLabel(value) {
   return labels.get(raw) ?? raw;
 }
 
+function reviewStatusForEntry(manifest, entry) {
+  const entryId = String(entry?.entry_id ?? "");
+  const reviewed = Array.isArray(manifest?.review_results) ? manifest.review_results.some((result) => result?.entry_id === entryId) : false;
+  if (reviewed) {
+    return "已复盘（ReviewResult）";
+  }
+  const unavailable = Array.isArray(manifest?.review_unavailable)
+    ? manifest.review_unavailable.some((reason) => reason?.entry_id === entryId)
+    : false;
+  if (unavailable) {
+    return "不可复盘（review_unavailable_reason）";
+  }
+  return "未到期（not_due）";
+}
+
 function statusExplanationHtml(rawStatus) {
   const raw = String(rawStatus ?? "unavailable");
   if (/PASS_WITH_REVIEW_ITEMS_2H_V40_KSANA_COGNITION_FLYWHEEL/i.test(raw)) {
@@ -1587,6 +1602,7 @@ function performancePage(portfolio) {
       <section class="notice">
         <h2>No production performance tracking yet / 暂无生产表现跟踪</h2>
         <p>There is no public-safe production performance tracking artifact on this page. The paper portfolio file is a demo fixture and future-dated sample. It is not current production, not live trading, not performance proof, not a return promise, not a trading signal, and not investment advice.</p>
+        <p>Stage 10 复盘引擎的 ReviewResult、不可复盘原因和错误归因展示在 <a href="/track-record">公开研究账本</a>；本页不会把它们包装成收益能力。</p>
         <p><a href="/reports">Open the Audit Center</a> for current runtime and artifact status.</p>
       </section>
       <section>
@@ -1864,12 +1880,14 @@ function trackRecordPage(source) {
   const manifest = source.researchLedger;
   const entries = Array.isArray(manifest?.entries) ? manifest.entries : [];
   const integrity = manifest?.integrity ?? {};
+  const coverage = manifest?.review_coverage ?? {};
   const rows = entries.slice(0, 50).map((entry) => [
     entry.entry_id ?? "",
     `${entry.exchange ?? ""}:${entry.symbol ?? ""}`,
     statusLabel(entry.status ?? ""),
     entry.window_days ?? "",
     entry.review_due_at ?? "",
+    reviewStatusForEntry(manifest, entry),
     entry.evidence_packet_link ?? "",
   ]);
   const body =
@@ -1889,9 +1907,24 @@ function trackRecordPage(source) {
           ],
         )}
       </section>
+      <section class="notice">
+        <h2>复盘覆盖率 / Review coverage</h2>
+        ${table(
+          ["field", "value"],
+          [
+            ["supported_windows_days", Array.isArray(coverage.supported_windows_days) ? coverage.supported_windows_days.join(",") : "1,7,30,90"],
+            ["total_count", coverage.total_count ?? entries.length],
+            ["due_count", coverage.due_count ?? 0],
+            ["reviewed_count", coverage.reviewed_count ?? 0],
+            ["unavailable_count", coverage.unavailable_count ?? 0],
+            ["not_due_count", coverage.not_due_count ?? entries.length],
+          ],
+        )}
+        <p>复盘覆盖率是审计完整性，不是业绩证明、收益承诺或行动指令。</p>
+      </section>
       <section>
         <h2>公开判断列表</h2>
-        ${entries.length > 0 ? table(["entry_id", "symbol", "status", "window_days", "review_due_at", "evidence_packet_link"], rows) : "<p>当前 live research_ledger.json 没有 publish entries。</p>"}
+        ${entries.length > 0 ? table(["entry_id", "symbol", "status", "window_days", "review_due_at", "review_status", "evidence_packet_link"], rows) : "<p>当前 live research_ledger.json 没有 publish entries。</p>"}
       </section>
       <section class="notice">
         <h2>Raw artifact / Open JSON</h2>
@@ -1902,7 +1935,7 @@ function trackRecordPage(source) {
       <p class="lede">Stage 7 定义 append-only LedgerEntry，但本次静态构建没有 public/reports/research_ledger.json。页面不会回退到冻结 Demo 账本，也不会伪造历史判断。</p>
       <section class="notice">
         <h2>下一步</h2>
-        <p>后端 v4 发布运行写出 PublicationDecision=publish 的 publish entries 后，/track-record 会显示 live research_ledger.json 表格、筛选和详情页。</p>
+        <p>后端 v4 发布运行写出 PublicationDecision=publish 的 publish entries 后，/track-record 会显示 live research_ledger.json 表格、筛选、详情页和复盘覆盖率。</p>
         <p><a href="/today">今日简报</a> · <a href="/reports/full-analyst/">研究阅读器</a> · <a href="/ledger">冻结 Demo 账本</a></p>
       </section>`;
   return pageShell({
@@ -1967,6 +2000,7 @@ function symbolProfilePage(source, requestedSymbol) {
     statusLabel(entry.status ?? ""),
     entry.window_days ?? "",
     entry.review_due_at ?? "",
+    reviewStatusForEntry(manifest, entry),
     entry.research_signal?.hypothesis ?? "",
   ]);
 
@@ -1997,6 +2031,7 @@ function symbolProfilePage(source, requestedSymbol) {
             ["研究质量状态", statusLabel(item?.research_status ?? item?.research_signal?.research_status ?? entries[0]?.research_status ?? entries[0]?.status ?? "unavailable")],
             ["发布决定", statusLabel(item?.publication_decision?.decision ?? entries[0]?.publication_decision?.decision ?? entries[0]?.status ?? "unavailable")],
             ["复盘到期", item?.research_signal?.review_due_at ?? entries[0]?.review_due_at ?? "未报告"],
+            ["复盘状态", entries[0] ? reviewStatusForEntry(manifest, entries[0]) : "等待 live 账本"],
             ["公开账本历史", entries.length > 0 ? `${entries.length} 条 live LedgerEntry` : "等待 live research_ledger.json；不会回退到冻结 Demo 账本，也不会伪造历史判断。"],
           ],
         )}
@@ -2025,7 +2060,7 @@ function symbolProfilePage(source, requestedSymbol) {
         <h2>历史判断与观点变化</h2>
         ${
           historyRows.length > 0
-            ? table(["日期", "版本", "状态", "窗口", "复盘到期", "研究假设"], historyRows)
+            ? table(["日期", "版本", "状态", "窗口", "复盘到期", "复盘状态", "研究假设"], historyRows)
             : "<p>暂无 live 公开历史判断。这里不会用 Demo 账本或 raw Markdown 补历史。</p>"
         }
       </section>
@@ -2036,7 +2071,7 @@ function symbolProfilePage(source, requestedSymbol) {
             ? `<ul>${gaps.slice(0, 10).map((line) => `<li>${escapeHtml(textValue(line))}</li>`).join("")}</ul>`
             : "<p>当前公开摘要没有额外数据缺口；仍以读者边界、证据包和后续复盘为准。</p>"
         }
-        <p>Stage 10 会把 1/7/30/90 天复盘、raw return、benchmark return 和不可复盘原因做成正式复盘引擎。</p>
+        <p>复盘引擎支持 1/7/30/90 天窗口；到期项必须有 ReviewResult 或不可复盘原因。复盘是历史算术核对，不是业绩证明或行动指令。</p>
       </section>
       <section class="notice">
         <h2>审计入口</h2>
@@ -2318,7 +2353,7 @@ Methodology and Audit still document the internal v4 chain, including K dossier,
 - https://gotra.me/today - Daily Research Brief. Reader-first Full Analyst research brief with agent analysis items, red-team review, risk factors, internal Alaya readback, known data gaps, and next watch points.
 - https://gotra.me/why-gotra - Why GOTRA. Research discipline for seeing what changed, what is known, and what still needs review.
 - https://gotra.me/guide - Guide. Seven-step reading order, daily system flow, report type labels, glossary, internal Alaya boundary, and evidence boundaries.
-- https://gotra.me/track-record - Public Track Record. Live append-only research ledger for published ResearchSignal entries with hash chain and publication decision references.
+- https://gotra.me/track-record - Public Track Record. Live append-only research ledger for published ResearchSignal entries with hash chain, publication decision references, Stage 10 review coverage, ReviewResult rows, and review-unavailable reasons.
 - https://gotra.me/symbol/sample - Symbol Profile template. Current research, live ledger history, view changes, review due items, and data gaps for one symbol; populated with real symbols when public artifacts are available.
 - https://gotra.me/reports - Audit Center. Live production/status artifacts, Full Analyst v4 status, raw artifact disclosures, and evidence boundaries.
 - https://gotra.me/reports/latest/ - Coverage Report Reader. Productized HTML reader for the latest public coverage report; raw Markdown appears only in audit disclosure.
