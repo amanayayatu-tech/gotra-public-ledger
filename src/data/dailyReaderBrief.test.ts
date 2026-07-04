@@ -379,6 +379,23 @@ describe("daily reader brief builder", () => {
           future_research_tasks: [{ zh: "刷新公告后重跑", en: "Rerun after disclosure refresh" }],
           evidence_gap_memory: [{ zh: "缺少最新公告复核", en: "Latest disclosure needs review" }],
           reader_boundary_gate: [{ zh: "does_not_hide_research_content: true", en: "does_not_hide_research_content: true" }],
+          research_signal: {
+            schema: "gotra.research_signal.v1",
+            signal_id: "run:HKEX:0700:symbol:research_signal",
+            signal_hash: "rs1234567890abcdef",
+            source_id: "symbol",
+            hypothesis: { zh: "研究状态需要保留复核项。", en: "Research state should keep review items visible." },
+            confidence: "needs_review",
+            evidence_ids: ["market_data_snapshot", "price_context"],
+            counter_evidence: [{ zh: "发行人公告仍需复核。", en: "Issuer disclosure still needs review." }],
+            uncertainty: [{ zh: "公开来源新鲜度有限。", en: "Public-source freshness is limited." }],
+            window_days: 30,
+            review_due_at: "2026-07-29",
+            evidence_packet_id: "run:HKEX:0700:evidence_packet",
+            evidence_packet_hash: "ep1234567890abcdef",
+            market_data_snapshot_hash: "md1234567890abcdef",
+            research_status: "needs_review",
+          },
           evidence_gaps: [],
           watch_conditions: [],
           confidence_boundary: { zh: "研究内容，不是交易信号。", en: "Research content, not a trading signal." },
@@ -390,6 +407,8 @@ describe("daily reader brief builder", () => {
           research_quality_gate_hash: "rq1234567890abcdef",
           knowledge_gate_hash: "kg1234567890abcdef",
           reader_boundary_gate_hash: "rb1234567890abcdef",
+          research_signal_hash: "rs1234567890abcdef",
+          agent_research_signal_hashes: { f_partner_view: "frs1234567890abcdef" },
           public_payload_hash: "pp1234567890abcdef",
           positive_case: [],
           negative_case: [],
@@ -411,6 +430,10 @@ describe("daily reader brief builder", () => {
     expect(normalized?.agent_analysis_items[0]?.unresolved_questions[0]?.en).toContain("public source");
     expect(normalized?.agent_analysis_items[0]?.reader_boundary_gate[0]?.en).toContain("does_not_hide");
     expect(normalized?.agent_analysis_items[0]?.k_dossier_hash).toBe("k1234567890abcdef");
+    expect(normalized?.agent_analysis_items[0]?.research_signal?.schema).toBe("gotra.research_signal.v1");
+    expect(normalized?.agent_analysis_items[0]?.research_signal?.evidence_ids).toContain("market_data_snapshot");
+    expect(normalized?.agent_analysis_items[0]?.research_signal_hash).toBe("rs1234567890abcdef");
+    expect(normalized?.agent_analysis_items[0]?.agent_research_signal_hashes?.f_partner_view).toBe("frs1234567890abcdef");
     expect(JSON.stringify(normalized)).not.toContain("[object Object]");
   });
 

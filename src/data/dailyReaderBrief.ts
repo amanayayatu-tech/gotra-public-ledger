@@ -53,6 +53,24 @@ export type DailyReaderBriefFullAnalyst = {
   summary: LocalizedText;
 };
 
+export type DailyReaderBriefResearchSignal = {
+  schema?: string;
+  signal_id?: string;
+  signal_hash?: string;
+  source_id?: string;
+  hypothesis: LocalizedText;
+  confidence: string;
+  evidence_ids: string[];
+  counter_evidence: LocalizedText[];
+  uncertainty: LocalizedText[];
+  window_days: number | null;
+  review_due_at?: string;
+  evidence_packet_id?: string;
+  evidence_packet_hash?: string;
+  market_data_snapshot_hash?: string;
+  research_status?: string;
+};
+
 export type DailyReaderBriefAgentAnalysisItem = {
   symbol: string;
   title: LocalizedText;
@@ -96,6 +114,9 @@ export type DailyReaderBriefAgentAnalysisItem = {
   research_quality_gate_hash?: string;
   knowledge_gate_hash?: string;
   reader_boundary_gate_hash?: string;
+  research_signal?: DailyReaderBriefResearchSignal;
+  research_signal_hash?: string;
+  agent_research_signal_hashes?: Record<string, string>;
   public_payload_hash?: string;
   positive_case: LocalizedText[];
   negative_case: LocalizedText[];
@@ -384,6 +405,44 @@ function readerSafeNumberStringRecord(value: unknown): Record<string, number | s
   return entries.length > 0 ? Object.fromEntries(entries) : undefined;
 }
 
+function readerSafeStringList(value: unknown): string[] {
+  return Array.isArray(value) ? value.map((item) => readerSafeText(item)).filter(Boolean) : [];
+}
+
+function numberOrNull(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function normalizeResearchSignal(value: unknown): DailyReaderBriefResearchSignal | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+  const hypothesis = readerSafeLocalized(value.hypothesis, "");
+  const evidenceIds = readerSafeStringList(value.evidence_ids);
+  const counterEvidence = readerSafeLocalizedList(value.counter_evidence);
+  const uncertainty = readerSafeLocalizedList(value.uncertainty);
+  if (!hypothesis.zh || evidenceIds.length === 0 || counterEvidence.length === 0 || uncertainty.length === 0) {
+    return undefined;
+  }
+  return {
+    schema: stringValue(value.schema) ?? undefined,
+    signal_id: stringValue(value.signal_id) ?? undefined,
+    signal_hash: stringValue(value.signal_hash) ?? undefined,
+    source_id: stringValue(value.source_id) ?? undefined,
+    hypothesis,
+    confidence: stringValue(value.confidence) ?? "needs_review",
+    evidence_ids: evidenceIds,
+    counter_evidence: counterEvidence,
+    uncertainty,
+    window_days: numberOrNull(value.window_days),
+    review_due_at: stringValue(value.review_due_at) ?? undefined,
+    evidence_packet_id: stringValue(value.evidence_packet_id) ?? undefined,
+    evidence_packet_hash: stringValue(value.evidence_packet_hash) ?? undefined,
+    market_data_snapshot_hash: stringValue(value.market_data_snapshot_hash) ?? undefined,
+    research_status: stringValue(value.research_status) ?? undefined,
+  };
+}
+
 function englishDailyLabel(label: string): string {
   const labels: Record<string, string> = {
     港股早报: "HK morning report",
@@ -630,6 +689,9 @@ function normalizeAgentAnalysisItem(value: unknown, index: number): DailyReaderB
     research_quality_gate_hash: stringValue(item.research_quality_gate_hash) ?? undefined,
     knowledge_gate_hash: stringValue(item.knowledge_gate_hash) ?? undefined,
     reader_boundary_gate_hash: stringValue(item.reader_boundary_gate_hash) ?? undefined,
+    research_signal: normalizeResearchSignal(item.research_signal),
+    research_signal_hash: stringValue(item.research_signal_hash) ?? undefined,
+    agent_research_signal_hashes: readerSafeStringRecord(item.agent_research_signal_hashes),
     public_payload_hash: stringValue(item.public_payload_hash) ?? undefined,
     positive_case: readerSafeLocalizedList(item.positive_case),
     negative_case: readerSafeLocalizedList(item.negative_case),

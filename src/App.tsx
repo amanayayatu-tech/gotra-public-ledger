@@ -1350,6 +1350,27 @@ function combineReaderLists(...lists: Array<LocalizedText[] | undefined>): Local
     });
 }
 
+function bilingualText(zh: string, en: string): LocalizedText {
+  return { zh, en };
+}
+
+function researchSignalReaderRows(item: DailyReaderBriefAgentAnalysisItem): LocalizedText[] {
+  const signal = item.research_signal;
+  if (!signal) {
+    return [];
+  }
+  return [
+    bilingualText(`方向性研究假设：${signal.hypothesis.zh}`, `Research hypothesis: ${signal.hypothesis.en}`),
+    bilingualText(`证据 ID：${signal.evidence_ids.slice(0, 4).join(", ")}`, `Evidence IDs: ${signal.evidence_ids.slice(0, 4).join(", ")}`),
+    ...signal.counter_evidence.slice(0, 2).map((value) => bilingualText(`反证：${value.zh}`, `Counter-evidence: ${value.en}`)),
+    ...signal.uncertainty.slice(0, 2).map((value) => bilingualText(`不确定性：${value.zh}`, `Uncertainty: ${value.en}`)),
+    bilingualText(
+      `复盘窗口：${signal.window_days ?? "未报告"} 天，复盘日期：${signal.review_due_at ?? "未报告"}`,
+      `Review window: ${signal.window_days ?? "not reported"} day(s), review due: ${signal.review_due_at ?? "not reported"}`,
+    ),
+  ];
+}
+
 function analystSectionRows(item: DailyReaderBriefAgentAnalysisItem, language: Language): Array<[string, LocalizedText[]]> {
   const chairman = item.chairman_synthesis.length > 0 ? item.chairman_synthesis : [item.research_summary];
   const redTeam = item.red_team_audit.length > 0 ? item.red_team_audit : item.red_team_review;
@@ -1359,6 +1380,7 @@ function analystSectionRows(item: DailyReaderBriefAgentAnalysisItem, language: L
     const unresolved = combineReaderLists(item.unresolved_questions, item.future_research_tasks);
     const boundary = combineReaderLists(item.reader_boundary_gate, item.confidence_boundary ? [item.confidence_boundary] : undefined);
     const rows: Array<[string, LocalizedText[]]> = [
+      [copy(language, "结构化研究信号", "Structured ResearchSignal"), researchSignalReaderRows(item)],
       [copy(language, `为什么今天研究它 / ${termTitle("research_task", language)}`, "Why this stock today / Research task"), readerMainList(item.research_task)],
       [termLabel("evidence_packet", language), readerMainList(item.evidence_packet)],
       [termLabel("k_dossier", language), combineReaderLists(item.k_deep_research_dossier, item.k_deep_research)],
@@ -1407,6 +1429,7 @@ function gateHashRecord(item: DailyReaderBriefAgentAnalysisItem): Record<string,
     research_quality_gate_hash: item.research_quality_gate_hash,
     knowledge_gate_hash: item.knowledge_gate_hash,
     reader_boundary_gate_hash: item.reader_boundary_gate_hash,
+    research_signal_hash: item.research_signal_hash ?? item.research_signal?.signal_hash,
     public_payload_hash: item.public_payload_hash,
   })
     .filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0);
@@ -2561,6 +2584,16 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
                         <ul>
                           {metadataEntries(gateHashRecord(item), 5).map(([key, value]) => (
                             <li key={`${item.symbol}-gate-hash-${key}`}>{key}: {shortHash(value)}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(item.agent_research_signal_hashes, 6).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "ResearchSignal hash", "ResearchSignal hashes")}</h3>
+                        <ul>
+                          {metadataEntries(item.agent_research_signal_hashes, 6).map(([key, value]) => (
+                            <li key={`${item.symbol}-signal-hash-${key}`}>{key}: {shortHash(value)}</li>
                           ))}
                         </ul>
                       </div>
