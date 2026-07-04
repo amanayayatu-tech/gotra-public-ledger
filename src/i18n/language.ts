@@ -173,6 +173,14 @@ export function runtimeStatusText(language: Language, status: string | null | un
       zh: "两小时 v4 压力测试通过，但保留复核项",
       en: "2h v4 pressure passed with review items",
     },
+    PRODUCTION_CANARY_MONITOR_FAILED: {
+      zh: "生产候选监控失败",
+      en: "Production canary monitor failed",
+    },
+    PRODUCTION_CANARY_MONITOR_UNKNOWN: {
+      zh: "生产候选监控未知",
+      en: "Production canary monitor unknown",
+    },
   };
   const label = labels[value];
   if (label) {
