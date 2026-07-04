@@ -339,6 +339,16 @@ async function inspectPage(client, requiredText = []) {
   })()`);
 }
 
+async function inspectPageWhenRequiredTextSettles(client, requiredText = [], timeoutMs = 10000) {
+  const started = Date.now();
+  let latest = await inspectPage(client, requiredText);
+  while (latest.missing.length > 0 && Date.now() - started < timeoutMs) {
+    await sleep(180);
+    latest = await inspectPage(client, requiredText);
+  }
+  return latest;
+}
+
 async function exerciseLedger(client) {
   return evaluate(client, `(() => {
     const setNativeValue = (element, value) => {
@@ -710,7 +720,7 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
 
     for (const route of routes) {
       await navigate(client, `${args.baseUrl}${route.hash}`, route.viewport);
-      const inspection = await inspectPage(client, route.requiredText);
+      const inspection = await inspectPageWhenRequiredTextSettles(client, route.requiredText);
       report.routeResults.push({
         route: route.label,
         hash: route.hash,

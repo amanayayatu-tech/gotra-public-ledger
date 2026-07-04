@@ -1587,14 +1587,14 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
           title={copy(language, "公开研究账本尚未生成", "Public research ledger is not generated yet")}
           body={copy(
             language,
-            "Stage 7 已为 publish 的 ResearchSignal 定义 append-only LedgerEntry；当前生产 reports 目录还没有 research_ledger.json。页面不会回退到冻结 Demo 账本，也不会伪造历史判断。",
-            "Stage 7 defines append-only LedgerEntry rows for published ResearchSignals; the current production reports directory does not yet contain research_ledger.json. This page does not fall back to the frozen demo ledger or fabricate history.",
+            "Stage 7 已为 PublicationDecision=publish 的 ResearchSignal 定义 append-only LedgerEntry；当前生产 reports 目录还没有 research_ledger.json。页面不会回退到冻结 Demo 账本，也不会伪造历史判断。",
+            "Stage 7 defines append-only LedgerEntry rows for ResearchSignals with PublicationDecision=publish; the current production reports directory does not yet contain research_ledger.json. This page does not fall back to the frozen demo ledger or fabricate history.",
           )}
           icon={Database}
         />
         <section className="today-section">
           <div className="edge-state-note">
-            {copy(language, "请先看今日简报或研究阅读器；公开账本会在后端 v4 发布运行写出 publish entries 后自动出现。", "Use today's brief or the research reader first; the public ledger appears after a backend v4 publication run writes publish entries.")}
+            {copy(language, "请先看今日简报或研究阅读器；公开账本会在后端 v4 发布运行写出 PublicationDecision=publish entries 后自动出现。", "Use today's brief or the research reader first; the public ledger appears after a backend v4 publication run writes PublicationDecision=publish entries.")}
           </div>
           <div className="related-prediction-list today-links">
             <a href={routeHref("/today")}>{copy(language, "今日简报", "Today's brief")}</a>
