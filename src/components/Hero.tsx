@@ -2,7 +2,7 @@ import { ArrowRight, BookOpenCheck, BrainCircuit, Database, GitBranch, ShieldChe
 import { useEffect, useState } from "react";
 import type { RecordView, SummaryMetrics } from "../data/metrics";
 import type { LedgerDataset } from "../data/schema";
-import { executionModelExplanation, researchStatusLabel, termExplanation, termLabel, termTitle } from "../data/terminology";
+import { researchStatusLabel, termTitle } from "../data/terminology";
 import type { Language } from "../i18n/language";
 import { boundarySentence, copy } from "../i18n/language";
 
@@ -47,13 +47,13 @@ function displayValue(value: string | number | null | undefined, fallback = "not
 }
 
 function HeroStatusStrip({ language, state }: { language: Language; state: BriefStatusState }) {
-  const label = copy(language, "v4 public artifact status", "v4 public artifact status");
+  const label = copy(language, "公开研究简报状态", "Public research brief status");
 
   if (state.kind === "loading") {
     return (
       <div className="v4-status-strip" aria-label={label}>
-        <span>{copy(language, "v4 状态读取中", "v4 status loading")}</span>
-        <strong>{copy(language, "正在读取 daily_reader_brief.v4", "Loading daily_reader_brief.v4")}</strong>
+        <span>{copy(language, "公开简报读取中", "Public brief loading")}</span>
+        <strong>{copy(language, "正在读取今日公开研究简报", "Loading today's public research brief")}</strong>
         <a href="/#/today">{copy(language, "先去今日简报", "Open today's brief")}</a>
       </div>
     );
@@ -62,7 +62,7 @@ function HeroStatusStrip({ language, state }: { language: Language; state: Brief
   if (state.kind === "unavailable") {
     return (
       <div className="v4-status-strip warning" aria-label={label}>
-        <span>{copy(language, "v4 状态暂不可用", "v4 status unavailable")}</span>
+        <span>{copy(language, "公开简报暂不可用", "Public brief unavailable")}</span>
         <strong>{state.message}</strong>
         <a href="/#/today">{copy(language, "返回今日简报", "Back to today's brief")}</a>
       </div>
@@ -75,9 +75,7 @@ function HeroStatusStrip({ language, state }: { language: Language; state: Brief
   const rawRunStatus = fullAnalyst.run_status ?? fullAnalyst.canary_status;
   const items = [
     [copy(language, "简报日期", "Brief date"), displayValue(status.brief_date)],
-    [copy(language, "方法版本", "Methodology"), displayValue(status.methodology_version)],
-    [copy(language, "执行模型", "Execution"), executionModelExplanation(status.execution_model, language)],
-    [copy(language, "运行状态", "Run status"), researchStatusLabel(rawRunStatus, language)],
+    [copy(language, "研究状态", "Research status"), researchStatusLabel(rawRunStatus, language)],
     [copy(language, "复核项 / 数据缺口", "Review / gap"), `${displayValue(fullAnalyst.needs_review_count, "0")} / ${displayValue(fullAnalyst.data_gap_count, "0")}`],
     [termTitle("alaya_internal_readback", language), researchStatusLabel(String(alaya.readback_status ?? alaya.readback_verified_count ?? "unavailable"), language)],
   ];
@@ -91,10 +89,11 @@ function HeroStatusStrip({ language, state }: { language: Language; state: Brief
         </div>
       ))}
       <details className="audit-details inline-status-code">
-        <summary>{copy(language, "查看原始状态码", "View raw status codes")}</summary>
+        <summary>{copy(language, "查看审计字段", "View audit fields")}</summary>
         <code>{displayValue(rawRunStatus)}</code>
         <code>{displayValue(status.execution_model)}</code>
-        <p>{copy(language, "这些原始字段只用于审计；中文主路径以上方解释为准。", "These raw fields are for audit only; the reader path uses the explanations above.")}</p>
+        <code>{displayValue(status.methodology_version)}</code>
+        <p>{copy(language, "执行模型、方法版本和原始状态码只用于审计；主路径只展示读者解释。", "Execution model, methodology version, and raw status codes are audit fields; the reader path shows explanations first.")}</p>
       </details>
     </div>
   );
@@ -134,23 +133,23 @@ export function Hero({ language }: HeroProps) {
   const mechanismCards = [
     [
       <BookOpenCheck aria-hidden="true" size={18} key="task" />,
-      termLabel("research_task", language),
-      termExplanation("research_task", language),
+      copy(language, "为什么今天研究", "Why this today"),
+      copy(language, "先说明研究原因、核心问题，以及哪些证据不足时不能下结论。", "Starts with the reason, core questions, and what cannot be concluded without evidence."),
     ],
     [
       <Database aria-hidden="true" size={18} key="evidence" />,
-      termLabel("evidence_packet", language),
-      termExplanation("evidence_packet", language),
+      copy(language, "证据够不够", "Is evidence enough"),
+      copy(language, "公开来源、时效、缺失来源和数据缺口先于任何研究判断。", "Public sources, freshness, missing sources, and gaps come before any research judgment."),
     ],
     [
       <GitBranch aria-hidden="true" size={18} key="parallel" />,
-      copy(language, "K 底稿 -> F/W/G 独立视角", "K Dossier -> F/W/G"),
-      copy(language, "K 深度研究底稿先行；F/W/G 基于 K 并行审查。", "K deep research dossier runs first; F/W/G review in parallel from K."),
+      copy(language, "多视角复核", "Multi-view review"),
+      copy(language, "不同视角保留分歧和反证，不把不确定性压成一个答案。", "Different views keep disagreements and counter-evidence visible instead of compressing uncertainty into one answer."),
     ],
     [
       <BrainCircuit aria-hidden="true" size={18} key="gate" />,
-      termLabel("knowledge_gate", language),
-      copy(language, "决定哪些知识沉淀到内部 Alaya 记忆，哪些保持未解决。", "Decides what persists to internal Alaya memory and what remains unresolved."),
+      copy(language, "留下未解决问题", "Keep unresolved questions"),
+      copy(language, "能沉淀的进入内部记忆；证据不足的问题保留到下一轮。", "What can persist goes to internal memory; insufficiently evidenced questions carry forward."),
     ],
   ];
 
@@ -178,12 +177,12 @@ export function Hero({ language }: HeroProps) {
             "GOTRA puts daily research observations, public evidence, data gaps, review items, and audit records into one public ledger. The internal research chain remains available in Methodology and Audit; the homepage first states that this is not a stock-picking agent or a trading signal.",
           )}
         </p>
-        <div className="hero-mechanism-strip" aria-label={copy(language, "v4 研究链路", "v4 research chain")}>
-          <span>{termTitle("research_task", language)}</span>
-          <span>{termTitle("evidence_packet", language)}</span>
-          <span>{termTitle("k_dossier", language)}</span>
-          <span>{copy(language, "F/W/G 并行", "F/W/G Parallel")}</span>
-          <span>{termTitle("knowledge_gate", language)}</span>
+        <div className="hero-mechanism-strip" aria-label={copy(language, "公开研究阅读顺序", "Public research reading order")}>
+          <span>{copy(language, "今日观察", "Daily observation")}</span>
+          <span>{copy(language, "公开证据", "Public evidence")}</span>
+          <span>{copy(language, "多视角复核", "Multi-view review")}</span>
+          <span>{copy(language, "反证与缺口", "Critique and gaps")}</span>
+          <span>{copy(language, "公开简报", "Public brief")}</span>
         </div>
         <div className="hero-actions" aria-label="Page shortcuts">
           <a className="primary-action" href="/#/today">

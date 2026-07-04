@@ -40,12 +40,12 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
       ],
     },
     {
-      label: copy(language, "v4 审计中心", "v4 Audit Center"),
-      note: copy(language, "审计中心展示运行状态、v4 研究产物、缺口和 raw artifact 折叠区。", "The Audit Center shows runtime status, v4 research artifacts, gaps, and raw artifact disclosures."),
+      label: copy(language, "审计中心", "v4 Audit Center"),
+      note: copy(language, "审计中心展示运行状态、研究产物、缺口和 raw artifact 折叠区。", "The Audit Center shows runtime status, v4 research artifacts, gaps, and raw artifact disclosures."),
       links: [
         { href: routeHref("/reports"), label: copy(language, "审计中心", "Audit Center") },
         { href: "/reports/latest/", label: copy(language, "覆盖日报 reader", "Coverage report reader") },
-        { href: routeHref("/reports/full-analyst"), label: copy(language, "Full Analyst reader", "Full Analyst reader") },
+        { href: routeHref("/reports/full-analyst"), label: copy(language, "研究阅读器", "Full Analyst reader") },
         { href: `${routeHref("/reports")}?focus=canary`, label: copy(language, "运行监控", "Runtime Monitoring") },
         { href: routeHref("/notes"), label: copy(language, "透明度文章", "Transparency Articles") },
       ],

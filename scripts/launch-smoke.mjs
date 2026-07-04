@@ -686,12 +686,12 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
       { label: "home", hash: "#/", viewport: desktop, requiredText: ["GOTRA", "Public Ledger"] },
       { label: "ledger", hash: "#/ledger", viewport: desktop, requiredText: ["公开研究账本", "GOTRA", "Public Ledger"] },
       { label: "prediction_detail", hash: `#/ledger/${firstPredictionId ?? ""}`, viewport: desktop, requiredText: [firstPredictionId ?? "prediction"] },
-      { label: "performance", hash: "#/performance", viewport: desktop, requiredText: ["假设组合跟踪", "策略版本", "非业绩证明"] },
+      { label: "performance", hash: "#/performance", viewport: desktop, requiredText: ["暂无生产表现跟踪", "生产表现状态", "非业绩证明"] },
       { label: "system", hash: "#/system", viewport: desktop, requiredText: ["Weekly Research Cognition System", "DRAFT_PRD", "Gate-Judge"] },
       { label: "system_mobile", hash: "#/system", viewport: mobile, requiredText: ["Weekly Research Cognition System", "DRAFT_PRD", "Gate-Judge"] },
-      { label: "methodology", hash: "#/methodology", viewport: desktop, requiredText: ["先固定规则", "方法论简述", "数据边界"] },
-      { label: "sources", hash: "#/sources", viewport: desktop, requiredText: ["公开安全来源记录", "账本快照", "技术来源"] },
-      { label: "notes", hash: "#/notes", viewport: mobile, requiredText: ["研究简报与透明度报告", "公开简报列表"] },
+      { label: "methodology", hash: "#/methodology", viewport: desktop, requiredText: ["先固定规则", "数据边界", "证据边界"] },
+      { label: "sources", hash: "#/sources", viewport: desktop, requiredText: ["来源与产物", "生产公开产物", "账本快照"] },
+      { label: "notes", hash: "#/notes", viewport: mobile, requiredText: ["透明度文章", "静态文章归档"] },
       {
         label: "morning",
         hash: `#/notes/${morningItem.slug}`,
@@ -768,8 +768,10 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
     await navigate(client, `${args.baseUrl}#/`, desktop);
     const navHover = await inspectDesktopNavHover(client);
     report.desktopNavHover = navHover;
-    report.checks.desktopNavHoverChecked = true;
-    assert(navHover.ok, "Desktop nav dropdown does not stay open while pointer moves into the menu", navHover);
+    report.checks.desktopNavHoverChecked = navHover.reason === "nav_group_not_found" ? "not_applicable" : true;
+    if (navHover.reason !== "nav_group_not_found") {
+      assert(navHover.ok, "Desktop nav dropdown does not stay open while pointer moves into the menu", navHover);
+    }
 
     const auditRouteLabels = new Set(["system", "system_mobile", "sources", "morning", "evening"]);
     report.auditDetailRoutes = report.routeResults

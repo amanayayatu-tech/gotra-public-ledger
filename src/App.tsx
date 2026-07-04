@@ -191,7 +191,6 @@ function HomeLoadingHero({ language }: { language: Language }) {
           </div>
         </div>
       </section>
-      <ResearchSystemPanel language={language} compact />
     </>
   );
 }
@@ -1439,63 +1438,63 @@ function fullAnalystExecutionText(brief: DailyReaderBrief, language: Language): 
 function V40ResearchSystemPanel({ language, compact = false }: { language: Language; compact?: boolean }) {
   const cards = [
     [
-      `${termTitle("research_task", language)} + ${termTitle("evidence_packet", language)}`,
+      copy(language, "先说为什么研究 + 证据够不够", "Why this research + evidence sufficiency"),
       copy(
         language,
-        "先说明为什么今天研究这只股票、核心问题、必需证据、数据缺口（data_gap）处理方式，以及 K/F/W/G 的任务边界。",
+        "先说明为什么今天研究、核心问题、必需证据、数据缺口处理方式，以及哪些结论暂时不能说。",
         "Defines why the stock is studied today, the core questions, required evidence, data_gap handling, and K/F/W/G briefs.",
       ),
     ],
     [
-      termLabel("k_dossier", language),
+      copy(language, "先打研究底稿", "Research dossier first"),
       copy(
         language,
-        "K 不是普通并行 agent；它先生成深度研究底稿，F/W/G 随后基于 K、任务书和证据包并行输出。",
+        "先把公开证据整理成底稿，再让不同视角复核，避免只凭股票代码和价格上下文写结论。",
         "K is not an ordinary parallel agent; it creates the deep research dossier first, then F/W/G run in parallel from K, the task, and the evidence packet.",
       ),
     ],
     [
-      `${termTitle("chairman_synthesis", language)} + ${termTitle("red_team_critique", language)}`,
+      copy(language, "综合判断 + 反证审计", "Synthesis + critique"),
       copy(
         language,
-        "主席综合 K+F/W/G 的共识、冲突和证据强弱；红队只做审计和反证检查，不当最终裁判（Judge）。",
+        "综合环节说明共识、冲突和证据强弱；反证环节专门找薄弱假设和过度确定风险。",
         "Chairman synthesizes K+F/W/G consensus, conflicts, and evidence strength; Red Team audits and checks counter-evidence, but is not the Judge.",
       ),
     ],
     [
-      `${termTitle("research_quality_gate", language)} + ${termTitle("knowledge_gate", language)}`,
+      copy(language, "质量状态 + 知识沉淀", "Quality state + knowledge persistence"),
       copy(
         language,
-        "研究质量闸门决定研究状态；知识闸门决定沉淀、有限沉淀、临时观察或不沉淀。",
+        "研究质量状态可以是候选、观察、需要复核或数据缺口；能沉淀的知识才进入内部记忆。",
         "Research Quality Gate decides the research status; Knowledge Gate decides persist, limited persist, temporary observation, or do_not_persist.",
       ),
     ],
     [
-      termLabel("reader_boundary_gate", language),
+      copy(language, "读者边界", "Reader boundary"),
       copy(
         language,
-        "读者边界闸门只添加研究边界，不隐藏数据缺口、需要复核、红队反证、agent 冲突或证据缺口。",
+        "读者边界只说明这不是投资建议或交易信号，不隐藏数据缺口、需要复核、反证或观点冲突。",
         "Reader Boundary Gate adds research boundaries only; it does not hide data_gap, needs_review, Red Team critique, agent conflicts, or evidence gaps.",
       ),
     ],
   ];
 
   return (
-    <section className={`v35-system-panel ${compact ? "compact" : ""}`} aria-label={copy(language, "v4 Ksana cognition flywheel 说明", "v4 Ksana cognition flywheel explanation")}>
+    <section className={`v35-system-panel ${compact ? "compact" : ""}`} aria-label={copy(language, "公开研究流程说明", "Public research process explanation")}>
       <div className="section-heading compact">
-        <span>{termLabel("ksana_cognition_flywheel", language)}</span>
-        <h2>{copy(language, "K 先行，F/W/G 并行，知识闸门回读", "K first, F/W/G parallel, knowledge gate readback")}</h2>
+        <span>{copy(language, "研究流程", "Research process")}</span>
+        <h2>{copy(language, "先打底，再多视角复核", "Dossier first, then multi-view review")}</h2>
         <p>
           {copy(
             language,
-            "v4 的主路径是研究任务书 -> 证据包 -> K 深度研究底稿 -> F/W/G 独立视角 -> 主席综合 -> 红队反证审计 -> 研究质量闸门 -> 知识闸门 -> 内部 Alaya 回读 -> 读者边界闸门。",
+            "普通读者只需要按这个顺序理解：为什么研究、证据够不够、底稿怎么形成、不同视角如何复核、哪些地方仍需复核，以及哪些知识能进入下一轮记忆。",
             "v4 runs research_task -> evidence_packet -> K dossier -> F/W/G -> Chairman -> Red Team -> Research Quality Gate -> Knowledge Gate -> Alaya readback -> Reader Boundary.",
           )}
         </p>
         <p>
           {copy(
             language,
-            "这里的 Alaya 只指 GOTRA repo 内部 cognition flywheel / knowledge memory / feedback/readback state；不是外部服务、外部项目或外部 repo。",
+            "内部 Alaya 只指 GOTRA 内部记忆、反馈和回读状态；不是外部服务、外部项目或外部 repo。",
             "Alaya here only means GOTRA repo internal cognition flywheel / knowledge memory / feedback/readback state; it is not an external service, project, or repo.",
           )}
         </p>
@@ -2419,13 +2418,13 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
     <>
       <section className="route-intro full-analyst-reader-hero" aria-labelledby="full-analyst-reader-title">
         <div>
-          <span className="section-index">{termLabel("full_analyst", language)}</span>
+          <span className="section-index">{termTitle("full_analyst", language)}</span>
           <h1 id="full-analyst-reader-title">{copy(language, "完整研究链路阅读器", "Full Analyst Research Reader")}</h1>
           <p>
             {copy(
               language,
               v40Reader
-                ? "这是 v4 完整研究链路（Full Analyst）的产品化阅读层：默认展示为什么今天研究、研究任务书、证据包、K 深度研究底稿、F/W/G 独立视角、主席综合、红队反证审计、研究质量闸门、知识闸门、沉淀记忆、未解决问题和读者边界。Hash/timing 只放在下方审计折叠区。"
+                ? "这是产品化研究阅读层：默认展示为什么今天研究、研究任务、证据是否足够、底稿、多视角复核、综合判断、反证审计、质量状态、知识沉淀、未解决问题和读者边界。Hash/timing 只放在下方审计折叠区。"
                 : v35Reader
                 ? "这是 Full Analyst v3.5 的产品化阅读层：默认先展示研究任务书、证据包、缺失必需来源，再展示基于证据包的 K/F/W/G 独立视角、主席综合、红队审计、agent timing/status 和 hash。Raw Markdown 只放在下方审计折叠区。"
                 : v3Reader
@@ -2471,7 +2470,7 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
                 {item.research_status ? <em className="research-status-pill">{researchStatusLabel(item.research_status, language)}</em> : null}
               </div>
               <div className="symbol-brief-lede">
-                <span>{copy(language, "执行模型", "Execution model")}</span>
+                <span>{copy(language, "研究链路说明", "Research chain")}</span>
                 <p>
                   {item.execution_model === "deep_research_dossier_then_parallel_perspectives"
                     ? fullAnalystExecutionText(brief, language)
@@ -3482,7 +3481,7 @@ function ReportTypeIndex({ language }: { language: Language }) {
         <p>
           {copy(
             language,
-            "审计中心同时展示覆盖日报、Full Analyst v4、状态 JSON 和监控产物；它们都是运行/状态证据或研究过程证据，不是投资建议、交易信号、科学证明或业绩证明。",
+            "审计中心同时展示覆盖日报、研究链路产物、状态 JSON 和监控产物；它们都是运行/状态证据或研究过程证据，不是投资建议、交易信号、科学证明或业绩证明。",
             "The Audit Center shows coverage reports, Full Analyst v4, status JSON, and monitor artifacts; all are runtime/status or research-process evidence, not investment advice, trading signals, science proof, or performance proof.",
           )}
         </p>
@@ -3521,8 +3520,8 @@ function HowToReadGotra({ language }: { language: Language }) {
         <h2 id="reader-guide-title">{copy(language, "如何阅读 GOTRA", "How to read GOTRA")}</h2>
         <p>
           {copy(
-            language,
-              "阅读顺序把今日简报、v4 Full Analyst reader、审计中心、来源和方法论分开；Demo/表现说明只作为归档入口，不是主阅读路径。",
+              language,
+              "阅读顺序把今日简报、研究阅读器、审计中心、来源和方法论分开；Demo/表现说明只作为归档入口，不是主阅读路径。",
               "The reading order separates Today's Brief, the v4 Full Analyst reader, Audit Center, Sources, and Methodology; Demo and performance notes are archive-only, not the main reading path.",
           )}
         </p>
@@ -3553,7 +3552,7 @@ function GuidePage({ language }: { language: Language }) {
         title={copy(language, "如何阅读 GOTRA", "How to read GOTRA")}
         body={copy(
           language,
-          "这页解释普通读者每天应该先看什么、生产日报和 Full Analyst 各自代表什么、内部 Alaya 如何限定，以及哪些说法不能被升级成投资或业绩声明。",
+          "这页解释普通读者每天应该先看什么、生产日报和研究阅读器各自代表什么、内部 Alaya 如何限定，以及哪些说法不能被升级成投资或业绩声明。",
           "This page explains what everyday readers should read first, what production reports and Full Analyst mean, how internal Alaya is bounded, and which claims must not be upgraded into investment or performance statements.",
         )}
         icon={BookOpenCheck}
@@ -3614,7 +3613,7 @@ function GuidePage({ language }: { language: Language }) {
           <p>
             {copy(
               language,
-              "`/reports/latest/` 是行情覆盖日报 reader；Full Analyst reader 是单独的先行试跑研究阅读层。两者都不是交易信号。",
+              "`/reports/latest/` 是行情覆盖日报 reader；研究阅读器是单独的候选研究阅读层。两者都不是交易信号。",
               "`/reports/latest/` is the coverage report reader; Full Analyst reader is a separate canary research reading layer. Neither is a trading signal.",
             )}
           </p>
@@ -3653,8 +3652,8 @@ function GuidePage({ language }: { language: Language }) {
           <article>
             <h3>{copy(language, "每日读者路径", "Daily reader path")}</h3>
             <ol>
-              <li>{copy(language, "打开 Research Reader。", "Open the Research Reader.")}</li>
-              <li>{copy(language, "按研究任务书、证据包、K 深度研究底稿、F/W/G、主席综合、红队反证审计顺序读。", "Read Research Task, Evidence Packet, K dossier, F/W/G, Chairman, and Red Team in order.")}</li>
+              <li>{copy(language, "打开研究阅读器。", "Open the Research Reader.")}</li>
+              <li>{copy(language, "按研究任务、证据、底稿、多视角复核、综合判断、反证审计顺序读。", "Read Research Task, Evidence Packet, K dossier, F/W/G, Chairman, and Red Team in order.")}</li>
               <li>{copy(language, "用观察条件和未解决问题安排下一步复核。", "Use watch conditions and unresolved questions for the next review.")}</li>
             </ol>
           </article>
@@ -3733,7 +3732,7 @@ function GuidePage({ language }: { language: Language }) {
             copy(language, "不是交易信号或仓位指令", "Not a trading signal or position instruction"),
             copy(language, "不是业绩证明或未来表现保证", "Not performance proof or a return promise"),
             copy(language, "不是科学/公开有效性证明", "Not science/public validity proof"),
-            copy(language, "Full Analyst 是 candidate/canary", "Full Analyst remains candidate/canary"),
+            copy(language, "研究阅读器仍是候选研究路径", "Full Analyst remains candidate/canary"),
             copy(language, "内部 Alaya 不是外部服务", "Internal Alaya is not an external service"),
           ].map((item) => (
             <article key={item}>
@@ -4447,7 +4446,7 @@ function App() {
             <PageIntro
               eyebrow={copy(language, "Demo 账本", "Demo Ledger")}
               title={copy(language, "冻结 Demo 账本", "Frozen Demo Ledger")}
-              body={copy(language, "这是冻结公开安全演示快照，不是最新生产日报，也不是实时预测账本。最新生产日报请看下方入口。", "This is a frozen public-safe demo snapshot, not the latest production daily report and not a live prediction ledger. Use the link below for current production reports.")}
+              body={copy(language, "这是公开研究账本的冻结公开安全演示快照，属于可审计 AI 金融研究发布账本的一部分；它不是最新生产日报，也不是实时预测账本。最新生产日报请看下方入口。", "This is a frozen public-safe demo snapshot of the auditable AI financial research publication ledger, not the latest production daily report and not a live prediction ledger. Use the link below for current production reports.")}
               icon={Database}
             />
             <section className="route-panel demo-ledger-banner" aria-labelledby="demo-ledger-title">

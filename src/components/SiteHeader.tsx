@@ -46,7 +46,7 @@ export function SiteHeader({ activePath, language, onLanguageChange }: SiteHeade
           </span>
           <div>
             <strong>GOTRA Public Ledger</strong>
-            <span>{copy(language, "v4 Ksana 研究飞轮", "v4 Ksana research flywheel")}</span>
+            <span>{copy(language, "可审计研究发布账本", "Auditable research ledger")}</span>
           </div>
         </a>
         <button

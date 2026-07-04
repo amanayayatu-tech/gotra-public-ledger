@@ -40,7 +40,7 @@ export const guideReadingOrder: GuideReadingStep[] = [
     route: "/today",
     title: { zh: "今日简报", en: "Daily Research Brief" },
     body: {
-      zh: "每天先读这里：读者化摘要、完整研究链路（Full Analyst）摘要、数据缺口、观察清单和下一步观察都在同一页。",
+      zh: "每天先读这里：读者化摘要、研究链路摘要、数据缺口、观察清单和下一步观察都在同一页。",
       en: "Start here every day: the reader summary, Full Analyst summary, data gaps, watchlist, and next watch are on one page.",
     },
   },
@@ -58,9 +58,9 @@ export const guideReadingOrder: GuideReadingStep[] = [
     id: "full-analyst",
     href: "/#/reports/full-analyst",
     route: "/reports/full-analyst",
-    title: { zh: "v4 完整研究链路（Full Analyst）阅读器", en: "v4 Full Analyst reader" },
+    title: { zh: "完整研究链路阅读器", en: "v4 Full Analyst reader" },
     body: {
-      zh: "再用产品化 reader 核对每个标的的研究任务书、证据包、K 深度研究底稿、F/W/G、主席综合、红队反证、知识闸门和未解决问题；Markdown 原文只在审计折叠区打开。",
+      zh: "再用产品化阅读器核对每个标的的研究任务、证据、底稿、多视角复核、综合判断、反证审计、知识沉淀和未解决问题；Markdown 原文只在审计折叠区打开。",
       en: "Then use the product reader to inspect per-symbol Research Task, Evidence Packet, K dossier, F/W/G, Chairman, Red Team, Knowledge Gate, and unresolved questions; the Markdown original opens only inside the audit disclosure.",
     },
   },
@@ -70,7 +70,7 @@ export const guideReadingOrder: GuideReadingStep[] = [
     route: "/reports",
     title: { zh: "审计中心 / 公开产物", en: "Audit Center / Public Artifacts" },
     body: {
-      zh: "核对覆盖日报、完整研究链路 v4、状态 JSON、监控产物、原始审计产物折叠区和证据层级。",
+      zh: "核对覆盖日报、研究链路产物、状态 JSON、监控产物、原始审计产物折叠区和证据层级。",
       en: "Audit coverage reports, Full Analyst v4, status JSON, monitor artifacts, raw artifact disclosures, and evidence layers.",
     },
   },
@@ -206,9 +206,9 @@ export const guideReportTypes: GuideReportType[] = [
   {
     id: "full-analyst",
     href: "/#/reports/full-analyst",
-    label: { zh: "完整研究链路阅读器（Full Analyst reader）", en: "Full Analyst reader / Full Analyst 研究阅读器" },
+    label: { zh: "完整研究链路阅读器", en: "Full Analyst reader / Full Analyst 研究阅读器" },
     body: {
-      zh: "先行试跑候选研究的产品化阅读层；Markdown 原文只作为原始审计产物保留。",
+      zh: "候选研究的产品化阅读层；Markdown 原文只作为原始审计产物保留。",
       en: "The productized reading layer for canary candidate research; the Markdown original remains only as an audit raw artifact.",
     },
   },
@@ -217,7 +217,7 @@ export const guideReportTypes: GuideReportType[] = [
     href: "/#/reports",
     label: { zh: "先行试跑监控审计（Canary Monitor audit）", en: "Canary Monitor audit / 先行试跑监控审计" },
     body: {
-      zh: "完整研究链路心跳、新鲜度、公开扫描和回滚状态在审计中心查看；原始 JSON 只在折叠区打开。",
+      zh: "研究链路心跳、新鲜度、公开扫描和回滚状态在审计中心查看；原始 JSON 只在折叠区打开。",
       en: "Full Analyst heartbeat, freshness, public scan, and rollback status live in the audit center; raw JSON opens only in disclosures.",
     },
   },
