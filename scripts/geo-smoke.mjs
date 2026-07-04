@@ -156,6 +156,9 @@ function main() {
   assertIncludes(pages.get("/sources"), "Manifest 文件", "/sources");
   assertIncludes(pages.get("/sources"), "产品化阅读入口", "/sources");
   assertIncludes(pages.get("/sources"), "证据包来源类型", "/sources");
+  assertIncludes(pages.get("/sources"), "原型期数据源用途与授权边界", "/sources");
+  assertIncludes(pages.get("/sources"), "SEC EDGAR 必须使用合规 User-Agent", "/sources");
+  assertIncludes(pages.get("/sources"), "Yahoo chart via GOTRA price_cache", "/sources");
   assertIncludes(pages.get("/sources"), "Alaya 只指 GOTRA 内部", "/sources");
   assertIncludes(pages.get("/sources"), "静态 demo / 归档产物", "/sources");
   assertIncludes(pages.get("/sources"), "原始审计产物", "/sources");
