@@ -33,6 +33,9 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("提示词 / 运行框架摘要");
     expect(appSource).toContain("GOTRA 内部 Alaya 认知飞轮");
     expect(appSource).toContain("今日重点");
+    expect(appSource).toContain("今日运行概览");
+    expect(appSource).toContain("复盘到期项");
+    expect(appSource).toContain("打开公开账本");
     expect(appSource).toContain("观察清单");
     expect(appSource).toContain("已知缺口与风险");
     expect(appSource).toContain("研究过程效果");

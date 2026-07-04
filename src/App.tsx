@@ -1962,6 +1962,25 @@ function V35ResearchSystemPanel({ language, compact = false }: { language: Langu
   );
 }
 
+function todayReviewDueItems(brief: DailyReaderBrief): { symbol: string; due: string; status: string }[] {
+  return brief.agent_analysis_items
+    .map((item) => ({
+      symbol: item.symbol,
+      due: item.research_signal?.review_due_at ?? "",
+      status: item.research_status ?? item.research_signal?.research_status ?? "",
+    }))
+    .filter((item) => item.due)
+    .slice(0, 4);
+}
+
+function todayReviewDueSummary(brief: DailyReaderBrief, language: Language): string {
+  const dueItems = todayReviewDueItems(brief);
+  if (dueItems.length === 0) {
+    return copy(language, "今天没有公开报告的复盘到期项。", "No public review-due item is reported today.");
+  }
+  return dueItems.map((item) => `${item.symbol} ${item.due}`).join(" · ");
+}
+
 function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; language: Language }) {
   if (state.kind === "loading") {
     return (
@@ -1994,6 +2013,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
   const hasRichAgentBrief = selectedAgentItems.length > 0;
   const topFocusSymbols = selectedAgentItems.slice(0, 5).map((item) => item.symbol);
   const reviewCount = brief.full_analyst.needs_review_count + brief.full_analyst.data_gap_count;
+  const reviewDueItems = todayReviewDueItems(brief);
   const cleanTldr = readerTldr(pickLocalized(language, brief.tldr));
 
   return (
@@ -2068,6 +2088,45 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
       </section>
 
       <ResearchSystemPanel brief={brief} language={language} compact />
+
+      <section className="today-section" aria-labelledby="today-ops-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "今日运行概览", "Daily operating snapshot")}</span>
+          <h2 id="today-ops-title">{copy(language, "先看发布、复核、缺口和复盘到期", "Start with publishing, review, gaps, and review-due items")}</h2>
+          <p>
+            {copy(
+              language,
+              "这些数字来自公开 daily_reader_brief.json 与公开状态文件；它们解释今天能读什么、哪里仍需复核，不是投资建议或交易信号。",
+              "These numbers come from public daily_reader_brief.json and public status files; they explain what is readable today and what still needs review, not investment advice or a trading signal.",
+            )}
+          </p>
+        </div>
+        <div className="today-effect-grid">
+          <article>
+            <span>{copy(language, "普通日报更新", "Ordinary reports updated")}</span>
+            <strong>{brief.daily_report_status.reports_updated_count}</strong>
+            <p>{pickLocalized(language, brief.daily_report_status.summary)}</p>
+          </article>
+          <article>
+            <span>{copy(language, "发布 / 待复核 / 数据缺口", "Published / review / data gaps")}</span>
+            <strong>{brief.full_analyst.publish_count} / {brief.full_analyst.needs_review_count} / {brief.full_analyst.data_gap_count}</strong>
+            <p>{copy(language, "待复核和数据缺口会保留在主路径，不能被读成完整结论。", "Review items and data gaps stay on the main path and must not be read as complete conclusions.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "复盘到期项", "Review-due items")}</span>
+            <strong>{reviewDueItems.length}</strong>
+            <p>{todayReviewDueSummary(brief, language)}</p>
+          </article>
+          <article>
+            <span>{copy(language, "公开账本", "Public track record")}</span>
+            <strong>{brief.full_analyst.publish_count > 0 ? copy(language, "可核对", "Available") : copy(language, "等待 publish", "Waiting for publish")}</strong>
+            <p>
+              {copy(language, "只把 PublicationDecision=publish 的研究判断写入 append-only 账本。", "Only PublicationDecision=publish research judgments enter the append-only ledger.")}{" "}
+              <a href={routeHref("/track-record")}>{copy(language, "打开公开账本", "Open track record")}</a>
+            </p>
+          </article>
+        </div>
+      </section>
 
       <section className="today-section" aria-labelledby="today-top-items-title">
         <div className="section-heading compact">
