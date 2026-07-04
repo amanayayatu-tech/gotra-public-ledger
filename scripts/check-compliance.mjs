@@ -68,12 +68,21 @@ const negationPatterns = [
   /不能/,
   /不声称/,
   /不是/,
+  /不给/,
+  /不提供/,
+  /不承诺/,
   /不构成/,
   /不允许/,
   /不要/,
   /不会/,
   /避免被(?:读成|误解为)/,
+  /区别/,
   /非/,
+];
+
+const wholeLineContextPatterns = [
+  /区别/,
+  /对比/,
 ];
 
 function segmentBeforeMatch(line, matchIndex) {
@@ -98,6 +107,10 @@ function segmentBeforeMatch(line, matchIndex) {
 }
 
 function isPolicyContext(line, pattern) {
+  if (wholeLineContextPatterns.some((contextPattern) => contextPattern.test(line))) {
+    return true;
+  }
+
   if (explicitPolicyLinePatterns.some((contextPattern) => contextPattern.test(line))) {
     return true;
   }
@@ -127,9 +140,17 @@ const hits = [];
 for (const file of scanRoots.flatMap(listFiles)) {
   const relative = path.relative(root, file);
   const text = fs.readFileSync(file, "utf8");
+  let claimBoundaryBlock = false;
   text.split(/\r?\n/).forEach((line, index) => {
+    if (/不得声称[:：]\s*$/.test(line)) {
+      claimBoundaryBlock = true;
+    } else if (claimBoundaryBlock && /^#{1,6}\s+/.test(line)) {
+      claimBoundaryBlock = false;
+    }
+
     forbiddenPatterns.forEach((pattern) => {
-      if (line.includes(pattern) && !isPolicyContext(line, pattern)) {
+      const isClaimBoundaryListItem = claimBoundaryBlock && /^\s*[-*]\s+/.test(line);
+      if (line.includes(pattern) && !isClaimBoundaryListItem && !isPolicyContext(line, pattern)) {
         hits.push({ file: relative, line: index + 1, pattern, text: line.trim() });
       }
     });
