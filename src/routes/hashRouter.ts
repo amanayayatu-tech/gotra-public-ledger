@@ -4,6 +4,7 @@ export type AppRoute =
   | { name: "whyGotra"; path: "/why-gotra" }
   | { name: "guide"; path: "/guide" }
   | { name: "fullAnalystReport"; path: "/reports/full-analyst" }
+  | { name: "evidencePacketAudit"; path: "/audit/evidence/:id"; evidenceId: string }
   | { name: "ledger"; path: "/ledger" }
   | { name: "prediction"; path: "/ledger/:id"; predictionId: string }
   | { name: "performance"; path: "/performance" }
@@ -72,6 +73,15 @@ export function parseHashRoute(hash: string): AppRoute {
     };
   }
 
+  const evidenceMatch = path.match(/^\/audit\/evidence\/([^/]+)$/);
+  if (evidenceMatch?.[1]) {
+    return {
+      name: "evidencePacketAudit",
+      path: "/audit/evidence/:id",
+      evidenceId: decodeURIComponent(evidenceMatch[1]),
+    };
+  }
+
   return { name: "home", path: "/" };
 }
 
@@ -93,4 +103,8 @@ export function predictionRouteHref(predictionId: string): string {
 
 export function noteRouteHref(slug: string): string {
   return routeHref(`/notes/${encodeURIComponent(slug)}`);
+}
+
+export function evidencePacketRouteHref(evidenceId: string): string {
+  return routeHref(`/audit/evidence/${encodeURIComponent(evidenceId)}`);
 }

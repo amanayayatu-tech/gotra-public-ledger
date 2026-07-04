@@ -49,6 +49,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://gotra.me/audit/evidence/latest/</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://gotra.me/reports/latest.md</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>weekly</changefreq>

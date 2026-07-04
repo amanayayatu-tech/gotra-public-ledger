@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   normalizeHashPath,
+  evidencePacketRouteHref,
   noteRouteHref,
   parseBrowserRoute,
   parseHashRoute,
@@ -35,6 +36,13 @@ describe("hash router", () => {
     const eveningRoute = parseHashRoute("#/notes/error-review-first-public-snapshot");
     expect(eveningRoute.name === "note" ? eveningRoute.slug : "").toBe("error-review-first-public-snapshot");
     expect(noteRouteHref("alpha note")).toBe("/#/notes/alpha%20note");
+  });
+
+  it("parses evidence packet audit routes", () => {
+    const route = parseHashRoute("#/audit/evidence/HKEX%3A0700");
+    expect(route.name).toBe("evidencePacketAudit");
+    expect(route.name === "evidencePacketAudit" ? route.evidenceId : "").toBe("HKEX:0700");
+    expect(evidencePacketRouteHref("HKEX:0700")).toBe("/#/audit/evidence/HKEX%3A0700");
   });
 
   it("falls unknown paths back to home", () => {

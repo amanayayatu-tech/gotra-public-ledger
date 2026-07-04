@@ -66,6 +66,7 @@ function main() {
     "/ledger",
     "/reports",
     "/reports/full-analyst/",
+    "/audit/evidence/latest/",
     "/performance",
     "/methodology",
     "/claim-boundary",
@@ -145,6 +146,10 @@ function main() {
   assertIncludes(pages.get("/reports/full-analyst/"), "K 深度研究", "/reports/full-analyst/");
   assertIncludes(pages.get("/reports/full-analyst/"), "内部 Alaya 回读", "/reports/full-analyst/");
   assertIncludes(pages.get("/reports/full-analyst/"), "原始审计产物", "/reports/full-analyst/");
+  assertIncludes(pages.get("/audit/evidence/latest/"), "证据包审计摘要", "/audit/evidence/latest/");
+  assertIncludes(pages.get("/audit/evidence/latest/"), "Stage 4 schema 检查项", "/audit/evidence/latest/");
+  assertIncludes(pages.get("/audit/evidence/latest/"), "future_data_check=false", "/audit/evidence/latest/");
+  assertIncludes(pages.get("/audit/evidence/latest/"), "retrieved_at", "/audit/evidence/latest/");
   assertIncludes(pages.get("/performance"), "No production performance tracking yet", "/performance");
   assertIncludes(pages.get("/performance"), "demo fixture and future-dated sample", "/performance");
   assertIncludes(pages.get("/performance"), "not performance proof", "/performance");
@@ -192,6 +197,7 @@ function main() {
     "https://gotra.me/reports",
     "https://gotra.me/reports/latest/",
     "https://gotra.me/reports/full-analyst/",
+    "https://gotra.me/audit/evidence/latest/",
     "https://gotra.me/reports/latest.md",
     "https://gotra.me/reports/status.json",
     "https://gotra.me/reports/daily_reader_brief.json",
