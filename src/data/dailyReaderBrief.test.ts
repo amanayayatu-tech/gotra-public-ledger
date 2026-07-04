@@ -338,6 +338,82 @@ describe("daily reader brief builder", () => {
     expect(JSON.stringify(normalized)).not.toContain("[object Object]");
   });
 
+  it("normalizes v4 cognition flywheel artifacts with K dossier and knowledge gates", () => {
+    const built = buildDailyReaderBrief(snapshot(), { now });
+    const v4Artifact = {
+      ...built,
+      schema_version: "gotra.daily_reader_brief.v4",
+      schema: "gotra.daily_reader_brief.v4",
+      full_analyst: {
+        ...built.full_analyst,
+        prompt_template_version: "gotra.full_analyst.prompt.v4.ksana_cognition_flywheel",
+        methodology_version: "ksana_cognition_flywheel_v4",
+        execution_model: "deep_research_dossier_then_parallel_perspectives",
+        symbol_schema: "gotra.full_analyst.symbol.v4",
+        alaya_event_schema: "gotra.cognition_flywheel.full_analyst_memory.v4",
+        agent_parallelism: 3,
+      },
+      agent_analysis_items: [
+        {
+          symbol: "HKEX:0700",
+          title: { zh: "HKEX:0700 v4 研究摘要", en: "HKEX:0700 v4 research summary" },
+          execution_model: "deep_research_dossier_then_parallel_perspectives",
+          research_status: "needs_review",
+          research_task: [{ zh: "selection_reason: 今日研究原因", en: "selection_reason: reason for today's research" }],
+          evidence_packet: [{ zh: "data_gaps: 需要复核公开来源", en: "data_gaps: public sources need review" }],
+          missing_required_sources: [{ zh: "issuer filing refresh", en: "issuer filing refresh" }],
+          research_summary: { zh: "Chairman 综合 K+F/W/G 后维持 needs_review。", en: "Chairman keeps needs_review after synthesizing K+F/W/G." },
+          key_updates: [],
+          research_context: [],
+          k_deep_research_dossier: [{ zh: "dossier_summary: K 先行生成 dossier", en: "dossier_summary: K produced the dossier first" }],
+          k_deep_research: [],
+          f_partner_view: [{ zh: "F 基于 K 的建设性视角", en: "F constructive view from K" }],
+          w_partner_view: [{ zh: "W 基于 K 的反证视角", en: "W counter view from K" }],
+          g_partner_view: [{ zh: "G 基于 K 的结构视角", en: "G structure view from K" }],
+          chairman_synthesis: [{ zh: "Chairman synthesized K+F/W/G", en: "Chairman synthesized K+F/W/G" }],
+          red_team_audit: [{ zh: "Red Team 是审计不是 Judge", en: "Red Team is audit, not Judge" }],
+          research_quality_gate: [{ zh: "quality_verdict: pass_with_review_items", en: "quality_verdict: pass_with_review_items" }],
+          knowledge_gate: [{ zh: "knowledge_persistence: persist_with_limitations", en: "knowledge_persistence: persist_with_limitations" }],
+          knowledge_items_to_persist: [{ zh: "evidence_gap_memory", en: "evidence_gap_memory" }],
+          unresolved_questions: [{ zh: "下一次公开来源如何补齐？", en: "Which public source should be refreshed next?" }],
+          future_research_tasks: [{ zh: "刷新公告后重跑", en: "Rerun after disclosure refresh" }],
+          evidence_gap_memory: [{ zh: "缺少最新公告复核", en: "Latest disclosure needs review" }],
+          reader_boundary_gate: [{ zh: "does_not_hide_research_content: true", en: "does_not_hide_research_content: true" }],
+          evidence_gaps: [],
+          watch_conditions: [],
+          confidence_boundary: { zh: "研究内容，不是交易信号。", en: "Research content, not a trading signal." },
+          agent_statuses: { k_deep_research_dossier: "ok", f_partner_view: "ok", w_partner_view: "ok", g_partner_view: "ok" },
+          agent_hashes: { f_partner_view: "abc123def456abc123def456" },
+          agent_timings: { k_dossier_seconds: 0.11, total_wall_clock_seconds: 0.36 },
+          parallelism: { symbol_parallelism: 3, fwg_ran_in_parallel: true, k_dossier_first: true },
+          k_dossier_hash: "k1234567890abcdef",
+          research_quality_gate_hash: "rq1234567890abcdef",
+          knowledge_gate_hash: "kg1234567890abcdef",
+          reader_boundary_gate_hash: "rb1234567890abcdef",
+          public_payload_hash: "pp1234567890abcdef",
+          positive_case: [],
+          negative_case: [],
+          red_team_review: [],
+          risk_factors: [],
+          watch_items: [],
+          source_notes: [],
+        },
+      ],
+    };
+
+    const normalized = normalizeDailyReaderBriefArtifact(v4Artifact);
+
+    expect(normalized?.schema).toBe("gotra.daily_reader_brief.v4");
+    expect(normalized?.full_analyst.execution_model).toBe("deep_research_dossier_then_parallel_perspectives");
+    expect(normalized?.agent_analysis_items[0]?.k_deep_research_dossier[0]?.en).toContain("K produced");
+    expect(normalized?.agent_analysis_items[0]?.research_quality_gate[0]?.en).toContain("pass_with_review_items");
+    expect(normalized?.agent_analysis_items[0]?.knowledge_gate[0]?.en).toContain("persist_with_limitations");
+    expect(normalized?.agent_analysis_items[0]?.unresolved_questions[0]?.en).toContain("public source");
+    expect(normalized?.agent_analysis_items[0]?.reader_boundary_gate[0]?.en).toContain("does_not_hide");
+    expect(normalized?.agent_analysis_items[0]?.k_dossier_hash).toBe("k1234567890abcdef");
+    expect(JSON.stringify(normalized)).not.toContain("[object Object]");
+  });
+
   it("keeps generated brief free of raw-provider and secret-bearing terms", () => {
     const brief = buildDailyReaderBrief(snapshot(), { now });
     const forbidden = [
