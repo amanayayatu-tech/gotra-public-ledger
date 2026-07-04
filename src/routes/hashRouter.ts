@@ -8,6 +8,8 @@ export type AppRoute =
   | { name: "evidencePacketAudit"; path: "/audit/evidence/:id"; evidenceId: string }
   | { name: "trackRecord"; path: "/track-record" }
   | { name: "trackRecordEntry"; path: "/track-record/:entryId"; entryId: string }
+  | { name: "monthlyReports"; path: "/monthly-reports" }
+  | { name: "monthlyReportDetail"; path: "/monthly-reports/:month"; month: string }
   | { name: "ledger"; path: "/ledger" }
   | { name: "prediction"; path: "/ledger/:id"; predictionId: string }
   | { name: "performance"; path: "/performance" }
@@ -18,7 +20,7 @@ export type AppRoute =
   | { name: "notes"; path: "/notes" }
   | { name: "note"; path: "/notes/:slug"; slug: string };
 
-const corePaths = new Set(["/", "/today", "/why-gotra", "/guide", "/track-record", "/ledger", "/performance", "/system", "/methodology", "/sources", "/reports", "/reports/full-analyst", "/notes"]);
+const corePaths = new Set(["/", "/today", "/why-gotra", "/guide", "/track-record", "/monthly-reports", "/ledger", "/performance", "/system", "/methodology", "/sources", "/reports", "/reports/full-analyst", "/notes"]);
 
 export function normalizeHashPath(hash: string): string {
   const raw = hash.startsWith("#") ? hash.slice(1) : hash;
@@ -53,6 +55,8 @@ export function parseHashRoute(hash: string): AppRoute {
         return { name: "fullAnalystReport", path };
       case "/track-record":
         return { name: "trackRecord", path };
+      case "/monthly-reports":
+        return { name: "monthlyReports", path };
       case "/notes":
         return { name: "notes", path };
       default:
@@ -84,6 +88,15 @@ export function parseHashRoute(hash: string): AppRoute {
       name: "symbolProfile",
       path: "/symbol/:symbol",
       symbol: decodeURIComponent(symbolMatch[1]),
+    };
+  }
+
+  const monthlyReportMatch = path.match(/^\/monthly-reports\/([^/]+)$/);
+  if (monthlyReportMatch?.[1]) {
+    return {
+      name: "monthlyReportDetail",
+      path: "/monthly-reports/:month",
+      month: decodeURIComponent(monthlyReportMatch[1]),
     };
   }
 
@@ -126,6 +139,10 @@ export function predictionRouteHref(predictionId: string): string {
 
 export function trackRecordEntryRouteHref(entryId: string): string {
   return routeHref(`/track-record/${encodeURIComponent(entryId)}`);
+}
+
+export function monthlyReportRouteHref(month: string): string {
+  return routeHref(`/monthly-reports/${encodeURIComponent(month)}`);
 }
 
 export function symbolProfileRouteHref(symbol: string): string {

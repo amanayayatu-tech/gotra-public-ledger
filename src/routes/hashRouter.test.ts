@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   normalizeHashPath,
   evidencePacketRouteHref,
+  monthlyReportRouteHref,
   noteRouteHref,
   parseBrowserRoute,
   parseHashRoute,
@@ -19,9 +20,11 @@ describe("hash router", () => {
     expect(routeHref("/today")).toBe("/#/today");
     expect(routeHref("/guide")).toBe("/#/guide");
     expect(routeHref("/track-record")).toBe("/#/track-record");
+    expect(routeHref("/monthly-reports")).toBe("/#/monthly-reports");
     expect(parseHashRoute("#/today").name).toBe("today");
     expect(parseHashRoute("#/guide").name).toBe("guide");
     expect(parseHashRoute("#/track-record").name).toBe("trackRecord");
+    expect(parseHashRoute("#/monthly-reports").name).toBe("monthlyReports");
     expect(parseHashRoute("#/system").name).toBe("system");
     expect(parseHashRoute("#/reports").name).toBe("reports");
   });
@@ -38,6 +41,14 @@ describe("hash router", () => {
     expect(route.name).toBe("trackRecordEntry");
     expect(route.name === "trackRecordEntry" ? route.entryId : "").toBe("gotra:ledger:HKEX:0700:2026-06-29:30:v1");
     expect(trackRecordEntryRouteHref("entry 1")).toBe("/#/track-record/entry%201");
+  });
+
+  it("parses monthly transparency report routes", () => {
+    const route = parseHashRoute("#/monthly-reports/2026-07");
+    expect(route.name).toBe("monthlyReportDetail");
+    expect(route.name === "monthlyReportDetail" ? route.month : "").toBe("2026-07");
+    expect(monthlyReportRouteHref("2026-07")).toBe("/#/monthly-reports/2026-07");
+    expect(parseBrowserRoute("/monthly-reports/2026-07", "").name).toBe("monthlyReportDetail");
   });
 
   it("parses symbol profile routes", () => {
@@ -71,6 +82,7 @@ describe("hash router", () => {
   it("parses browser reports route and keeps hash routes authoritative", () => {
     expect(parseBrowserRoute("/reports", "").name).toBe("reports");
     expect(parseBrowserRoute("/track-record", "").name).toBe("trackRecord");
+    expect(parseBrowserRoute("/monthly-reports", "").name).toBe("monthlyReports");
     expect(parseBrowserRoute("/guide", "").name).toBe("guide");
     expect(parseBrowserRoute("/reports", "#/notes").name).toBe("notes");
   });

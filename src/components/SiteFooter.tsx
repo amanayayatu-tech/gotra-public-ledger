@@ -19,6 +19,7 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
       links: [
         { href: routeHref("/today"), label: copy(language, "今日研究简报", "Daily Research Brief") },
         { href: routeHref("/track-record"), label: copy(language, "公开研究账本", "Public research ledger") },
+        { href: routeHref("/monthly-reports"), label: copy(language, "月度透明报告", "Monthly transparency reports") },
         { href: routeHref("/why-gotra"), label: copy(language, "为什么是 GOTRA", "Why GOTRA") },
         { href: routeHref("/guide"), label: copy(language, "如何阅读 GOTRA", "How to read GOTRA") },
       ],
@@ -48,6 +49,7 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
         { href: "/reports/latest/", label: copy(language, "覆盖日报 reader", "Coverage report reader") },
         { href: routeHref("/reports/full-analyst"), label: copy(language, "研究阅读器", "Full Analyst reader") },
         { href: `${routeHref("/reports")}?focus=canary`, label: copy(language, "运行监控", "Runtime Monitoring") },
+        { href: routeHref("/monthly-reports"), label: copy(language, "月报索引", "Monthly report index") },
         { href: routeHref("/notes"), label: copy(language, "透明度文章", "Transparency Articles") },
       ],
     },

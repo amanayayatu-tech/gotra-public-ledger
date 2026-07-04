@@ -634,13 +634,18 @@ function reportSource() {
   const status = readJson("public/reports/status.json", false);
   const dailyReaderBrief = readJson("public/reports/daily_reader_brief.json", false);
   const researchLedger = readJson("public/reports/research_ledger.json", false);
+  const monthlyReportIndex = readJson("public/reports/monthly_transparency_reports.json", false);
+  const latestMonthlyReportFile = monthlyReportIndex?.reports?.at?.(-1)?.file ?? (monthlyReportIndex?.latest_month ? `monthly_transparency_report_${monthlyReportIndex.latest_month}.json` : "");
+  const latestMonthlyReport = latestMonthlyReportFile ? readJson(`public/reports/${latestMonthlyReportFile}`, false) : null;
   const latestMarkdown = readText("public/reports/latest.md");
-  if (status || latestMarkdown || dailyReaderBrief || researchLedger) {
+  if (status || latestMarkdown || dailyReaderBrief || researchLedger || monthlyReportIndex) {
     return {
       state: "source_artifacts_found",
       status,
       dailyReaderBrief,
       researchLedger,
+      monthlyReportIndex,
+      latestMonthlyReport,
       latestMarkdown,
     };
   }
@@ -649,6 +654,8 @@ function reportSource() {
     status: null,
     dailyReaderBrief: null,
     researchLedger: null,
+    monthlyReportIndex: null,
+    latestMonthlyReport: null,
     latestMarkdown: null,
   };
 }
@@ -1965,6 +1972,130 @@ function trackRecordPage(source) {
   });
 }
 
+function monthlyReportsPage(source) {
+  const index = source.monthlyReportIndex;
+  const reports = Array.isArray(index?.reports) ? index.reports : [];
+  const rows = reports.map((report) => [
+    report.month ?? "",
+    report.file ?? "",
+    report.published_count ?? 0,
+    report.needs_review_count ?? 0,
+    report.blocked_count ?? 0,
+    report.review_coverage?.reviewed_count ?? 0,
+    report.review_coverage?.due_count ?? 0,
+    report.error_case_count ?? 0,
+    report.data_gap_count ?? 0,
+    report.improvement_item_count ?? 0,
+  ]);
+  const body =
+    index && index.schema === "gotra.monthly_transparency_report_index.v1"
+      ? `      <h1>月度透明报告 / Monthly Transparency Reports</h1>
+      <p class="lede">每月公开判断数量、复盘覆盖率、错误案例、数据缺口和改进事项。不是收益承诺、投资建议、交易信号或业绩证明。</p>
+      <section class="notice">
+        <h2>索引状态</h2>
+        ${table(
+          ["field", "value"],
+          [
+            ["schema", index.schema],
+            ["generated_at", index.generated_at ?? ""],
+            ["report_count", index.report_count ?? reports.length],
+            ["latest_month", index.latest_month ?? ""],
+          ],
+        )}
+      </section>
+      <section>
+        <h2>月报列表</h2>
+        ${reports.length > 0 ? table(["month", "file", "published", "needs_review", "blocked", "reviewed", "due", "errors", "data_gaps", "improvements"], rows) : "<p>索引存在，但没有月报条目。</p>"}
+      </section>
+      <section class="notice">
+        <h2>Raw artifact / Open JSON</h2>
+        <p>这是原始审计产物，不是普通阅读页面。普通用户请回到月报列表或今日简报。</p>
+        <p><a href="/reports/monthly_transparency_reports.json">/reports/monthly_transparency_reports.json</a></p>
+      </section>`
+      : `      <h1>月度透明报告尚未生成</h1>
+      <p class="lede">Stage 11 会从 live research_ledger.json 生成月度透明报告。本次静态构建没有 monthly_transparency_reports.json，因此不会伪造月报。</p>
+      <section class="notice">
+        <h2>下一步</h2>
+        <p>后端生成 monthly_transparency_reports.json 后，本页会展示发布数量、复盘覆盖率、错误案例、数据缺口和改进事项。</p>
+        <p><a href="/today">今日简报</a> · <a href="/track-record">公开研究账本</a></p>
+      </section>`;
+  return pageShell({
+    route: "/monthly-reports",
+    title: "Monthly Transparency Reports | GOTRA Public Ledger",
+    description:
+      "Crawler-readable monthly transparency reports for public research ledger counts, review coverage, error cases, data gaps, and improvements. Not performance proof.",
+    body,
+  });
+}
+
+function monthlyReportDetailRoute(month) {
+  return `/monthly-reports/${encodeURIComponent(month || "latest")}`;
+}
+
+function monthlyReportDetailPage(source, month) {
+  const index = source.monthlyReportIndex;
+  const latestReport = source.latestMonthlyReport;
+  const reports = Array.isArray(index?.reports) ? index.reports : [];
+  const summary = reports.find((report) => report.month === month) ?? reports[reports.length - 1] ?? null;
+  const report = latestReport?.month === month ? latestReport : latestReport ?? null;
+  const errorRows = Array.isArray(report?.error_cases)
+    ? report.error_cases.map((item) => [item.entry_id ?? "", `${item.exchange ?? ""}:${item.symbol ?? ""}`, item.window_days ?? "", item.attribution ?? "", item.raw_return ?? "", item.benchmark_return ?? ""])
+    : [];
+  const gapRows = Array.isArray(report?.data_gaps)
+    ? report.data_gaps.map((item) => [item.entry_id ?? "", `${item.exchange ?? ""}:${item.symbol ?? ""}`, item.window_days ?? "", item.reason ?? "", listLike(item.missing_fields).join(",")])
+    : [];
+  const improvementRows = Array.isArray(report?.improvement_items) ? report.improvement_items.map((item) => [item]) : [];
+  const displayMonth = report?.month ?? summary?.month ?? month ?? "latest";
+  const body =
+    report && report.schema === "gotra.monthly_transparency_report.v1"
+      ? `      <h1>${escapeHtml(displayMonth)} 月度透明报告</h1>
+      <p class="lede">这份报告公开当月判断数量、复盘覆盖率、错误案例、数据缺口和改进事项。它不是收益证明、投资建议或交易信号。</p>
+      <section class="notice">
+        <h2>核心计数</h2>
+        ${table(
+          ["field", "value"],
+          [
+            ["published_count", report.published_count ?? 0],
+            ["needs_review_count", report.needs_review_count ?? 0],
+            ["blocked_count", report.blocked_count ?? 0],
+            ["reviewed_count", report.review_coverage?.reviewed_count ?? 0],
+            ["due_count", report.review_coverage?.due_count ?? 0],
+            ["data_gap_count", Array.isArray(report.data_gaps) ? report.data_gaps.length : 0],
+          ],
+        )}
+      </section>
+      <section>
+        <h2>错误案例 / Error cases</h2>
+        ${errorRows.length > 0 ? table(["entry_id", "symbol", "window", "attribution", "raw_return", "benchmark_return"], errorRows) : "<p>本月没有 below-benchmark 复盘案例；错误区域仍保留。</p>"}
+      </section>
+      <section>
+        <h2>数据缺口 / Data gaps</h2>
+        ${gapRows.length > 0 ? table(["entry_id", "symbol", "window", "reason", "missing_fields"], gapRows) : "<p>本月未报告到期不可复盘项；后续缺口会在这里显示。</p>"}
+      </section>
+      <section>
+        <h2>改进事项 / Improvements</h2>
+        ${improvementRows.length > 0 ? table(["item"], improvementRows) : "<p>没有报告改进事项。</p>"}
+      </section>
+      <section class="notice">
+        <h2>边界</h2>
+        <p>${escapeHtml(report.boundary ?? "transparency report only; not performance proof")}</p>
+        <p><a href="/monthly-reports">返回月报列表</a> · <a href="/track-record">公开研究账本</a></p>
+      </section>`
+      : `      <h1>${escapeHtml(displayMonth)} 月度透明报告未找到</h1>
+      <p class="lede">没有可公开读取的月报详情；页面不会展示 raw JSON 或伪造月度结论。</p>
+      <section class="notice">
+        <h2>返回</h2>
+        <p><a href="/monthly-reports">月报列表</a> · <a href="/today">今日简报</a></p>
+      </section>`;
+  return pageShell({
+    route: monthlyReportDetailRoute(displayMonth),
+    title: `${displayMonth} Monthly Transparency Report | GOTRA Public Ledger`,
+    description:
+      "Crawler-readable monthly transparency report detail with errors, data gaps, review coverage, and improvement items. Not performance proof.",
+    body,
+  });
+}
+
 function symbolRoutePath(symbol) {
   return `/symbol/${encodeURIComponent(symbol || "sample")}`;
 }
@@ -2131,6 +2262,81 @@ function predictionPage(record) {
   });
 }
 
+function monthlyReportPlaceholder(source, month) {
+  const researchLedger = source.researchLedger ?? {
+    schema: "gotra.public_research_ledger.v1",
+    generated_at: "",
+    entry_count: 0,
+    entries: [],
+  };
+  return {
+    schema: "gotra.monthly_transparency_report.v1",
+    month,
+    generated_at: new Date().toISOString(),
+    source_ledger_schema: researchLedger.schema,
+    source_ledger_generated_at: researchLedger.generated_at ?? "",
+    published_count: 0,
+    needs_review_count: 0,
+    blocked_count: 0,
+    review_coverage: {
+      supported_windows_days: [1, 7, 30, 90],
+      total_count: 0,
+      due_count: 0,
+      reviewed_count: 0,
+      unavailable_count: 0,
+      not_due_count: 0,
+      missing_due_entry_ids: [],
+      by_window_days: [],
+      boundary: "placeholder monthly transparency report from no-JS build; not performance proof",
+    },
+    error_cases: [],
+    error_case_note: "error_cases section remains visible even when empty; this placeholder does not fabricate positive cases",
+    data_gaps: [],
+    data_gap_note: "data_gaps section remains visible even when empty",
+    improvement_items: ["Generate live PublicationDecision=publish ledger entries before interpreting monthly coverage."],
+    reader_safe_summary: "placeholder monthly transparency report for no-JS path integrity",
+    boundary: "monthly transparency placeholder only; not investment advice, not a trading signal, not performance proof",
+    report_hash: "placeholder",
+  };
+}
+
+function monthlyReportIndexFor(report) {
+  return {
+    schema: "gotra.monthly_transparency_report_index.v1",
+    generated_at: report.generated_at,
+    report_count: 1,
+    latest_month: report.month,
+    reports: [
+      {
+        month: report.month,
+        file: `monthly_transparency_report_${report.month}.json`,
+        published_count: report.published_count,
+        needs_review_count: report.needs_review_count,
+        blocked_count: report.blocked_count,
+        review_coverage: report.review_coverage,
+        error_case_count: report.error_cases.length,
+        data_gap_count: report.data_gaps.length,
+        improvement_item_count: report.improvement_items.length,
+        report_hash: report.report_hash,
+      },
+    ],
+    boundary: "monthly transparency index placeholder; not performance proof",
+  };
+}
+
+function ensureMonthlyReportSource(source) {
+  const month =
+    source.latestMonthlyReport?.month ??
+    source.monthlyReportIndex?.latest_month ??
+    new Date().toISOString().slice(0, 7);
+  if (!source.latestMonthlyReport) {
+    source.latestMonthlyReport = monthlyReportPlaceholder(source, month);
+  }
+  if (!source.monthlyReportIndex) {
+    source.monthlyReportIndex = monthlyReportIndexFor(source.latestMonthlyReport);
+  }
+}
+
 function writeGeneratedReportArtifacts(source) {
   const reportsDir = path.join(distRoot, "reports");
   ensureDir(reportsDir);
@@ -2255,6 +2461,11 @@ function writeGeneratedReportArtifacts(source) {
     entries: [],
   };
   fs.writeFileSync(path.join(reportsDir, "research_ledger.json"), `${JSON.stringify(researchLedger, null, 2)}\n`);
+  ensureMonthlyReportSource(source);
+  const monthlyReport = source.latestMonthlyReport;
+  const monthlyReportIndex = source.monthlyReportIndex;
+  fs.writeFileSync(path.join(reportsDir, "monthly_transparency_reports.json"), `${JSON.stringify(monthlyReportIndex, null, 2)}\n`);
+  fs.writeFileSync(path.join(reportsDir, `monthly_transparency_report_${monthlyReport.month}.json`), `${JSON.stringify(monthlyReport, null, 2)}\n`);
   if (!source.latestMarkdown) {
     fs.writeFileSync(
       path.join(reportsDir, "latest.md"),
@@ -2354,6 +2565,7 @@ Methodology and Audit still document the internal v4 chain, including K dossier,
 - https://gotra.me/why-gotra - Why GOTRA. Research discipline for seeing what changed, what is known, and what still needs review.
 - https://gotra.me/guide - Guide. Seven-step reading order, daily system flow, report type labels, glossary, internal Alaya boundary, and evidence boundaries.
 - https://gotra.me/track-record - Public Track Record. Live append-only research ledger for published ResearchSignal entries with hash chain, publication decision references, Stage 10 review coverage, ReviewResult rows, and review-unavailable reasons.
+- https://gotra.me/monthly-reports - Monthly Transparency Reports. Monthly public research ledger counts, review coverage, error cases, data gaps, and improvement items; not performance proof.
 - https://gotra.me/symbol/sample - Symbol Profile template. Current research, live ledger history, view changes, review due items, and data gaps for one symbol; populated with real symbols when public artifacts are available.
 - https://gotra.me/reports - Audit Center. Live production/status artifacts, Full Analyst v4 status, raw artifact disclosures, and evidence boundaries.
 - https://gotra.me/reports/latest/ - Coverage Report Reader. Productized HTML reader for the latest public coverage report; raw Markdown appears only in audit disclosure.
@@ -2369,6 +2581,7 @@ Methodology and Audit still document the internal v4 chain, including K dossier,
 
 - https://gotra.me/reports/daily_reader_brief.json
 - https://gotra.me/reports/research_ledger.json
+- https://gotra.me/reports/monthly_transparency_reports.json
 - https://gotra.me/reports/status.json
 - https://gotra.me/reports/latest.md - coverage daily report alias, not the Full Analyst research report.
 - https://gotra.me/reports/full_analyst_evening_hk_2026-06-30.md
@@ -2410,10 +2623,15 @@ function main() {
   const portfolio = readJson("public/data/paper-portfolio.latest.json", false);
   const summary = summarizeLedger(ledger);
   const source = reportSource();
+  ensureMonthlyReportSource(source);
   const symbolProfileSymbols =
     Array.isArray(source.dailyReaderBrief?.agent_analysis_items) && source.dailyReaderBrief.agent_analysis_items.length > 0
       ? source.dailyReaderBrief.agent_analysis_items.map((item) => item.symbol).filter(Boolean).slice(0, 3)
       : ["sample"];
+  const monthlyReportMonth =
+    source.latestMonthlyReport?.month ??
+    source.monthlyReportIndex?.latest_month ??
+    new Date().toISOString().slice(0, 7);
 
   injectHomepage(summary, source);
 
@@ -2423,6 +2641,8 @@ function main() {
     ["/why-gotra", whyGotraPage()],
     ["/guide", guidePage()],
     ["/track-record", trackRecordPage(source)],
+    ["/monthly-reports", monthlyReportsPage(source)],
+    [monthlyReportDetailRoute(monthlyReportMonth), monthlyReportDetailPage(source, monthlyReportMonth)],
     ["/ledger", ledgerPage(ledger, summary)],
     ["/reports", reportsPage(source)],
     ["/reports/latest/", latestReportPage(source)],
@@ -2457,6 +2677,8 @@ function main() {
     "/why-gotra",
     "/guide",
     "/track-record",
+    "/monthly-reports",
+    monthlyReportDetailRoute(monthlyReportMonth),
     ...symbolProfileSymbols.map(symbolRoutePath),
     "/ledger",
     "/reports",
@@ -2467,6 +2689,8 @@ function main() {
     "/reports/status.json",
     "/reports/daily_reader_brief.json",
     "/reports/research_ledger.json",
+    "/reports/monthly_transparency_reports.json",
+    `/reports/monthly_transparency_report_${monthlyReportMonth}.json`,
     "/reports/full_analyst_evening_hk_2026-06-30.md",
     "/reports/status_full_analyst_evening_hk.json",
     "/reports/status_full_analyst_monitor.json",

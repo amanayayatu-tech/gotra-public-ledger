@@ -56,6 +56,9 @@ function canonicalRoutePath(route: AppRoute): string {
   if (route.name === "symbolProfile") {
     return `/symbol/${encodeURIComponent(route.symbol)}`;
   }
+  if (route.name === "monthlyReportDetail") {
+    return `/monthly-reports/${encodeURIComponent(route.month)}`;
+  }
   return route.path;
 }
 
@@ -66,6 +69,15 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       title,
       description: recordDescription(record),
       url: `${siteUrl}predictions/${encodeURIComponent(record.prediction_id)}`,
+      type: "article",
+    };
+  }
+
+  if (route.name === "monthlyReportDetail") {
+    return {
+      title: `${route.month} 月度透明报告 | GOTRA Public Ledger`,
+      description: "GOTRA 月度透明报告公开判断数量、复盘覆盖率、错误案例、数据缺口和改进事项。不是投资建议、交易信号或业绩证明。",
+      url: `${siteUrl}monthly-reports/${encodeURIComponent(route.month)}`,
       type: "article",
     };
   }
@@ -110,6 +122,14 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
         "公开研究账本读取 live research_ledger.json，只展示 PublicationDecision=publish 的 ResearchSignal，并保留 append-only hash chain、版本链、证据包链接和发布决定。",
       enDescription:
         "The Public Track Record reads live research_ledger.json, showing ResearchSignal entries whose PublicationDecision is publish, with append-only hash chain, version chain, evidence packet links, publication decisions, and Stage 10 review coverage.",
+    },
+    "/monthly-reports": {
+      zhTitle: "月度透明报告 | GOTRA Public Ledger",
+      enTitle: "Monthly Transparency Reports | GOTRA Public Ledger",
+      zhDescription:
+        "月度透明报告公开当月判断数量、复盘覆盖率、错误案例、数据缺口和改进事项。它不是收益承诺、投资建议、交易信号或业绩证明。",
+      enDescription:
+        "Monthly transparency reports expose judgment counts, review coverage, error cases, data gaps, and improvement items. They are not return promises, investment advice, trading signals, or performance proof.",
     },
     "/guide": {
       zhTitle: "GOTRA 使用指南 | 如何阅读 GOTRA",
