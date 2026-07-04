@@ -2568,6 +2568,7 @@ Methodology and Audit still document the internal v4 chain, including K dossier,
 - https://gotra.me/monthly-reports - Monthly Transparency Reports. Monthly public research ledger counts, review coverage, error cases, data gaps, and improvement items; not performance proof.
 - https://gotra.me/symbol/sample - Symbol Profile template. Current research, live ledger history, view changes, review due items, and data gaps for one symbol; populated with real symbols when public artifacts are available.
 - https://gotra.me/reports - Audit Center. Live production/status artifacts, Full Analyst v4 status, raw artifact disclosures, and evidence boundaries.
+- https://gotra.me/audit - Audit Center alias. Same reader-safe audit center as /reports for production smoke and launch-readiness checks.
 - https://gotra.me/reports/latest/ - Coverage Report Reader. Productized HTML reader for the latest public coverage report; raw Markdown appears only in audit disclosure.
 - https://gotra.me/reports/full-analyst/ - Full Analyst Research Reader. Productized per-symbol research reader; raw Markdown appears only in audit disclosure.
 - https://gotra.me/notes - Transparency Articles. Static article archive, not latest production daily reports.
@@ -2645,6 +2646,7 @@ function main() {
     [monthlyReportDetailRoute(monthlyReportMonth), monthlyReportDetailPage(source, monthlyReportMonth)],
     ["/ledger", ledgerPage(ledger, summary)],
     ["/reports", reportsPage(source)],
+    ["/audit", reportsPage(source)],
     ["/reports/latest/", latestReportPage(source)],
     ["/reports/full-analyst/", fullAnalystReportPage(source)],
     ["/audit/evidence/latest/", evidencePacketAuditPage(source)],
@@ -2682,6 +2684,7 @@ function main() {
     ...symbolProfileSymbols.map(symbolRoutePath),
     "/ledger",
     "/reports",
+    "/audit",
     "/reports/latest/",
     "/reports/full-analyst/",
     "/audit/evidence/latest/",
