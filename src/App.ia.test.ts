@@ -175,6 +175,9 @@ describe("public ledger information architecture contract", () => {
     expect(geoGeneratorSource).toContain("Stage 4 schema 检查项");
     expect(geoGeneratorSource).toContain("future_data_check=false");
     expect(geoGeneratorSource).toContain("静态 demo / 归档产物");
+    expect(appSource).toContain("结构化研究信号");
+    expect(appSource).toContain("ResearchSignal hashes");
+    expect(appSource).toContain("复盘窗口");
     expect(geoSmokeSource).toContain('readDist("llms.txt")');
     expect(geoSmokeSource).toContain("https://gotra.me/today");
     expect(geoSmokeSource).toContain("https://gotra.me/audit/evidence/latest/");
