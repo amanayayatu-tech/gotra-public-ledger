@@ -7,6 +7,7 @@ import {
   parseHashRoute,
   predictionRouteHref,
   routeHref,
+  trackRecordEntryRouteHref,
 } from "./hashRouter";
 
 describe("hash router", () => {
@@ -16,8 +17,10 @@ describe("hash router", () => {
     expect(routeHref("/performance")).toBe("/#/performance");
     expect(routeHref("/today")).toBe("/#/today");
     expect(routeHref("/guide")).toBe("/#/guide");
+    expect(routeHref("/track-record")).toBe("/#/track-record");
     expect(parseHashRoute("#/today").name).toBe("today");
     expect(parseHashRoute("#/guide").name).toBe("guide");
+    expect(parseHashRoute("#/track-record").name).toBe("trackRecord");
     expect(parseHashRoute("#/system").name).toBe("system");
     expect(parseHashRoute("#/reports").name).toBe("reports");
   });
@@ -27,6 +30,13 @@ describe("hash router", () => {
     expect(route.name).toBe("prediction");
     expect(route.name === "prediction" ? route.predictionId : "").toBe("PRED-20260203-TSM-0054");
     expect(predictionRouteHref("PRED 1")).toBe("/#/ledger/PRED%201");
+  });
+
+  it("parses live track-record detail routes", () => {
+    const route = parseHashRoute("#/track-record/gotra%3Aledger%3AHKEX%3A0700%3A2026-06-29%3A30%3Av1");
+    expect(route.name).toBe("trackRecordEntry");
+    expect(route.name === "trackRecordEntry" ? route.entryId : "").toBe("gotra:ledger:HKEX:0700:2026-06-29:30:v1");
+    expect(trackRecordEntryRouteHref("entry 1")).toBe("/#/track-record/entry%201");
   });
 
   it("parses note detail routes", () => {
@@ -51,6 +61,7 @@ describe("hash router", () => {
 
   it("parses browser reports route and keeps hash routes authoritative", () => {
     expect(parseBrowserRoute("/reports", "").name).toBe("reports");
+    expect(parseBrowserRoute("/track-record", "").name).toBe("trackRecord");
     expect(parseBrowserRoute("/guide", "").name).toBe("guide");
     expect(parseBrowserRoute("/reports", "#/notes").name).toBe("notes");
   });

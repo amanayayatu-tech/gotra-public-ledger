@@ -63,6 +63,7 @@ function main() {
     "/today",
     "/why-gotra",
     "/guide",
+    "/track-record",
     "/ledger",
     "/reports",
     "/reports/full-analyst/",
@@ -117,6 +118,10 @@ function main() {
   assertIncludes(pages.get("/guide"), "交易信号", "/guide");
   assertIncludes(pages.get("/guide"), "内部 Alaya", "/guide");
   assertIncludes(pages.get("/guide"), "not performance proof", "/guide");
+  assertIncludes(pages.get("/track-record"), "Public Track Record", "/track-record");
+  assertIncludes(pages.get("/track-record"), "research_ledger.json", "/track-record");
+  assertIncludes(pages.get("/track-record"), "PublicationDecision=publish", "/track-record");
+  assertIncludes(pages.get("/track-record"), "不是投资建议", "/track-record");
   assertIncludes(pages.get("/ledger"), "Frozen Demo Ledger", "/ledger");
   assertIncludes(pages.get("/ledger"), "not current production", "/ledger");
   assertIncludes(pages.get("/ledger"), "First 50 public ledger rows", "/ledger");
@@ -193,6 +198,7 @@ function main() {
     "https://gotra.me/today",
     "https://gotra.me/why-gotra",
     "https://gotra.me/guide",
+    "https://gotra.me/track-record",
     "https://gotra.me/ledger",
     "https://gotra.me/reports",
     "https://gotra.me/reports/latest/",
@@ -201,6 +207,7 @@ function main() {
     "https://gotra.me/reports/latest.md",
     "https://gotra.me/reports/status.json",
     "https://gotra.me/reports/daily_reader_brief.json",
+    "https://gotra.me/reports/research_ledger.json",
     "https://gotra.me/performance",
     "https://gotra.me/methodology",
     "https://gotra.me/sources",

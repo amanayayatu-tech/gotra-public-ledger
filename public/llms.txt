@@ -10,6 +10,7 @@ Methodology and Audit still document the internal v4 chain, including K dossier,
 - https://gotra.me/today - Daily Research Brief. Reader-first Full Analyst research brief with agent analysis items, red-team review, risk factors, internal Alaya readback, known data gaps, and next watch points.
 - https://gotra.me/why-gotra - Why GOTRA. Research discipline for seeing what changed, what is known, and what still needs review.
 - https://gotra.me/guide - Guide. Seven-step reading order, daily system flow, report type labels, glossary, internal Alaya boundary, and evidence boundaries.
+- https://gotra.me/track-record - Public Track Record. Live append-only research ledger for published ResearchSignal entries with hash chain and publication decision references.
 - https://gotra.me/reports - Audit Center. Live production/status artifacts, Full Analyst v4 status, raw artifact disclosures, and evidence boundaries.
 - https://gotra.me/reports/latest/ - Coverage Report Reader. Productized HTML reader for the latest public coverage report; raw Markdown appears only in audit disclosure.
 - https://gotra.me/reports/full-analyst/ - Full Analyst Research Reader. Productized per-symbol research reader; raw Markdown appears only in audit disclosure.
@@ -23,6 +24,7 @@ Methodology and Audit still document the internal v4 chain, including K dossier,
 ## Raw public artifacts
 
 - https://gotra.me/reports/daily_reader_brief.json
+- https://gotra.me/reports/research_ledger.json
 - https://gotra.me/reports/status.json
 - https://gotra.me/reports/latest.md - coverage daily report alias, not the Full Analyst research report.
 - https://gotra.me/reports/full_analyst_evening_hk_2026-06-30.md
