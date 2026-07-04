@@ -75,7 +75,7 @@ import {
   type LocalizedText,
   type Language,
 } from "./i18n/language";
-import { noteRouteHref, parseBrowserRoute, parseHashRoute, predictionRouteHref, routeHref, type AppRoute } from "./routes/hashRouter";
+import { evidencePacketRouteHref, noteRouteHref, parseBrowserRoute, parseHashRoute, predictionRouteHref, routeHref, type AppRoute } from "./routes/hashRouter";
 
 const CognitionDashboard = lazy(() =>
   import("./components/CognitionDashboard").then((module) => ({ default: module.CognitionDashboard })),
@@ -232,6 +232,9 @@ function routeActivePath(route: AppRoute): string {
   }
   if (route.name === "fullAnalystReport") {
     return "/reports/full-analyst";
+  }
+  if (route.name === "evidencePacketAudit") {
+    return "/reports";
   }
   return route.path;
 }
@@ -2483,6 +2486,9 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
                         ? copy(language, "执行模型：一次调用内多视角；不是独立 agent。", "single-call multi-perspective; not independent agents.")
                         : item.execution_model ?? fullAnalystExecutionText(brief, language)}
                 </p>
+                <a className="inline-audit-link" href={evidencePacketRouteHref(item.symbol)}>
+                  {copy(language, "查看证据包审计摘要", "Open EvidencePacket audit summary")}
+                </a>
               </div>
               <div className="status-explanation-grid">
                 <StatusExplanationCard rawStatus={item.research_status ?? brief.full_analyst.run_status} language={language} compact />
@@ -2605,6 +2611,137 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
             <a href={brief.links.full_analyst_report}>{copy(language, "打开 Full Analyst Markdown 原文", "Open Full Analyst Markdown original")}</a>
             <a href={routeHref("/reports/full-analyst")}>{copy(language, "返回 reader", "Back to reader")}</a>
             <a href={routeHref("/today")}>{copy(language, "返回今日简报", "Back to today")}</a>
+          </div>
+        </details>
+      </section>
+    </>
+  );
+}
+
+function EvidencePacketAuditPage({
+  state,
+  language,
+  evidenceId,
+}: {
+  state: DailyReaderBriefLoadState;
+  language: Language;
+  evidenceId: string;
+}) {
+  if (state.kind === "loading") {
+    return (
+      <section className="route-panel edge-state-note" role="status">
+        {copy(language, "正在读取证据包审计摘要。", "Loading EvidencePacket audit summary.")}
+      </section>
+    );
+  }
+  if (state.kind === "error") {
+    return (
+      <section className="route-panel edge-state-note" role="alert">
+        {copy(language, "证据包审计摘要暂不可用：", "EvidencePacket audit summary is unavailable:")} {state.message}
+      </section>
+    );
+  }
+
+  const { brief } = state;
+  const normalizedEvidenceId = evidenceId.toLowerCase();
+  const item =
+    normalizedEvidenceId === "latest"
+      ? brief.agent_analysis_items[0]
+      : brief.agent_analysis_items.find((candidate) => candidate.symbol.toLowerCase() === normalizedEvidenceId || candidate.symbol.replace(":", "_").toLowerCase() === normalizedEvidenceId);
+  const evidenceLines = readerMainList(item?.evidence_packet);
+  const missingOrGaps = combineReaderLists(item?.evidence_gaps, item?.research_quality_gate, item?.reader_boundary_gate);
+
+  return (
+    <>
+      <section className="route-intro full-analyst-reader-hero" aria-labelledby="evidence-packet-audit-title">
+        <div>
+          <span className="section-index">{copy(language, "EvidencePacket 审计", "EvidencePacket audit")}</span>
+          <h1 id="evidence-packet-audit-title">{copy(language, "证据包审计摘要", "EvidencePacket audit summary")}</h1>
+          <p>
+            {copy(
+              language,
+              "这里展示公开 reader-safe 证据摘要和 Stage 4 schema 检查项。它不是 raw prompt、不是私有 provider I/O，也不是普通阅读主路径；普通读者可返回今日简报或完整研究链路 reader。",
+              "This page shows reader-safe evidence summaries and Stage 4 schema checks. It is not a raw prompt, not private provider I/O, and not the main reading path; default readers can return to the daily brief or research reader.",
+            )}
+          </p>
+          <div className="hero-actions">
+            <a className="primary-action" href={routeHref("/reports/full-analyst")}>{copy(language, "返回研究阅读器", "Back to research reader")}</a>
+            <a className="secondary-action" href={routeHref("/today")}>{copy(language, "返回今日简报", "Back to today's brief")}</a>
+          </div>
+        </div>
+        <Database aria-hidden="true" size={26} />
+      </section>
+      <section className="today-section" aria-labelledby="evidence-packet-current-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "当前证据包", "Current packet")}</span>
+          <h2 id="evidence-packet-current-title">{item?.symbol ?? evidenceId}</h2>
+          <p>
+            {copy(
+              language,
+              item ? "证据摘要来自 daily_reader_brief.v4 的公开字段；完整机器合同由后端 EvidencePacket 生成并校验。" : "没有找到该标的的公开证据包摘要；页面不会从 raw JSON 推断或伪造内容。",
+              item ? "The summary comes from public daily_reader_brief.v4 fields; the full machine contract is generated and validated by backend EvidencePacket." : "No public evidence summary was found for this identifier; this page does not infer or fabricate content from raw JSON.",
+            )}
+          </p>
+        </div>
+        {item ? (
+          <div className="today-agent-grid full-analyst-reader-grid evidence-packet-audit-grid">
+            <article className="today-agent-card">
+              <div className="today-agent-head">
+                <span>{copy(language, "标的", "symbol")}</span>
+                <strong>{item.symbol}</strong>
+                {item.research_status ? <em className="research-status-pill">{researchStatusLabel(item.research_status, language)}</em> : null}
+              </div>
+              <h3>{termLabel("evidence_packet", language)}</h3>
+              {evidenceLines.length > 0 ? (
+                <ul>
+                  {evidenceLines.slice(0, 8).map((line) => (
+                    <li key={`${line.zh}-${line.en}`}>{pickLocalized(language, line)}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{copy(language, "公开摘要没有证据包条目；研究对象必须保留 needs_review。", "No public evidence-packet summary is available; the research object must preserve needs_review.")}</p>
+              )}
+            </article>
+            <article className="today-agent-card">
+              <h3>{copy(language, "缺失项与数据缺口", "Missing items and data gaps")}</h3>
+              {missingOrGaps.length > 0 ? (
+                <ul>
+                  {missingOrGaps.slice(0, 8).map((line) => (
+                    <li key={`${line.zh}-${line.en}`}>{pickLocalized(language, line)}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{copy(language, "当前公开摘要没有额外缺口说明；仍以 reader boundary 为准。", "The public summary has no additional gap notes; reader boundary still applies.")}</p>
+              )}
+            </article>
+            <article className="today-agent-card">
+              <h3>{copy(language, "Stage 4 schema 检查项", "Stage 4 schema checks")}</h3>
+              <ul>
+                <li>{copy(language, "必须包含 packet_id、symbol、as_of、sources、missing_items、future_data_check。", "Must include packet_id, symbol, as_of, sources, missing_items, and future_data_check.")}</li>
+                <li>{copy(language, "每个 source 必须有 retrieved_at；缺失时后端 schema 校验失败。", "Every source must include retrieved_at; backend schema validation fails if it is missing.")}</li>
+                <li>{copy(language, "future_data_check=false 时研究运行进入 blocked，不生成可发布判断。", "future_data_check=false blocks the research run; no publishable judgment is generated.")}</li>
+                <li>{copy(language, "关键证据缺失会保留 needs_review 或 blocked，而不是包装成完整结论。", "Missing critical evidence remains needs_review or blocked instead of being presented as a complete conclusion.")}</li>
+              </ul>
+            </article>
+          </div>
+        ) : (
+          <section className="route-panel edge-state-note">
+            {copy(language, "未找到证据包摘要。请返回完整研究链路 reader 选择标的。", "Evidence summary not found. Return to the research reader and select a symbol.")}
+          </section>
+        )}
+        <details className="audit-details raw-artifact-disclosure">
+          <summary>{copy(language, "Raw artifact / 审计入口", "Raw artifact / audit links")}</summary>
+          <p className="muted">
+            {copy(
+              language,
+              "这些链接只用于审计公开产物。页面不会展示 raw provider I/O、完整内部 prompt、secret 或私有路径。",
+              "These links are only for auditing public artifacts. This page does not expose raw provider I/O, full internal prompts, secrets, or private paths.",
+            )}
+          </p>
+          <div className="related-prediction-list">
+            <a href={brief.links.daily_reader_brief}>{copy(language, "打开 daily_reader_brief.json", "Open daily_reader_brief.json")}</a>
+            <a href={brief.links.full_analyst_report}>{copy(language, "打开 Full Analyst Markdown", "Open Full Analyst Markdown")}</a>
+            <a href={routeHref("/reports")}>{copy(language, "返回审计中心", "Back to audit center")}</a>
           </div>
         </details>
       </section>
@@ -4160,7 +4297,7 @@ function App() {
   }, [route.name]);
 
   useEffect(() => {
-    if (route.name !== "today" && route.name !== "fullAnalystReport") {
+    if (route.name !== "today" && route.name !== "fullAnalystReport" && route.name !== "evidencePacketAudit") {
       return;
     }
 
@@ -4385,6 +4522,7 @@ function App() {
   const routeDataPending =
     (route.name === "today" && dailyBriefState.kind === "loading") ||
     (route.name === "fullAnalystReport" && dailyBriefState.kind === "loading") ||
+    (route.name === "evidencePacketAudit" && dailyBriefState.kind === "loading") ||
     (route.name === "sources" && liveReportsState.kind === "loading") ||
     (route.name === "home" && hasDataset && !homeDetailsReady);
 
@@ -4395,6 +4533,7 @@ function App() {
       route.name === "today" ||
       route.name === "whyGotra" ||
       route.name === "fullAnalystReport" ||
+      route.name === "evidencePacketAudit" ||
       route.name === "notes" ||
       route.name === "note");
   const pageShellClassName =
@@ -4500,6 +4639,8 @@ function App() {
         {route.name === "whyGotra" ? <WhyGotraPage language={language} /> : null}
 
         {route.name === "fullAnalystReport" ? <FullAnalystReaderPage state={dailyBriefState} language={language} /> : null}
+
+        {route.name === "evidencePacketAudit" ? <EvidencePacketAuditPage state={dailyBriefState} language={language} evidenceId={route.evidenceId} /> : null}
 
         {route.name === "ledger" && hasDataset ? (
           <>

@@ -799,6 +799,7 @@ function reportsPage(source) {
     ["/why-gotra", "为什么是 GOTRA", "解释数据缺口（data_gap）和需要复核（needs_review）为什么是研究纪律，不是失败。"],
     ["/reports/latest/", "覆盖日报阅读器", "最新覆盖报告的默认 HTML 阅读页。"],
     ["/reports/full-analyst/", "完整研究链路阅读器", "单票研究的产品化阅读页，普通用户不需要先打开 raw Markdown。"],
+    ["/audit/evidence/latest/", "证据包审计摘要", "查看最新公开 EvidencePacket 摘要和 Stage 4 schema 检查项。"],
   ];
   const rawArtifacts = [
     ["/reports/daily_reader_brief.json", "今日简报 JSON", "供 /today 使用的数据源，不是普通阅读目的地。"],
@@ -1267,7 +1268,7 @@ function fullAnalystReportPage(source) {
         <p>${escapeHtml(textValue(fullAnalyst.summary ?? localized("完整研究链路摘要不可用。", "Full Analyst rich brief unavailable.")))}</p>
         ${statusExplanationHtml(fullAnalyst.run_status ?? "unavailable")}
         <p>执行模型：${escapeHtml(statusLabel(fullAnalyst.execution_model ?? "not_reported"))} · 方法版本：${escapeHtml(fullAnalyst.methodology_version ?? "not_reported")} · agent 并行度：${escapeHtml(fullAnalyst.agent_parallelism ?? "not_applicable")}</p>
-        <p><a href="/today">回到今日研究简报</a> · <a href="/reports">打开审计中心</a> · <a href="/why-gotra">为什么是 GOTRA</a></p>
+        <p><a href="/today">回到今日研究简报</a> · <a href="/reports">打开审计中心</a> · <a href="/audit/evidence/latest/">证据包审计摘要</a> · <a href="/why-gotra">为什么是 GOTRA</a></p>
       </section>
       ${researchSystemHtml(brief)}
       <section>
@@ -1361,6 +1362,62 @@ function fullAnalystReportPage(source) {
             [rawMarkdownHref, "完整研究链路 Markdown", "原始 Markdown；不是默认阅读页。"],
             [rawStatusHref, "完整研究链路状态 JSON", "审计 JSON。"],
             [rawMonitorHref, "完整研究链路监控 JSON", "审计 JSON。"],
+          ],
+        )}
+      </details>`,
+  });
+}
+
+function evidencePacketAuditPage(source) {
+  const brief = source.dailyReaderBrief;
+  const fullAnalyst = brief?.full_analyst ?? {};
+  const agentItems = Array.isArray(brief?.agent_analysis_items) ? brief.agent_analysis_items : [];
+  const item = agentItems[0] ?? null;
+  const evidenceLines = Array.isArray(item?.evidence_packet) ? item.evidence_packet : [];
+  const gaps = item ? [readerListText(item.evidence_gaps), readerListText(item.research_quality_gate), readerListText(item.reader_boundary_gate)].filter(Boolean).join("<br />") : "";
+  const rawDaily = brief?.links?.daily_reader_brief ?? "/reports/daily_reader_brief.json";
+  const rawMarkdown = brief?.links?.full_analyst_report ?? fullAnalyst.report_markdown ?? "/reports/full_analyst_evening_hk_YYYY-MM-DD.md";
+
+  return pageShell({
+    route: "/audit/evidence/latest/",
+    title: "证据包审计摘要 | GOTRA Public Ledger",
+    description:
+      "Reader-safe EvidencePacket audit summary for the latest public GOTRA research artifact. Raw provider I/O and internal prompts are not exposed.",
+    body: `      <h1>证据包审计摘要（EvidencePacket Audit）</h1>
+      <p class="lede">这里展示公开 reader-safe 证据摘要和 Stage 4 schema 检查项。它不是 raw prompt、不是私有 provider I/O，也不是普通阅读主路径。</p>
+      <p><a href="/reports/full-analyst/">返回完整研究链路 reader</a> · <a href="/today">返回今日简报</a> · <a href="/reports">返回审计中心</a></p>
+      <section class="notice">
+        <h2>当前证据包</h2>
+        ${table(
+          ["项目", "读者解释"],
+          [
+            ["标的", item?.symbol ?? "artifact_unavailable"],
+            ["研究状态", statusLabel(item?.research_status ?? fullAnalyst.run_status ?? "unavailable")],
+            ["证据包摘要", evidenceLines.length > 0 ? readerListText(evidenceLines) : "公开摘要没有证据包条目；研究对象必须保留 needs_review。"],
+            ["缺失项 / 数据缺口", gaps || "当前公开摘要没有额外缺口说明；仍以 reader boundary 为准。"],
+          ],
+        )}
+      </section>
+      <section>
+        <h2>Stage 4 schema 检查项</h2>
+        ${table(
+          ["检查项", "要求"],
+          [
+            ["核心字段", "必须包含 packet_id、symbol、as_of、sources、missing_items、future_data_check。"],
+            ["source retrieved_at", "每个 source 必须有 retrieved_at；缺失时后端 schema 校验失败。"],
+            ["未来数据", "future_data_check=false 时研究运行进入 blocked，不生成可发布判断。"],
+            ["关键证据缺失", "关键证据缺失会保留 needs_review 或 blocked，而不是包装成完整结论。"],
+          ],
+        )}
+      </section>
+      <details class="notice">
+        <summary>原始审计产物（Raw artifact / Open JSON / Open Markdown）</summary>
+        <p>这些链接只用于审计公开产物。页面不会展示 raw provider I/O、完整内部 prompt、secret 或私有路径。</p>
+        ${table(
+          ["产物", "类型", "审计含义"],
+          [
+            [rawDaily, "daily_reader_brief.json", "公开 reader 数据源；不是普通阅读目的地。"],
+            [rawMarkdown, "Full Analyst Markdown", "公开 Markdown；默认阅读请回到 reader。"],
           ],
         )}
       </details>`,
@@ -2106,6 +2163,7 @@ function main() {
     ["/reports", reportsPage(source)],
     ["/reports/latest/", latestReportPage(source)],
     ["/reports/full-analyst/", fullAnalystReportPage(source)],
+    ["/audit/evidence/latest/", evidencePacketAuditPage(source)],
     ["/performance", performancePage(portfolio)],
     ["/system", systemPage(summary, manifest)],
     ["/methodology", methodologyPage(summary)],
@@ -2134,6 +2192,7 @@ function main() {
     "/reports",
     "/reports/latest/",
     "/reports/full-analyst/",
+    "/audit/evidence/latest/",
     "/reports/latest.md",
     "/reports/status.json",
     "/reports/daily_reader_brief.json",

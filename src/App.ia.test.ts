@@ -153,10 +153,12 @@ describe("public ledger information architecture contract", () => {
     expect(geoGeneratorSource).toContain("function todayPage");
     expect(geoGeneratorSource).toContain("function whyGotraPage");
     expect(geoGeneratorSource).toContain("function fullAnalystReportPage");
+    expect(geoGeneratorSource).toContain("function evidencePacketAuditPage");
     expect(geoGeneratorSource).toContain("function guidePage");
     expect(geoGeneratorSource).toContain('"/today"');
     expect(geoGeneratorSource).toContain('"/why-gotra"');
     expect(geoGeneratorSource).toContain('"/reports/full-analyst/"');
+    expect(geoGeneratorSource).toContain('"/audit/evidence/latest/"');
     expect(geoGeneratorSource).toContain('"/guide"');
     expect(geoGeneratorSource).toContain("daily_reader_brief.json");
     expect(geoGeneratorSource).toContain("七步阅读顺序");
@@ -170,9 +172,12 @@ describe("public ledger information architecture contract", () => {
     expect(geoGeneratorSource).toContain("产品化阅读入口");
     expect(geoGeneratorSource).toContain("原型期数据源用途与授权边界");
     expect(geoGeneratorSource).toContain("SEC EDGAR 必须使用合规 User-Agent");
+    expect(geoGeneratorSource).toContain("Stage 4 schema 检查项");
+    expect(geoGeneratorSource).toContain("future_data_check=false");
     expect(geoGeneratorSource).toContain("静态 demo / 归档产物");
     expect(geoSmokeSource).toContain('readDist("llms.txt")');
     expect(geoSmokeSource).toContain("https://gotra.me/today");
+    expect(geoSmokeSource).toContain("https://gotra.me/audit/evidence/latest/");
     expect(geoSmokeSource).toContain("https://gotra.me/guide");
     expect(geoSmokeSource).toContain("daily_reader_brief.json");
     expect(geoSmokeSource).toContain("https://gotra.me/performance");
