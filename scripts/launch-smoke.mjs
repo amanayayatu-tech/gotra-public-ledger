@@ -644,6 +644,8 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
   const report = {
     routeResults: [],
     consoleErrors: [],
+    networkErrors: [],
+    allowedConsoleErrors: [],
     screenshots: [],
     limitations: [],
     notes: {},
@@ -662,6 +664,7 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
   try {
     client = await createPage(chromeState.port);
     await client.send("Page.enable");
+    await client.send("Network.enable");
     await client.send("Runtime.enable");
     await client.send("Log.enable");
     client.on("Runtime.exceptionThrown", (params) => {
@@ -678,6 +681,16 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
     client.on("Log.entryAdded", (params) => {
       if (["error", "fatal", "severe"].includes(params.entry?.level)) {
         report.consoleErrors.push({ type: "log_error", text: params.entry.text, level: params.entry.level });
+      }
+    });
+    client.on("Network.responseReceived", (params) => {
+      const status = Number(params.response?.status ?? 0);
+      if (status >= 400) {
+        report.networkErrors.push({
+          url: params.response?.url ?? "",
+          status,
+          mimeType: params.response?.mimeType ?? "",
+        });
       }
     });
 
@@ -810,7 +823,32 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
     report.checks.domConsoleOverflowChecked = report.routeResults.every((item) => item.missing.length === 0 && item.overflow <= 2);
     report.checks.auditDetailsChecked = report.audit_defaults_collapsed;
 
-    assert(report.consoleErrors.length === 0, "Browser console produced blocking errors", report.consoleErrors);
+    const expectedMissingLiveLedger = report.routeResults.some((item) => {
+      const text = normalizeText(item.bodyText || "");
+      return item.route === "track_record"
+        && text.includes("research_ledger.json")
+        && text.includes("publicationdecision=publish")
+        && (text.includes("尚未生成") || text.includes("not generated"));
+    });
+    const unexpectedNetworkErrors = report.networkErrors.filter((item) => {
+      return !(expectedMissingLiveLedger && item.status === 404 && item.url.endsWith("/reports/research_ledger.json"));
+    });
+    const hasOnlyExpectedMissingLedger404 = expectedMissingLiveLedger
+      && report.networkErrors.length > 0
+      && unexpectedNetworkErrors.length === 0;
+    const blockingConsoleErrors = report.consoleErrors.filter((item) => {
+      return !(hasOnlyExpectedMissingLedger404
+        && item.type === "log_error"
+        && item.level === "error"
+        && item.text.includes("404"));
+    });
+    report.allowedConsoleErrors = report.consoleErrors.filter((item) => !blockingConsoleErrors.includes(item));
+
+    assert(blockingConsoleErrors.length === 0, "Browser console produced blocking errors", {
+      blockingConsoleErrors,
+      allowedConsoleErrors: report.allowedConsoleErrors,
+      networkErrors: report.networkErrors,
+    });
 
 
     return { status: "pass", report };
