@@ -11,55 +11,55 @@ const baseUrl = "https://gotra.me";
 const englishDefinition =
   "GOTRA Public Ledger is an auditable AI stock-research public ledger and v4 Ksana cognition flywheel reader. It turns Research Task, Evidence Packet, K deep research dossier, F/W/G perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, and Reader Boundary into public-safe research information. It is not investment advice, not a trading signal, not performance proof, and not science/public proof.";
 const chineseDefinition =
-  "GOTRA Public Ledger 是一个可审计的 AI 股票研究公开账本，也是 v4 Ksana cognition flywheel 阅读器。它把 Research Task、Evidence Packet、K deep research dossier、F/W/G、Chairman、Red Team、Research Quality Gate、Knowledge Gate 和 Reader Boundary 产品化展示。它不是投资建议、不是交易信号、不是业绩证明，也不是科学/公开证明。";
+  "GOTRA Public Ledger 是可审计的 AI 股票研究公开账本，也是 GOTRA v4 研究认知系统。它把研究任务书（Research Task）、证据包（Evidence Packet）、K 深度研究底稿（K Deep Research Dossier）、F/W/G 独立视角、主席综合、红队反证审计、研究质量闸门、知识闸门、内部 Alaya 回读和读者边界闸门产品化展示。它不是投资建议、不是交易信号、不是业绩证明，也不是科学/公开证明。";
 const boundarySentence =
   "GOTRA Public Ledger provides public-safe research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not a guarantee of future outcomes.";
 const chineseBoundarySentence =
   "GOTRA Public Ledger 仅提供公开安全的研究信息。它不是投资建议、不是交易信号、不是实时交易、不是业绩证明，也不保证未来结果。";
 const guideReadingOrder = [
-  ["/today", "今日简报 / Daily Research Brief", "Start with the reader summary, Full Analyst summary, data gaps, watchlist, and next watch."],
-  ["/why-gotra", "为什么是 GOTRA / Why GOTRA", "Understand why GOTRA is research discipline, not a signal machine."],
+  ["/today", "今日研究简报（Daily Research Brief）", "先看今日研究了什么、证据够不够、哪些需要复核、下一步观察什么。"],
+  ["/why-gotra", "为什么是 GOTRA（Why GOTRA）", "理解 GOTRA 是研究纪律，不是 AI 荐股机或交易信号机。"],
   [
     "/reports/full-analyst/",
-    "Full Analyst 研究阅读器 / Full Analyst reader",
-    "Open the productized v4 reader for why this stock today, K dossier, F/W/G perspectives, Chairman, Red Team, gates, and unresolved questions.",
+    "完整研究链路阅读器（Full Analyst Reader）",
+    "阅读为什么今天研究、K 深度研究底稿、F/W/G 独立视角、主席综合、红队反证审计、闸门状态和未解决问题。",
   ],
-  ["/reports", "审计中心 / Audit Center", "Audit production reports, status JSON, raw artifact disclosures, and evidence boundaries."],
-  ["/sources", "证据与来源 / Evidence and Sources", "Understand Evidence Packet source types, freshness, missing required sources, and data_gap."],
-  ["/methodology", "方法论 / Methodology", "Read v4 gates: K dossier first, F/W/G after K, Research Quality Gate, Knowledge Gate, and Reader Boundary."],
+  ["/reports", "审计中心（Audit Center）", "核对生产报告、状态 JSON、原始审计产物入口和证据边界。"],
+  ["/sources", "证据与来源（Evidence and Sources）", "理解证据包的来源类型、新鲜度、缺失来源和数据缺口（data_gap）。"],
+  ["/methodology", "方法论（Methodology）", "理解 v4 为什么先做 K 底稿，再让 F/W/G 并行，并由研究质量闸门、知识闸门和读者边界闸门收口。"],
 ];
 const guideFlowRows = [
-  ["Research Task Planner", "Explains why this stock is studied today, the mission, core questions, required sources, and must-not-conclude-without rules."],
-  ["Evidence Packet Builder", "Builds a public-safe packet with source types, freshness, missing required sources, stale sources, data_gaps, and limitations."],
-  ["K Deep Research Dossier", "K runs first and creates the deep research dossier; it is not just another parallel agent."],
-  ["F/W/G parallel perspectives", "F/W/G run independently and in parallel after K, using the research task, evidence packet, K dossier, and Alaya readback."],
-  ["Chairman synthesis", "Synthesizes K + F/W/G, names consensus, conflicts, evidence strength, unresolved questions, and watch conditions."],
-  ["Red Team critique", "Attacks weak assumptions, counter-evidence gaps, unsupported claims, and boundary risks; Red Team is not Judge."],
-  ["Research Quality Gate", "Marks candidate, watch, avoid, needs_review, data_gap, or high_uncertainty without hiding research content."],
-  ["Knowledge Gate", "Decides what persists to memory, what remains temporary, and which unresolved questions seed the next cycle."],
-  ["Public safety scan", "Raw prompts, provider/model I/O, secrets, databases, and private logs are not published."],
-  ["Internal Alaya", "Alaya here means GOTRA repo internal cognition flywheel, knowledge memory, feedback state, and hash-chain/readback state only."],
-  ["Reader Boundary", "Adds research-only wording while keeping data_gap, needs_review, Red Team critique, and agent conflicts visible."],
-  ["Public artifacts", "Public outputs include Today's Brief, productized v4 reader, audit center, sources, methodology, and no-JS HTML."],
-  ["Evidence boundary", "Local checks, browser smoke, public artifact smoke, formal acceptance, and science/public claims are separate layers."],
+  ["研究任务书（Research Task Planner）", "说明为什么今天研究这只股票、今日任务、核心问题、必需来源，以及缺少哪些证据就不能下结论。"],
+  ["证据包（Evidence Packet Builder）", "先构建公开安全的证据包，标明来源类型、新鲜度、缺失来源、陈旧来源、数据缺口和限制。"],
+  ["K 深度研究底稿（K Deep Research Dossier）", "K 先运行并形成深度研究底稿；K 不是普通并行 agent 之一。"],
+  ["F/W/G 独立视角（F/W/G Parallel Perspectives）", "F/W/G 在 K 底稿之后独立并行运行，基于研究任务、证据包、K 底稿和内部 Alaya 回读提出不同视角。"],
+  ["主席综合（Chairman Synthesis）", "综合 K + F/W/G，指出一致点、冲突、证据强弱、未解决问题和观察条件。"],
+  ["红队反证审计（Red Team Critique）", "攻击薄弱假设、反证缺口、无支撑结论和边界风险；红队不是 Judge。"],
+  ["研究质量闸门（Research Quality Gate）", "标记 candidate、watch、avoid、需要复核（needs_review）、数据缺口（data_gap）或高不确定性，不隐藏研究内容。"],
+  ["知识闸门（Knowledge Gate）", "决定哪些知识沉淀到内部记忆，哪些只是临时观察，哪些未解决问题进入下一轮。"],
+  ["公开安全扫描（Public Safety Scan）", "完整内部提示词、provider/model 原始 I/O、secrets、数据库和私有日志不会公开。"],
+  ["内部 Alaya（Internal Alaya）", "这里的 Alaya 只指 GOTRA repo 内部 cognition flywheel、knowledge memory、feedback state 和 hash-chain/readback state。"],
+  ["读者边界闸门（Reader Boundary Gate）", "加上“研究信息，不是投资建议/交易信号”的边界，同时保持数据缺口、需要复核、红队质疑和 agent 分歧可见。"],
+  ["公开产物（Public Artifacts）", "公开输出包括今日简报、v4 阅读器、审计中心、来源页、方法论页和 no-JS HTML。"],
+  ["证据层级（Evidence Boundary）", "local checks、browser smoke、public artifact smoke、formal acceptance、science/public claim 是不同证据层，不互相升级。"],
 ];
 const guideGlossaryRows = [
-  ["Daily Brief", "Daily reader entrypoint for production reports, Full Analyst highlights, data gaps, watchlist, and boundaries."],
-  ["Full Analyst v4", "Research chain with task, evidence packet, K dossier, F/W/G perspectives, Chairman, Red Team, Quality Gate, Knowledge Gate, and Reader Boundary."],
-  ["K dossier", "The deep research dossier generated before F/W/G; later perspectives must use it."],
-  ["Perspective agents", "F/W/G independent research views that preserve disagreement instead of flattening uncertainty."],
-  ["Red-team", "Counter-evidence and vulnerability audit for overclaims, hidden assumptions, missing evidence, and boundary breaks; not Judge."],
-  ["Knowledge Gate", "Decides whether research knowledge persists, persists with limitations, stays temporary, or should not persist."],
-  ["Risk factors", "Conditions that could invalidate the research view or require reader caution."],
-  ["Watch items", "Questions, data points, events, or source states to check next."],
-  ["Data gap", "Missing public-source coverage, price, or status-file gap; private data is not used to fill it."],
-  ["Judge gate", "Pre-publication structure, coverage, public-safety, and boundary gate."],
-  ["Public-safe", "Safe for readers and crawlers; no raw I/O, secrets, private logs, databases, or credentials."],
-  ["Evidence layer", "Separation between local checks, smoke evidence, formal acceptance, and science/public claim layers."],
-  ["Demo Ledger", "Archive-only frozen public-safe demo snapshot; not the primary v4 reader, latest production, or a live prediction ledger."],
-  ["Performance proof", "Evidence proving production returns or performance; this site does not provide it."],
-  ["Science/public proof", "Validation strong enough for scientific/public-validity claims; daily reports or smoke checks are not that."],
-  ["Trading signal", "Buy, sell, hold, position, or target-price instruction; this site does not provide it."],
+  ["今日简报（Daily Brief）", "生产报告、完整研究链路摘要、数据缺口、观察清单和边界说明的默认阅读入口。"],
+  ["完整研究链路 v4（Full Analyst v4）", "从研究任务书、证据包、K 底稿、F/W/G、主席综合、红队、研究质量闸门、知识闸门到读者边界的研究链路。"],
+  ["K 深度研究底稿（K Dossier）", "F/W/G 启动前先生成的深度研究底稿，后续视角必须基于它。"],
+  ["独立视角（Perspective Agents）", "F/W/G 独立研究视角，用来保留分歧，而不是把不确定性压成一句确定答案。"],
+  ["红队反证审计（Red Team）", "审计过度确定、隐藏假设、缺失证据和边界风险；它不是 Judge。"],
+  ["知识闸门（Knowledge Gate）", "决定研究知识是否沉淀、带限制沉淀、只作为临时观察，或不应沉淀。"],
+  ["风险因素（Risk Factors）", "可能推翻研究视角或要求读者谨慎的条件。"],
+  ["观察条件（Watch Items）", "下一步需要复查的问题、数据点、事件或来源状态。"],
+  ["数据缺口（Data Gap）", "公开来源覆盖、价格或状态文件缺失；不会用私有数据硬补。"],
+  ["Judge 闸门（Judge Gate）", "发布前的结构、覆盖、公开安全和边界检查。"],
+  ["公开安全（Public-safe）", "可面向读者和爬虫公开；不包含 raw I/O、secrets、私有日志、数据库或凭证。"],
+  ["证据层级（Evidence Layer）", "区分 local checks、smoke evidence、formal acceptance 和 science/public claim。"],
+  ["Demo Ledger", "仅归档的冻结公开安全 demo，不是 v4 主阅读器、最新生产报告或实时预测账本。"],
+  ["业绩证明（Performance Proof）", "能证明生产收益或表现的证据；本站不提供。"],
+  ["科学/公开证明（Science/Public Proof）", "足够支撑科学或公共有效性声明的验证；日报和 smoke 不等于这种证明。"],
+  ["交易信号（Trading Signal）", "买/卖/持有、仓位或目标价指令；本站不提供。"],
 ];
 
 function fail(message) {
@@ -288,7 +288,7 @@ function baseJsonLd(route, description) {
 function pageShell({ route, title, description, body, extraJsonLd = [] }) {
   const canonical = canonicalUrl(route);
   return `<!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -382,16 +382,16 @@ function pageShell({ route, title, description, body, extraJsonLd = [] }) {
     <header>
       <strong>GOTRA Public Ledger</strong>
       <nav aria-label="Primary">
-        <a href="/">Home</a>
-        <a href="/today">Daily Research Brief</a>
-        <a href="/why-gotra">Why GOTRA</a>
-        <a href="/guide">Guide</a>
-        <a href="/reports/full-analyst/">Full Analyst reader</a>
-        <a href="/sources">Evidence and Sources</a>
-        <a href="/methodology">Methodology</a>
-        <a href="/reports">Audit Center</a>
-        <a href="/reports/latest/">Latest report</a>
-        <a href="/claim-boundary">Claim boundary</a>
+        <a href="/">首页</a>
+        <a href="/today">今日研究简报</a>
+        <a href="/why-gotra">为什么是 GOTRA</a>
+        <a href="/guide">阅读指南</a>
+        <a href="/reports/full-analyst/">完整研究链路</a>
+        <a href="/sources">证据与来源</a>
+        <a href="/methodology">方法论</a>
+        <a href="/reports">审计中心</a>
+        <a href="/reports/latest/">最新覆盖日报</a>
+        <a href="/claim-boundary">声明边界</a>
         <a href="/faq">FAQ</a>
       </nav>
     </header>
@@ -399,8 +399,8 @@ function pageShell({ route, title, description, body, extraJsonLd = [] }) {
 ${body}
     </main>
     <footer>
-      <p>${escapeHtml(boundarySentence)}</p>
       <p>${escapeHtml(chineseBoundarySentence)}</p>
+      <p>${escapeHtml(boundarySentence)}</p>
     </footer>
   </body>
 </html>
@@ -416,11 +416,11 @@ function writeRoute(route, page) {
 
 function definitionBlock() {
   return `<section>
-        <p class="lede">${escapeHtml(englishDefinition)}</p>
         <p class="lede">${escapeHtml(chineseDefinition)}</p>
+        <p class="lede">${escapeHtml(englishDefinition)}</p>
         <div class="boundary">
-          <p>${escapeHtml(boundarySentence)}</p>
           <p>${escapeHtml(chineseBoundarySentence)}</p>
+          <p>${escapeHtml(boundarySentence)}</p>
         </div>
       </section>`;
 }
@@ -429,14 +429,60 @@ function countText(value) {
   return Number.isFinite(Number(value)) ? String(Number(value)) : "unavailable";
 }
 
+function statusLabel(value) {
+  const raw = String(value ?? "unavailable");
+  const labels = new Map([
+    ["completed_with_review_items", "已完成但保留复核项（completed_with_review_items）"],
+    ["pass_with_review_items", "通过但保留复核项（pass_with_review_items）"],
+    ["needs_review", "需要复核（needs_review）"],
+    ["data_gap", "数据缺口（data_gap）"],
+    ["publish_with_boundary", "可带边界发布（publish_with_boundary）"],
+    ["verified", "已验证（verified）"],
+    ["ok", "正常（ok）"],
+    ["unavailable", "暂不可用（unavailable）"],
+    ["degraded", "降级（degraded）"],
+    ["source_artifacts_found", "已找到公开来源产物（source_artifacts_found）"],
+    ["deep_research_dossier_then_parallel_perspectives", "K 底稿先行、F/W/G 并行视角（deep_research_dossier_then_parallel_perspectives）"],
+    ["research_task_evidence_independent_agent_calls", "研究任务书 + 证据包 + 独立 agent 调用（research_task_evidence_independent_agent_calls）"],
+    ["independent_agent_calls", "独立 agent 调用（independent_agent_calls）"],
+    ["not_reported", "未报告（not_reported）"],
+    ["not_applicable", "不适用（not_applicable）"],
+  ]);
+  return labels.get(raw) ?? raw;
+}
+
+function statusExplanationHtml(rawStatus) {
+  const raw = String(rawStatus ?? "unavailable");
+  if (/PASS_WITH_REVIEW_ITEMS_2H_V40_KSANA_COGNITION_FLYWHEEL/i.test(raw)) {
+    return `<div class="notice">
+        <h3>通过但保留复核项</h3>
+        <p>两小时 v4 压力测试完成，工程链路、公开产物、生产 smoke 和审计检查在该窗口内稳定；仍有研究复核项。</p>
+        <p>不代表 10 小时正式验收，也不是投资建议、交易信号、业绩证明或科学/公开证明。</p>
+        <details><summary>查看原始状态码</summary><code>${escapeHtml(raw)}</code></details>
+      </div>`;
+  }
+  if (/PASS_V40_FRONTEND_PRODUCTIZATION_SMOKE/i.test(raw)) {
+    return `<div class="notice">
+        <h3>前端产品化生产冒烟测试通过</h3>
+        <p>生产页面、研究阅读器和审计路径可打开并通过浏览器检查；这是 production smoke，不是长跑验收。</p>
+        <details><summary>查看原始状态码</summary><code>${escapeHtml(raw)}</code></details>
+      </div>`;
+  }
+  return `<div class="notice">
+        <h3>${escapeHtml(statusLabel(raw))}</h3>
+        <p>这是公开状态字段的中文解释。原始状态码保留在折叠区，避免普通读者在主路径直接面对工程字段。</p>
+        <details><summary>查看原始状态码</summary><code>${escapeHtml(raw)}</code></details>
+      </div>`;
+}
+
 function latestReportHealthHtml(source) {
   const status = source.status;
   if (!status) {
     return `<section class="notice" aria-label="Latest report health">
-        <h2>Latest report health / 最新报告状态</h2>
+        <h2>最新报告状态（Latest Report Health）</h2>
+        <p>状态产物不可用。本静态首页不会从私有产物或原始审计产物推断报告事实。</p>
         <p>Status artifact unavailable. This static homepage does not infer report facts from private or raw artifacts.</p>
-        <p>状态产物不可用。本静态首页不会从私有产物或 raw 产物推断报告事实。</p>
-        <p><a href="/today">Open today's brief</a> · <a href="/reports">Open production reports audit</a></p>
+        <p><a href="/today">打开今日研究简报</a> · <a href="/reports">打开生产审计中心</a></p>
       </section>`;
   }
 
@@ -444,7 +490,7 @@ function latestReportHealthHtml(source) {
     ["mode", status.mode ?? "unavailable"],
     ["as_of_date", status.as_of_date ?? "unavailable"],
     ["trading_date", status.trading_date ?? "unavailable"],
-    ["run_status", status.run_status ?? status.status ?? "unavailable"],
+    ["run_status", statusLabel(status.run_status ?? status.status ?? "unavailable")],
     ["ok", status.ok === true ? "true" : "false"],
     ["success_count", countText(status.success_count)],
     ["failed_count", countText(status.failed_count)],
@@ -461,41 +507,41 @@ function latestReportHealthHtml(source) {
     : [];
 
   return `<section class="notice" aria-label="Latest report health">
-        <h2>Latest report health / 最新报告状态</h2>
-        <p>Research information only. Not investment advice. Not a trading signal. This is runtime/status evidence only.</p>
+        <h2>最新报告状态（Latest Report Health）</h2>
         <p>仅为研究信息和运行状态证据。不是投资建议，不是交易信号。</p>
+        <p>Research information only. Not investment advice. Not a trading signal. This is runtime/status evidence only.</p>
         ${table(["field", "value"], rows)}
         ${failedRows.length > 0 ? table(["exchange", "symbol", "provider_ticker", "reason"], failedRows) : "<p>No failed symbols reported by the latest status artifact.</p>"}
-        <p><a href="/today">Open today's brief</a> · <a href="/reports">Open production reports audit</a></p>
+        <p><a href="/today">打开今日研究简报</a> · <a href="/reports">打开生产审计中心</a></p>
       </section>`;
 }
 
 function homeFallback(summary, source) {
   return `<main id="geo-crawler-home" aria-label="GOTRA crawler-readable summary">
-      <h1>GOTRA Public Ledger</h1>
+      <h1>GOTRA Public Ledger 中文研究阅读入口</h1>
       ${definitionBlock()}
       ${latestReportHealthHtml(source)}
       ${researchSystemHtml(source.dailyReaderBrief)}
       <section class="summary-grid" aria-label="Snapshot metadata">
-        <div class="metric"><strong>${escapeHtml(summary.snapshotDate)}</strong><span>Snapshot date</span></div>
-        <div class="metric"><strong>${summary.totalRecords}</strong><span>Public prediction records</span></div>
-        <div class="metric"><strong>${summary.resolvedRecords}</strong><span>Resolved records counted in resolved-only summaries</span></div>
-        <div class="metric"><strong>${summary.visibleErrorRecords}</strong><span>Visible error values published for audit</span></div>
-        <div class="metric"><strong>${summary.pendingRecords}</strong><span>Pending records excluded from resolved-only summaries</span></div>
-        <div class="metric"><strong>${summary.frozenPendingRecords}</strong><span>Frozen-pending protocol skeleton rows excluded from resolved-only summaries</span></div>
+        <div class="metric"><strong>${escapeHtml(summary.snapshotDate)}</strong><span>快照日期</span></div>
+        <div class="metric"><strong>${summary.totalRecords}</strong><span>公开记录数</span></div>
+        <div class="metric"><strong>${summary.resolvedRecords}</strong><span>已解析记录</span></div>
+        <div class="metric"><strong>${summary.visibleErrorRecords}</strong><span>可审计误差字段</span></div>
+        <div class="metric"><strong>${summary.pendingRecords}</strong><span>未解析记录</span></div>
+        <div class="metric"><strong>${summary.frozenPendingRecords}</strong><span>冻结待定记录</span></div>
       </section>
       <section>
-        <h2>Core public pages</h2>
+        <h2>核心公开页面</h2>
         <ul>
           <li><a href="/today">今日研究简报 / Daily Research Brief</a></li>
           <li><a href="/why-gotra">为什么是 GOTRA / Why GOTRA</a></li>
           <li><a href="/guide">使用指南 / Guide</a></li>
-          <li><a href="/reports/full-analyst/">Full Analyst reader</a></li>
-          <li><a href="/sources">证据与来源 / Evidence and Sources</a></li>
-          <li><a href="/methodology">Methodology</a></li>
+          <li><a href="/reports/full-analyst/">完整研究链路阅读器</a></li>
+          <li><a href="/sources">证据与来源</a></li>
+          <li><a href="/methodology">方法论</a></li>
           <li><a href="/reports">审计中心 / Audit Center</a></li>
-          <li><a href="/reports/latest/">Latest report reader</a></li>
-          <li><a href="/claim-boundary">Claim boundary</a></li>
+          <li><a href="/reports/latest/">最新覆盖日报阅读器</a></li>
+          <li><a href="/claim-boundary">声明边界</a></li>
           <li><a href="/faq">FAQ</a></li>
         </ul>
       </section>
@@ -570,7 +616,7 @@ function tableCellText(cell) {
 
 function guideReadingOrderHtml() {
   return `<section>
-        <h2>七步阅读顺序 / Seven-step reading order</h2>
+        <h2>七步阅读顺序</h2>
         <ol>
 ${guideReadingOrder
   .map(
@@ -583,15 +629,15 @@ ${guideReadingOrder
 
 function guideGlossaryHtml() {
   return `<section>
-        <h2>术语表 / Glossary</h2>
-        ${table(["term", "definition"], guideGlossaryRows)}
+        <h2>术语表</h2>
+        ${table(["术语", "解释"], guideGlossaryRows)}
       </section>`;
 }
 
 function guideBoundaryHtml() {
   return `<section class="notice">
-        <h2>证据边界 / Evidence boundary</h2>
-        <p>Local checks, browser smoke, public artifact smoke, long-run/formal acceptance, and science/public claim are separate evidence layers. Do not summarize this site as investment advice, a trading signal, science/public proof, performance proof, or production graduation.</p>
+        <h2>证据边界</h2>
+        <p>local checks、browser smoke、public artifact smoke、long-run/formal acceptance 和 science/public claim 是不同证据层。不要把本站总结成投资建议、交易信号、科学/公开证明、业绩证明或生产正式验收。</p>
         <p>这里的 Alaya 只指 GOTRA repo 内部 cognition flywheel / knowledge memory / feedback state / hash-chain readback，不是外部服务或独立 repo。</p>
       </section>`;
 }
@@ -699,23 +745,23 @@ ${safeRows.map((row) => `          <tr>${row.map((cell) => `<td>${cell}</td>`).j
 
 function reportsPage(source) {
   const productSurfaces = [
-    ["/today", "Daily reader brief", "Default reader route powered by daily_reader_brief.json."],
-    ["/why-gotra", "Why GOTRA", "Explains why data_gap and needs_review are research discipline, not failure."],
-    ["/reports/latest/", "Coverage report reader", "Default HTML reader for the latest coverage report."],
-    ["/reports/full-analyst/", "Full Analyst reader", "Productized reader for per-symbol research before raw Markdown."],
+    ["/today", "今日研究简报", "由 daily_reader_brief.json 驱动的默认阅读页。"],
+    ["/why-gotra", "为什么是 GOTRA", "解释数据缺口（data_gap）和需要复核（needs_review）为什么是研究纪律，不是失败。"],
+    ["/reports/latest/", "覆盖日报阅读器", "最新覆盖报告的默认 HTML 阅读页。"],
+    ["/reports/full-analyst/", "完整研究链路阅读器", "单票研究的产品化阅读页，普通用户不需要先打开 raw Markdown。"],
   ];
   const rawArtifacts = [
-    ["/reports/daily_reader_brief.json", "Daily reader brief JSON", "Data source for /today; not a reader destination."],
-    ["/reports/status.json", "Latest production status alias", "Audit JSON only."],
-    ["/reports/latest.md", "Coverage daily Markdown", "Raw Markdown original for the coverage reader."],
-    ["/reports/full_analyst_evening_hk_2026-06-30.md", "Full Analyst Markdown", "Raw Markdown original for the Full Analyst reader."],
-    ["/reports/status_morning_hk.json", "HK morning production daily report status", "Audit JSON only."],
-    ["/reports/status_evening_hk.json", "HK evening production daily report status", "Audit JSON only."],
-    ["/reports/status_morning_us.json", "US morning production daily report status", "Audit JSON only."],
-    ["/reports/status_evening_us.json", "US evening production daily report status", "Audit JSON only."],
-    ["/reports/status_morning_global.json", "Global summary production daily report status", "Audit JSON only."],
-    ["/reports/status_full_analyst_monitor.json", "Full Analyst monitor status", "Audit JSON only."],
-    ["/reports/status_full_analyst_evening_hk.json", "Full Analyst v4 report status", "Audit JSON only."],
+    ["/reports/daily_reader_brief.json", "今日简报 JSON", "供 /today 使用的数据源，不是普通阅读目的地。"],
+    ["/reports/status.json", "最新生产状态别名", "仅供审计的 JSON。"],
+    ["/reports/latest.md", "覆盖日报 Markdown", "覆盖日报阅读器的原始 Markdown。"],
+    ["/reports/full_analyst_evening_hk_2026-06-30.md", "完整研究链路 Markdown", "Full Analyst 阅读器的原始 Markdown。"],
+    ["/reports/status_morning_hk.json", "港股早盘生产状态", "仅供审计的 JSON。"],
+    ["/reports/status_evening_hk.json", "港股晚间生产状态", "仅供审计的 JSON。"],
+    ["/reports/status_morning_us.json", "美股早盘生产状态", "仅供审计的 JSON。"],
+    ["/reports/status_evening_us.json", "美股晚间生产状态", "仅供审计的 JSON。"],
+    ["/reports/status_morning_global.json", "全球摘要生产状态", "仅供审计的 JSON。"],
+    ["/reports/status_full_analyst_monitor.json", "完整研究链路监控状态", "仅供审计的 JSON。"],
+    ["/reports/status_full_analyst_evening_hk.json", "完整研究链路 v4 报告状态", "仅供审计的 JSON。"],
   ];
   const fields = [
     "mode",
@@ -735,8 +781,10 @@ function reportsPage(source) {
     return [
       field,
       value === undefined || value === "artifact_unavailable"
-        ? "Coverage status alias unavailable; use report-specific status files and the v4 readers."
-        : value,
+        ? "覆盖状态别名不可用；请使用具体报告状态文件和 v4 阅读器。"
+        : field === "run_status"
+          ? statusLabel(value)
+          : value,
     ];
   });
 
@@ -745,44 +793,44 @@ function reportsPage(source) {
     title: "Audit Center | GOTRA Public Ledger",
     description:
       "Crawler-readable Audit Center for production reports, Full Analyst v4 public-safe artifacts, status JSON, raw artifact disclosures, and evidence boundaries. Not investment advice, not a trading signal, not performance proof, and not science/public proof.",
-    body: `      <h1>Audit Center / 审计中心</h1>
+    body: `      <h1>审计中心（Audit Center）</h1>
       ${definitionBlock()}
       <section class="notice">
-        <h2>Live production artifact boundary</h2>
-        <p>This page is the audit entrypoint. It separates the reader path from status artifacts, coverage reports, Full Analyst v4 public research artifacts, and raw JSON/Markdown disclosures. These are runtime/status and research-process evidence only, not performance proof, not a trading signal, not science/public proof, and not investment advice.</p>
+        <h2>生产产物边界</h2>
+        <p>本页是审计入口，用来区分普通阅读路径、状态产物、覆盖日报、完整研究链路 v4 公开研究产物，以及 raw JSON/Markdown 披露入口。这些只是运行状态和研究过程证据，不是业绩证明、交易信号、科学/公开证明或投资建议。</p>
       </section>
       <section>
-        <h2>Report type labels / 报告类型</h2>
+        <h2>报告类型</h2>
         <ul>
-          <li><strong>行情覆盖日报 / Coverage daily report:</strong> <a href="/reports/latest/">/reports/latest/</a> is the default reader; <code>latest.md</code> is the audit original.</li>
-          <li><strong>Full Analyst v4 研究阅读器 / Full Analyst v4 reader:</strong> <a href="/reports/full-analyst/">/reports/full-analyst/</a> productizes why this stock today, K dossier, F/W/G, Chairman, Red Team, gates, and unresolved questions.</li>
-          <li><strong>运行监控 / Runtime monitor:</strong> heartbeat, freshness, public scan, rollback status, and v4 contract health.</li>
-          <li><strong>状态 JSON / Status JSON:</strong> public runtime fields for coverage, failed_symbols, and data_gap; raw JSON opens only in the audit disclosure below.</li>
+          <li><strong>行情覆盖日报（Coverage Daily Report）:</strong> <a href="/reports/latest/">/reports/latest/</a> 是默认阅读器；<code>latest.md</code> 是审计原文。</li>
+          <li><strong>完整研究链路 v4 阅读器（Full Analyst v4 Reader）:</strong> <a href="/reports/full-analyst/">/reports/full-analyst/</a> 产品化展示为什么今天研究、K 底稿、F/W/G、主席综合、红队、闸门和未解决问题。</li>
+          <li><strong>运行监控（Runtime Monitor）:</strong> 心跳、新鲜度、公开安全扫描、rollback 状态和 v4 contract health。</li>
+          <li><strong>状态 JSON（Status JSON）:</strong> 覆盖状态、failed_symbols 和 data_gap 等运行字段；raw JSON 只在下方审计折叠区打开。</li>
         </ul>
       </section>
       <section class="notice">
-        <h2>Report source status</h2>
-        <p>Status: <strong>${escapeHtml(source.state)}</strong>.</p>
-        <p>If <code>public/reports/status.json</code> or <code>public/reports/latest.md</code> is missing in this build, this page reports artifact-unavailable instead of inventing report facts.</p>
+        <h2>报告来源状态</h2>
+        <p>状态：<strong>${escapeHtml(statusLabel(source.state))}</strong>。</p>
+        <p>如果本次构建缺少 <code>public/reports/status.json</code> 或 <code>public/reports/latest.md</code>，本页会如实显示产物不可用，而不是编造报告事实。</p>
       </section>
       <section class="notice">
-        <h2>v4 Ksana cognition flywheel and internal Alaya</h2>
-        <p>The v4 audit layer tracks <code>research_task</code>, <code>evidence_packet</code>, K deep research dossier, F/W/G independent perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, and GOTRA internal Alaya readback. Alaya means the repo-internal cognition flywheel, knowledge memory, and feedback state; it is not an external service.</p>
+        <h2>v4 Ksana 认知飞轮与内部 Alaya</h2>
+        <p>v4 审计层跟踪研究任务书、证据包、K 深度研究底稿、F/W/G 独立视角、主席综合、红队反证审计、研究质量闸门、知识闸门和 GOTRA 内部 Alaya 回读。Alaya 只指 repo 内部 cognition flywheel、knowledge memory 和 feedback state，不是外部服务。</p>
       </section>
       <section>
-        <h2>Product reading surfaces</h2>
-        ${table(["route", "surface", "reader meaning"], productSurfaces)}
+        <h2>产品化阅读入口</h2>
+        ${table(["路径", "页面", "读者含义"], productSurfaces)}
       </section>
       <section>
-        <h2>Latest report status fields</h2>
-        ${table(["field", "value"], rows)}
+        <h2>最新报告状态字段</h2>
+        ${table(["字段", "读者解释"], rows)}
         <ul>
-          <li><a href="/reports/latest/">Latest report HTML</a></li>
+          <li><a href="/reports/latest/">打开最新覆盖日报 HTML 阅读器</a></li>
         </ul>
         <details class="notice">
-          <summary>Raw artifact / Open JSON / Open Markdown</summary>
-          <p>These links are for audit and evidence review. Return to <a href="/today">/today</a>, <a href="/reports/latest/">/reports/latest/</a>, or <a href="/reports/full-analyst/">/reports/full-analyst/</a> for productized reading.</p>
-          ${table(["artifact", "type", "audit meaning"], rawArtifacts)}
+          <summary>原始审计产物（Raw artifact / Open JSON / Open Markdown）</summary>
+          <p>这些链接仅供审计和证据复核。普通阅读请回到 <a href="/today">/today</a>、<a href="/reports/latest/">/reports/latest/</a> 或 <a href="/reports/full-analyst/">/reports/full-analyst/</a>。</p>
+          ${table(["产物", "类型", "审计含义"], rawArtifacts)}
         </details>
       </section>`,
   });
@@ -790,11 +838,11 @@ function reportsPage(source) {
 
 function guidePage() {
   const reportTypeRows = [
-    ["/today", "今日简报 reader / Daily Brief reader", "daily_reader_brief.json is the data source; /today is the reader destination."],
-    ["/why-gotra", "为什么是 GOTRA / Why GOTRA", "Explains why data_gap, needs_review, red-team review, and internal Alaya readback are value signals for research discipline."],
-    ["/reports/latest/", "行情覆盖日报 reader / Coverage report reader", "/reports/latest/ is the default HTML reader; latest.md is audit raw Markdown."],
-    ["/reports/full-analyst/", "Full Analyst 研究阅读器 / Full Analyst reader", "Productized canary candidate research with per-symbol agent analysis before raw Markdown."],
-    ["/reports", "审计中心 / Audit center", "Raw JSON and Markdown links are available only as explicit audit artifacts."],
+    ["/today", "今日研究简报（Daily Brief Reader）", "daily_reader_brief.json 是数据源；/today 是读者目的地。"],
+    ["/why-gotra", "为什么是 GOTRA（Why GOTRA）", "解释数据缺口、需要复核、红队审计和内部 Alaya 回读为什么体现研究纪律。"],
+    ["/reports/latest/", "行情覆盖日报阅读器（Coverage Report Reader）", "/reports/latest/ 是默认 HTML 阅读页；latest.md 是审计 raw Markdown。"],
+    ["/reports/full-analyst/", "完整研究链路阅读器（Full Analyst Reader）", "先展示每个标的的研究过程和 agent 分析，再把 raw Markdown 放入审计折叠区。"],
+    ["/reports", "审计中心（Audit Center）", "Raw JSON 和 Markdown 链接只作为明确的原始审计产物出现。"],
   ];
 
   return pageShell({
@@ -802,20 +850,20 @@ function guidePage() {
     title: "How to Read GOTRA | 使用指南",
     description:
       "Crawler-readable guide for GOTRA reading order, daily system flow, glossary, report types, internal Alaya boundary, and evidence boundaries. Not investment advice, not a trading signal, not performance proof, and not science/public proof.",
-    body: `      <h1>如何阅读 GOTRA / How to Read GOTRA</h1>
+    body: `      <h1>如何阅读 GOTRA</h1>
       ${definitionBlock()}
       <section class="notice">
-        <h2>Reader purpose / 读者目的</h2>
-        <p>Use this page to understand what to read first, how the v4 Ksana cognition flywheel works, how reader pages differ from audit artifacts, and why evidence layers must remain separate.</p>
+        <h2>读者目的</h2>
+        <p>先用这页理解普通读者应该先看哪里、v4 Ksana 认知飞轮怎么运转、阅读页和审计产物有什么区别，以及为什么证据层级不能混在一起。</p>
       </section>
       ${guideReadingOrderHtml()}
       <section>
-        <h2>Daily system flow / 每日系统流</h2>
-        ${table(["step", "meaning"], guideFlowRows)}
+        <h2>每日系统流</h2>
+        ${table(["步骤", "含义"], guideFlowRows)}
       </section>
       <section>
-        <h2>Report types / 报告类型</h2>
-        ${table(["artifact", "type", "reader meaning"], reportTypeRows)}
+        <h2>报告类型</h2>
+        ${table(["路径", "类型", "读者含义"], reportTypeRows)}
       </section>
       ${guideGlossaryHtml()}
       ${guideBoundaryHtml()}`,
@@ -838,78 +886,77 @@ function whyGotraPage() {
           "GOTRA is not a signal machine. It is a research discipline for seeing what changed, what is known, and what still needs review.",
       },
     ],
-    body: `      <h1>Why GOTRA / 为什么是 GOTRA</h1>
-      <p class="lede">GOTRA is not a signal machine. It is a research discipline for seeing what changed, what is known, and what still needs review.</p>
+    body: `      <h1>为什么是 GOTRA</h1>
       <p class="lede">GOTRA 不是信号机器。它是一套研究纪律：看清发生了什么、证据够不够、哪里还需要复核。</p>
+      <p class="lede">GOTRA is not a signal machine. It is a research discipline for seeing what changed, what is known, and what still needs review.</p>
       <section class="notice">
-        <h2>The problem with direct advice / 直接建议的问题</h2>
-        <p>Direct answers can hide uncertainty, compress evidence into a false sense of certainty, encourage action without source review, ignore data gaps, and make confidence look cheaper than it is.</p>
+        <h2>直接建议的问题</h2>
+        <p>直接答案容易隐藏不确定性，把证据压成虚假的确定感，绕过来源复核，忽略数据缺口，让信心看起来比实际更便宜。</p>
         <p>GOTRA 的价值不是替你下结论，而是把结论之前的研究过程摊开。</p>
       </section>
       <section>
-        <h2>What GOTRA does instead</h2>
+        <h2>GOTRA 改怎么做</h2>
         ${table(
-          ["research discipline", "reader value"],
+          ["研究纪律", "读者价值"],
           [
-            ["Tracks daily changes", "Start with what changed instead of a forced answer."],
-            ["Separates facts, scenarios, risks, and review items", "Readers can see what is known and what remains conditional."],
-            ["Preserves data gaps", "Incomplete evidence is visible instead of being filled with stale or private data."],
-            ["Runs judge gate and red-team review", "Weak assumptions are marked before they become reader-facing certainty."],
-            ["Records internal memory/readback", "Alaya means GOTRA-internal cognition, knowledge memory, feedback, and readback state only."],
-            ["Publishes public-safe summaries", "The public surface keeps raw provider/model I/O and secrets out."],
+            ["记录每日变化", "先看发生了什么，而不是强行给动作答案。"],
+            ["分开事实、情景、风险和复核项", "读者能看到哪些已知，哪些仍然有条件。"],
+            ["保留数据缺口（data_gap）", "证据不完整时如实标出，而不是用陈旧或私有数据硬补。"],
+            ["运行闸门与红队审计", "薄弱假设在变成读者确定感之前先被标记。"],
+            ["记录内部记忆/回读", "Alaya 只指 GOTRA 内部 cognition flywheel、knowledge memory、feedback 和 readback state。"],
+            ["发布公开安全摘要", "公开层排除 provider/model 原始 I/O 和 secrets。"],
           ],
         )}
       </section>
       <section>
-        <h2>Why data_gap matters</h2>
-        <p>When evidence is insufficient, the system should stop instead of inventing a polished answer. A data_gap tells readers what public coverage is missing, what must not be treated as current, and what to check next.</p>
+        <h2>为什么数据缺口（data_gap）重要</h2>
+        <p>当证据不足时，系统应该停下来标记缺口，而不是编一个漂亮答案。data_gap 告诉读者缺少哪些公开覆盖、哪些不能当作当前事实、下一步要核对什么。</p>
       </section>
       <section>
-        <h2>Why needs_review matters</h2>
-        <p>needs_review is quality control, not failure. Red-team review surfaces weak assumptions, conflicting sources, and the places a reader should not trust yet.</p>
+        <h2>为什么需要复核（needs_review）重要</h2>
+        <p>needs_review 是质量控制，不是失败。红队反证审计会把薄弱假设、来源冲突和暂时不该信任的位置暴露出来。</p>
       </section>
       <section>
-        <h2>GOTRA vs signal tools</h2>
+        <h2>GOTRA 和信号工具有什么不同</h2>
         ${table(
-          ["dimension", "signal tool", "GOTRA"],
+          ["维度", "普通信号工具", "GOTRA"],
           [
-            ["Default output", "Compresses evidence into an action answer.", "Separates changes, evidence, gaps, counterpoints, and next checks."],
-            ["data_gap", "Often hidden or papered over with stale data.", "Tells readers exactly where evidence is incomplete."],
-            ["needs_review", "Can be packaged as certainty.", "Kept as a visible review gate."],
-            ["Alaya", "Can be mistaken for an external black box.", "Only GOTRA-internal cognition / memory / feedback / readback state."],
+            ["默认输出", "把证据压成动作答案。", "分开展示变化、证据、缺口、反证和下一步核对。"],
+            ["data_gap", "常被隐藏或用陈旧数据糊过去。", "明确告诉读者证据哪里不完整。"],
+            ["needs_review", "可能被包装成确定结论。", "保留为可见的复核闸门。"],
+            ["Alaya", "容易被误解成外部黑箱。", "只指 GOTRA 内部 cognition / memory / feedback / readback state。"],
           ],
         )}
       </section>
       <section>
-        <h2>How to use GOTRA</h2>
+        <h2>怎么使用 GOTRA</h2>
         <ul>
-          <li>Start with <a href="/today">/today</a> for today's top observations.</li>
-          <li>Open <a href="/reports/full-analyst/">/reports/full-analyst/</a> for symbol briefs, both sides, red-team caveats, risks, and watch items.</li>
-          <li>Treat data_gap as research still to complete.</li>
-          <li>When needs_review appears, read the review reason before relying on the claim.</li>
-          <li>Use <a href="/sources">/sources</a> and <a href="/methodology">/methodology</a> to audit evidence and boundaries.</li>
+          <li>先看 <a href="/today">/today</a> 的今日重点观察。</li>
+          <li>再打开 <a href="/reports/full-analyst/">/reports/full-analyst/</a> 看单票研究、不同视角、红队提示、风险和观察条件。</li>
+          <li>把 data_gap 当成仍需完成的研究，而不是系统已经给出确定答案。</li>
+          <li>看到 needs_review 时，先读复核原因，再判断这条研究信息能不能依赖。</li>
+          <li>用 <a href="/sources">/sources</a> 和 <a href="/methodology">/methodology</a> 审计证据和边界。</li>
         </ul>
       </section>
       <section class="notice">
-        <h2>What GOTRA will not do</h2>
-        <p>GOTRA does not provide buy/sell/hold instructions, target prices, allocation guidance, promised outcomes, hidden provider I/O, or claims that incomplete evidence is complete.</p>
+        <h2>GOTRA 不会做什么</h2>
+        <p>GOTRA 不提供买/卖/持有指令、目标价、仓位建议、收益承诺、隐藏 provider I/O，或把不完整证据伪装成完整证据。</p>
       </section>`,
   });
 }
 
 function v35ResearchSystemHtml() {
   return `<section class="notice">
-        <h2>legacy v3.5 fallback / legacy v3.5 兼容层</h2>
-        <p>The legacy v3.5 fallback turns research_task, evidence_packet, K/F/W/G independent views, Chairman synthesis, Red Team audit, and internal Alaya readback into an auditable research chain. It is research discipline, not an action-answer layer.</p>
-        <p>v3.5 把研究任务、证据包、K/F/W/G 独立视角、Chairman synthesis、Red Team audit 和内部 Alaya readback 串成可审计研究链路；它不是动作答案层。</p>
+        <h2>legacy v3.5 兼容层</h2>
+        <p>v3.5 把研究任务书、证据包、K/F/W/G 独立视角、主席综合、红队审计和内部 Alaya 回读串成可审计研究链路；它不是动作答案层。</p>
         ${table(
-          ["step", "reader value"],
+          ["步骤", "读者价值"],
           [
-            ["Research task / 研究任务", "Explains why this stock is studied today, the core questions, required sources, and what cannot be concluded without missing evidence."],
-            ["Evidence packet / 证据包", "Collects public source types, freshness, missing required sources, stale items, data_gap, and limitations before agent writing."],
-            ["K/F/W/G independent views", "Separate evidence-based research views that preserve disagreement instead of flattening uncertainty."],
-            ["Chairman synthesis + Red Team audit", "Chairman synthesizes conflicts and evidence strength; Red Team audit attacks weak assumptions, overclaiming, and needs_review."],
-            ["Alaya internal readback", "Alaya means GOTRA internal cognition flywheel / knowledge memory / feedback state / readback only, not an external project."],
+            ["研究任务书（Research Task）", "解释为什么今天研究、核心问题、必需来源，以及缺少哪些证据就不能下结论。"],
+            ["证据包（Evidence Packet）", "在 agent 写作之前收集公开来源类型、新鲜度、缺失来源、陈旧来源、数据缺口和限制。"],
+            ["K/F/W/G 独立视角", "保留不同证据视角和分歧，而不是把不确定性压平。"],
+            ["主席综合 + 红队审计", "主席综合冲突和证据强弱；红队审计薄弱假设、过度表述和需要复核点。"],
+            ["内部 Alaya 回读", "Alaya 只指 GOTRA 内部 cognition flywheel / knowledge memory / feedback state / readback，不是外部项目。"],
           ],
         )}
       </section>`;
@@ -917,19 +964,18 @@ function v35ResearchSystemHtml() {
 
 function v40ResearchSystemHtml() {
   return `<section class="notice">
-        <h2>v4 Ksana Cognition Flywheel / v4 念轮研究系统</h2>
-        <p>v4 runs research_task -> evidence_packet -> K deep research dossier -> F/W/G independent perspectives -> Chairman synthesis -> Red Team critique -> Research Quality Gate -> Knowledge Gate -> Alaya write/readback -> Reader Boundary. It is research discipline, not an action-answer layer.</p>
-        <p>v4 的主路径是研究任务、证据包、K deep research dossier、F/W/G 独立视角、Chairman synthesis、Red Team critique、Research Quality Gate、Knowledge Gate、内部 Alaya write/readback 和 Reader Boundary；它不是动作答案层。</p>
+        <h2>v4 Ksana 认知飞轮研究系统</h2>
+        <p>v4 的主路径是研究任务书、证据包、K 深度研究底稿、F/W/G 独立视角、主席综合、红队反证审计、研究质量闸门、知识闸门、内部 Alaya 写入/回读和读者边界闸门；它是研究纪律，不是动作答案层。</p>
         ${table(
-          ["step", "reader value"],
+          ["步骤", "读者价值"],
           [
-            ["Why this stock today / Research task", "Explains selection reason, mission, core questions, required evidence, data_gap policy, K objectives, and F/W/G briefs."],
-            ["Evidence packet / 证据包", "Tracks public sources, missing required sources, stale sources, data_gaps, and limits before any synthesis."],
-            ["K dossier first", "K is not an ordinary parallel agent; it creates the deep research dossier before F/W/G."],
-            ["F/W/G after K", "F/W/G run in parallel from the task, evidence packet, K dossier, Alaya readback, and each agent brief."],
-            ["Chairman + Red Team", "Chairman synthesizes K+F/W/G; Red Team critiques weak assumptions and counter-evidence but is not Judge."],
-            ["Research Quality Gate + Knowledge Gate", "Quality Gate decides research status; Knowledge Gate decides what persists, remains temporary, or stays unresolved."],
-            ["Reader Boundary", "Adds research-only wording without hiding data_gap, needs_review, Red Team critique, agent conflicts, or evidence gaps."],
+            ["为什么今天研究 / 研究任务书", "说明选择原因、研究任务、核心问题、必需证据、数据缺口策略、K 目标和 F/W/G brief。"],
+            ["证据包（Evidence Packet）", "在任何综合之前记录公开来源、缺失必需来源、陈旧来源、数据缺口和限制。"],
+            ["K 底稿先行", "K 不是普通并行 agent；它先创建深度研究底稿，再给 F/W/G 使用。"],
+            ["F/W/G 基于 K 并行", "F/W/G 从研究任务书、证据包、K 底稿、内部 Alaya 回读和各自 brief 出发并行研究。"],
+            ["主席综合 + 红队反证", "主席综合 K+F/W/G；红队质疑薄弱假设和反证缺口，但红队不是 Judge。"],
+            ["研究质量闸门 + 知识闸门", "研究质量闸门决定研究状态；知识闸门决定哪些沉淀、哪些临时保留、哪些仍未解决。"],
+            ["读者边界闸门", "加上研究边界，不隐藏 data_gap、needs_review、红队质疑、agent 分歧或证据缺口。"],
           ],
         )}
       </section>`;
@@ -964,12 +1010,12 @@ function todayPage(source) {
   const reviewCount = Number(fullAnalyst.needs_review_count ?? 0) + Number(fullAnalyst.data_gap_count ?? 0);
   const topFocus = agentItems.slice(0, 5).map((item) => item.symbol).filter(Boolean);
   const rawArtifacts = [
-    [brief?.links?.daily_reader_brief ?? "/reports/daily_reader_brief.json", "daily_reader_brief.json", "Data source for this reader, not the reading destination."],
-    [brief?.links?.latest_report ?? "/reports/latest.md", "Coverage Markdown", "Raw Markdown original for /reports/latest/."],
-    [brief?.links?.full_analyst_report ?? fullAnalyst.report_markdown ?? "/reports/full_analyst_evening_hk_YYYY-MM-DD.md", "Full Analyst Markdown", "Raw Markdown original for /reports/full-analyst/."],
-    [brief?.links?.status_json ?? "/reports/status.json", "status.json", "Production audit JSON."],
-    [brief?.links?.full_analyst_status ?? fullAnalyst.status_json ?? "/reports/status_full_analyst_evening_hk.json", "Full Analyst status JSON", "Audit JSON."],
-    [brief?.links?.full_analyst_monitor ?? "/reports/status_full_analyst_monitor.json", "Full Analyst monitor JSON", "Audit JSON."],
+    [brief?.links?.daily_reader_brief ?? "/reports/daily_reader_brief.json", "daily_reader_brief.json", "本页数据源，不是普通阅读目的地。"],
+    [brief?.links?.latest_report ?? "/reports/latest.md", "覆盖日报 Markdown", "/reports/latest/ 的原始 Markdown。"],
+    [brief?.links?.full_analyst_report ?? fullAnalyst.report_markdown ?? "/reports/full_analyst_evening_hk_YYYY-MM-DD.md", "完整研究链路 Markdown", "/reports/full-analyst/ 的原始 Markdown。"],
+    [brief?.links?.status_json ?? "/reports/status.json", "status.json", "生产审计 JSON。"],
+    [brief?.links?.full_analyst_status ?? fullAnalyst.status_json ?? "/reports/status_full_analyst_evening_hk.json", "完整研究链路状态 JSON", "审计 JSON。"],
+    [brief?.links?.full_analyst_monitor ?? "/reports/status_full_analyst_monitor.json", "完整研究链路监控 JSON", "审计 JSON。"],
   ];
 
   return pageShell({
@@ -989,62 +1035,63 @@ function todayPage(source) {
       },
     ],
     body: `      <h1>${escapeHtml(title)}</h1>
-      <p class="lede">Research brief, not a trading signal. Some items require review.</p>
       <p class="lede">研究简报，不是交易信号。部分项目仍需复核。</p>
+      <p class="lede">Research brief, not a trading signal. Some items require review.</p>
       <section class="notice">
-        <h2>What to read first / 今天先读什么</h2>
+        <h2>今天先读什么</h2>
         <p>${escapeHtml(tldr)}</p>
         <p>${escapeHtml(subtitle)}</p>
-        <p><a href="/why-gotra">Why GOTRA explains why data_gap and needs_review are value signals for research discipline.</a></p>
+        <p><a href="/why-gotra">为什么是 GOTRA：解释 data_gap 和 needs_review 为什么是研究纪律，而不是系统失败。</a></p>
       </section>
       ${researchSystemHtml(brief)}
       <section>
-        <h2>Daily research snapshot / 今日研究快照</h2>
+        <h2>今日研究快照</h2>
         ${table(
-          ["signal", "reader meaning"],
+          ["项目", "读者解释"],
           [
-            ["Top focus", topFocus.length > 0 ? topFocus.join(", ") : "No public symbol focus is available in this build."],
-            ["Public summaries", fullAnalyst.publish_count ?? "artifact_unavailable"],
-            ["Review / gaps", reviewCount],
-            ["Research state", textValue(fullAnalyst.summary ?? localized("Full Analyst rich brief unavailable.", "Full Analyst rich brief unavailable."))],
+            ["今日聚焦", topFocus.length > 0 ? topFocus.join(", ") : "本次构建没有公开标的聚焦。"],
+            ["公开摘要数", fullAnalyst.publish_count ?? "产物不可用"],
+            ["复核项 / 数据缺口", reviewCount],
+            ["研究状态", textValue(fullAnalyst.summary ?? localized("完整研究链路摘要不可用。", "Full Analyst rich brief unavailable."))],
           ],
         )}
+        ${statusExplanationHtml(fullAnalyst.run_status ?? effect.canary_status ?? "unavailable")}
       </section>
       <section>
-        <h2>Top observations / 今日重点</h2>
+        <h2>今日重点</h2>
         ${
           topItems.length > 0
-		        ? table(["label", "summary", "why it matters"], topItems.map((item) => [textValue(item.label), textValue(item.summary), textValue(item.why_it_matters)]))
-            : "<p>daily_reader_brief.json is unavailable; no top items are inferred.</p>"
+		        ? table(["标签", "摘要", "为什么重要"], topItems.map((item) => [textValue(item.label), textValue(item.summary), textValue(item.why_it_matters)]))
+            : "<p>daily_reader_brief.json 不可用；本页不会推断今日重点。</p>"
         }
       </section>
       <section>
-        <h2>Symbol briefs / 单票研究</h2>
+        <h2>单票研究摘要</h2>
         ${
           agentItems.length > 0
             ? table(
                 isV40Brief(brief)
                   ? [
-                      "symbol",
-                      "research status",
-                      "why this stock / task",
-                      "evidence packet",
-                      "K dossier",
-                      "F view",
-                      "W view",
-                      "G view",
-                      "chairman synthesis",
-                      "Red Team critique",
-                      "Research Quality Gate",
-                      "Alaya / Knowledge Gate",
-                      "persisted memory",
-                      "unresolved",
-                      "Reader Boundary",
+                      "标的",
+                      "研究状态",
+                      "为什么研究 / 任务书",
+                      "证据包",
+                      "K 深度研究底稿",
+                      "F 独立视角",
+                      "W 独立视角",
+                      "G 独立视角",
+                      "主席综合",
+                      "红队反证审计",
+                      "研究质量闸门",
+                      "内部 Alaya / 知识闸门",
+                      "沉淀记忆",
+                      "未解决问题",
+                      "读者边界",
                     ]
-                  : ["symbol", "research status", "research task", "evidence packet", "chairman synthesis", "K deep research", "F view", "W view", "red-team audit", "watch conditions"],
+                  : ["标的", "研究状态", "研究任务书", "证据包", "主席综合", "K 深度研究", "F 视角", "W 视角", "红队审计", "观察条件"],
                 agentItems.slice(0, 12).map((item) => [
                   item.symbol,
-                  item.research_status ?? "",
+                  statusLabel(item.research_status ?? ""),
                   ...(isV40Brief(brief)
                     ? [
                         readerListText(item.research_task),
@@ -1073,50 +1120,50 @@ function todayPage(source) {
                       ]),
                 ]),
               )
-            : "<p>Full Analyst rich brief unavailable; no per-symbol agent analysis is inferred.</p>"
+            : "<p>完整研究链路摘要不可用；不会从私有或 raw 产物推断单票 agent 分析。</p>"
         }
-        <p><a href="/reports/full-analyst/">Open the Full Analyst reader for the productized full research view.</a></p>
+        <p><a href="/reports/full-analyst/">打开完整研究链路阅读器，阅读产品化研究视图。</a></p>
       </section>
       <section>
-        <h2>Watchlist / 观察清单</h2>
+        <h2>观察清单</h2>
         ${
           researchWatchlist.length > 0
-	            ? table(["symbol", "question", "reason", "next_check", "source"], researchWatchlist.map((item) => [item.symbol, textValue(item.question), textValue(item.reason), textValue(item.next_check), item.source]))
+	            ? table(["标的", "问题", "原因", "下一步核对", "来源"], researchWatchlist.map((item) => [item.symbol, textValue(item.question), textValue(item.reason), textValue(item.next_check), item.source]))
 	            : watchlist.length > 0
-	              ? table(["symbol", "reason", "reader_takeaway"], watchlist.map((item) => [item.symbol, textValue(item.reason), textValue(item.reader_takeaway)]))
-            : "<p>No public data-gap watch item is marked in this build.</p>"
+	              ? table(["标的", "原因", "读者 takeaway"], watchlist.map((item) => [item.symbol, textValue(item.reason), textValue(item.reader_takeaway)]))
+            : "<p>本次构建没有公开标记的数据缺口观察项。</p>"
         }
       </section>
       <section>
-        <h2>Known gaps / 已知缺口</h2>
+        <h2>已知数据缺口</h2>
         ${
           knownGaps.length > 0
-	            ? table(["symbol", "reason", "affected_report"], knownGaps.map((gap) => [gap.symbol ?? gap.code, textValue(gap.explanation ?? gap.reason), gap.affected_report ?? textValue(gap.label)]))
-            : "<p>No public known gap artifact is available in this build.</p>"
+	            ? table(["标的", "原因", "影响报告"], knownGaps.map((gap) => [gap.symbol ?? gap.code, textValue(gap.explanation ?? gap.reason), gap.affected_report ?? textValue(gap.label)]))
+            : "<p>本次构建没有公开已知缺口产物。</p>"
         }
       </section>
       <section>
-        <h2>Next watch / 下一步观察</h2>
+        <h2>下一步观察</h2>
         ${
           nextWatch.length > 0
 	            ? `<ul>${nextWatch.map((item) => `<li>${escapeHtml(textValue(item))}</li>`).join("")}</ul>`
-            : "<p>Next-watch items require daily_reader_brief.json or runtime synthesis from public status files.</p>"
+            : "<p>下一步观察项需要 daily_reader_brief.json 或公开状态文件综合。</p>"
         }
       </section>
       <section>
-        <h2>Continue reading / 继续阅读</h2>
+        <h2>继续阅读</h2>
         <ul>
-          <li><a href="/why-gotra">Why GOTRA</a></li>
-          <li><a href="/reports/full-analyst/">Full Analyst reader</a></li>
-          <li><a href="/reports/latest/">Coverage report reader</a></li>
-          <li><a href="/reports">Audit Center</a></li>
-          <li><a href="/sources">Sources and artifacts</a></li>
+          <li><a href="/why-gotra">为什么是 GOTRA</a></li>
+          <li><a href="/reports/full-analyst/">完整研究链路阅读器</a></li>
+          <li><a href="/reports/latest/">覆盖日报阅读器</a></li>
+          <li><a href="/reports">审计中心</a></li>
+          <li><a href="/sources">来源与产物</a></li>
         </ul>
         <details class="notice">
-          <summary>Raw artifact / Open JSON / Open Markdown</summary>
-          <p>These links are for audit review only. Return to <a href="/today">/today</a>, <a href="/why-gotra">/why-gotra</a>, <a href="/reports/latest/">/reports/latest/</a>, or <a href="/reports/full-analyst/">/reports/full-analyst/</a> for productized reading.</p>
-          ${table(["artifact", "type", "audit meaning"], rawArtifacts)}
-          <h3>Audit status fields</h3>
+          <summary>原始审计产物（Raw artifact / Open JSON / Open Markdown）</summary>
+          <p>这些链接只供审计复核。普通阅读请回到 <a href="/today">/today</a>、<a href="/why-gotra">/why-gotra</a>、<a href="/reports/latest/">/reports/latest/</a> 或 <a href="/reports/full-analyst/">/reports/full-analyst/</a>。</p>
+          ${table(["产物", "类型", "审计含义"], rawArtifacts)}
+          <h3>审计状态字段</h3>
           ${table(
             ["field", "value"],
             [
@@ -1149,7 +1196,7 @@ function fullAnalystReportPage(source) {
 
   return pageShell({
     route: "/reports/full-analyst/",
-    title: "Full Analyst Research Reader | GOTRA Public Ledger",
+    title: "完整研究链路阅读器 | GOTRA Public Ledger",
     description:
       "Productized Full Analyst reader for Ksana 4.1-lite per-symbol research, F/W/G views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions. Raw Markdown opens only in an audit disclosure.",
     extraJsonLd: [
@@ -1162,62 +1209,63 @@ function fullAnalystReportPage(source) {
           "A productized reading layer for the Full Analyst public-safe research artifact. Research information only, not investment advice or a trading signal.",
       },
     ],
-    body: `      <h1>Full Analyst Research Reader / Full Analyst 研究阅读器</h1>
-      <p class="lede">${v40Reader ? "This page turns the Full Analyst v4 Ksana Cognition Flywheel artifact into a reader-first structure: why this stock today, research task, evidence packet, K deep research dossier, F/W/G independent perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, persisted memory, unresolved questions, and Reader Boundary." : v35Reader ? "This page turns the Full Analyst v3.5 artifact into a reader-first structure: research task, evidence packet, missing required sources, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent statuses, timings, hashes, evidence gaps, and watch conditions." : v3Reader ? "This page turns the Full Analyst v3 artifact into a reader-first structure: independent agent calls, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent statuses, timings, hashes, evidence gaps, and watch conditions." : "This page turns the Full Analyst artifact into a reader-first structure: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions."}</p>
-      <p class="lede">${v40Reader ? "这是 Full Analyst v4 的产品化阅读层；K dossier 先行，F/W/G 基于 K 并行，Chairman 综合，Red Team 只审计，Knowledge Gate 决定持久化。raw Markdown 和 hash/timing 只放在下方审计折叠区。" : v35Reader ? "这是 Full Analyst v3.5 的产品化阅读层；execution model: research task + evidence packet + independent agent calls。raw Markdown 只放在下方审计折叠区。" : v3Reader ? "这是 Full Analyst v3 的产品化阅读层；execution model: independent agent calls。raw Markdown 只放在下方审计折叠区。" : "这是 Full Analyst v2 的产品化阅读层；raw Markdown 只放在下方审计折叠区。执行模型如公开状态所示，不把 single-call multi-perspective 伪装成 independent agents。"}</p>
+    body: `      <h1>完整研究链路阅读器（Full Analyst Reader）</h1>
+      <p class="lede">${v40Reader ? "这是 Full Analyst v4 的产品化阅读层：为什么今天研究、研究任务书、证据包、K 深度研究底稿、F/W/G 独立视角、主席综合、红队反证审计、研究质量闸门、知识闸门、沉淀记忆、未解决问题和读者边界。" : v35Reader ? "这是 Full Analyst v3.5 的产品化阅读层：研究任务书、证据包、缺失来源、K/F/W/G 独立视角、主席综合、红队审计、agent 状态、证据缺口和观察条件。" : v3Reader ? "这是 Full Analyst v3 的产品化阅读层：独立 agent 调用、K/F/W/G 独立视角、主席综合、红队审计、证据缺口和观察条件。" : "这是 Full Analyst artifact 的产品化阅读层：K 深度研究、F/W/G 视角、主席综合、红队审计、证据缺口和观察条件。"}</p>
+      <p class="lede">${v40Reader ? "K 底稿先行，F/W/G 基于 K 并行，主席负责综合冲突，红队只做反证审计，知识闸门决定什么能沉淀。raw Markdown、hash 和 timing 只放在下方审计折叠区。" : v35Reader ? "execution model 是 research task + evidence packet + independent agent calls；raw Markdown 只放在下方审计折叠区。" : v3Reader ? "execution model 是 independent agent calls；raw Markdown 只放在下方审计折叠区。" : "执行模型按公开状态展示，不把 single-call multi-perspective 伪装成 independent agents；raw Markdown 只放在下方审计折叠区。"}</p>
       <section class="notice">
-        <h2>Reader summary</h2>
-        <p>${escapeHtml(textValue(fullAnalyst.summary ?? localized("Full Analyst rich brief unavailable.", "Full Analyst rich brief unavailable.")))}</p>
-        <p>Execution model: ${escapeHtml(fullAnalyst.execution_model ?? "not_reported")} · Methodology: ${escapeHtml(fullAnalyst.methodology_version ?? "not_reported")} · Agent parallelism: ${escapeHtml(fullAnalyst.agent_parallelism ?? "not_applicable")}</p>
-        <p><a href="/today">Back to today's brief</a> · <a href="/reports">Open audit center</a> · <a href="/why-gotra">Why GOTRA</a></p>
+        <h2>读者摘要</h2>
+        <p>${escapeHtml(textValue(fullAnalyst.summary ?? localized("完整研究链路摘要不可用。", "Full Analyst rich brief unavailable.")))}</p>
+        ${statusExplanationHtml(fullAnalyst.run_status ?? "unavailable")}
+        <p>执行模型：${escapeHtml(statusLabel(fullAnalyst.execution_model ?? "not_reported"))} · 方法版本：${escapeHtml(fullAnalyst.methodology_version ?? "not_reported")} · agent 并行度：${escapeHtml(fullAnalyst.agent_parallelism ?? "not_applicable")}</p>
+        <p><a href="/today">回到今日研究简报</a> · <a href="/reports">打开审计中心</a> · <a href="/why-gotra">为什么是 GOTRA</a></p>
       </section>
       ${researchSystemHtml(brief)}
       <section>
-        <h2>Structured symbol research</h2>
+        <h2>结构化单票研究</h2>
         ${
           agentItems.length > 0
             ? table(
                 v40Reader
                   ? [
-                      "symbol",
-                      "execution model",
-                      "research status",
-                      "why this stock / task",
-                      "evidence packet",
-                      "K dossier",
-                      "F view",
-                      "W view",
-                      "G view",
-                      "chairman synthesis",
-                      "Red Team critique",
-                      "Research Quality Gate",
-                      "Alaya / Knowledge Gate",
-                      "persisted memory",
-                      "unresolved",
-                      "Reader Boundary",
+                      "标的",
+                      "执行模型",
+                      "研究状态",
+                      "为什么研究 / 任务书",
+                      "证据包",
+                      "K 深度研究底稿",
+                      "F 独立视角",
+                      "W 独立视角",
+                      "G 独立视角",
+                      "主席综合",
+                      "红队反证审计",
+                      "研究质量闸门",
+                      "内部 Alaya / 知识闸门",
+                      "沉淀记忆",
+                      "未解决问题",
+                      "读者边界",
                     ]
                   : [
-                      "symbol",
-                      "execution model",
-                      "research status",
-                      "research task",
-                      "evidence packet",
-                      "agent statuses",
-                      "agent timings",
-                      "independent hashes",
-                      "chairman synthesis",
-                      "K deep research",
-                      "F view",
-                      "W view",
-                      "G view",
-                      "red-team audit",
-                      "evidence gaps",
-                      "watch conditions",
+                      "标的",
+                      "执行模型",
+                      "研究状态",
+                      "研究任务书",
+                      "证据包",
+                      "agent 状态",
+                      "agent 耗时",
+                      "独立 hash",
+                      "主席综合",
+                      "K 深度研究",
+                      "F 视角",
+                      "W 视角",
+                      "G 视角",
+                      "红队审计",
+                      "证据缺口",
+                      "观察条件",
                     ],
                 agentItems.slice(0, 24).map((item) => [
                   item.symbol,
-                  item.execution_model ?? fullAnalyst.execution_model ?? "",
-                  item.research_status ?? "",
+                  statusLabel(item.execution_model ?? fullAnalyst.execution_model ?? ""),
+                  statusLabel(item.research_status ?? ""),
                   ...(v40Reader
                     ? [
                         readerListText(item.research_task),
@@ -1251,18 +1299,18 @@ function fullAnalystReportPage(source) {
                       ]),
                 ]),
               )
-            : "<p>Full Analyst rich brief unavailable; no per-symbol research is inferred from private or raw artifacts.</p>"
+            : "<p>完整研究链路摘要不可用；不会从私有或 raw 产物推断单票研究。</p>"
         }
       </section>
       <details class="notice">
-        <summary>Raw artifact / Open JSON / Open Markdown</summary>
-        <p>These links are for audit review only. Return to <a href="/reports/full-analyst/">/reports/full-analyst/</a> or <a href="/today">/today</a> for productized reading.</p>
+        <summary>原始审计产物（Raw artifact / Open JSON / Open Markdown）</summary>
+        <p>这些链接仅供审计复核。普通阅读请回到 <a href="/reports/full-analyst/">/reports/full-analyst/</a> 或 <a href="/today">/today</a>。</p>
         ${table(
-          ["artifact", "type", "audit meaning"],
+          ["产物", "类型", "审计含义"],
           [
-            [rawMarkdownHref, "Full Analyst Markdown", "Raw Markdown original; not the default reader."],
-            [rawStatusHref, "Full Analyst status JSON", "Audit JSON."],
-            [rawMonitorHref, "Full Analyst monitor JSON", "Audit JSON."],
+            [rawMarkdownHref, "完整研究链路 Markdown", "原始 Markdown；不是默认阅读页。"],
+            [rawStatusHref, "完整研究链路状态 JSON", "审计 JSON。"],
+            [rawMonitorHref, "完整研究链路监控 JSON", "审计 JSON。"],
           ],
         )}
       </details>`,
@@ -1283,7 +1331,7 @@ function latestReportPage(source) {
 
   return pageShell({
     route: "/reports/latest/",
-    title: "GOTRA Coverage Report Reader",
+    title: "GOTRA 覆盖日报阅读器",
     description: "Productized HTML reader for the latest public coverage report. Raw Markdown and status JSON open only in an audit disclosure.",
     extraJsonLd: [
       {
@@ -1294,47 +1342,47 @@ function latestReportPage(source) {
         description: "Public-safe report artifact status. Research information only; not investment advice.",
       },
     ],
-    body: `      <h1>Coverage Report Reader / 行情覆盖日报 reader</h1>
+    body: `      <h1>行情覆盖日报阅读器</h1>
+      <p class="lede">这是最新公开覆盖日报的默认 HTML 阅读页；先展示可读摘要和状态解释，raw Markdown 与 status JSON 只在审计折叠区打开。</p>
       <p class="lede">This is the default HTML reader for the latest public coverage report. It summarizes status and readable highlights before exposing raw artifacts.</p>
-      <p class="lede">这是 latest coverage report 的默认 HTML 阅读页；raw Markdown 与 status JSON 只在审计折叠区打开。</p>
       <section class="notice">
-        <h2>Report state</h2>
+        <h2>报告状态</h2>
         ${table(
-          ["field", "reader value"],
+          ["字段", "读者解释"],
           [
-            ["source", source.state],
-            ["as_of_date", source.status?.as_of_date ?? source.status?.trading_date ?? "artifact_unavailable"],
-            ["run_status", source.status?.run_status ?? source.status?.exit_status ?? "artifact_unavailable"],
-            ["success_count", source.status?.success_count ?? "artifact_unavailable"],
-            ["failed_count", source.status?.failed_count ?? "artifact_unavailable"],
-            ["allowed_missing_count", source.status?.allowed_missing_count ?? "artifact_unavailable"],
+            ["来源状态", statusLabel(source.state)],
+            ["日期", source.status?.as_of_date ?? source.status?.trading_date ?? "artifact_unavailable"],
+            ["运行状态", statusLabel(source.status?.run_status ?? source.status?.exit_status ?? "artifact_unavailable")],
+            ["成功数量", source.status?.success_count ?? "artifact_unavailable"],
+            ["失败数量", source.status?.failed_count ?? "artifact_unavailable"],
+            ["允许缺失数量", source.status?.allowed_missing_count ?? "artifact_unavailable"],
           ],
         )}
       </section>
       ${researchSystemHtml(source.dailyReaderBrief)}
       <section>
-        <h2>Readable highlights</h2>
+        <h2>可读重点</h2>
         <ul>${markdownHighlights}</ul>
       </section>
       <section>
-        <h2>Continue reading</h2>
+        <h2>继续阅读</h2>
         <ul>
-          <li><a href="/today">Daily Research Brief</a></li>
-          <li><a href="/reports/full-analyst/">Full Analyst reader</a></li>
-          <li><a href="/reports">Production audit center</a></li>
-          <li><a href="/why-gotra">Why GOTRA</a></li>
+          <li><a href="/today">今日研究简报</a></li>
+          <li><a href="/reports/full-analyst/">完整研究链路阅读器</a></li>
+          <li><a href="/reports">生产审计中心</a></li>
+          <li><a href="/why-gotra">为什么是 GOTRA</a></li>
         </ul>
       </section>
       <details class="notice">
-        <summary>Raw artifact / Open JSON / Open Markdown</summary>
-        <p>These links are for audit and evidence review. Return to <a href="/reports/latest/">/reports/latest/</a> for productized reading.</p>
+        <summary>原始审计产物（Raw artifact / Open JSON / Open Markdown）</summary>
+        <p>这些链接用于审计和证据复核。普通阅读请回到 <a href="/reports/latest/">/reports/latest/</a>。</p>
         <ul>
-          <li><a href="/reports/latest.md">Open latest.md Markdown original</a></li>
-          <li><a href="/reports/status.json">Open status.json audit artifact</a></li>
+          <li><a href="/reports/latest.md">打开 latest.md Markdown 原文</a></li>
+          <li><a href="/reports/status.json">打开 status.json 审计产物</a></li>
         </ul>
-        <h3>Status JSON fields</h3>
-        ${table(["field", "value"], statusRows)}
-        <h3>Markdown original preview</h3>
+        <h3>Status JSON 字段</h3>
+        ${table(["字段", "值"], statusRows)}
+        <h3>Markdown 原文预览</h3>
         ${
           source.latestMarkdown
             ? `<pre>${escapeHtml(source.latestMarkdown.slice(0, 12000))}</pre>`
@@ -1347,41 +1395,41 @@ function latestReportPage(source) {
 function methodologyPage(summary) {
   return pageShell({
     route: "/methodology",
-    title: "GOTRA Methodology | Raw HTML",
+    title: "GOTRA 方法论",
     description: "Crawler-readable methodology for v4 Ksana cognition flywheel, K dossier, perspective agents, Research Quality Gate, Knowledge Gate, Reader Boundary, and evidence limits.",
-    body: `      <h1>GOTRA Methodology / 方法</h1>
+    body: `      <h1>GOTRA 方法论</h1>
       ${definitionBlock()}
       ${v40ResearchSystemHtml()}
       <section>
-        <h2>K dossier before F/W/G</h2>
-        <p>v4 does not start F/W/G from a thin ticker context. It first generates a research task, builds an evidence packet, then creates the K deep research dossier. F/W/G may start only after the K dossier hash exists.</p>
+        <h2>K 深度研究底稿先于 F/W/G</h2>
+        <p>v4 不让 F/W/G 只拿单薄 ticker 上下文就开始写。它先生成研究任务书、构建证据包，再创建 K 深度研究底稿；只有 K 底稿 hash 存在后，F/W/G 才能启动。</p>
       </section>
       <section>
-        <h2>Perspective agents and Chairman</h2>
-        <p>F/W/G are independent perspectives that use the research task, evidence packet, K dossier, and prior Alaya readback. Chairman synthesis then names consensus, conflicts, evidence strength, unresolved questions, confidence boundary, and watch conditions.</p>
+        <h2>独立视角与主席综合</h2>
+        <p>F/W/G 是独立视角，输入包括研究任务书、证据包、K 底稿和内部 Alaya 回读。主席综合再指出一致点、冲突、证据强弱、未解决问题、信心边界和观察条件。</p>
       </section>
       <section>
-        <h2>Red Team is not Judge</h2>
-        <p>Red Team is a counter-evidence and vulnerability audit step. It can mark weak assumptions, missing counter-evidence, hallucination risks, and boundary risks, but Research Quality Gate and Knowledge Gate are separate gates.</p>
+        <h2>红队不是 Judge</h2>
+        <p>红队是反证和漏洞审计步骤，可以标记薄弱假设、缺失反证、幻觉风险和边界风险；但研究质量闸门和知识闸门是独立闸门。</p>
       </section>
       <section>
-        <h2>Research Quality Gate</h2>
-        <p>The Research Quality Gate marks candidate, watch, avoid, needs_review, data_gap, or high_uncertainty. It does not hide research content; it labels the quality boundary so the reader does not mistake a limited finding for certainty.</p>
+        <h2>研究质量闸门</h2>
+        <p>研究质量闸门标记 candidate、watch、avoid、需要复核（needs_review）、数据缺口（data_gap）或高不确定性。它不隐藏研究内容，而是给研究质量加边界，避免读者把有限发现误认为确定结论。</p>
       </section>
       <section>
-        <h2>Knowledge Gate and Alaya</h2>
-        <p>Knowledge Gate decides whether knowledge persists, persists with limitations, remains temporary, or should not persist. Alaya means GOTRA repo internal cognition flywheel / knowledge memory / feedback state / readback only, not an external service or external repo.</p>
+        <h2>知识闸门与内部 Alaya</h2>
+        <p>知识闸门决定知识是否沉淀、带限制沉淀、只作为临时观察，或不应沉淀。Alaya 只指 GOTRA repo 内部 cognition flywheel / knowledge memory / feedback state / readback，不是外部服务或外部 repo。</p>
       </section>
       <section>
-        <h2>Reader Boundary Gate</h2>
-        <p>Reader Boundary Gate adds research-only wording without hiding data_gap, needs_review, Red Team critique, agent conflicts, or evidence gaps. Only secrets, credentials, raw provider/model I/O, and full internal prompts are excluded from public artifacts.</p>
+        <h2>读者边界闸门</h2>
+        <p>读者边界闸门加上“研究信息，不是投资建议/交易信号”的边界，但不隐藏 data_gap、needs_review、红队质疑、agent 分歧或证据缺口。只有 secrets、凭证、provider/model 原始 I/O 和完整内部 prompt 不进入公开产物。</p>
       </section>
       <section>
-        <h2>Archive measurement boundary</h2>
-        <p>The legacy static ledger still uses resolved-only measurement: only the ${summary.resolvedRecords} rows with public-safe numeric outcome and error fields are counted in resolved summaries. The ${summary.pendingRecords} pending rows and ${summary.frozenPendingRecords} frozen-pending rows stay visible but are not counted as resolved outcomes.</p>
+        <h2>归档测量边界</h2>
+        <p>legacy 静态账本仍使用 resolved-only 测量：只有 ${summary.resolvedRecords} 条带公开安全数值结果和误差字段的记录进入 resolved 摘要；${summary.pendingRecords} 条 pending 和 ${summary.frozenPendingRecords} 条 frozen-pending 保持可见，但不算作已解析结果。</p>
       </section>
       <section>
-        <h2>What GOTRA does not claim</h2>
+        <h2>GOTRA 不声称什么</h2>
         <p>${escapeHtml(boundarySentence)}</p>
       </section>`,
   });
@@ -1426,22 +1474,22 @@ function claimBoundaryPage() {
     route: "/claim-boundary",
     title: "GOTRA Claim Boundary | Raw HTML",
     description: "Crawler-readable claim boundary for GOTRA Public Ledger.",
-    body: `      <h1>Claim Boundary</h1>
+    body: `      <h1>声明边界（Claim Boundary）</h1>
       ${definitionBlock()}
       <section>
-        <h2>Explicit boundaries</h2>
+        <h2>明确边界</h2>
         <ul>
-          <li>Not investment advice.</li>
-          <li>Not a trading signal.</li>
-          <li>Not live trading.</li>
-          <li>Not performance proof.</li>
-          <li>Not scientific proof.</li>
-          <li>Not a guarantee of future outcomes.</li>
+          <li>不是投资建议。</li>
+          <li>不是交易信号。</li>
+          <li>不是实时交易。</li>
+          <li>不是业绩证明。</li>
+          <li>不是科学证明。</li>
+          <li>不保证未来结果。</li>
         </ul>
       </section>
       <section>
-        <h2>Evidence ladder</h2>
-        <p>Local checks, raw HTML generation, and no-JS smoke evidence are implementation evidence only. They do not upgrade research, science, public, trading, or production acceptance claims.</p>
+        <h2>证据层级</h2>
+        <p>local checks、raw HTML generation 和 no-JS smoke 只是实现证据，不会升级成研究、科学、公共、交易或生产正式验收声明。</p>
       </section>`,
   });
 }
@@ -1449,42 +1497,42 @@ function claimBoundaryPage() {
 function faqPage() {
   const faqs = [
     [
-      "What is GOTRA Public Ledger?",
-      "GOTRA Public Ledger is an auditable AI stock-research public ledger and v4 Ksana cognition flywheel reader. It shows research process, evidence limits, Red Team critique, and boundaries.",
+      "GOTRA Public Ledger 是什么？",
+      "GOTRA Public Ledger 是可审计的 AI 股票研究公开账本，也是 v4 Ksana 认知飞轮阅读器。它展示研究过程、证据限制、红队质疑和边界。",
     ],
     [
-      "Is GOTRA an AI stock-picking tool?",
-      "No. GOTRA Public Ledger is a research ledger and audit surface. It is not a recommendation product and does not provide trading instructions.",
+      "GOTRA 是 AI 荐股工具吗？",
+      "不是。GOTRA Public Ledger 是研究账本和审计表面，不是推荐产品，也不提供交易指令。",
     ],
     [
-      "Does GOTRA provide investment advice?",
-      "No. GOTRA Public Ledger provides public-safe research information only and is not investment advice.",
+      "GOTRA 提供投资建议吗？",
+      "不提供。GOTRA Public Ledger 只提供公开安全的研究信息，不是投资建议。",
     ],
     [
-      "Does GOTRA prove AI stock prediction works?",
-      "No. The public ledger is a demo/public-safe audit surface. It is not performance proof, not scientific proof, and not a guarantee of future outcomes.",
+      "GOTRA 证明 AI 股票预测有效吗？",
+      "不证明。公开账本是 demo/public-safe 审计表面，不是业绩证明、科学证明，也不保证未来结果。",
     ],
     [
-      "How can readers audit GOTRA's predictions?",
-      "Readers can inspect the public ledger table, compare prediction fields with resolved outcome fields, review visible error values, and download the full JSON dataset.",
+      "读者怎么审计 GOTRA？",
+      "读者可以查看公开账本、对照预测字段和已解析结果字段、复查可见误差，并下载完整 JSON 数据集。",
     ],
     [
-      "Why does GOTRA publish errors?",
-      "Errors remain visible so the public ledger can be audited. Hiding errors would weaken the evidence boundary.",
+      "为什么 GOTRA 要公开错误？",
+      "错误保持可见，公开账本才可审计。隐藏错误会削弱证据边界。",
     ],
     [
-      "What is v4 Ksana cognition flywheel?",
-      "It is a public research workflow: research task, evidence packet, K dossier, F/W/G perspectives, Chairman, Red Team, Research Quality Gate, Knowledge Gate, internal Alaya readback, and Reader Boundary.",
+      "什么是 v4 Ksana 认知飞轮？",
+      "它是一套公开研究工作流：研究任务书、证据包、K 底稿、F/W/G 视角、主席综合、红队反证、研究质量闸门、知识闸门、内部 Alaya 回读和读者边界闸门。",
     ],
     [
-      "What is internal Alaya?",
-      "Alaya means GOTRA repo internal cognition flywheel / knowledge memory / feedback state / readback only, not an external service, external repo, or provider.",
+      "内部 Alaya 是什么？",
+      "Alaya 只指 GOTRA repo 内部 cognition flywheel / knowledge memory / feedback state / readback，不是外部服务、外部 repo 或 provider。",
     ],
   ];
 
   return pageShell({
     route: "/faq",
-    title: "GOTRA FAQ | Raw HTML",
+    title: "GOTRA FAQ",
     description: "Crawler-readable FAQ for GOTRA Public Ledger and its claim boundaries.",
     extraJsonLd: [
       {
@@ -1500,7 +1548,7 @@ function faqPage() {
         })),
       },
     ],
-    body: `      <h1>FAQ</h1>
+    body: `      <h1>常见问题（FAQ）</h1>
       ${definitionBlock()}
       ${faqs
         .map(
@@ -1515,11 +1563,11 @@ function faqPage() {
 
 function sourcesPage(manifest, evidenceIndex, contentIndex) {
   const readerRows = [
-    ["/today", "Daily brief reader", "Reader-first daily research brief."],
-    ["/why-gotra", "Why GOTRA", "Research philosophy and evidence boundary explanation."],
-    ["/reports/latest/", "Coverage report reader", "Productized HTML reader for latest coverage."],
-    ["/reports/full-analyst/", "Full Analyst reader", "Productized per-symbol research reader."],
-    ["/reports", "Audit center", "Status and evidence surface with raw artifact disclosures."],
+    ["/today", "今日研究简报", "读者优先的每日研究简报。"],
+    ["/why-gotra", "为什么是 GOTRA", "研究哲学和证据边界解释。"],
+    ["/reports/latest/", "覆盖日报阅读器", "最新覆盖日报的产品化 HTML 阅读页。"],
+    ["/reports/full-analyst/", "完整研究链路阅读器", "单票研究的产品化阅读页。"],
+    ["/reports", "审计中心", "状态和证据表面，raw artifact 只在明确披露区出现。"],
   ];
   const liveArtifactRows = [
     ["/reports/daily_reader_brief.json", "Daily reader brief JSON"],
@@ -1567,47 +1615,47 @@ function sourcesPage(manifest, evidenceIndex, contentIndex) {
     title: "Sources and Artifacts | GOTRA Public Ledger",
     description:
       "Crawler-readable Sources and Artifacts page that separates live production report artifacts from static demo/archive artifacts. It does not expose private GOTRA raw artifacts, prompts, provider raw output, or secrets.",
-    body: `      <h1>Sources and Artifacts / 来源与产物</h1>
+    body: `      <h1>来源与产物</h1>
       ${definitionBlock()}
       <section>
-        <h2>Public source boundary</h2>
-        <p>This page lists public-safe repository data only. It does not expose raw provider/model I/O, private run logs, local experiment artifacts, databases, auth files, or secrets.</p>
-        <p>Alaya means GOTRA internal cognition flywheel, knowledge memory, feedback state, and readback only; it is not an external service or external repository.</p>
+        <h2>公开来源边界</h2>
+        <p>本页只列出公开安全的仓库数据。它不暴露 provider/model 原始 I/O、私有运行日志、本地实验产物、数据库、认证文件或 secrets。</p>
+        <p>Alaya 只指 GOTRA 内部 cognition flywheel、knowledge memory、feedback state 和 readback，不是外部服务或外部仓库。</p>
       </section>
       ${v40ResearchSystemHtml()}
       <section>
-        <h2>Evidence packet source types</h2>
-        <p>The v4 evidence_packet describes source_type, source_name, freshness_status, missing_required_sources, stale_sources, data_gaps, and public_safe limitations. If a required source is unavailable, the reader sees data_gap or needs_review instead of a polished unsupported conclusion.</p>
+        <h2>证据包来源类型</h2>
+        <p>v4 证据包会描述 source_type、source_name、freshness_status、missing_required_sources、stale_sources、data_gaps 和 public_safe 限制。如果必需来源不可用，读者看到的是 data_gap 或 needs_review，而不是漂亮但无支撑的结论。</p>
         <p>证据包把 source type、freshness、missing required sources、stale/data_gap 和 public-safe 限制放在明面上；缺来源时保留 data_gap / needs_review，而不是包装成完整结论。</p>
       </section>
       <section>
-        <h2>Product reading surfaces</h2>
-        <p>Start with these pages. Raw JSON and Markdown stay in the explicit audit disclosures below.</p>
-        ${table(["route", "surface", "reader meaning"], readerRows)}
+        <h2>产品化阅读入口</h2>
+        <p>普通读者先从这些页面开始。Raw JSON 和 Markdown 只保留在下方明确审计折叠区。</p>
+        ${table(["路径", "页面", "读者含义"], readerRows)}
       </section>
       <section>
-        <h2>Static demo/archive artifacts</h2>
-        <p>These files are static, demo, archive, or fixture materials. They are not current production and do not upgrade evidence claims. Raw JSON is available only inside the audit disclosure.</p>
+        <h2>静态 demo / 归档产物</h2>
+        <p>这些文件是静态、demo、归档或 fixture 材料，不是当前生产产物，也不会升级证据声明。Raw JSON 只在审计折叠区可用。</p>
       </section>
       <details class="notice">
-        <summary>Raw artifact / Open JSON / Open Markdown</summary>
-        <p>These links are for source and evidence audit only. Return to <a href="/today">/today</a>, <a href="/why-gotra">/why-gotra</a>, <a href="/reports/latest/">/reports/latest/</a>, or <a href="/reports/full-analyst/">/reports/full-analyst/</a> for productized reading.</p>
-        <h2>Live production raw artifacts</h2>
-        ${table(["artifact", "type"], liveArtifactRows)}
-        <h2>Static demo/archive raw artifacts</h2>
-        ${table(["artifact", "type", "snapshot_date", "boundary"], staticArtifactRows)}
+        <summary>原始审计产物（Raw artifact / Open JSON / Open Markdown）</summary>
+        <p>这些链接仅供来源和证据审计。普通阅读请回到 <a href="/today">/today</a>、<a href="/why-gotra">/why-gotra</a>、<a href="/reports/latest/">/reports/latest/</a> 或 <a href="/reports/full-analyst/">/reports/full-analyst/</a>。</p>
+        <h2>生产 raw artifacts</h2>
+        ${table(["产物", "类型"], liveArtifactRows)}
+        <h2>静态 demo / 归档 raw artifacts</h2>
+        ${table(["产物", "类型", "快照日期", "边界"], staticArtifactRows)}
       </details>
       <section>
-        <h2>Manifest files</h2>
-        ${table(["path", "category", "record_count", "sha256"], manifestRows)}
+        <h2>Manifest 文件</h2>
+        ${table(["路径", "分类", "记录数", "sha256"], manifestRows)}
       </section>
       <section>
-        <h2>Evidence index sample</h2>
-        ${table(["source", "evidence_type", "record_count", "first_evidence_date", "last_evidence_date"], evidenceRows)}
+        <h2>证据索引样例</h2>
+        ${table(["来源", "证据类型", "记录数", "最早日期", "最新日期"], evidenceRows)}
       </section>
       <section>
-        <h2>Content index</h2>
-        ${table(["slug", "title", "type", "published_at", "body_source"], contentRows)}
+        <h2>内容索引</h2>
+        ${table(["slug", "标题", "类型", "发布时间", "正文来源"], contentRows)}
       </section>`,
   });
 }

@@ -2,6 +2,7 @@ import { ArrowRight, BookOpenCheck, BrainCircuit, Database, GitBranch, ShieldChe
 import { useEffect, useState } from "react";
 import type { RecordView, SummaryMetrics } from "../data/metrics";
 import type { LedgerDataset } from "../data/schema";
+import { executionModelExplanation, researchStatusLabel, termExplanation, termLabel, termTitle } from "../data/terminology";
 import type { Language } from "../i18n/language";
 import { boundarySentence, copy } from "../i18n/language";
 
@@ -71,13 +72,14 @@ function HeroStatusStrip({ language, state }: { language: Language; state: Brief
   const { status } = state;
   const fullAnalyst = status.full_analyst ?? {};
   const alaya = status.internal_alaya ?? {};
+  const rawRunStatus = fullAnalyst.run_status ?? fullAnalyst.canary_status;
   const items = [
-    [copy(language, "Brief date", "Brief date"), displayValue(status.brief_date)],
-    [copy(language, "Methodology", "Methodology"), displayValue(status.methodology_version)],
-    [copy(language, "Execution", "Execution"), displayValue(status.execution_model)],
-    [copy(language, "Run status", "Run status"), displayValue(fullAnalyst.run_status ?? fullAnalyst.canary_status)],
-    [copy(language, "Review / gap", "Review / gap"), `${displayValue(fullAnalyst.needs_review_count, "0")} / ${displayValue(fullAnalyst.data_gap_count, "0")}`],
-    [copy(language, "Alaya readback", "Alaya readback"), displayValue(alaya.readback_status ?? alaya.readback_verified_count)],
+    [copy(language, "简报日期", "Brief date"), displayValue(status.brief_date)],
+    [copy(language, "方法版本", "Methodology"), displayValue(status.methodology_version)],
+    [copy(language, "执行模型", "Execution"), executionModelExplanation(status.execution_model, language)],
+    [copy(language, "运行状态", "Run status"), researchStatusLabel(rawRunStatus, language)],
+    [copy(language, "复核项 / 数据缺口", "Review / gap"), `${displayValue(fullAnalyst.needs_review_count, "0")} / ${displayValue(fullAnalyst.data_gap_count, "0")}`],
+    [termTitle("alaya_internal_readback", language), researchStatusLabel(String(alaya.readback_status ?? alaya.readback_verified_count ?? "unavailable"), language)],
   ];
 
   return (
@@ -88,6 +90,12 @@ function HeroStatusStrip({ language, state }: { language: Language; state: Brief
           <strong>{value}</strong>
         </div>
       ))}
+      <details className="audit-details inline-status-code">
+        <summary>{copy(language, "查看原始状态码", "View raw status codes")}</summary>
+        <code>{displayValue(rawRunStatus)}</code>
+        <code>{displayValue(status.execution_model)}</code>
+        <p>{copy(language, "这些原始字段只用于审计；中文主路径以上方解释为准。", "These raw fields are for audit only; the reader path uses the explanations above.")}</p>
+      </details>
     </div>
   );
 }
@@ -126,23 +134,23 @@ export function Hero({ language }: HeroProps) {
   const mechanismCards = [
     [
       <BookOpenCheck aria-hidden="true" size={18} key="task" />,
-      copy(language, "Research Task", "Research Task"),
-      copy(language, "先说明为什么今天研究、核心问题和必需证据。", "Defines why this stock is studied today, core questions, and required evidence."),
+      termLabel("research_task", language),
+      termExplanation("research_task", language),
     ],
     [
       <Database aria-hidden="true" size={18} key="evidence" />,
-      copy(language, "Evidence Packet", "Evidence Packet"),
-      copy(language, "公开证据、缺失来源、freshness 和 data_gap 先于结论出现。", "Public evidence, missing sources, freshness, and data_gap appear before conclusions."),
+      termLabel("evidence_packet", language),
+      termExplanation("evidence_packet", language),
     ],
     [
       <GitBranch aria-hidden="true" size={18} key="parallel" />,
-      copy(language, "K Dossier -> F/W/G", "K Dossier -> F/W/G"),
-      copy(language, "K deep research dossier 先行；F/W/G 基于 K 并行审查。", "K deep research dossier runs first; F/W/G review in parallel from K."),
+      copy(language, "K 底稿 -> F/W/G 独立视角", "K Dossier -> F/W/G"),
+      copy(language, "K 深度研究底稿先行；F/W/G 基于 K 并行审查。", "K deep research dossier runs first; F/W/G review in parallel from K."),
     ],
     [
       <BrainCircuit aria-hidden="true" size={18} key="gate" />,
-      copy(language, "Knowledge Gate", "Knowledge Gate"),
-      copy(language, "决定哪些知识沉淀到内部 Alaya memory，哪些保持 unresolved。", "Decides what persists to internal Alaya memory and what remains unresolved."),
+      termLabel("knowledge_gate", language),
+      copy(language, "决定哪些知识沉淀到内部 Alaya 记忆，哪些保持未解决。", "Decides what persists to internal Alaya memory and what remains unresolved."),
     ],
   ];
 
@@ -153,7 +161,7 @@ export function Hero({ language }: HeroProps) {
           <ShieldCheck aria-hidden="true" size={16} />
           {shortBoundary(language)}
         </div>
-        <p className="hero-brand-motif">{copy(language, "GOTRA v4 · Ksana cognition flywheel", "GOTRA v4 · Ksana cognition flywheel")}</p>
+        <p className="hero-brand-motif">{termLabel("gotra_v4", language)} · {termLabel("ksana_cognition_flywheel", language)}</p>
         <h1 id="page-title" className="hero-title">
           {copy(
             language,
@@ -163,17 +171,17 @@ export function Hero({ language }: HeroProps) {
         </h1>
         <p>
           {copy(
-            language,
-            "GOTRA v4 是一套 Ksana cognition flywheel：K deep research dossier 先行，F/W/G 基于 K 并行，Chairman 综合冲突，Red Team 反证，Knowledge Gate 决定沉淀。它不是荐股 agent，也不是交易信号。",
+              language,
+            "GOTRA v4 是一套 Ksana 认知飞轮：K 深度研究底稿先行，F/W/G 基于 K 并行，主席综合冲突，红队做反证审计，知识闸门决定沉淀。它不是荐股 agent，也不是交易信号。",
             "GOTRA v4 is a Ksana cognition flywheel: K deep research dossier first, F/W/G run in parallel from K, Chairman synthesizes conflicts, Red Team critiques, and Knowledge Gate decides what persists. It is not a stock-picking agent or a trading signal.",
           )}
         </p>
         <div className="hero-mechanism-strip" aria-label={copy(language, "v4 研究链路", "v4 research chain")}>
-          <span>Research Task</span>
-          <span>Evidence Packet</span>
-          <span>K Dossier</span>
-          <span>F/W/G Parallel</span>
-          <span>Knowledge Gate</span>
+          <span>{termTitle("research_task", language)}</span>
+          <span>{termTitle("evidence_packet", language)}</span>
+          <span>{termTitle("k_dossier", language)}</span>
+          <span>{copy(language, "F/W/G 并行", "F/W/G Parallel")}</span>
+          <span>{termTitle("knowledge_gate", language)}</span>
         </div>
         <div className="hero-actions" aria-label="Page shortcuts">
           <a className="primary-action" href="/#/today">
