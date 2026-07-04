@@ -77,6 +77,7 @@ function main() {
     symbolRoute,
     "/ledger",
     "/reports",
+    "/audit",
     "/reports/full-analyst/",
     "/audit/evidence/latest/",
     "/performance",
