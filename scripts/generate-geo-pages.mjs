@@ -1063,6 +1063,14 @@ function todayPage(source) {
   const effect = brief?.research_effectiveness ?? {};
   const reviewCount = Number(fullAnalyst.needs_review_count ?? 0) + Number(fullAnalyst.data_gap_count ?? 0);
   const topFocus = agentItems.slice(0, 5).map((item) => item.symbol).filter(Boolean);
+  const reviewDueItems = agentItems
+    .map((item) => ({
+      symbol: item.symbol,
+      due: item.research_signal?.review_due_at ?? "",
+      status: item.research_status ?? item.research_signal?.research_status ?? "",
+    }))
+    .filter((item) => item.due)
+    .slice(0, 4);
   const rawArtifacts = [
     [brief?.links?.daily_reader_brief ?? "/reports/daily_reader_brief.json", "daily_reader_brief.json", "本页数据源，不是普通阅读目的地。"],
     [brief?.links?.latest_report ?? "/reports/latest.md", "覆盖日报 Markdown", "/reports/latest/ 的原始 Markdown。"],
@@ -1104,11 +1112,15 @@ function todayPage(source) {
           ["项目", "读者解释"],
           [
             ["今日聚焦", topFocus.length > 0 ? topFocus.join(", ") : "本次构建没有公开标的聚焦。"],
+            ["普通日报更新", `${brief?.daily_report_status?.reports_updated_count ?? 0} 份；${textValue(brief?.daily_report_status?.summary ?? localized("公开日报状态不可用。", "Public daily report status unavailable."))}`],
             ["公开摘要数", fullAnalyst.publish_count ?? "产物不可用"],
             ["复核项 / 数据缺口", reviewCount],
+            ["复盘到期项", reviewDueItems.length > 0 ? reviewDueItems.map((item) => `${item.symbol} ${item.due}`).join(" · ") : "今天没有公开报告的复盘到期项。"],
+            ["公开账本", `${Number(fullAnalyst.publish_count ?? 0) > 0 ? "可核对" : "等待 publish"}；只把 PublicationDecision=publish 的研究判断写入 append-only 账本。`],
             ["研究状态", textValue(fullAnalyst.summary ?? localized("完整研究链路摘要不可用。", "Full Analyst rich brief unavailable."))],
           ],
         )}
+        <p><a href="/track-record">打开公开研究账本 / Public Track Record</a></p>
         ${statusExplanationHtml(fullAnalyst.run_status ?? effect.canary_status ?? "unavailable")}
       </section>
       <section>

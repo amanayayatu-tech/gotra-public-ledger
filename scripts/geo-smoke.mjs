@@ -100,6 +100,8 @@ function main() {
   assertIncludes(pages.get("/"), "内部 v4 研究链路术语保留在方法论和审计页面", "/");
   assertIncludes(pages.get("/today"), "Daily Research Brief", "/today");
   assertIncludes(pages.get("/today"), "今天先读什么", "/today");
+  assertIncludes(pages.get("/today"), "复盘到期项", "/today");
+  assertIncludes(pages.get("/today"), "打开公开研究账本", "/today");
   assertIncludes(pages.get("/today"), "单票研究摘要", "/today");
   assertIncludes(pages.get("/today"), "研究任务书（Research Task）", "/today");
   assertIncludes(pages.get("/today"), "研究任务书", "/today");
