@@ -658,7 +658,11 @@ export function AnalystDesk({
         <div className="full-analyst-monitor-grid" aria-label={copy(language, "monitor 健康检查", "Monitor health checks")}>
           <div>
             <span>{fullAnalystLabelText(language, "overall_health")}</span>
-            <strong>{fullAnalystMonitor ? `${runtimeStatusText(language, fullAnalystMonitor.overallStatus)} · ${fullAnalystMonitor.verdict}` : "n/a"}</strong>
+            <strong>
+              {fullAnalystMonitor
+                ? `${runtimeStatusText(language, fullAnalystMonitor.overallStatus)} · ${runtimeStatusText(language, fullAnalystMonitor.verdict)}`
+                : "n/a"}
+            </strong>
           </div>
           <div>
             <span>{fullAnalystLabelText(language, "service_state")}</span>

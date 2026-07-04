@@ -2087,35 +2087,35 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           </div>
           <dl className="source-grid">
             <div>
-              <dt>schema</dt>
+              <dt>{copy(language, "简报格式版本", "Brief schema version")}</dt>
               <dd>{brief.schema_version}</dd>
             </div>
             <div>
-              <dt>brief_date</dt>
+              <dt>{copy(language, "简报日期", "Brief date")}</dt>
               <dd>{brief.brief_date}</dd>
             </div>
             <div>
-              <dt>generated_at</dt>
+              <dt>{copy(language, "生成时间", "Generated at")}</dt>
               <dd>{brief.generated_at}</dd>
             </div>
             <div>
-              <dt>run_id</dt>
+              <dt>{copy(language, "运行 ID", "Run ID")}</dt>
               <dd className="mono">{brief.technical_status.run_id ?? brief.full_analyst.run_id}</dd>
             </div>
             <div>
-              <dt>run_status</dt>
-              <dd>{brief.technical_status.run_status ?? brief.full_analyst.run_status}</dd>
+              <dt>{copy(language, "运行状态", "Run status")}</dt>
+              <dd>{runtimeStatusText(language, brief.technical_status.run_status ?? brief.full_analyst.run_status)}</dd>
             </div>
             <div>
-              <dt>judge_gate</dt>
+              <dt>{copy(language, "Judge 闸门", "Judge gate")}</dt>
               <dd>{brief.technical_status.judge_gate ?? brief.prompt_framework_summary.judge_gate}</dd>
             </div>
             <div>
-              <dt>public_safety_scan</dt>
+              <dt>{copy(language, "公开安全扫描", "Public safety scan")}</dt>
               <dd>{brief.technical_status.public_safety_scan ?? brief.prompt_framework_summary.public_safety_scan}</dd>
             </div>
             <div>
-              <dt>Internal Alaya readback</dt>
+              <dt>{copy(language, "内部 Alaya 回读", "Internal Alaya readback")}</dt>
               <dd>{brief.technical_status.alaya_readback ?? brief.internal_alaya.readback_status ?? "unknown"}</dd>
             </div>
             <div>
