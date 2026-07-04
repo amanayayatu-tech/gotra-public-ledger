@@ -122,6 +122,20 @@ describe("public ledger information architecture contract", () => {
     expect(siteHeaderSource).toContain("zh: \"公开账本\"");
   });
 
+  it("adds reader-first symbol profile pages without fabricating ledger history", () => {
+    expect(appSource).toContain("function SymbolProfilePage");
+    expect(appSource).toContain("route.name === \"symbolProfile\"");
+    expect(appSource).toContain("symbolProfileRouteHref(item.symbol)");
+    expect(appSource).toContain("历史判断与观点变化");
+    expect(appSource).toContain("不会回退到冻结 Demo");
+    expect(appSource).toContain("Stage 10 会把 1/7/30/90 天复盘");
+    expect(geoGeneratorSource).toContain("function symbolProfilePage");
+    expect(geoGeneratorSource).toContain("symbolRoutePath");
+    expect(geoGeneratorSource).toContain("不会回退到冻结 Demo 账本");
+    expect(geoSmokeSource).toContain("symbolRoute");
+    expect(geoSmokeSource).toContain("个股档案");
+  });
+
   it("keeps methodology boundary copy bilingual instead of fixed Chinese", () => {
     expect(appSource).toContain("<BoundaryPanel metadata={dataset.metadata} language={language} />");
     expect(boundaryPanelSource).toContain("language: Language");

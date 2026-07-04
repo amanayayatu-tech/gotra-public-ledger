@@ -708,6 +708,7 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
     const routes = [
       { label: "home", hash: "#/", viewport: desktop, requiredText: ["GOTRA", "Public Ledger"] },
       { label: "track_record", hash: "#/track-record", viewport: desktop, requiredText: ["公开研究账本", "research_ledger.json", "PublicationDecision=publish"] },
+      { label: "symbol_profile", hash: "#/symbol/HKEX%3A0700", viewport: desktop, requiredText: ["个股档案", "历史判断与观点变化", "复盘、数据缺口"] },
       { label: "ledger", hash: "#/ledger", viewport: desktop, requiredText: ["冻结 Demo 账本", "不是最新生产日报"] },
       { label: "prediction_detail", hash: `#/ledger/${firstPredictionId ?? ""}`, viewport: desktop, requiredText: [firstPredictionId ?? "prediction"] },
       { label: "performance", hash: "#/performance", viewport: desktop, requiredText: ["暂无生产表现跟踪", "生产表现状态", "非业绩证明"] },
@@ -764,6 +765,11 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
       }
       if (route.label === "track_record") {
         const shot = path.join(args.outDir, "desktop-track-record-1440x900.png");
+        await captureScreenshot(client, shot);
+        report.screenshots.push(shot);
+      }
+      if (route.label === "symbol_profile") {
+        const shot = path.join(args.outDir, "desktop-symbol-profile-1440x900.png");
         await captureScreenshot(client, shot);
         report.screenshots.push(shot);
       }
