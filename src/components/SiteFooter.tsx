@@ -32,21 +32,21 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
       ],
     },
     {
-      label: copy(language, "演示区", "Demo"),
-      note: copy(language, "Demo 账本为冻结演示；表现说明暂无生产表现。", "Ledger is a frozen demo; performance has no production tracking yet."),
+      label: copy(language, "归档区", "Archive-only"),
+      note: copy(language, "这些是归档/边界页面，不是 v4 主阅读路径。", "These are archive/boundary pages, not the primary v4 reading path."),
       links: [
-        { href: routeHref("/ledger"), label: copy(language, "Demo 账本", "Demo Ledger") },
-        { href: routeHref("/performance"), label: copy(language, "表现说明", "Performance Notes") },
+        { href: routeHref("/ledger"), label: copy(language, "冻结 Demo 账本", "Frozen demo archive") },
+        { href: routeHref("/performance"), label: copy(language, "表现边界说明", "Performance boundary notes") },
       ],
     },
     {
-      label: copy(language, "生产审计", "Production Audit"),
-      note: copy(language, "生产日报是完整状态、覆盖率、缺口和公开产物链接的审计面板。", "Production reports are the audit panel for complete status, coverage, gaps, and public artifact links."),
+      label: copy(language, "v4 审计中心", "v4 Audit Center"),
+      note: copy(language, "审计中心展示运行状态、v4 研究产物、缺口和 raw artifact 折叠区。", "The Audit Center shows runtime status, v4 research artifacts, gaps, and raw artifact disclosures."),
       links: [
-        { href: routeHref("/reports"), label: copy(language, "生产日报审计", "Production Daily Reports Audit") },
+        { href: routeHref("/reports"), label: copy(language, "审计中心", "Audit Center") },
         { href: "/reports/latest/", label: copy(language, "覆盖日报 reader", "Coverage report reader") },
         { href: routeHref("/reports/full-analyst"), label: copy(language, "Full Analyst reader", "Full Analyst reader") },
-        { href: `${routeHref("/reports")}?focus=canary`, label: copy(language, "先行试跑监控", "Canary Monitoring") },
+        { href: `${routeHref("/reports")}?focus=canary`, label: copy(language, "运行监控", "Runtime Monitoring") },
         { href: routeHref("/notes"), label: copy(language, "透明度文章", "Transparency Articles") },
       ],
     },
@@ -69,7 +69,7 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
         </span>
         <h2 id="footer-title">{copy(language, "GOTRA Public Ledger 公开研究过程，也公开错误。", "GOTRA Public Ledger shows the research process and the errors.")}</h2>
         <p>
-          {copy(language, "今日简报是每日读者入口；生产日报用于审计公开安全产物。Demo 账本、表现说明与透明度文章属于演示或归档材料。所有页面均不是投资建议、交易信号、科学证明或业绩证明。", "Today's Brief is the everyday reader entry; Production Reports audit public-safe artifacts. Demo Ledger, Performance Notes, and Transparency Articles are demo or archive materials. None of these pages are investment advice, trading signals, scientific proof, or performance proof.")}
+          {copy(language, "今日简报是每日读者入口；审计中心用于查看公开安全产物、状态和 raw artifact 折叠区。Demo 账本、表现说明与透明度文章属于归档材料。所有页面均不是投资建议、交易信号、科学证明或业绩证明。", "Today's Brief is the everyday reader entry; the Audit Center exposes public-safe artifacts, status, and raw artifact disclosures. Demo Ledger, Performance Notes, and Transparency Articles are archive materials. None of these pages are investment advice, trading signals, scientific proof, or performance proof.")}
         </p>
       </div>
       <nav className="footer-site-map" aria-label={copy(language, "站点地图", "Site map")}>

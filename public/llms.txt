@@ -1,19 +1,19 @@
 # GOTRA Public Ledger
 
-GOTRA Public Ledger is a public-safe research ledger and production-report surface.
-It is research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not science/public proof.
+GOTRA Public Ledger is a public-safe research ledger, production-report surface, and v4 Ksana cognition flywheel reader.
+It productizes Research Task, Evidence Packet, K deep research dossier, F/W/G perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, internal Alaya readback, and Reader Boundary. It is research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not science/public proof.
 
 ## Primary reader routes
 
 - https://gotra.me/today - Daily Research Brief. Reader-first Full Analyst research brief with agent analysis items, red-team review, risk factors, internal Alaya readback, known data gaps, and next watch points.
 - https://gotra.me/why-gotra - Why GOTRA. Research discipline for seeing what changed, what is known, and what still needs review.
 - https://gotra.me/guide - Guide. Seven-step reading order, daily system flow, report type labels, glossary, internal Alaya boundary, and evidence boundaries.
-- https://gotra.me/reports - Production Daily Reports. Live production/status artifacts for HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary.
+- https://gotra.me/reports - Audit Center. Live production/status artifacts, Full Analyst v4 status, raw artifact disclosures, and evidence boundaries.
 - https://gotra.me/reports/latest/ - Coverage Report Reader. Productized HTML reader for the latest public coverage report; raw Markdown appears only in audit disclosure.
 - https://gotra.me/reports/full-analyst/ - Full Analyst Research Reader. Productized per-symbol research reader; raw Markdown appears only in audit disclosure.
 - https://gotra.me/notes - Transparency Articles. Static article archive, not latest production daily reports.
-- https://gotra.me/ledger - Frozen Demo Ledger. snapshot_date=2026-06-20 demo snapshot, not current production.
-- https://gotra.me/performance - Performance Notes. No production performance tracking yet; paper portfolio is a future-dated demo fixture.
+- https://gotra.me/ledger - Archive-only Frozen Demo Ledger. snapshot_date=2026-06-20 demo snapshot, not the primary v4 reader and not current production.
+- https://gotra.me/performance - Archive-only Performance Notes. No production performance tracking yet; paper portfolio is a future-dated demo fixture.
 - https://gotra.me/sources - Sources and Artifacts. Splits live production artifacts from static demo/archive artifacts.
 - https://gotra.me/system - System Overview. Draft research-cognition operating contract and evidence boundaries.
 - https://gotra.me/methodology - Methodology. Universe, resolver, paper portfolio, and data-boundary method notes.

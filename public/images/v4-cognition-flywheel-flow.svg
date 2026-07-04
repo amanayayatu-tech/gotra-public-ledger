@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">GOTRA v4 Ksana cognition flywheel</title>
+  <desc id="desc">A calm institutional research flow showing research task, evidence packet, K dossier, F/W/G perspectives, Chairman, Red Team, gates, Alaya readback, reader boundary, and public brief.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#18242d"/>
+      <stop offset="1" stop-color="#081016"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#eef2e8"/>
+      <stop offset="1" stop-color="#c9d4c8"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#7bb4ff"/>
+      <stop offset="1" stop-color="#67d59a"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity=".28"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#75d88f"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="760" rx="28" fill="url(#bg)"/>
+  <g opacity=".34">
+    <path d="M88 136H1110M88 252H1110M88 368H1110M88 484H1110M88 600H1110" stroke="#324454" stroke-width="1"/>
+    <path d="M210 76V680M410 76V680M610 76V680M810 76V680M1010 76V680" stroke="#263848" stroke-width="1"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="88" y="86" width="260" height="110" rx="16" fill="#101a22" stroke="#355064"/>
+    <text x="118" y="128" fill="#75d88f" font-family="Inter, Arial" font-size="20" font-weight="800">Research Task</text>
+    <text x="118" y="158" fill="#c9d4d0" font-family="Inter, Arial" font-size="16">why today · core questions</text>
+
+    <rect x="88" y="236" width="260" height="110" rx="16" fill="#101a22" stroke="#355064"/>
+    <text x="118" y="278" fill="#75d88f" font-family="Inter, Arial" font-size="20" font-weight="800">Evidence Packet</text>
+    <text x="118" y="308" fill="#c9d4d0" font-family="Inter, Arial" font-size="16">sources · freshness · gaps</text>
+
+    <rect x="430" y="154" width="310" height="156" rx="18" fill="url(#paper)" stroke="#f2be63"/>
+    <text x="466" y="205" fill="#0b1117" font-family="Inter, Arial" font-size="25" font-weight="900">K Deep Research</text>
+    <text x="466" y="238" fill="#25323a" font-family="Inter, Arial" font-size="18">dossier first</text>
+    <path d="M466 262H702" stroke="#8aa08d" stroke-width="2"/>
+    <text x="466" y="287" fill="#43534a" font-family="Inter, Arial" font-size="15">grounded observations · uncertainties</text>
+
+    <rect x="830" y="92" width="250" height="86" rx="16" fill="#101a22" stroke="#4c6b88"/>
+    <text x="860" y="128" fill="#8ec5ff" font-family="Inter, Arial" font-size="19" font-weight="800">F Perspective</text>
+    <text x="860" y="154" fill="#c9d4d0" font-family="Inter, Arial" font-size="14">independent from K</text>
+    <rect x="830" y="206" width="250" height="86" rx="16" fill="#101a22" stroke="#4c6b88"/>
+    <text x="860" y="242" fill="#8ec5ff" font-family="Inter, Arial" font-size="19" font-weight="800">W Perspective</text>
+    <text x="860" y="268" fill="#c9d4d0" font-family="Inter, Arial" font-size="14">independent from K</text>
+    <rect x="830" y="320" width="250" height="86" rx="16" fill="#101a22" stroke="#4c6b88"/>
+    <text x="860" y="356" fill="#8ec5ff" font-family="Inter, Arial" font-size="19" font-weight="800">G Perspective</text>
+    <text x="860" y="382" fill="#c9d4d0" font-family="Inter, Arial" font-size="14">independent from K</text>
+
+    <rect x="430" y="420" width="300" height="106" rx="16" fill="#101a22" stroke="#75d88f"/>
+    <text x="462" y="462" fill="#75d88f" font-family="Inter, Arial" font-size="22" font-weight="900">Chairman Synthesis</text>
+    <text x="462" y="493" fill="#c9d4d0" font-family="Inter, Arial" font-size="15">consensus · conflict · weight</text>
+
+    <rect x="790" y="472" width="290" height="106" rx="16" fill="#201c19" stroke="#f2be63"/>
+    <text x="822" y="514" fill="#f2be63" font-family="Inter, Arial" font-size="22" font-weight="900">Red Team Critique</text>
+    <text x="822" y="545" fill="#e1d6c5" font-family="Inter, Arial" font-size="15">counter-evidence · weak assumptions</text>
+
+    <rect x="88" y="494" width="250" height="80" rx="15" fill="#101a22" stroke="#75d88f"/>
+    <text x="116" y="528" fill="#75d88f" font-family="Inter, Arial" font-size="18" font-weight="900">Research Quality Gate</text>
+    <text x="116" y="552" fill="#c9d4d0" font-family="Inter, Arial" font-size="13">status · boundary</text>
+
+    <rect x="88" y="616" width="292" height="80" rx="15" fill="#101a22" stroke="#75d88f"/>
+    <text x="116" y="650" fill="#75d88f" font-family="Inter, Arial" font-size="18" font-weight="900">Knowledge Gate + Alaya</text>
+    <text x="116" y="674" fill="#c9d4d0" font-family="Inter, Arial" font-size="13">persist · unresolved · readback</text>
+
+    <rect x="468" y="616" width="250" height="80" rx="15" fill="#101a22" stroke="#69a7ff"/>
+    <text x="496" y="650" fill="#8ec5ff" font-family="Inter, Arial" font-size="18" font-weight="900">Reader Boundary</text>
+    <text x="496" y="674" fill="#c9d4d0" font-family="Inter, Arial" font-size="13">research only · visible gaps</text>
+
+    <rect x="812" y="616" width="268" height="80" rx="15" fill="url(#blue)" stroke="#9ee5ba"/>
+    <text x="842" y="650" fill="#06100a" font-family="Inter, Arial" font-size="20" font-weight="900">Public Brief</text>
+    <text x="842" y="675" fill="#10201a" font-family="Inter, Arial" font-size="14">reader-first artifact</text>
+  </g>
+
+  <g fill="none" stroke="#75d88f" stroke-width="3" marker-end="url(#arrow)" opacity=".92">
+    <path d="M218 196V232"/>
+    <path d="M348 286C382 284 398 252 430 236"/>
+    <path d="M740 232C774 228 794 124 830 128"/>
+    <path d="M740 232C774 232 794 246 830 249"/>
+    <path d="M740 232C774 250 792 350 830 363"/>
+    <path d="M955 406C920 426 786 450 730 465"/>
+    <path d="M730 474C756 498 772 511 790 524"/>
+    <path d="M790 545C606 590 440 560 338 535"/>
+    <path d="M214 574V612"/>
+    <path d="M380 656H464"/>
+    <path d="M718 656H808"/>
+  </g>
+</svg>

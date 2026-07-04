@@ -9,9 +9,9 @@ const externalReportsRoot = process.env.GOTRA_REPORTS_DIR ? path.resolve(process
 const baseUrl = "https://gotra.me";
 
 const englishDefinition =
-  "GOTRA Public Ledger is an auditable AI stock-research public ledger. It records public-safe demo predictions, resolved outcomes, visible errors, and research boundaries. It is research information only, not investment advice, not a trading signal, and not performance proof.";
+  "GOTRA Public Ledger is an auditable AI stock-research public ledger and v4 Ksana cognition flywheel reader. It turns Research Task, Evidence Packet, K deep research dossier, F/W/G perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, and Reader Boundary into public-safe research information. It is not investment advice, not a trading signal, not performance proof, and not science/public proof.";
 const chineseDefinition =
-  "GOTRA Public Ledger 是一个可审计的 AI 股票研究公开预测账本，展示 public-safe demo 预测记录、已结算结果、公开错误和研究边界。它不是投资建议、不是交易信号、不是业绩证明。";
+  "GOTRA Public Ledger 是一个可审计的 AI 股票研究公开账本，也是 v4 Ksana cognition flywheel 阅读器。它把 Research Task、Evidence Packet、K deep research dossier、F/W/G、Chairman、Red Team、Research Quality Gate、Knowledge Gate 和 Reader Boundary 产品化展示。它不是投资建议、不是交易信号、不是业绩证明，也不是科学/公开证明。";
 const boundarySentence =
   "GOTRA Public Ledger provides public-safe research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not a guarantee of future outcomes.";
 const chineseBoundarySentence =
@@ -22,37 +22,41 @@ const guideReadingOrder = [
   [
     "/reports/full-analyst/",
     "Full Analyst 研究阅读器 / Full Analyst reader",
-    "Open the productized Full Analyst reader for per-symbol agent analysis, red-team review, risk factors, and watch items.",
+    "Open the productized v4 reader for why this stock today, K dossier, F/W/G perspectives, Chairman, Red Team, gates, and unresolved questions.",
   ],
-  ["/reports", "生产日报审计 / Production Daily Reports Audit", "Audit the five daily reports, coverage, exceptions, Full Analyst Canary, status JSON, and public artifact links."],
-  ["/sources", "来源与产物 / Sources and Artifacts", "Separate live production artifacts from static demo/archive/fixture materials."],
-  ["/ledger", "Demo 账本 / Demo Ledger", "Treat this only as a frozen public-safe demo snapshot, not a latest production report or trading instruction."],
-  ["/performance", "表现说明 / Performance Notes", "Confirm there is no production performance proof; the paper portfolio is a future-dated demo fixture."],
-  ["/methodology", "方法论 / Methodology", "Read the universe, resolver, data-boundary, and resolved-only rules."],
+  ["/reports", "审计中心 / Audit Center", "Audit production reports, status JSON, raw artifact disclosures, and evidence boundaries."],
+  ["/sources", "证据与来源 / Evidence and Sources", "Understand Evidence Packet source types, freshness, missing required sources, and data_gap."],
+  ["/methodology", "方法论 / Methodology", "Read v4 gates: K dossier first, F/W/G after K, Research Quality Gate, Knowledge Gate, and Reader Boundary."],
 ];
 const guideFlowRows = [
-  ["Universe", "Daily flow first fixes the public universe and exchange identity."],
-  ["Production daily timers", "Five timers publish coverage daily reports, status JSON, exceptions, and latest.md aliases."],
-  ["Full Analyst candidate/canary", "Adds per-symbol agent analysis, red-team review, risk factors, and watch items without upgrading conclusions."],
-  ["Judge gate", "Structure, coverage, data gaps, and boundaries are checked before publication."],
+  ["Research Task Planner", "Explains why this stock is studied today, the mission, core questions, required sources, and must-not-conclude-without rules."],
+  ["Evidence Packet Builder", "Builds a public-safe packet with source types, freshness, missing required sources, stale sources, data_gaps, and limitations."],
+  ["K Deep Research Dossier", "K runs first and creates the deep research dossier; it is not just another parallel agent."],
+  ["F/W/G parallel perspectives", "F/W/G run independently and in parallel after K, using the research task, evidence packet, K dossier, and Alaya readback."],
+  ["Chairman synthesis", "Synthesizes K + F/W/G, names consensus, conflicts, evidence strength, unresolved questions, and watch conditions."],
+  ["Red Team critique", "Attacks weak assumptions, counter-evidence gaps, unsupported claims, and boundary risks; Red Team is not Judge."],
+  ["Research Quality Gate", "Marks candidate, watch, avoid, needs_review, data_gap, or high_uncertainty without hiding research content."],
+  ["Knowledge Gate", "Decides what persists to memory, what remains temporary, and which unresolved questions seed the next cycle."],
   ["Public safety scan", "Raw prompts, provider/model I/O, secrets, databases, and private logs are not published."],
   ["Internal Alaya", "Alaya here means GOTRA repo internal cognition flywheel, knowledge memory, feedback state, and hash-chain/readback state only."],
-  ["Public artifacts", "Public outputs include Today's Brief, productized report readers, daily Markdown, status JSON, Full Analyst report, sources, and no-JS HTML."],
+  ["Reader Boundary", "Adds research-only wording while keeping data_gap, needs_review, Red Team critique, and agent conflicts visible."],
+  ["Public artifacts", "Public outputs include Today's Brief, productized v4 reader, audit center, sources, methodology, and no-JS HTML."],
   ["Evidence boundary", "Local checks, browser smoke, public artifact smoke, formal acceptance, and science/public claims are separate layers."],
 ];
 const guideGlossaryRows = [
   ["Daily Brief", "Daily reader entrypoint for production reports, Full Analyst highlights, data gaps, watchlist, and boundaries."],
-  ["Full Analyst", "Candidate/canary research chain with per-symbol agent analysis; not a formal conclusion upgrade."],
-  ["Canary", "Controlled trial chain for health, public scan, and rollback status; not production graduation."],
-  ["Agent matrix", "Public-safe per-symbol matrix of summary, positive/negative cases, red-team review, risks, watch items, and source notes."],
-  ["Red-team", "Review step for overclaims, hidden assumptions, missing counterevidence, and boundary breaks."],
+  ["Full Analyst v4", "Research chain with task, evidence packet, K dossier, F/W/G perspectives, Chairman, Red Team, Quality Gate, Knowledge Gate, and Reader Boundary."],
+  ["K dossier", "The deep research dossier generated before F/W/G; later perspectives must use it."],
+  ["Perspective agents", "F/W/G independent research views that preserve disagreement instead of flattening uncertainty."],
+  ["Red-team", "Counter-evidence and vulnerability audit for overclaims, hidden assumptions, missing evidence, and boundary breaks; not Judge."],
+  ["Knowledge Gate", "Decides whether research knowledge persists, persists with limitations, stays temporary, or should not persist."],
   ["Risk factors", "Conditions that could invalidate the research view or require reader caution."],
   ["Watch items", "Questions, data points, events, or source states to check next."],
   ["Data gap", "Missing public-source coverage, price, or status-file gap; private data is not used to fill it."],
   ["Judge gate", "Pre-publication structure, coverage, public-safety, and boundary gate."],
   ["Public-safe", "Safe for readers and crawlers; no raw I/O, secrets, private logs, databases, or credentials."],
   ["Evidence layer", "Separation between local checks, smoke evidence, formal acceptance, and science/public claim layers."],
-  ["Demo Ledger", "Frozen public-safe demo snapshot; not latest production or a live prediction ledger."],
+  ["Demo Ledger", "Archive-only frozen public-safe demo snapshot; not the primary v4 reader, latest production, or a live prediction ledger."],
   ["Performance proof", "Evidence proving production returns or performance; this site does not provide it."],
   ["Science/public proof", "Validation strong enough for scientific/public-validity claims; daily reports or smoke checks are not that."],
   ["Trading signal", "Buy, sell, hold, position, or target-price instruction; this site does not provide it."],
@@ -382,16 +386,13 @@ function pageShell({ route, title, description, body, extraJsonLd = [] }) {
         <a href="/today">Daily Research Brief</a>
         <a href="/why-gotra">Why GOTRA</a>
         <a href="/guide">Guide</a>
-        <a href="/reports">Production Daily Reports</a>
         <a href="/reports/full-analyst/">Full Analyst reader</a>
-        <a href="/notes">Transparency Articles</a>
-        <a href="/ledger">Frozen Demo Ledger</a>
-        <a href="/performance">Performance Notes</a>
-        <a href="/reports/latest/">Latest report</a>
+        <a href="/sources">Evidence and Sources</a>
         <a href="/methodology">Methodology</a>
+        <a href="/reports">Audit Center</a>
+        <a href="/reports/latest/">Latest report</a>
         <a href="/claim-boundary">Claim boundary</a>
         <a href="/faq">FAQ</a>
-        <a href="/sources">Sources</a>
       </nav>
     </header>
     <main>
@@ -474,7 +475,7 @@ function homeFallback(summary, source) {
       <h1>GOTRA Public Ledger</h1>
       ${definitionBlock()}
       ${latestReportHealthHtml(source)}
-      ${researchSystemHtml()}
+      ${researchSystemHtml(source.dailyReaderBrief)}
       <section class="summary-grid" aria-label="Snapshot metadata">
         <div class="metric"><strong>${escapeHtml(summary.snapshotDate)}</strong><span>Snapshot date</span></div>
         <div class="metric"><strong>${summary.totalRecords}</strong><span>Public prediction records</span></div>
@@ -490,14 +491,12 @@ function homeFallback(summary, source) {
           <li><a href="/why-gotra">为什么是 GOTRA / Why GOTRA</a></li>
           <li><a href="/guide">使用指南 / Guide</a></li>
           <li><a href="/reports/full-analyst/">Full Analyst reader</a></li>
-          <li><a href="/reports">生产日报 / Production Daily Reports</a></li>
-          <li><a href="/notes">透明度文章 / Transparency Articles</a></li>
-          <li><a href="/ledger">冻结 Demo 账本 / Frozen Demo Ledger</a></li>
-          <li><a href="/performance">表现说明 / Performance Notes</a></li>
+          <li><a href="/sources">证据与来源 / Evidence and Sources</a></li>
           <li><a href="/methodology">Methodology</a></li>
+          <li><a href="/reports">审计中心 / Audit Center</a></li>
+          <li><a href="/reports/latest/">Latest report reader</a></li>
           <li><a href="/claim-boundary">Claim boundary</a></li>
           <li><a href="/faq">FAQ</a></li>
-          <li><a href="/sources">Sources</a></li>
         </ul>
       </section>
     </main>`;
@@ -715,8 +714,8 @@ function reportsPage(source) {
     ["/reports/status_morning_us.json", "US morning production daily report status", "Audit JSON only."],
     ["/reports/status_evening_us.json", "US evening production daily report status", "Audit JSON only."],
     ["/reports/status_morning_global.json", "Global summary production daily report status", "Audit JSON only."],
-    ["/reports/status_full_analyst_monitor.json", "Full Analyst Canary monitor status", "Audit JSON only."],
-    ["/reports/status_full_analyst_evening_hk.json", "Full Analyst Canary report status", "Audit JSON only."],
+    ["/reports/status_full_analyst_monitor.json", "Full Analyst monitor status", "Audit JSON only."],
+    ["/reports/status_full_analyst_evening_hk.json", "Full Analyst v4 report status", "Audit JSON only."],
   ];
   const fields = [
     "mode",
@@ -736,28 +735,28 @@ function reportsPage(source) {
     return [
       field,
       value === undefined || value === "artifact_unavailable"
-        ? "Coverage status alias unavailable; use report-specific status files and the v3.5 readers."
+        ? "Coverage status alias unavailable; use report-specific status files and the v4 readers."
         : value,
     ];
   });
 
   return pageShell({
     route: "/reports",
-    title: "Production Daily Reports | GOTRA Public Ledger",
+    title: "Audit Center | GOTRA Public Ledger",
     description:
-      "Crawler-readable Production Daily Reports page for HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary public-safe artifacts. Not investment advice, not a trading signal, not performance proof, and not science/public proof.",
-    body: `      <h1>Production Daily Reports / 生产日报</h1>
+      "Crawler-readable Audit Center for production reports, Full Analyst v4 public-safe artifacts, status JSON, raw artifact disclosures, and evidence boundaries. Not investment advice, not a trading signal, not performance proof, and not science/public proof.",
+    body: `      <h1>Audit Center / 审计中心</h1>
       ${definitionBlock()}
       <section class="notice">
         <h2>Live production artifact boundary</h2>
-        <p>This page is the production daily report entrypoint. It answers what the public-safe production timers published, including HK morning, HK evening, US morning, US evening, global summary, and the Full Analyst Canary. These are runtime/status artifacts only, not performance proof, not a trading signal, not science/public proof, and not investment advice.</p>
+        <p>This page is the audit entrypoint. It separates the reader path from status artifacts, coverage reports, Full Analyst v4 public research artifacts, and raw JSON/Markdown disclosures. These are runtime/status and research-process evidence only, not performance proof, not a trading signal, not science/public proof, and not investment advice.</p>
       </section>
       <section>
         <h2>Report type labels / 报告类型</h2>
         <ul>
           <li><strong>行情覆盖日报 / Coverage daily report:</strong> <a href="/reports/latest/">/reports/latest/</a> is the default reader; <code>latest.md</code> is the audit original.</li>
-          <li><strong>Full Analyst 研究阅读器 / Full Analyst reader:</strong> <a href="/reports/full-analyst/">/reports/full-analyst/</a> productizes candidate/canary per-symbol research output.</li>
-          <li><strong>先行试跑监控 / Canary Monitor:</strong> heartbeat, freshness, public scan, and rollback status.</li>
+          <li><strong>Full Analyst v4 研究阅读器 / Full Analyst v4 reader:</strong> <a href="/reports/full-analyst/">/reports/full-analyst/</a> productizes why this stock today, K dossier, F/W/G, Chairman, Red Team, gates, and unresolved questions.</li>
+          <li><strong>运行监控 / Runtime monitor:</strong> heartbeat, freshness, public scan, rollback status, and v4 contract health.</li>
           <li><strong>状态 JSON / Status JSON:</strong> public runtime fields for coverage, failed_symbols, and data_gap; raw JSON opens only in the audit disclosure below.</li>
         </ul>
       </section>
@@ -767,8 +766,8 @@ function reportsPage(source) {
         <p>If <code>public/reports/status.json</code> or <code>public/reports/latest.md</code> is missing in this build, this page reports artifact-unavailable instead of inventing report facts.</p>
       </section>
       <section class="notice">
-        <h2>v3.5 research system and internal Alaya</h2>
-        <p>The v3.5 audit layer tracks <code>research_task</code>, <code>evidence_packet</code>, K/F/W/G independent views, Chairman synthesis, Red Team audit, and GOTRA internal Alaya readback. Alaya means the repo-internal cognition flywheel, knowledge memory, and feedback state; it is not an external service.</p>
+        <h2>v4 Ksana cognition flywheel and internal Alaya</h2>
+        <p>The v4 audit layer tracks <code>research_task</code>, <code>evidence_packet</code>, K deep research dossier, F/W/G independent perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, and GOTRA internal Alaya readback. Alaya means the repo-internal cognition flywheel, knowledge memory, and feedback state; it is not an external service.</p>
       </section>
       <section>
         <h2>Product reading surfaces</h2>
@@ -807,7 +806,7 @@ function guidePage() {
       ${definitionBlock()}
       <section class="notice">
         <h2>Reader purpose / 读者目的</h2>
-        <p>Use this page to understand what to read first, what the Full Analyst Canary means, how production reports differ from demo/archive material, and why evidence layers must remain separate.</p>
+        <p>Use this page to understand what to read first, how the v4 Ksana cognition flywheel works, how reader pages differ from audit artifacts, and why evidence layers must remain separate.</p>
       </section>
       ${guideReadingOrderHtml()}
       <section>
@@ -900,8 +899,8 @@ function whyGotraPage() {
 
 function v35ResearchSystemHtml() {
   return `<section class="notice">
-        <h2>v3.5 research system / v3.5 研究系统</h2>
-        <p>v3.5 turns research_task, evidence_packet, K/F/W/G independent views, Chairman synthesis, Red Team audit, and internal Alaya readback into an auditable research chain. It is research discipline, not an action-answer layer.</p>
+        <h2>legacy v3.5 fallback / legacy v3.5 兼容层</h2>
+        <p>The legacy v3.5 fallback turns research_task, evidence_packet, K/F/W/G independent views, Chairman synthesis, Red Team audit, and internal Alaya readback into an auditable research chain. It is research discipline, not an action-answer layer.</p>
         <p>v3.5 把研究任务、证据包、K/F/W/G 独立视角、Chairman synthesis、Red Team audit 和内部 Alaya readback 串成可审计研究链路；它不是动作答案层。</p>
         ${table(
           ["step", "reader value"],
@@ -977,7 +976,7 @@ function todayPage(source) {
     route: "/today",
     title: "GOTRA Daily Research Brief",
     description:
-      "Crawler-readable daily reader brief summarizing production reports, known data gaps, watchlist items, Full Analyst Canary health, and next watch points. Not investment advice or a trading signal.",
+      "Crawler-readable daily reader brief summarizing v4 research task, evidence packet, known data gaps, watchlist items, Full Analyst v4 health, and next watch points. Not investment advice or a trading signal.",
 	    extraJsonLd: [
       {
         "@context": "https://schema.org",
@@ -1110,7 +1109,7 @@ function todayPage(source) {
           <li><a href="/why-gotra">Why GOTRA</a></li>
           <li><a href="/reports/full-analyst/">Full Analyst reader</a></li>
           <li><a href="/reports/latest/">Coverage report reader</a></li>
-          <li><a href="/reports">Production Daily Reports Audit</a></li>
+          <li><a href="/reports">Audit Center</a></li>
           <li><a href="/sources">Sources and artifacts</a></li>
         </ul>
         <details class="notice">
@@ -1312,7 +1311,7 @@ function latestReportPage(source) {
           ],
         )}
       </section>
-      ${v35ResearchSystemHtml()}
+      ${researchSystemHtml(source.dailyReaderBrief)}
       <section>
         <h2>Readable highlights</h2>
         <ul>${markdownHighlights}</ul>
@@ -1349,33 +1348,37 @@ function methodologyPage(summary) {
   return pageShell({
     route: "/methodology",
     title: "GOTRA Methodology | Raw HTML",
-    description: "Crawler-readable methodology for public-safe demo data, resolved-only measurement, and visible errors.",
+    description: "Crawler-readable methodology for v4 Ksana cognition flywheel, K dossier, perspective agents, Research Quality Gate, Knowledge Gate, Reader Boundary, and evidence limits.",
     body: `      <h1>GOTRA Methodology / 方法</h1>
       ${definitionBlock()}
-      ${v35ResearchSystemHtml()}
+      ${v40ResearchSystemHtml()}
       <section>
-        <h2>How GOTRA records research objects</h2>
-        <p>Each public record keeps a prediction identifier, ticker, company, sector, prediction date, horizon, direction, confidence, public-safe evidence labels, and outcome fields only when public-safe resolution data exists.</p>
+        <h2>K dossier before F/W/G</h2>
+        <p>v4 does not start F/W/G from a thin ticker context. It first generates a research task, builds an evidence packet, then creates the K deep research dossier. F/W/G may start only after the K dossier hash exists.</p>
       </section>
       <section>
-        <h2>Data boundary / 数据边界</h2>
-        <p>The method fixes the public universe, resolver, reporting scope, and data boundary before interpreting records, so crawler-readable pages do not backfill private run data or upgrade smoke evidence into acceptance claims.</p>
+        <h2>Perspective agents and Chairman</h2>
+        <p>F/W/G are independent perspectives that use the research task, evidence packet, K dossier, and prior Alaya readback. Chairman synthesis then names consensus, conflicts, evidence strength, unresolved questions, confidence boundary, and watch conditions.</p>
       </section>
       <section>
-        <h2>What public-safe demo data means</h2>
-        <p>Public-safe demo data means this repository uses committed public JSON and public documentation sources only. It excludes raw provider/model I/O, prompts, completions, scorer transcripts, private run logs, databases, secrets, and local GOTRA experiment artifacts.</p>
+        <h2>Red Team is not Judge</h2>
+        <p>Red Team is a counter-evidence and vulnerability audit step. It can mark weak assumptions, missing counter-evidence, hallucination risks, and boundary risks, but Research Quality Gate and Knowledge Gate are separate gates.</p>
       </section>
       <section>
-        <h2>Resolved-only measurement</h2>
-        <p>Resolved-only means only the ${summary.resolvedRecords} rows with public-safe numeric outcome and error fields are counted in resolved summaries. The ${summary.pendingRecords} pending rows and ${summary.frozenPendingRecords} frozen-pending rows stay visible but are not counted as resolved outcomes.</p>
+        <h2>Research Quality Gate</h2>
+        <p>The Research Quality Gate marks candidate, watch, avoid, needs_review, data_gap, or high_uncertainty. It does not hide research content; it labels the quality boundary so the reader does not mistake a limited finding for certainty.</p>
       </section>
       <section>
-        <h2>Why pending rows are excluded</h2>
-        <p>Pending rows do not have public-safe outcome fields in this repository build. Excluding them prevents fabricated backfills and keeps the audit boundary readable.</p>
+        <h2>Knowledge Gate and Alaya</h2>
+        <p>Knowledge Gate decides whether knowledge persists, persists with limitations, remains temporary, or should not persist. Alaya means GOTRA repo internal cognition flywheel / knowledge memory / feedback state / readback only, not an external service or external repo.</p>
       </section>
       <section>
-        <h2>Why errors remain visible</h2>
-        <p>Visible errors make the ledger auditable. A public ledger that hides misses would be weaker for review, attribution, and boundary checking.</p>
+        <h2>Reader Boundary Gate</h2>
+        <p>Reader Boundary Gate adds research-only wording without hiding data_gap, needs_review, Red Team critique, agent conflicts, or evidence gaps. Only secrets, credentials, raw provider/model I/O, and full internal prompts are excluded from public artifacts.</p>
+      </section>
+      <section>
+        <h2>Archive measurement boundary</h2>
+        <p>The legacy static ledger still uses resolved-only measurement: only the ${summary.resolvedRecords} rows with public-safe numeric outcome and error fields are counted in resolved summaries. The ${summary.pendingRecords} pending rows and ${summary.frozenPendingRecords} frozen-pending rows stay visible but are not counted as resolved outcomes.</p>
       </section>
       <section>
         <h2>What GOTRA does not claim</h2>
@@ -1408,7 +1411,7 @@ function performancePage(portfolio) {
       <section class="notice">
         <h2>No production performance tracking yet / 暂无生产表现跟踪</h2>
         <p>There is no public-safe production performance tracking artifact on this page. The paper portfolio file is a demo fixture and future-dated sample. It is not current production, not live trading, not performance proof, not a return promise, not a trading signal, and not investment advice.</p>
-        <p><a href="/reports">Open Production Daily Reports</a> for current runtime and artifact status.</p>
+        <p><a href="/reports">Open the Audit Center</a> for current runtime and artifact status.</p>
       </section>
       <section>
         <h2>Demo fixture boundary</h2>
@@ -1447,7 +1450,7 @@ function faqPage(summary) {
   const faqs = [
     [
       "What is GOTRA Public Ledger?",
-      "GOTRA Public Ledger is an auditable AI stock-research public ledger that records public-safe demo predictions, resolved outcomes, visible errors, and research boundaries.",
+      "GOTRA Public Ledger is an auditable AI stock-research public ledger and v4 Ksana cognition flywheel reader. It shows research process, evidence limits, Red Team critique, and boundaries.",
     ],
     [
       "Is GOTRA an AI stock-picking tool?",
@@ -1470,12 +1473,12 @@ function faqPage(summary) {
       "Errors remain visible so the public ledger can be audited. Hiding errors would weaken the evidence boundary.",
     ],
     [
-      "What is public-safe demo data?",
-      "Public-safe demo data is committed public JSON and documentation that excludes raw provider/model I/O, prompts, completions, private logs, databases, credentials, and local experiment artifacts.",
+      "What is v4 Ksana cognition flywheel?",
+      "It is a public research workflow: research task, evidence packet, K dossier, F/W/G perspectives, Chairman, Red Team, Research Quality Gate, Knowledge Gate, internal Alaya readback, and Reader Boundary.",
     ],
     [
-      "What is resolved-only measurement?",
-      `Resolved-only measurement uses only the ${summary.resolvedRecords} rows that have public-safe outcome and error fields. Pending and frozen-pending rows are visible but excluded.`,
+      "What is internal Alaya?",
+      "Alaya means GOTRA repo internal cognition flywheel / knowledge memory / feedback state / readback only, not an external service, external repo, or provider.",
     ],
   ];
 
@@ -1528,8 +1531,8 @@ function sourcesPage(manifest, evidenceIndex, contentIndex) {
     ["/reports/status_morning_us.json", "US morning production status"],
     ["/reports/status_evening_us.json", "US evening production status"],
     ["/reports/status_morning_global.json", "global summary production status"],
-    ["/reports/status_full_analyst_monitor.json", "Full Analyst Canary monitor"],
-    ["/reports/status_full_analyst_evening_hk.json", "Full Analyst Canary report status"],
+    ["/reports/status_full_analyst_monitor.json", "Full Analyst monitor"],
+    ["/reports/status_full_analyst_evening_hk.json", "Full Analyst v4 report status"],
   ];
   const staticArtifactRows = [
     ["data/manifest.json", "static manifest", manifest.snapshot_date ?? "2026-06-25", "not current production"],
@@ -1569,11 +1572,12 @@ function sourcesPage(manifest, evidenceIndex, contentIndex) {
       <section>
         <h2>Public source boundary</h2>
         <p>This page lists public-safe repository data only. It does not expose raw provider/model I/O, private run logs, local experiment artifacts, databases, auth files, or secrets.</p>
+        <p>Alaya means GOTRA internal cognition flywheel, knowledge memory, feedback state, and readback only; it is not an external service or external repository.</p>
       </section>
-      ${v35ResearchSystemHtml()}
+      ${v40ResearchSystemHtml()}
       <section>
         <h2>Evidence packet source types</h2>
-        <p>The v3.5/v4 evidence_packet describes source_type, source_name, freshness_status, missing_required_sources, stale_sources, data_gaps, and public_safe limitations. If a required source is unavailable, the reader sees data_gap or needs_review instead of a polished unsupported conclusion.</p>
+        <p>The v4 evidence_packet describes source_type, source_name, freshness_status, missing_required_sources, stale_sources, data_gaps, and public_safe limitations. If a required source is unavailable, the reader sees data_gap or needs_review instead of a polished unsupported conclusion.</p>
         <p>证据包把 source type、freshness、missing required sources、stale/data_gap 和 public-safe 限制放在明面上；缺来源时保留 data_gap / needs_review，而不是包装成完整结论。</p>
       </section>
       <section>
@@ -1659,12 +1663,12 @@ function notesPage(contentIndex) {
     route: "/notes",
     title: "Transparency Articles | GOTRA Public Ledger",
     description:
-      "Crawler-readable Transparency Articles archive. This is a static article archive, not the latest production daily reports. Use Production Daily Reports for live runtime status.",
+      "Crawler-readable Transparency Articles archive. This is a static article archive, not the latest production daily reports. Use the Audit Center for live runtime status.",
     body: `      <h1>Transparency Articles / 透明度文章</h1>
       ${definitionBlock()}
       <section class="notice">
         <h2>Static article archive</h2>
-        <p>This is a static article archive, not the latest production daily reports. Latest production runtime and public-safe report artifacts are under <a href="/reports">Production Daily Reports</a>.</p>
+        <p>This is a static article archive, not the latest production daily reports. Latest production runtime and public-safe report artifacts are under <a href="/reports">Audit Center</a>.</p>
       </section>
       <section>
         <h2>Static article archive index</h2>
@@ -1920,20 +1924,20 @@ function writeRobots() {
 function llmsTxt() {
   return `# GOTRA Public Ledger
 
-GOTRA Public Ledger is a public-safe research ledger and production-report surface.
-It is research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not science/public proof.
+GOTRA Public Ledger is a public-safe research ledger, production-report surface, and v4 Ksana cognition flywheel reader.
+It productizes Research Task, Evidence Packet, K deep research dossier, F/W/G perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, internal Alaya readback, and Reader Boundary. It is research information only. It is not investment advice, not a trading signal, not live trading, not performance proof, and not science/public proof.
 
 ## Primary reader routes
 
 - https://gotra.me/today - Daily Research Brief. Reader-first Full Analyst research brief with agent analysis items, red-team review, risk factors, internal Alaya readback, known data gaps, and next watch points.
 - https://gotra.me/why-gotra - Why GOTRA. Research discipline for seeing what changed, what is known, and what still needs review.
 - https://gotra.me/guide - Guide. Seven-step reading order, daily system flow, report type labels, glossary, internal Alaya boundary, and evidence boundaries.
-- https://gotra.me/reports - Production Daily Reports. Live production/status artifacts for HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary.
+- https://gotra.me/reports - Audit Center. Live production/status artifacts, Full Analyst v4 status, raw artifact disclosures, and evidence boundaries.
 - https://gotra.me/reports/latest/ - Coverage Report Reader. Productized HTML reader for the latest public coverage report; raw Markdown appears only in audit disclosure.
 - https://gotra.me/reports/full-analyst/ - Full Analyst Research Reader. Productized per-symbol research reader; raw Markdown appears only in audit disclosure.
 - https://gotra.me/notes - Transparency Articles. Static article archive, not latest production daily reports.
-- https://gotra.me/ledger - Frozen Demo Ledger. snapshot_date=2026-06-20 demo snapshot, not current production.
-- https://gotra.me/performance - Performance Notes. No production performance tracking yet; paper portfolio is a future-dated demo fixture.
+- https://gotra.me/ledger - Archive-only Frozen Demo Ledger. snapshot_date=2026-06-20 demo snapshot, not the primary v4 reader and not current production.
+- https://gotra.me/performance - Archive-only Performance Notes. No production performance tracking yet; paper portfolio is a future-dated demo fixture.
 - https://gotra.me/sources - Sources and Artifacts. Splits live production artifacts from static demo/archive artifacts.
 - https://gotra.me/system - System Overview. Draft research-cognition operating contract and evidence boundaries.
 - https://gotra.me/methodology - Methodology. Universe, resolver, paper portfolio, and data-boundary method notes.
