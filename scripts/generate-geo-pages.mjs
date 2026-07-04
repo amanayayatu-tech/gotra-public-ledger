@@ -61,6 +61,56 @@ const guideGlossaryRows = [
   ["科学/公开证明（Science/Public Proof）", "足够支撑科学或公共有效性声明的验证；日报和 smoke 不等于这种证明。"],
   ["交易信号（Trading Signal）", "买/卖/持有、仓位或目标价指令；本站不提供。"],
 ];
+const dataSourcePolicyRows = [
+  [
+    "Yahoo Finance chart API via GOTRA price_cache helper",
+    "价格数据",
+    "HKEX / NASDAQ / NYSE",
+    "日线 adjusted close 的研究 / 原型证据。",
+    "低频批处理、本地缓存、只使用已完成日线；不能声称为生产级实时行情授权。",
+    "不能作为未来商业发布的唯一行情来源。",
+  ],
+  [
+    "Stooq public daily prices",
+    "备用价格数据",
+    "NASDAQ / NYSE / selected global",
+    "公开历史价格的低频备用研究来源。",
+    "覆盖、代码映射和时效可能不完整；必须缓存并记录缺口。",
+    "不是生产级实时行情授权。",
+  ],
+  [
+    "Alpha Vantage free tier",
+    "低频备用价格 / 指标",
+    "NASDAQ / NYSE / selected global",
+    "显式配置后作为低频备用来源。",
+    "免费层按低频使用：不超过 5 requests/minute 和 500 requests/day。",
+    "任何商业发布用途都需要单独授权复核。",
+  ],
+  [
+    "SEC EDGAR filings and CompanyFacts",
+    "监管披露 / 公司事实",
+    "NASDAQ / NYSE / US issuers",
+    "美国发行人 filings、CompanyFacts 和公告时间戳证据。",
+    "SEC EDGAR 必须使用合规 User-Agent，最高 10 requests/second，并使用缓存与退避。",
+    "可用于公开披露事实核对；不是价格行情源。",
+  ],
+  [
+    "FRED macroeconomic data",
+    "宏观数据",
+    "US / global macro",
+    "宏观背景和系列发布日期证据。",
+    "宏观序列有发布日历和修订风险。",
+    "只能作为宏观证据，不能独立支持个股价格结论。",
+  ],
+  [
+    "HKEXnews issuer announcements",
+    "港交所公告 / 披露事实",
+    "HKEX",
+    "港股发行人公告、披露事实和发布时间核对。",
+    "低频查询和缓存；公告发布时间可能滞后交易时段。",
+    "不是免费实时行情来源。",
+  ],
+];
 
 function fail(message) {
   console.error(message);
@@ -1629,6 +1679,12 @@ function sourcesPage(manifest, evidenceIndex, contentIndex) {
         <h2>证据包来源类型</h2>
         <p>v4 证据包会描述 source_type、source_name、freshness_status、missing_required_sources、stale_sources、data_gaps 和 public_safe 限制。如果必需来源不可用，读者看到的是 data_gap 或 needs_review，而不是漂亮但无支撑的结论。</p>
         <p>证据包把 source type、freshness、missing required sources、stale/data_gap 和 public-safe 限制放在明面上；缺来源时保留 data_gap / needs_review，而不是包装成完整结论。</p>
+      </section>
+      <section>
+        <h2>原型期数据源用途与授权边界</h2>
+        <p>这些来源只用于公开研究证据、披露事实或宏观背景。价格源 priority chain 为 Yahoo chart via GOTRA price_cache -> Stooq -> Alpha Vantage free tier；免费源不会被描述成生产级实时行情授权。</p>
+        ${table(["来源", "类型", "市场", "用途", "限制", "商业边界"], dataSourcePolicyRows)}
+        <p>完整机器可读配置在后端 <code>config/data_sources.yml</code>；公开页面只展示 reader-safe 摘要。</p>
       </section>
       <section>
         <h2>产品化阅读入口</h2>

@@ -12,6 +12,7 @@ const geoSmokeSource = fs.readFileSync(path.join(process.cwd(), "scripts/geo-smo
 const stylesSource = fs.readFileSync(path.join(process.cwd(), "src/styles.css"), "utf8");
 const guideSource = fs.readFileSync(path.join(process.cwd(), "src/data/guide.ts"), "utf8");
 const glossarySource = fs.readFileSync(path.join(process.cwd(), "src/data/glossary.ts"), "utf8");
+const dataSourcesSource = fs.readFileSync(path.join(process.cwd(), "src/data/dataSources.ts"), "utf8");
 
 describe("public ledger information architecture contract", () => {
   it("keeps notes as a transparency article archive instead of a production report entry", () => {
@@ -120,9 +121,17 @@ describe("public ledger information architecture contract", () => {
   it("separates live production artifacts from static demo/archive artifacts on sources", () => {
     expect(appSource).toContain("生产公开产物");
     expect(appSource).toContain("静态演示 / 归档产物");
+    expect(appSource).toContain("function DataSourcePolicyPanel");
+    expect(appSource).toContain("免费数据源分层");
+    expect(appSource).toContain("价格源 priority chain");
     expect(appSource).toContain("data/ledger.demo.json");
     expect(appSource).toContain("data/paper-portfolio.latest.json");
     expect(appSource).toContain("content/articles/index.json");
+    expect(dataSourcesSource).toContain("yahoo_chart_api_via_gotra_price_cache");
+    expect(dataSourcesSource).toContain("SEC EDGAR filings and CompanyFacts");
+    expect(dataSourcesSource).toContain("FRED macroeconomic data");
+    expect(dataSourcesSource).toContain("HKEXnews issuer announcements");
+    expect(dataSourcesSource).toContain("not a licensed realtime market-data feed");
   });
 
   it("defines route-specific GEO metadata for primary production, archive, demo, and fixture routes", () => {
@@ -159,6 +168,8 @@ describe("public ledger information architecture contract", () => {
     expect(geoGeneratorSource).toContain('"/performance"');
     expect(geoGeneratorSource).toContain("function llmsTxt");
     expect(geoGeneratorSource).toContain("产品化阅读入口");
+    expect(geoGeneratorSource).toContain("原型期数据源用途与授权边界");
+    expect(geoGeneratorSource).toContain("SEC EDGAR 必须使用合规 User-Agent");
     expect(geoGeneratorSource).toContain("静态 demo / 归档产物");
     expect(geoSmokeSource).toContain('readDist("llms.txt")');
     expect(geoSmokeSource).toContain("https://gotra.me/today");

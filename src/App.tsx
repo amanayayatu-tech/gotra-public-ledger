@@ -33,6 +33,7 @@ import { Subscribe } from "./components/Subscribe";
 import { StatusExplanationCard } from "./components/StatusExplanation";
 import { buildTickerList } from "./data/cognition";
 import { contentIndex, contentItems, findContentItem } from "./data/content";
+import { dataSourcePolicies, dataSourceText } from "./data/dataSources";
 import type { DailyReaderBrief, DailyReaderBriefAgentAnalysisItem } from "./data/dailyReaderBrief";
 import {
   guideGlossary,
@@ -2882,6 +2883,7 @@ function SourcesPage({
         icon={Database}
       />
       <V40ResearchSystemPanel language={language} />
+      <DataSourcePolicyPanel language={language} />
       <LiveArtifactSources state={liveReportsState} language={language} />
       {showSourceDetails ? (
         <>
@@ -2934,6 +2936,64 @@ function SourcesPage({
         </>
       ) : null}
     </>
+  );
+}
+
+function DataSourcePolicyPanel({ language }: { language: Language }) {
+  return (
+    <section className="route-panel live-sources-shell" aria-labelledby="data-source-policy-title">
+      <div className="section-heading-row">
+        <div>
+          <span>{copy(language, "免费数据源分层", "Free source layering")}</span>
+          <h2 id="data-source-policy-title">{copy(language, "原型期数据源用途与授权边界", "Prototype data-source purpose and authorization boundaries")}</h2>
+        </div>
+      </div>
+      <p>
+        {copy(
+          language,
+          "这些来源只用于公开研究证据、披露事实或宏观背景。价格源有显式 priority chain；免费源不会被描述成生产级实时行情授权，也不会单独支撑商业发布。",
+          "These sources are used for public research evidence, disclosure facts, or macro context. Price sources have an explicit priority chain; free sources are not described as production realtime market-data authorization or as sole support for commercial release.",
+        )}
+      </p>
+      <div className="live-artifact-table-wrap data-source-table-wrap">
+        <table className="live-artifact-table data-source-policy-table">
+          <thead>
+            <tr>
+              <th>{copy(language, "来源", "Source")}</th>
+              <th>{copy(language, "类型", "Type")}</th>
+              <th>{copy(language, "市场", "Markets")}</th>
+              <th>{copy(language, "用途", "Purpose")}</th>
+              <th>{copy(language, "限制", "Limits")}</th>
+              <th>{copy(language, "商业边界", "Commercial boundary")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dataSourcePolicies.map((source) => (
+              <tr key={source.id}>
+                <td>
+                  <strong>{source.name}</strong>
+                  <small>{source.id}</small>
+                </td>
+                <td>{dataSourceText(language, source.sourceType)}</td>
+                <td>{source.markets.join(" / ")}</td>
+                <td>{dataSourceText(language, source.purpose)}</td>
+                <td>{dataSourceText(language, source.limits)}</td>
+                <td>{dataSourceText(language, source.commercialBoundary)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <details className="audit-details">
+        <summary>{copy(language, "查看数据源 priority chain 与硬边界", "Show priority chain and hard boundaries")}</summary>
+        <ul>
+          <li>{copy(language, "价格源 priority chain: Yahoo chart via GOTRA price_cache -> Stooq -> Alpha Vantage free tier。", "Price source priority chain: Yahoo chart via GOTRA price_cache -> Stooq -> Alpha Vantage free tier.")}</li>
+          <li>{copy(language, "SEC EDGAR 必须使用 User-Agent，且不超过 10 requests/second。", "SEC EDGAR must use a User-Agent and stay at or below 10 requests/second.")}</li>
+          <li>{copy(language, "FRED 只用于宏观证据；HKEXnews 只用于公告和披露事实。", "FRED is macro evidence only; HKEXnews is for announcements and disclosure facts only.")}</li>
+          <li>{copy(language, "完整机器可读配置在后端 config/data_sources.yml；公开页面只展示 reader-safe 摘要。", "The full machine-readable registry lives in backend config/data_sources.yml; this public page only shows a reader-safe summary.")}</li>
+        </ul>
+      </details>
+    </section>
   );
 }
 
