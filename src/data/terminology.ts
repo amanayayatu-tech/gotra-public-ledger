@@ -155,7 +155,7 @@ export const terminology: Record<TerminologyKey, TerminologyEntry> = {
   audit_metadata: {
     zh: "审计元数据",
     en: "Audit Metadata",
-    explanationZh: "run_id、hash、timing、schema 等工程字段，只应在审计折叠区查看。",
+    explanationZh: "运行 ID、hash、耗时、格式版本等工程字段，只应在审计折叠区查看。",
     explanationEn: "Engineering fields such as run_id, hashes, timings, and schema; shown in audit disclosures.",
   },
   full_analyst: {
