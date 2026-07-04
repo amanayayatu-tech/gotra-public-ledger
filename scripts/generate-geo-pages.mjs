@@ -1975,6 +1975,8 @@ function trackRecordPage(source) {
 function monthlyReportsPage(source) {
   const index = source.monthlyReportIndex;
   const reports = Array.isArray(index?.reports) ? index.reports : [];
+  const isPlaceholderIndex = String(index?.boundary ?? "").includes("placeholder")
+    || reports.some((report) => report.report_hash === "placeholder");
   const rows = reports.map((report) => [
     report.month ?? "",
     report.file ?? "",
@@ -1988,7 +1990,7 @@ function monthlyReportsPage(source) {
     report.improvement_item_count ?? 0,
   ]);
   const body =
-    index && index.schema === "gotra.monthly_transparency_report_index.v1"
+    index && index.schema === "gotra.monthly_transparency_report_index.v1" && !isPlaceholderIndex
       ? `      <h1>月度透明报告 / Monthly Transparency Reports</h1>
       <p class="lede">每月公开判断数量、复盘覆盖率、错误案例、数据缺口和改进事项。不是收益承诺、投资建议、交易信号或业绩证明。</p>
       <section class="notice">
