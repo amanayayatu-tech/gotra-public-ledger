@@ -12,14 +12,18 @@ const reportSchedules = [
 
 const EXECUTION_MODEL_V3 = "independent_agent_calls";
 const EXECUTION_MODEL_V35 = "research_task_evidence_independent_agent_calls";
+const EXECUTION_MODEL_V40 = "deep_research_dossier_then_parallel_perspectives";
 const DAILY_READER_SCHEMA_V2 = "gotra.daily_reader_brief.v2";
 const DAILY_READER_SCHEMA_V3 = "gotra.daily_reader_brief.v3";
 const DAILY_READER_SCHEMA_V35 = "gotra.daily_reader_brief.v3_5";
+const DAILY_READER_SCHEMA_V40 = "gotra.daily_reader_brief.v4";
 
 const listFields = new Set([
   "research_task",
   "evidence_packet",
   "missing_required_sources",
+  "data_gaps",
+  "stale_sources",
   "key_updates",
   "positive_case",
   "negative_case",
@@ -29,10 +33,18 @@ const listFields = new Set([
   "source_notes",
   "research_context",
   "k_deep_research",
+  "k_deep_research_dossier",
   "f_partner_view",
   "w_partner_view",
   "g_partner_view",
   "red_team_audit",
+  "research_quality_gate",
+  "knowledge_gate",
+  "knowledge_items_to_persist",
+  "unresolved_questions",
+  "future_research_tasks",
+  "evidence_gap_memory",
+  "reader_boundary_gate",
   "evidence_gaps",
   "watch_conditions",
   "agent_statuses",
@@ -406,6 +418,10 @@ function fullAnalystVersionMetadata(status) {
   };
 }
 
+function isV40Execution(value) {
+  return value === EXECUTION_MODEL_V40;
+}
+
 function keyValueRecord(values, valueParser = (value) => value) {
   const record = {};
   for (const value of sanitizeList(values, 12, 500)) {
@@ -428,14 +444,26 @@ function normalizeAgentItem(symbol, fields, metadata = {}) {
   const researchTask = sanitizeList(fields.research_task, 12, 700).map((text) => localizedOriginal(text, "研究任务书"));
   const evidencePacket = sanitizeList(fields.evidence_packet, 12, 700).map((text) => localizedOriginal(text, "证据包"));
   const missingRequiredSources = sanitizeList(fields.missing_required_sources, 10, 360).map((text) => localizedOriginal(text, "缺失必需来源"));
+  const kDossier = sanitizeList(fields.k_deep_research_dossier, 12, 700).map((text) => localizedOriginal(text, "K 深度研究 dossier"));
   const kDeep = sanitizeList(fields.k_deep_research, 7).map((text) => localizedOriginal(text, "K 深度研究"));
   const fView = sanitizeList(fields.f_partner_view, 7).map((text) => localizedOriginal(text, "F 伙伴视角"));
   const wView = sanitizeList(fields.w_partner_view, 7).map((text) => localizedOriginal(text, "W 伙伴视角"));
   const gView = sanitizeList(fields.g_partner_view, 7).map((text) => localizedOriginal(text, "G 伙伴视角"));
   const chairman = sanitizeList(fields.chairman_synthesis ? [fields.chairman_synthesis] : [researchSummary], 3).map((text) => localizedOriginal(text, "Chairman synthesis"));
   const redTeam = sanitizeList(fields.red_team_audit ?? fields.red_team_review, 7).map((text) => localizedOriginal(text, "红队审计"));
+  const researchQualityGate = sanitizeList(fields.research_quality_gate, 12, 520).map((text) => localizedOriginal(text, "研究质量闸门"));
+  const knowledgeGate = sanitizeList(fields.knowledge_gate, 12, 520).map((text) => localizedOriginal(text, "Alaya / Knowledge Gate"));
+  const knowledgeItemsToPersist = sanitizeList(fields.knowledge_items_to_persist, 8, 360).map((text) => localizedOriginal(text, "持久化知识项"));
+  const unresolvedQuestions = sanitizeList(fields.unresolved_questions, 8, 360).map((text) => localizedOriginal(text, "未解决问题"));
+  const futureResearchTasks = sanitizeList(fields.future_research_tasks, 8, 360).map((text) => localizedOriginal(text, "后续研究任务"));
+  const evidenceGapMemory = sanitizeList(fields.evidence_gap_memory, 8, 360).map((text) => localizedOriginal(text, "证据缺口记忆"));
+  const readerBoundaryGate = sanitizeList(fields.reader_boundary_gate, 10, 460).map((text) => localizedOriginal(text, "读者边界闸门"));
   const evidenceGaps = sanitizeList(fields.evidence_gaps, 7).map((text) => localizedOriginal(text, "证据缺口"));
   const watchConditions = sanitizeList(fields.watch_conditions ?? fields.watch_items, 7).map((text) => localizedOriginal(text, "观察条件"));
+  const kDossierRecord = keyValueRecord(fields.k_deep_research_dossier);
+  const researchQualityGateRecord = keyValueRecord(fields.research_quality_gate);
+  const knowledgeGateRecord = keyValueRecord(fields.knowledge_gate);
+  const readerBoundaryGateRecord = keyValueRecord(fields.reader_boundary_gate);
   return {
     symbol,
     title: localized(`${symbol} 研究摘要`, `${symbol} research summary`),
@@ -451,12 +479,20 @@ function normalizeAgentItem(symbol, fields, metadata = {}) {
     research_summary: localizedOriginal(researchSummary, `${symbol} 研究摘要`),
     key_updates: sanitizeList(fields.key_updates, 8).map((text) => localizedOriginal(text, "关键观察")),
     research_context: sanitizeList(fields.research_context, 7).map((text) => localizedOriginal(text, "研究上下文")),
+    k_deep_research_dossier: kDossier,
     k_deep_research: kDeep,
     f_partner_view: fView,
     w_partner_view: wView,
     g_partner_view: gView,
     chairman_synthesis: chairman,
     red_team_audit: redTeam,
+    research_quality_gate: researchQualityGate,
+    knowledge_gate: knowledgeGate,
+    knowledge_items_to_persist: knowledgeItemsToPersist,
+    unresolved_questions: unresolvedQuestions,
+    future_research_tasks: futureResearchTasks,
+    evidence_gap_memory: evidenceGapMemory,
+    reader_boundary_gate: readerBoundaryGate,
     evidence_gaps: evidenceGaps,
     watch_conditions: watchConditions,
     confidence_boundary: fields.confidence_boundary
@@ -479,6 +515,10 @@ function normalizeAgentItem(symbol, fields, metadata = {}) {
       return Number.isFinite(parsed) ? parsed : value;
     }),
     red_team_verdict: stringValue(fields.red_team_verdict) ?? undefined,
+    k_dossier_hash: stringValue(kDossierRecord?.k_dossier_hash) ?? undefined,
+    research_quality_gate_hash: stringValue(researchQualityGateRecord?.research_quality_gate_hash) ?? undefined,
+    knowledge_gate_hash: stringValue(knowledgeGateRecord?.knowledge_gate_hash) ?? undefined,
+    reader_boundary_gate_hash: stringValue(readerBoundaryGateRecord?.reader_boundary_gate_hash) ?? undefined,
     public_payload_hash: stringValue(fields.public_payload_hash) ?? undefined,
     positive_case: sanitizeList(fields.positive_case, 7).map((text) => localizedOriginal(text, "正方观察")),
     negative_case: sanitizeList(fields.negative_case, 7).map((text) => localizedOriginal(text, "反方观察")),
@@ -618,6 +658,7 @@ function promptFrameworkSummary(status) {
   const stages = status?.stage_statuses && typeof status.stage_statuses === "object" ? status.stage_statuses : {};
   const methodology = stringValue(status?.methodology_version);
   const executionModel = stringValue(status?.execution_model);
+  const v40Execution = isV40Execution(executionModel);
   const v35Execution = executionModel === EXECUTION_MODEL_V35;
   return {
     prompt_template_version: stringValue(status?.prompt_template_version),
@@ -629,22 +670,32 @@ function promptFrameworkSummary(status) {
       localized(
         v35Execution
           ? "v3.5 先生成研究任务书和证据包，再运行独立 agent"
+          : v40Execution
+            ? "v4 先生成研究任务书和证据包，K deep research dossier 先行，再并行运行 F/W/G"
           : methodology === "ksana_4_1_lite"
             ? "Ksana 4.1-lite 公开安全 Full Analyst 先行试跑"
             : "public-safe 全池 Full Analyst 先行试跑",
         v35Execution
           ? "v3.5 generates a research task and evidence packet before independent agent calls"
+          : v40Execution
+            ? "v4 generates the research task and evidence packet, runs the K deep research dossier first, then runs F/W/G in parallel"
           : methodology === "ksana_4_1_lite"
             ? "Ksana 4.1-lite public-safe Full Analyst candidate/canary run"
             : "public-safe full-pool candidate/canary run",
       ),
       localized(
-        "per-symbol K 深度研究、F/W/G 伙伴视角、Chairman synthesis、红队审计、证据缺口和观察条件",
-        "per-symbol K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions",
+        v40Execution
+          ? "per-symbol K dossier、F/W/G 独立视角、Chairman synthesis、Red Team critique、Research Quality Gate、Knowledge Gate、Reader Boundary Gate"
+          : "per-symbol K 深度研究、F/W/G 伙伴视角、Chairman synthesis、红队审计、证据缺口和观察条件",
+        v40Execution
+          ? "per-symbol K dossier, F/W/G independent perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, and Reader Boundary Gate"
+          : "per-symbol K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions",
       ),
       localized(
         executionModel === "independent_agent_calls"
           ? "执行模型明确标记为 independent agent calls；K/F/W/G 独立运行，Chairman 和 Red Team 依赖顺序运行"
+          : executionModel === EXECUTION_MODEL_V40
+            ? "执行模型明确标记为 deep research dossier then parallel perspectives；K dossier 先行，F/W/G 基于 K 并行，Chairman 综合，Red Team 只审计，Knowledge Gate 决定持久化"
           : executionModel === EXECUTION_MODEL_V35
             ? "执行模型明确标记为 research task + evidence packet + independent agent calls；K/F/W/G 基于证据包独立运行，Chairman 和 Red Team 依赖顺序运行"
           : executionModel === "multi_perspective_single_call"
@@ -652,6 +703,8 @@ function promptFrameworkSummary(status) {
             : "执行模型以公开状态文件为准",
         executionModel === "independent_agent_calls"
           ? "Execution is explicitly independent agent calls; K/F/W/G run independently, then Chairman and Red Team run in dependency order"
+          : executionModel === EXECUTION_MODEL_V40
+            ? "Execution is explicitly deep research dossier then parallel perspectives; K dossier runs first, F/W/G run from K in parallel, Chairman synthesizes, Red Team only audits, and Knowledge Gate decides persistence"
           : executionModel === EXECUTION_MODEL_V35
             ? "Execution is explicitly research task + evidence packet + independent agent calls; K/F/W/G run independently from the evidence packet, then Chairman and Red Team run in dependency order"
           : executionModel === "multi_perspective_single_call"
@@ -779,7 +832,9 @@ function buildBrief() {
   const fullStatus = readJson("status_full_analyst_evening_hk.json");
   const versionMetadata = fullAnalystVersionMetadata(fullStatus);
   const briefSchema =
-    versionMetadata.execution_model === EXECUTION_MODEL_V35
+    versionMetadata.execution_model === EXECUTION_MODEL_V40
+      ? DAILY_READER_SCHEMA_V40
+      : versionMetadata.execution_model === EXECUTION_MODEL_V35
       ? DAILY_READER_SCHEMA_V35
       : versionMetadata.execution_model === EXECUTION_MODEL_V3
         ? DAILY_READER_SCHEMA_V3

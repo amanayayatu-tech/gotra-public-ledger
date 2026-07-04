@@ -68,12 +68,20 @@ export type DailyReaderBriefAgentAnalysisItem = {
   research_summary: LocalizedText;
   key_updates: LocalizedText[];
   research_context: LocalizedText[];
+  k_deep_research_dossier: LocalizedText[];
   k_deep_research: LocalizedText[];
   f_partner_view: LocalizedText[];
   w_partner_view: LocalizedText[];
   g_partner_view: LocalizedText[];
   chairman_synthesis: LocalizedText[];
   red_team_audit: LocalizedText[];
+  research_quality_gate: LocalizedText[];
+  knowledge_gate: LocalizedText[];
+  knowledge_items_to_persist: LocalizedText[];
+  unresolved_questions: LocalizedText[];
+  future_research_tasks: LocalizedText[];
+  evidence_gap_memory: LocalizedText[];
+  reader_boundary_gate: LocalizedText[];
   evidence_gaps: LocalizedText[];
   watch_conditions: LocalizedText[];
   confidence_boundary?: LocalizedText;
@@ -84,6 +92,10 @@ export type DailyReaderBriefAgentAnalysisItem = {
   agent_public_safety_triggers?: Record<string, string>;
   parallelism?: Record<string, number | string | boolean>;
   red_team_verdict?: string;
+  k_dossier_hash?: string;
+  research_quality_gate_hash?: string;
+  knowledge_gate_hash?: string;
+  reader_boundary_gate_hash?: string;
   public_payload_hash?: string;
   positive_case: LocalizedText[];
   negative_case: LocalizedText[];
@@ -125,8 +137,8 @@ export type DailyReaderBriefResearchWatchItem = {
 };
 
 export type DailyReaderBrief = {
-  schema_version: "gotra.daily_reader_brief.v2" | "gotra.daily_reader_brief.v3" | "gotra.daily_reader_brief.v3_5";
-  schema: "gotra.daily_reader_brief.v2" | "gotra.daily_reader_brief.v3" | "gotra.daily_reader_brief.v3_5";
+  schema_version: "gotra.daily_reader_brief.v2" | "gotra.daily_reader_brief.v3" | "gotra.daily_reader_brief.v3_5" | "gotra.daily_reader_brief.v4";
+  schema: "gotra.daily_reader_brief.v2" | "gotra.daily_reader_brief.v3" | "gotra.daily_reader_brief.v3_5" | "gotra.daily_reader_brief.v4";
   as_of_date: string;
   mode: string;
   brief_date: string;
@@ -397,7 +409,7 @@ function isDailyReaderBriefV2OrV3(value: unknown): value is DailyReaderBrief {
   }
   const schema = value.schema;
   const schemaVersion = value.schema_version;
-  const allowedSchemas = new Set(["gotra.daily_reader_brief.v2", "gotra.daily_reader_brief.v3", "gotra.daily_reader_brief.v3_5"]);
+  const allowedSchemas = new Set(["gotra.daily_reader_brief.v2", "gotra.daily_reader_brief.v3", "gotra.daily_reader_brief.v3_5", "gotra.daily_reader_brief.v4"]);
   return (
     typeof schemaVersion === "string" &&
     allowedSchemas.has(schemaVersion) &&
@@ -497,12 +509,20 @@ function normalizeV1Brief(value: DailyReaderBriefV1): DailyReaderBrief {
       research_summary: readerSafeLocalized(item.research_summary, `${item.symbol} research summary unavailable.`),
       key_updates: readerSafeLocalizedList(item.key_updates),
       research_context: [],
+      k_deep_research_dossier: [],
       k_deep_research: [],
       f_partner_view: [],
       w_partner_view: [],
       g_partner_view: [],
       chairman_synthesis: [],
       red_team_audit: [],
+      research_quality_gate: [],
+      knowledge_gate: [],
+      knowledge_items_to_persist: [],
+      unresolved_questions: [],
+      future_research_tasks: [],
+      evidence_gap_memory: [],
+      reader_boundary_gate: [],
       evidence_gaps: [],
       watch_conditions: [],
       positive_case: readerSafeLocalizedList(item.positive_case),
@@ -582,12 +602,20 @@ function normalizeAgentAnalysisItem(value: unknown, index: number): DailyReaderB
     research_summary: readerSafeLocalized(item.research_summary, `${symbol} research summary unavailable.`),
     key_updates: readerSafeLocalizedList(item.key_updates),
     research_context: readerSafeLocalizedList(item.research_context),
+    k_deep_research_dossier: readerSafeLocalizedList(item.k_deep_research_dossier),
     k_deep_research: readerSafeLocalizedList(item.k_deep_research),
     f_partner_view: readerSafeLocalizedList(item.f_partner_view),
     w_partner_view: readerSafeLocalizedList(item.w_partner_view),
     g_partner_view: readerSafeLocalizedList(item.g_partner_view),
     chairman_synthesis: readerSafeLocalizedList(item.chairman_synthesis),
     red_team_audit: readerSafeLocalizedList(item.red_team_audit),
+    research_quality_gate: readerSafeLocalizedList(item.research_quality_gate),
+    knowledge_gate: readerSafeLocalizedList(item.knowledge_gate),
+    knowledge_items_to_persist: readerSafeLocalizedList(item.knowledge_items_to_persist),
+    unresolved_questions: readerSafeLocalizedList(item.unresolved_questions),
+    future_research_tasks: readerSafeLocalizedList(item.future_research_tasks),
+    evidence_gap_memory: readerSafeLocalizedList(item.evidence_gap_memory),
+    reader_boundary_gate: readerSafeLocalizedList(item.reader_boundary_gate),
     evidence_gaps: readerSafeLocalizedList(item.evidence_gaps),
     watch_conditions: readerSafeLocalizedList(item.watch_conditions),
     confidence_boundary: item.confidence_boundary === undefined ? undefined : readerSafeLocalized(item.confidence_boundary, ""),
@@ -598,6 +626,10 @@ function normalizeAgentAnalysisItem(value: unknown, index: number): DailyReaderB
     agent_public_safety_triggers: readerSafeStringRecord(item.agent_public_safety_triggers),
     parallelism: readerSafePrimitiveRecord(item.parallelism),
     red_team_verdict: stringValue(item.red_team_verdict) ?? undefined,
+    k_dossier_hash: stringValue(item.k_dossier_hash) ?? undefined,
+    research_quality_gate_hash: stringValue(item.research_quality_gate_hash) ?? undefined,
+    knowledge_gate_hash: stringValue(item.knowledge_gate_hash) ?? undefined,
+    reader_boundary_gate_hash: stringValue(item.reader_boundary_gate_hash) ?? undefined,
     public_payload_hash: stringValue(item.public_payload_hash) ?? undefined,
     positive_case: readerSafeLocalizedList(item.positive_case),
     negative_case: readerSafeLocalizedList(item.negative_case),

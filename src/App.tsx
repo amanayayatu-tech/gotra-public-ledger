@@ -189,7 +189,7 @@ function HomeLoadingHero({ language }: { language: Language }) {
           </div>
         </div>
       </section>
-      <V35ResearchSystemPanel language={language} compact />
+      <ResearchSystemPanel language={language} compact />
     </>
   );
 }
@@ -1313,10 +1313,64 @@ function SystemRulesPage({ language }: { language: Language }) {
   );
 }
 
+function isV40Brief(brief: DailyReaderBrief): boolean {
+  return (
+    brief.schema === "gotra.daily_reader_brief.v4" ||
+    brief.full_analyst.execution_model === "deep_research_dossier_then_parallel_perspectives"
+  );
+}
+
+function isV40AgentItem(item: DailyReaderBriefAgentAnalysisItem): boolean {
+  return item.execution_model === "deep_research_dossier_then_parallel_perspectives" || item.k_deep_research_dossier.length > 0 || item.knowledge_gate.length > 0;
+}
+
+function readerMainList(list: LocalizedText[] | undefined): LocalizedText[] {
+  return (list ?? []).filter((item) => {
+    const text = `${item.zh} ${item.en}`;
+    return !/\b[a-z_]*hash\b\s*:|_hash\s*:|schema\s*:/i.test(text);
+  });
+}
+
+function combineReaderLists(...lists: Array<LocalizedText[] | undefined>): LocalizedText[] {
+  const seen = new Set<string>();
+  return lists
+    .flatMap((list) => readerMainList(list))
+    .filter((item) => {
+      const key = `${item.zh}::${item.en}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+}
+
 function analystSectionRows(item: DailyReaderBriefAgentAnalysisItem, language: Language): Array<[string, LocalizedText[]]> {
   const chairman = item.chairman_synthesis.length > 0 ? item.chairman_synthesis : [item.research_summary];
   const redTeam = item.red_team_audit.length > 0 ? item.red_team_audit : item.red_team_review;
   const watch = item.watch_conditions.length > 0 ? item.watch_conditions : item.watch_items;
+  if (isV40AgentItem(item)) {
+    const persisted = combineReaderLists(item.knowledge_items_to_persist, item.evidence_gap_memory);
+    const unresolved = combineReaderLists(item.unresolved_questions, item.future_research_tasks);
+    const boundary = combineReaderLists(item.reader_boundary_gate, item.confidence_boundary ? [item.confidence_boundary] : undefined);
+    const rows: Array<[string, LocalizedText[]]> = [
+      [copy(language, "为什么今天研究它 / 研究任务", "Why this stock today / Research task"), readerMainList(item.research_task)],
+      [copy(language, "证据包", "Evidence packet"), readerMainList(item.evidence_packet)],
+      [copy(language, "K 深度研究 dossier", "K deep research dossier"), combineReaderLists(item.k_deep_research_dossier, item.k_deep_research)],
+      [copy(language, "F 独立视角", "F independent perspective"), readerMainList(item.f_partner_view.length > 0 ? item.f_partner_view : item.positive_case)],
+      [copy(language, "W 独立视角", "W independent perspective"), readerMainList(item.w_partner_view.length > 0 ? item.w_partner_view : item.negative_case)],
+      [copy(language, "G 独立视角", "G independent perspective"), readerMainList(item.g_partner_view.length > 0 ? item.g_partner_view : item.risk_factors)],
+      [copy(language, "Chairman 综合", "Chairman synthesis"), readerMainList(chairman)],
+      [copy(language, "Red Team critique", "Red Team critique"), readerMainList(redTeam)],
+      [copy(language, "Research Quality Gate", "Research Quality Gate"), readerMainList(item.research_quality_gate)],
+      [copy(language, "Alaya / Knowledge Gate", "Alaya / Knowledge Gate"), readerMainList(item.knowledge_gate)],
+      [copy(language, "持久化到记忆", "What persisted to memory"), persisted],
+      [copy(language, "仍未解决", "What remains unresolved"), unresolved],
+      [copy(language, "Reader Boundary Gate", "Reader Boundary Gate"), boundary],
+      [copy(language, "观察条件", "Watch conditions"), readerMainList(watch)],
+    ];
+    return rows.filter(([, list]) => list.length > 0);
+  }
   const rows: Array<[string, LocalizedText[]]> = [
     [copy(language, "研究任务书", "Research task"), item.research_task ?? []],
     [copy(language, "证据包", "Evidence packet"), item.evidence_packet ?? []],
@@ -1342,12 +1396,31 @@ function metadataEntries(record: Record<string, string | number | boolean> | und
     .slice(0, limit);
 }
 
+function gateHashRecord(item: DailyReaderBriefAgentAnalysisItem): Record<string, string> | undefined {
+  const entries: Array<[string, string]> = Object.entries({
+    k_dossier_hash: item.k_dossier_hash,
+    research_quality_gate_hash: item.research_quality_gate_hash,
+    knowledge_gate_hash: item.knowledge_gate_hash,
+    reader_boundary_gate_hash: item.reader_boundary_gate_hash,
+    public_payload_hash: item.public_payload_hash,
+  })
+    .filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0);
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
 function shortHash(value: string): string {
   return value.length > 18 ? `${value.slice(0, 12)}...${value.slice(-6)}` : value;
 }
 
 function fullAnalystExecutionText(brief: DailyReaderBrief, language: Language): string {
   const executionModel = brief.full_analyst.execution_model;
+  if (executionModel === "deep_research_dossier_then_parallel_perspectives" || brief.schema === "gotra.daily_reader_brief.v4") {
+    return copy(
+      language,
+      "execution model: deep research dossier then parallel perspectives；K dossier 先行，F/W/G 基于 K 并行，Chairman 综合，Red Team 只审计，Knowledge Gate 决定持久化。",
+      "execution model: deep research dossier then parallel perspectives; K dossier runs first, F/W/G run from K in parallel, Chairman synthesizes, Red Team only audits, and Knowledge Gate decides persistence.",
+    );
+  }
   if (executionModel === "independent_agent_calls" || brief.schema === "gotra.daily_reader_brief.v3") {
     return copy(
       language,
@@ -1363,6 +1436,79 @@ function fullAnalystExecutionText(brief: DailyReaderBrief, language: Language): 
     );
   }
   return copy(language, "execution model: 公开状态未报告。", "execution model: not reported by the public status.");
+}
+
+function V40ResearchSystemPanel({ language, compact = false }: { language: Language; compact?: boolean }) {
+  const cards = [
+    [
+      copy(language, "Research Task + Evidence Packet", "Research Task + Evidence Packet"),
+      copy(
+        language,
+        "先说明为什么今天研究这只股票、核心问题、必需证据、data_gap 处理方式，以及 K/F/W/G 的任务边界。",
+        "Defines why the stock is studied today, the core questions, required evidence, data_gap handling, and K/F/W/G briefs.",
+      ),
+    ],
+    [
+      copy(language, "K dossier first", "K dossier first"),
+      copy(
+        language,
+        "K 不是普通并行 agent；它先生成 deep research dossier，F/W/G 随后基于 K、任务书和证据包并行输出。",
+        "K is not an ordinary parallel agent; it creates the deep research dossier first, then F/W/G run in parallel from K, the task, and the evidence packet.",
+      ),
+    ],
+    [
+      copy(language, "Chairman + Red Team", "Chairman + Red Team"),
+      copy(
+        language,
+        "Chairman 综合 K+F/W/G 的共识、冲突和证据强弱；Red Team 只做审计和反证检查，不当 Judge。",
+        "Chairman synthesizes K+F/W/G consensus, conflicts, and evidence strength; Red Team audits and checks counter-evidence, but is not the Judge.",
+      ),
+    ],
+    [
+      copy(language, "Quality Gate + Knowledge Gate", "Quality Gate + Knowledge Gate"),
+      copy(
+        language,
+        "Research Quality Gate 决定研究状态；Knowledge Gate 决定 persist、limited persist、temporary observation 或 do_not_persist。",
+        "Research Quality Gate decides the research status; Knowledge Gate decides persist, limited persist, temporary observation, or do_not_persist.",
+      ),
+    ],
+    [
+      copy(language, "Reader Boundary", "Reader Boundary"),
+      copy(
+        language,
+        "Reader Boundary Gate 只添加研究边界，不隐藏 data_gap、needs_review、红队 critique、agent 冲突或证据缺口。",
+        "Reader Boundary Gate adds research boundaries only; it does not hide data_gap, needs_review, Red Team critique, agent conflicts, or evidence gaps.",
+      ),
+    ],
+  ];
+
+  return (
+    <section className={`v35-system-panel ${compact ? "compact" : ""}`} aria-label={copy(language, "v4 Ksana cognition flywheel 说明", "v4 Ksana cognition flywheel explanation")}>
+      <div className="section-heading compact">
+        <span>{copy(language, "v4 Ksana Cognition Flywheel", "v4 Ksana Cognition Flywheel")}</span>
+        <h2>{copy(language, "K 先行，F/W/G 并行，知识闸门回读", "K first, F/W/G parallel, knowledge gate readback")}</h2>
+        <p>
+          {copy(
+            language,
+            "v4 的主路径是 research_task -> evidence_packet -> K dossier -> F/W/G -> Chairman -> Red Team -> Research Quality Gate -> Knowledge Gate -> Alaya readback -> Reader Boundary。",
+            "v4 runs research_task -> evidence_packet -> K dossier -> F/W/G -> Chairman -> Red Team -> Research Quality Gate -> Knowledge Gate -> Alaya readback -> Reader Boundary.",
+          )}
+        </p>
+      </div>
+      <div className="v35-system-grid">
+        {cards.map(([title, body]) => (
+          <article key={title}>
+            <h3>{title}</h3>
+            <p>{body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ResearchSystemPanel({ brief, language, compact = false }: { brief?: DailyReaderBrief; language: Language; compact?: boolean }) {
+  return brief && isV40Brief(brief) ? <V40ResearchSystemPanel language={language} compact={compact} /> : <V35ResearchSystemPanel language={language} compact={compact} />;
 }
 
 function V35ResearchSystemPanel({ language, compact = false }: { language: Language; compact?: boolean }) {
@@ -1539,7 +1685,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         </aside>
       </section>
 
-      <V35ResearchSystemPanel language={language} compact />
+      <ResearchSystemPanel brief={brief} language={language} compact />
 
       <section className="today-section" aria-labelledby="today-top-items-title">
         <div className="section-heading compact">
@@ -2212,9 +2358,11 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
 
   const { brief } = state;
   const items = brief.agent_analysis_items.slice(0, 24);
+  const v40Reader = isV40Brief(brief);
   const v35Reader =
-    brief.schema === "gotra.daily_reader_brief.v3_5" ||
-    brief.full_analyst.execution_model === "research_task_evidence_independent_agent_calls";
+    !v40Reader &&
+    (brief.schema === "gotra.daily_reader_brief.v3_5" ||
+      brief.full_analyst.execution_model === "research_task_evidence_independent_agent_calls");
   const v3Reader = v35Reader || brief.schema === "gotra.daily_reader_brief.v3" || brief.full_analyst.execution_model === "independent_agent_calls";
 
   return (
@@ -2226,12 +2374,16 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
           <p>
             {copy(
               language,
-              v35Reader
+              v40Reader
+                ? "这是 Full Analyst v4 Ksana Cognition Flywheel 的产品化阅读层：默认展示 why this stock today、research task、evidence packet、K deep research dossier、F/W/G independent perspectives、Chairman synthesis、Red Team critique、Research Quality Gate、Knowledge Gate、persisted memory、unresolved questions 和 Reader Boundary。Hash/timing 只放在下方审计折叠区。"
+                : v35Reader
                 ? "这是 Full Analyst v3.5 的产品化阅读层：默认先展示 research task、evidence packet、缺失必需来源，再展示基于证据包的 K/F/W/G 独立视角、Chairman synthesis、Red Team audit、agent timing/status 和 hash。Raw Markdown 只放在下方审计折叠区。"
                 : v3Reader
                 ? "这是 Full Analyst v3 的产品化阅读层：默认展示 independent agent calls、K/F/W/G 独立视角、Chairman synthesis、Red Team audit、agent timing/status、证据缺口和观察条件。Raw Markdown 只放在下方审计折叠区。"
                 : "这是 Full Analyst v2 的产品化阅读层：默认展示 Ksana 4.1-lite 的 K 深度研究、F/W/G 伙伴视角、Chairman synthesis、红队审计、证据缺口和观察条件。Raw Markdown 只放在下方审计折叠区。",
-              v35Reader
+              v40Reader
+                ? "This is the product reader for Full Analyst v4 Ksana Cognition Flywheel: why this stock today, research task, evidence packet, K deep research dossier, F/W/G independent perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, persisted memory, unresolved questions, and Reader Boundary are shown first. Hashes and timings stay in the audit disclosure below."
+                : v35Reader
                 ? "This is the product reader for Full Analyst v3.5: research task, evidence packet, missing required sources, evidence-based K/F/W/G independent views, Chairman synthesis, Red Team audit, agent timing/status, and hashes are shown first. Raw Markdown is only in the audit disclosure below."
                 : v3Reader
                 ? "This is the product reader for Full Analyst v3: independent agent calls, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent timing/status, evidence gaps, and watch conditions are shown first. Raw Markdown is only in the audit disclosure below."
@@ -2251,7 +2403,7 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
           <h2 id="full-analyst-symbols-title">{copy(language, "按阅读结构展开", "Structured for reading")}</h2>
           <p>{pickLocalized(language, brief.full_analyst.summary)}</p>
         </div>
-        {v35Reader ? <V35ResearchSystemPanel language={language} compact /> : null}
+        <ResearchSystemPanel brief={brief} language={language} compact />
         <div className="today-agent-grid full-analyst-reader-grid">
           {items.map((item) => (
             <article className="today-agent-card" key={item.symbol}>
@@ -2263,7 +2415,9 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
               <div className="symbol-brief-lede">
                 <span>{copy(language, "Execution model", "Execution model")}</span>
                 <p>
-                  {item.execution_model === "research_task_evidence_independent_agent_calls"
+                  {item.execution_model === "deep_research_dossier_then_parallel_perspectives"
+                    ? fullAnalystExecutionText(brief, language)
+                    : item.execution_model === "research_task_evidence_independent_agent_calls"
                     ? copy(language, "research task + evidence packet + independent agent calls；K/F/W/G 基于证据包运行。", "research task + evidence packet + independent agent calls; K/F/W/G run from the evidence packet.")
                     : item.execution_model === "independent_agent_calls"
                       ? fullAnalystExecutionText(brief, language)
@@ -2272,14 +2426,14 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
                         : item.execution_model ?? fullAnalystExecutionText(brief, language)}
                 </p>
               </div>
-              {item.execution_model === "independent_agent_calls" || item.execution_model === "research_task_evidence_independent_agent_calls" ? (
+              {item.execution_model === "deep_research_dossier_then_parallel_perspectives" || item.execution_model === "independent_agent_calls" || item.execution_model === "research_task_evidence_independent_agent_calls" ? (
                 <details className="audit-details symbol-agent-audit-details">
                   <summary>{copy(language, "Show audit metadata", "Show audit metadata")}</summary>
                   <p className="muted">
                     {copy(
                       language,
-                      "hash、timing、parallelism 和 retry/public-safety trigger 只用于审计；默认阅读应先看研究任务、证据包、独立观点与红队复核。",
-                      "Hashes, timings, parallelism, and retry/public-safety triggers are audit metadata; default reading should start with the research task, evidence packet, independent views, and red-team review.",
+                      "hash、timing、parallelism、gate hash 和 retry/public-safety trigger 只用于审计；默认阅读应先看研究任务、证据包、K dossier、独立观点、红队复核和知识闸门。",
+                      "Hashes, timings, parallelism, gate hashes, and retry/public-safety triggers are audit metadata; default reading should start with the research task, evidence packet, K dossier, independent views, red-team review, and knowledge gate.",
                     )}
                   </p>
                   <div className="symbol-agent-audit-grid" aria-label={copy(language, "v3 agent audit summary", "v3 agent audit summary")}>
@@ -2329,6 +2483,16 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
                         <ul>
                           {metadataEntries(item.agent_hashes, 6).map(([key, value]) => (
                             <li key={`${item.symbol}-hash-${key}`}>{key}: {shortHash(value)}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {metadataEntries(gateHashRecord(item), 5).length > 0 ? (
+                      <div>
+                        <h3>{copy(language, "Gate hashes", "Gate hashes")}</h3>
+                        <ul>
+                          {metadataEntries(gateHashRecord(item), 5).map(([key, value]) => (
+                            <li key={`${item.symbol}-gate-hash-${key}`}>{key}: {shortHash(value)}</li>
                           ))}
                         </ul>
                       </div>

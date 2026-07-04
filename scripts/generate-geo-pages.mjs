@@ -124,6 +124,33 @@ function listText(value, fallback = "") {
   return Array.isArray(value) && value.length > 0 ? value.slice(0, 3).map(textValue).join(" | ") : fallback;
 }
 
+function readerListText(value, fallback = "") {
+  if (!Array.isArray(value) || value.length === 0) {
+    return fallback;
+  }
+  const visible = value
+    .map(textValue)
+    .filter((text) => !/\b[a-z_]*hash\b\s*:|_hash\s*:|schema\s*:/i.test(text))
+    .slice(0, 3);
+  return visible.length > 0 ? visible.join(" | ") : fallback;
+}
+
+function combinedReaderListText(fallback, ...values) {
+  const seen = new Set();
+  const visible = values
+    .flatMap((value) => (Array.isArray(value) ? value.map(textValue) : []))
+    .filter((text) => text && !/\b[a-z_]*hash\b\s*:|_hash\s*:|schema\s*:/i.test(text))
+    .filter((text) => {
+      if (seen.has(text)) {
+        return false;
+      }
+      seen.add(text);
+      return true;
+    })
+    .slice(0, 3);
+  return visible.length > 0 ? visible.join(" | ") : fallback;
+}
+
 function recordText(value, limit = 6, valueFormatter = (item) => item) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return "";
@@ -144,6 +171,13 @@ function englishValue(value) {
     return value.en || value.zh;
   }
   return String(value ?? "");
+}
+
+function isV40Brief(brief) {
+  return (
+    brief?.schema === "gotra.daily_reader_brief.v4" ||
+    brief?.full_analyst?.execution_model === "deep_research_dossier_then_parallel_perspectives"
+  );
 }
 
 function routeToFile(route) {
@@ -440,7 +474,7 @@ function homeFallback(summary, source) {
       <h1>GOTRA Public Ledger</h1>
       ${definitionBlock()}
       ${latestReportHealthHtml(source)}
-      ${v35ResearchSystemHtml()}
+      ${researchSystemHtml()}
       <section class="summary-grid" aria-label="Snapshot metadata">
         <div class="metric"><strong>${escapeHtml(summary.snapshotDate)}</strong><span>Snapshot date</span></div>
         <div class="metric"><strong>${summary.totalRecords}</strong><span>Public prediction records</span></div>
@@ -882,6 +916,30 @@ function v35ResearchSystemHtml() {
       </section>`;
 }
 
+function v40ResearchSystemHtml() {
+  return `<section class="notice">
+        <h2>v4 Ksana Cognition Flywheel / v4 念轮研究系统</h2>
+        <p>v4 runs research_task -> evidence_packet -> K deep research dossier -> F/W/G independent perspectives -> Chairman synthesis -> Red Team critique -> Research Quality Gate -> Knowledge Gate -> Alaya write/readback -> Reader Boundary. It is research discipline, not an action-answer layer.</p>
+        <p>v4 的主路径是研究任务、证据包、K deep research dossier、F/W/G 独立视角、Chairman synthesis、Red Team critique、Research Quality Gate、Knowledge Gate、内部 Alaya write/readback 和 Reader Boundary；它不是动作答案层。</p>
+        ${table(
+          ["step", "reader value"],
+          [
+            ["Why this stock today / Research task", "Explains selection reason, mission, core questions, required evidence, data_gap policy, K objectives, and F/W/G briefs."],
+            ["Evidence packet / 证据包", "Tracks public sources, missing required sources, stale sources, data_gaps, and limits before any synthesis."],
+            ["K dossier first", "K is not an ordinary parallel agent; it creates the deep research dossier before F/W/G."],
+            ["F/W/G after K", "F/W/G run in parallel from the task, evidence packet, K dossier, Alaya readback, and each agent brief."],
+            ["Chairman + Red Team", "Chairman synthesizes K+F/W/G; Red Team critiques weak assumptions and counter-evidence but is not Judge."],
+            ["Research Quality Gate + Knowledge Gate", "Quality Gate decides research status; Knowledge Gate decides what persists, remains temporary, or stays unresolved."],
+            ["Reader Boundary", "Adds research-only wording without hiding data_gap, needs_review, Red Team critique, agent conflicts, or evidence gaps."],
+          ],
+        )}
+      </section>`;
+}
+
+function researchSystemHtml(brief) {
+  return isV40Brief(brief) ? v40ResearchSystemHtml() : v35ResearchSystemHtml();
+}
+
 function todayPage(source) {
   const brief = source.dailyReaderBrief;
   const title = textValue(brief?.title ?? localized("GOTRA 今日研究简报", "GOTRA Daily Research Brief"));
@@ -940,7 +998,7 @@ function todayPage(source) {
         <p>${escapeHtml(subtitle)}</p>
         <p><a href="/why-gotra">Why GOTRA explains why data_gap and needs_review are value signals for research discipline.</a></p>
       </section>
-      ${v35ResearchSystemHtml()}
+      ${researchSystemHtml(brief)}
       <section>
         <h2>Daily research snapshot / 今日研究快照</h2>
         ${table(
@@ -966,18 +1024,54 @@ function todayPage(source) {
         ${
           agentItems.length > 0
             ? table(
-                ["symbol", "research status", "research task", "evidence packet", "chairman synthesis", "K deep research", "F view", "W view", "red-team audit", "watch conditions"],
+                isV40Brief(brief)
+                  ? [
+                      "symbol",
+                      "research status",
+                      "why this stock / task",
+                      "evidence packet",
+                      "K dossier",
+                      "F view",
+                      "W view",
+                      "G view",
+                      "chairman synthesis",
+                      "Red Team critique",
+                      "Research Quality Gate",
+                      "Alaya / Knowledge Gate",
+                      "persisted memory",
+                      "unresolved",
+                      "Reader Boundary",
+                    ]
+                  : ["symbol", "research status", "research task", "evidence packet", "chairman synthesis", "K deep research", "F view", "W view", "red-team audit", "watch conditions"],
                 agentItems.slice(0, 12).map((item) => [
                   item.symbol,
                   item.research_status ?? "",
-                  listText(item.research_task),
-                  listText(item.evidence_packet),
-                  listText(item.chairman_synthesis, textValue(item.research_summary)),
-                  listText(item.k_deep_research, listText(item.key_updates, textValue(item.research_summary))),
-                  listText(item.f_partner_view, listText(item.positive_case)),
-                  listText(item.w_partner_view, listText(item.negative_case)),
-                  listText(item.red_team_audit, listText(item.red_team_review)),
-                  listText(item.watch_conditions, listText(item.watch_items)),
+                  ...(isV40Brief(brief)
+                    ? [
+                        readerListText(item.research_task),
+                        readerListText(item.evidence_packet),
+                        combinedReaderListText(listText(item.key_updates, textValue(item.research_summary)), item.k_deep_research_dossier, item.k_deep_research),
+                        readerListText(item.f_partner_view, listText(item.positive_case)),
+                        readerListText(item.w_partner_view, listText(item.negative_case)),
+                        readerListText(item.g_partner_view, listText(item.risk_factors)),
+                        readerListText(item.chairman_synthesis, textValue(item.research_summary)),
+                        readerListText(item.red_team_audit, listText(item.red_team_review)),
+                        readerListText(item.research_quality_gate),
+                        readerListText(item.knowledge_gate),
+                        combinedReaderListText("", item.knowledge_items_to_persist, item.evidence_gap_memory),
+                        combinedReaderListText("", item.unresolved_questions, item.future_research_tasks),
+                        readerListText(item.reader_boundary_gate),
+                      ]
+                    : [
+                        listText(item.research_task),
+                        listText(item.evidence_packet),
+                        listText(item.chairman_synthesis, textValue(item.research_summary)),
+                        listText(item.k_deep_research, listText(item.key_updates, textValue(item.research_summary))),
+                        listText(item.f_partner_view, listText(item.positive_case)),
+                        listText(item.w_partner_view, listText(item.negative_case)),
+                        listText(item.red_team_audit, listText(item.red_team_review)),
+                        listText(item.watch_conditions, listText(item.watch_items)),
+                      ]),
                 ]),
               )
             : "<p>Full Analyst rich brief unavailable; no per-symbol agent analysis is inferred.</p>"
@@ -1047,9 +1141,11 @@ function fullAnalystReportPage(source) {
   const rawMarkdownHref = brief?.links?.full_analyst_report ?? fullAnalyst.report_markdown ?? "/reports/full_analyst_evening_hk_YYYY-MM-DD.md";
   const rawStatusHref = brief?.links?.full_analyst_status ?? fullAnalyst.status_json ?? "/reports/status_full_analyst_evening_hk.json";
   const rawMonitorHref = brief?.links?.full_analyst_monitor ?? "/reports/status_full_analyst_monitor.json";
+  const v40Reader = isV40Brief(brief);
   const v35Reader =
-    brief?.schema === "gotra.daily_reader_brief.v3_5" ||
-    fullAnalyst.execution_model === "research_task_evidence_independent_agent_calls";
+    !v40Reader &&
+    (brief?.schema === "gotra.daily_reader_brief.v3_5" ||
+      fullAnalyst.execution_model === "research_task_evidence_independent_agent_calls");
   const v3Reader = v35Reader || brief?.schema === "gotra.daily_reader_brief.v3" || fullAnalyst.execution_model === "independent_agent_calls";
 
   return pageShell({
@@ -1068,55 +1164,92 @@ function fullAnalystReportPage(source) {
       },
     ],
     body: `      <h1>Full Analyst Research Reader / Full Analyst 研究阅读器</h1>
-      <p class="lede">${v35Reader ? "This page turns the Full Analyst v3.5 artifact into a reader-first structure: research task, evidence packet, missing required sources, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent statuses, timings, hashes, evidence gaps, and watch conditions." : v3Reader ? "This page turns the Full Analyst v3 artifact into a reader-first structure: independent agent calls, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent statuses, timings, hashes, evidence gaps, and watch conditions." : "This page turns the Full Analyst artifact into a reader-first structure: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions."}</p>
-      <p class="lede">${v35Reader ? "这是 Full Analyst v3.5 的产品化阅读层；execution model: research task + evidence packet + independent agent calls。raw Markdown 只放在下方审计折叠区。" : v3Reader ? "这是 Full Analyst v3 的产品化阅读层；execution model: independent agent calls。raw Markdown 只放在下方审计折叠区。" : "这是 Full Analyst v2 的产品化阅读层；raw Markdown 只放在下方审计折叠区。执行模型如公开状态所示，不把 single-call multi-perspective 伪装成 independent agents。"}</p>
+      <p class="lede">${v40Reader ? "This page turns the Full Analyst v4 Ksana Cognition Flywheel artifact into a reader-first structure: why this stock today, research task, evidence packet, K deep research dossier, F/W/G independent perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, persisted memory, unresolved questions, and Reader Boundary." : v35Reader ? "This page turns the Full Analyst v3.5 artifact into a reader-first structure: research task, evidence packet, missing required sources, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent statuses, timings, hashes, evidence gaps, and watch conditions." : v3Reader ? "This page turns the Full Analyst v3 artifact into a reader-first structure: independent agent calls, K/F/W/G independent views, Chairman synthesis, Red Team audit, agent statuses, timings, hashes, evidence gaps, and watch conditions." : "This page turns the Full Analyst artifact into a reader-first structure: K deep research, F/W/G partner views, Chairman synthesis, red-team audit, evidence gaps, and watch conditions."}</p>
+      <p class="lede">${v40Reader ? "这是 Full Analyst v4 的产品化阅读层；K dossier 先行，F/W/G 基于 K 并行，Chairman 综合，Red Team 只审计，Knowledge Gate 决定持久化。raw Markdown 和 hash/timing 只放在下方审计折叠区。" : v35Reader ? "这是 Full Analyst v3.5 的产品化阅读层；execution model: research task + evidence packet + independent agent calls。raw Markdown 只放在下方审计折叠区。" : v3Reader ? "这是 Full Analyst v3 的产品化阅读层；execution model: independent agent calls。raw Markdown 只放在下方审计折叠区。" : "这是 Full Analyst v2 的产品化阅读层；raw Markdown 只放在下方审计折叠区。执行模型如公开状态所示，不把 single-call multi-perspective 伪装成 independent agents。"}</p>
       <section class="notice">
         <h2>Reader summary</h2>
         <p>${escapeHtml(textValue(fullAnalyst.summary ?? localized("Full Analyst rich brief unavailable.", "Full Analyst rich brief unavailable.")))}</p>
         <p>Execution model: ${escapeHtml(fullAnalyst.execution_model ?? "not_reported")} · Methodology: ${escapeHtml(fullAnalyst.methodology_version ?? "not_reported")} · Agent parallelism: ${escapeHtml(fullAnalyst.agent_parallelism ?? "not_applicable")}</p>
         <p><a href="/today">Back to today's brief</a> · <a href="/reports">Open audit center</a> · <a href="/why-gotra">Why GOTRA</a></p>
       </section>
-      ${v35ResearchSystemHtml()}
+      ${researchSystemHtml(brief)}
       <section>
         <h2>Structured symbol research</h2>
         ${
           agentItems.length > 0
             ? table(
-                [
-                  "symbol",
-                  "execution model",
-                  "research status",
-                  "research task",
-                  "evidence packet",
-                  "agent statuses",
-                  "agent timings",
-                  "independent hashes",
-                  "chairman synthesis",
-                  "K deep research",
-                  "F view",
-                  "W view",
-                  "G view",
-                  "red-team audit",
-                  "evidence gaps",
-                  "watch conditions",
-                ],
+                v40Reader
+                  ? [
+                      "symbol",
+                      "execution model",
+                      "research status",
+                      "why this stock / task",
+                      "evidence packet",
+                      "K dossier",
+                      "F view",
+                      "W view",
+                      "G view",
+                      "chairman synthesis",
+                      "Red Team critique",
+                      "Research Quality Gate",
+                      "Alaya / Knowledge Gate",
+                      "persisted memory",
+                      "unresolved",
+                      "Reader Boundary",
+                    ]
+                  : [
+                      "symbol",
+                      "execution model",
+                      "research status",
+                      "research task",
+                      "evidence packet",
+                      "agent statuses",
+                      "agent timings",
+                      "independent hashes",
+                      "chairman synthesis",
+                      "K deep research",
+                      "F view",
+                      "W view",
+                      "G view",
+                      "red-team audit",
+                      "evidence gaps",
+                      "watch conditions",
+                    ],
                 agentItems.slice(0, 24).map((item) => [
                   item.symbol,
                   item.execution_model ?? fullAnalyst.execution_model ?? "",
                   item.research_status ?? "",
-                  listText(item.research_task),
-                  listText(item.evidence_packet),
-                  recordText(item.agent_statuses),
-                  recordText(item.agent_timings, 7, (value) => `${value}s`),
-                  recordText(item.agent_hashes, 6, shortHash),
-                  listText(item.chairman_synthesis, textValue(item.research_summary)),
-                  listText(item.k_deep_research, listText(item.key_updates, textValue(item.research_summary))),
-                  listText(item.f_partner_view, listText(item.positive_case)),
-                  listText(item.w_partner_view, listText(item.negative_case)),
-                  listText(item.g_partner_view, listText(item.risk_factors)),
-                  listText(item.red_team_audit, listText(item.red_team_review)),
-                  listText(item.evidence_gaps),
-                  listText(item.watch_conditions, listText(item.watch_items)),
+                  ...(v40Reader
+                    ? [
+                        readerListText(item.research_task),
+                        readerListText(item.evidence_packet),
+                        combinedReaderListText(listText(item.key_updates, textValue(item.research_summary)), item.k_deep_research_dossier, item.k_deep_research),
+                        readerListText(item.f_partner_view, listText(item.positive_case)),
+                        readerListText(item.w_partner_view, listText(item.negative_case)),
+                        readerListText(item.g_partner_view, listText(item.risk_factors)),
+                        readerListText(item.chairman_synthesis, textValue(item.research_summary)),
+                        readerListText(item.red_team_audit, listText(item.red_team_review)),
+                        readerListText(item.research_quality_gate),
+                        readerListText(item.knowledge_gate),
+                        combinedReaderListText("", item.knowledge_items_to_persist, item.evidence_gap_memory),
+                        combinedReaderListText("", item.unresolved_questions, item.future_research_tasks),
+                        readerListText(item.reader_boundary_gate),
+                      ]
+                    : [
+                        listText(item.research_task),
+                        listText(item.evidence_packet),
+                        recordText(item.agent_statuses),
+                        recordText(item.agent_timings, 7, (value) => `${value}s`),
+                        recordText(item.agent_hashes, 6, shortHash),
+                        listText(item.chairman_synthesis, textValue(item.research_summary)),
+                        listText(item.k_deep_research, listText(item.key_updates, textValue(item.research_summary))),
+                        listText(item.f_partner_view, listText(item.positive_case)),
+                        listText(item.w_partner_view, listText(item.negative_case)),
+                        listText(item.g_partner_view, listText(item.risk_factors)),
+                        listText(item.red_team_audit, listText(item.red_team_review)),
+                        listText(item.evidence_gaps),
+                        listText(item.watch_conditions, listText(item.watch_items)),
+                      ]),
                 ]),
               )
             : "<p>Full Analyst rich brief unavailable; no per-symbol research is inferred from private or raw artifacts.</p>"
@@ -1440,7 +1573,7 @@ function sourcesPage(manifest, evidenceIndex, contentIndex) {
       ${v35ResearchSystemHtml()}
       <section>
         <h2>Evidence packet source types</h2>
-        <p>The v3.5 evidence_packet describes source_type, source_name, freshness_status, missing_required_sources, stale_sources, data_gaps, and public_safe limitations. If a required source is unavailable, the reader sees data_gap or needs_review instead of a polished unsupported conclusion.</p>
+        <p>The v3.5/v4 evidence_packet describes source_type, source_name, freshness_status, missing_required_sources, stale_sources, data_gaps, and public_safe limitations. If a required source is unavailable, the reader sees data_gap or needs_review instead of a polished unsupported conclusion.</p>
         <p>证据包把 source type、freshness、missing required sources、stale/data_gap 和 public-safe 限制放在明面上；缺来源时保留 data_gap / needs_review，而不是包装成完整结论。</p>
       </section>
       <section>
