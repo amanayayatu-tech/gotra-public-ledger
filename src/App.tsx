@@ -62,6 +62,15 @@ import {
   type ResearchReviewUnavailableReason,
 } from "./data/researchLedger";
 import {
+  loadMonthlyTransparencyReport,
+  loadMonthlyTransparencyReportIndex,
+  monthlyReportFileForMonth,
+  type MonthlyReportDetailLoadState,
+  type MonthlyReportsLoadState,
+  type MonthlyTransparencyReport,
+  type MonthlyTransparencyReportSummary,
+} from "./data/monthlyReports";
+import {
   computeSummary,
   formatNumber,
   formatPercent,
@@ -88,7 +97,7 @@ import {
   type LocalizedText,
   type Language,
 } from "./i18n/language";
-import { evidencePacketRouteHref, noteRouteHref, parseBrowserRoute, parseHashRoute, predictionRouteHref, routeHref, symbolProfileRouteHref, trackRecordEntryRouteHref, type AppRoute } from "./routes/hashRouter";
+import { evidencePacketRouteHref, monthlyReportRouteHref, noteRouteHref, parseBrowserRoute, parseHashRoute, predictionRouteHref, routeHref, symbolProfileRouteHref, trackRecordEntryRouteHref, type AppRoute } from "./routes/hashRouter";
 
 const CognitionDashboard = lazy(() =>
   import("./components/CognitionDashboard").then((module) => ({ default: module.CognitionDashboard })),
@@ -233,6 +242,9 @@ function routeActivePath(route: AppRoute): string {
   }
   if (route.name === "trackRecordEntry") {
     return "/track-record";
+  }
+  if (route.name === "monthlyReportDetail") {
+    return "/monthly-reports";
   }
   if (route.name === "note") {
     return "/notes";
@@ -1592,6 +1604,23 @@ function reviewUnavailableSummary(reason: ResearchReviewUnavailableReason, langu
   );
 }
 
+function monthlyReportCoverageSummary(report: MonthlyTransparencyReport | MonthlyTransparencyReportSummary, language: Language): string {
+  const coverage = report.review_coverage;
+  return copy(
+    language,
+    `复盘覆盖 ${coverage.reviewed_count}/${coverage.due_count}，不可复盘 ${coverage.unavailable_count}，未到期 ${coverage.not_due_count}。这是透明度核对，不是业绩证明。`,
+    `Review coverage ${coverage.reviewed_count}/${coverage.due_count}, ${coverage.unavailable_count} unavailable, ${coverage.not_due_count} not due. Transparency audit only, not performance proof.`,
+  );
+}
+
+function monthlyReportCounters(report: MonthlyTransparencyReport | MonthlyTransparencyReportSummary, language: Language): string {
+  return copy(
+    language,
+    `发布 ${report.published_count}，待复核 ${report.needs_review_count}，阻断 ${report.blocked_count}。`,
+    `${report.published_count} published, ${report.needs_review_count} needs review, ${report.blocked_count} blocked.`,
+  );
+}
+
 function normalizeSymbolToken(value: string): string {
   return value.replace(/\.HK$/i, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 }
@@ -1963,6 +1992,7 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
           <div className="related-prediction-list today-links">
             <a href={routeHref("/today")}>{copy(language, "今日简报", "Today's brief")}</a>
             <a href={routeHref("/reports/full-analyst")}>{copy(language, "研究阅读器", "Research reader")}</a>
+            <a href={routeHref("/monthly-reports")}>{copy(language, "月度透明报告", "Monthly reports")}</a>
             <a href={routeHref("/ledger")}>{copy(language, "冻结 Demo 账本", "Frozen demo ledger")}</a>
           </div>
         </section>
@@ -2040,6 +2070,10 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
               )}
             </p>
           </article>
+        </div>
+        <div className="related-prediction-list today-links">
+          <a href={routeHref("/monthly-reports")}>{copy(language, "查看月度透明报告", "Open monthly transparency reports")}</a>
+          <a href={routeHref("/today")}>{copy(language, "返回今日简报", "Back to today")}</a>
         </div>
       </section>
 
@@ -2203,6 +2237,292 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
             <a href="/reports/research_ledger.json">/reports/research_ledger.json</a>
           </details>
         </div>
+      </section>
+    </>
+  );
+}
+
+function MonthlyReportsPage({ language }: { language: Language }) {
+  const [state, setState] = useState<MonthlyReportsLoadState>({ kind: "loading" });
+
+  useEffect(() => {
+    let cancelled = false;
+    setState({ kind: "loading" });
+    loadMonthlyTransparencyReportIndex()
+      .then((index) => {
+        if (!cancelled) {
+          setState({ kind: "ready", index });
+        }
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        if (!cancelled) {
+          setState(message === "monthly_reports_unavailable" ? { kind: "unavailable", message } : { kind: "error", message });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (state.kind === "loading") {
+    return (
+      <section className="route-panel edge-state-note" role="status">
+        {copy(language, "正在读取月度透明报告。", "Loading monthly transparency reports.")}
+      </section>
+    );
+  }
+
+  if (state.kind === "unavailable") {
+    return (
+      <>
+        <PageIntro
+          eyebrow={copy(language, "月度透明报告", "Monthly transparency reports")}
+          title={copy(language, "月报尚未生成", "Monthly report is not generated yet")}
+          body={copy(
+            language,
+            "Stage 11 会从 live research_ledger.json 聚合月度发布数量、复盘覆盖率、错误案例、数据缺口和改进事项。当前 reports 目录还没有 monthly_transparency_reports.json；页面不会伪造月报。",
+            "Stage 11 aggregates monthly publish counts, review coverage, error cases, data gaps, and improvement items from live research_ledger.json. The reports directory does not yet contain monthly_transparency_reports.json; this page does not fabricate a report.",
+          )}
+          icon={FileText}
+        />
+        <section className="today-section">
+          <div className="related-prediction-list today-links">
+            <a href={routeHref("/today")}>{copy(language, "今日简报", "Today's brief")}</a>
+            <a href={routeHref("/track-record")}>{copy(language, "公开研究账本", "Public research ledger")}</a>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  if (state.kind === "error") {
+    return (
+      <section className="route-panel edge-state-note" role="alert">
+        {copy(language, "月度透明报告读取失败：", "Monthly transparency reports failed to load:")} {state.message}
+      </section>
+    );
+  }
+
+  const reports = [...state.index.reports].sort((a, b) => b.month.localeCompare(a.month));
+
+  return (
+    <>
+      <PageIntro
+        eyebrow={copy(language, "月度透明报告", "Monthly transparency reports")}
+        title={copy(language, "每月公开错误、缺口和改进项", "Monthly errors, gaps, and improvements")}
+        body={copy(
+          language,
+          "月报不是表现营销页，也不是投资建议、交易信号或业绩证明。它按自然月展示公开判断数量、待复核、阻断、复盘覆盖率、错误案例、数据缺口和下一步改进。",
+          "This is not a performance marketing page, investment advice, trading signal, or performance proof. It shows monthly public judgment counts, needs_review, blocked, review coverage, error cases, data gaps, and improvement items.",
+        )}
+        icon={FileText}
+      />
+      <section className="today-section">
+        <div className="today-effect-grid">
+          <article>
+            <span>{copy(language, "报告数量", "Report count")}</span>
+            <strong>{state.index.report_count}</strong>
+            <p>{copy(language, "至少一份完整月报是付费准备前置条件。", "At least one complete monthly report is required before paid readiness.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "最新月份", "Latest month")}</span>
+            <strong>{state.index.latest_month || copy(language, "未报告", "Not reported")}</strong>
+            <p>{copy(language, "证据层级：smoke evidence，不是 10h/formal acceptance。", "Evidence layer: smoke evidence, not 10h/formal acceptance.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "生成时间", "Generated at")}</span>
+            <strong>{state.index.generated_at || copy(language, "未报告", "Not reported")}</strong>
+            <p>{copy(language, "来自公开 reports JSON，不读取私有 provider I/O。", "From public reports JSON, not private provider I/O.")}</p>
+          </article>
+        </div>
+      </section>
+      <section className="ledger-section" aria-labelledby="monthly-reports-list-title">
+        <div className="ledger-panel">
+          <div className="section-heading compact">
+            <span>{copy(language, "Stage 11 · smoke evidence", "Stage 11 · smoke evidence")}</span>
+            <h2 id="monthly-reports-list-title">{copy(language, "月报列表", "Monthly report list")}</h2>
+            <p>{copy(language, "每份月报必须保留错误案例、数据缺口和改进事项区域；不会只展示正向案例。", "Every report must keep error-case, data-gap, and improvement sections; it cannot show only positive cases.")}</p>
+          </div>
+          {reports.length > 0 ? (
+            <div className="ledger-table-wrap">
+              <table className="ledger-table">
+                <thead>
+                  <tr>
+                    <th>{copy(language, "月份", "Month")}</th>
+                    <th>{copy(language, "发布 / 复核 / 阻断", "Published / review / blocked")}</th>
+                    <th>{copy(language, "复盘覆盖", "Review coverage")}</th>
+                    <th>{copy(language, "错误 / 缺口 / 改进", "Errors / gaps / improvements")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reports.map((report) => (
+                    <tr key={report.month}>
+                      <td><a href={monthlyReportRouteHref(report.month)}>{report.month}</a></td>
+                      <td>{monthlyReportCounters(report, language)}</td>
+                      <td>{monthlyReportCoverageSummary(report, language)}</td>
+                      <td>{report.error_case_count} / {report.data_gap_count} / {report.improvement_item_count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="edge-state-note">{copy(language, "索引存在，但还没有月报条目。", "The index exists, but has no monthly reports yet.")}</div>
+          )}
+          <details className="audit-details">
+            <summary>{copy(language, "Raw artifact / Open JSON", "Raw artifact / Open JSON")}</summary>
+            <p className="muted">
+              {copy(language, "这是原始审计产物，不是普通阅读页面。普通用户请回到月报列表或今日简报。", "This is a raw audit artifact, not the ordinary reading page. Default readers should return to the monthly report list or today's brief.")}
+            </p>
+            <a href="/reports/monthly_transparency_reports.json">/reports/monthly_transparency_reports.json</a>
+          </details>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function MonthlyReportDetailPage({ month, language }: { month: string; language: Language }) {
+  const [state, setState] = useState<MonthlyReportDetailLoadState>({ kind: "loading" });
+
+  useEffect(() => {
+    let cancelled = false;
+    setState({ kind: "loading" });
+    loadMonthlyTransparencyReport(monthlyReportFileForMonth(month))
+      .then((report) => {
+        if (!cancelled) {
+          setState({ kind: "ready", report });
+        }
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        if (!cancelled) {
+          setState(message === "monthly_report_unavailable" ? { kind: "unavailable", message } : { kind: "error", message });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [month]);
+
+  if (state.kind === "loading") {
+    return (
+      <section className="route-panel edge-state-note" role="status">
+        {copy(language, "正在读取月报详情。", "Loading monthly report detail.")}
+      </section>
+    );
+  }
+
+  if (state.kind === "unavailable") {
+    return (
+      <section className="route-panel edge-state-note" role="status">
+        {copy(language, `没有找到 ${month} 的月度透明报告。`, `No monthly transparency report was found for ${month}.`)}
+      </section>
+    );
+  }
+
+  if (state.kind === "error") {
+    return (
+      <section className="route-panel edge-state-note" role="alert">
+        {copy(language, "月报详情读取失败：", "Monthly report detail failed to load:")} {state.message}
+      </section>
+    );
+  }
+
+  const { report } = state;
+
+  return (
+    <>
+      <PageIntro
+        eyebrow={copy(language, "月度透明报告", "Monthly transparency report")}
+        title={copy(language, `${report.month} 公开研究透明报告`, `${report.month} public research transparency report`)}
+        body={copy(
+          language,
+          "这份报告公开当月判断数量、复盘覆盖率、错误案例、数据缺口和改进事项。它不是收益证明、不是投资建议，也不是交易信号。",
+          "This report exposes monthly judgment counts, review coverage, error cases, data gaps, and improvement items. It is not performance proof, investment advice, or a trading signal.",
+        )}
+        icon={FileText}
+      />
+      <section className="today-section">
+        <div className="today-effect-grid">
+          <article>
+            <span>{copy(language, "发布 / 待复核 / 阻断", "Published / review / blocked")}</span>
+            <strong>{report.published_count} / {report.needs_review_count} / {report.blocked_count}</strong>
+            <p>{monthlyReportCounters(report, language)}</p>
+          </article>
+          <article>
+            <span>{copy(language, "复盘覆盖率", "Review coverage")}</span>
+            <strong>{report.review_coverage.reviewed_count} / {report.review_coverage.due_count}</strong>
+            <p>{monthlyReportCoverageSummary(report, language)}</p>
+          </article>
+          <article>
+            <span>{copy(language, "错误案例", "Error cases")}</span>
+            <strong>{report.error_cases.length}</strong>
+            <p>{report.error_case_note || copy(language, "错误区域即使为空也会保留。", "The error section remains visible even when empty.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "数据缺口", "Data gaps")}</span>
+            <strong>{report.data_gaps.length}</strong>
+            <p>{report.data_gap_note || copy(language, "数据缺口不会被隐藏。", "Data gaps are not hidden.")}</p>
+          </article>
+        </div>
+      </section>
+      <section className="today-section">
+        <div className="today-agent-grid full-analyst-reader-grid">
+          <article className="today-agent-card">
+            <h3>{copy(language, "错误案例", "Error cases")}</h3>
+            {report.error_cases.length > 0 ? (
+              <ul>
+                {report.error_cases.slice(0, 8).map((item) => (
+                  <li key={item.entry_id}>{item.exchange}:{item.symbol} · {item.window_days}d · {item.attribution || copy(language, "未分类", "unclassified")}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{copy(language, "本月没有 below-benchmark 复盘案例；仍保留错误区域，避免只呈现正向信息。", "No below-benchmark review case this month; the error section remains visible to avoid positive-only reporting.")}</p>
+            )}
+          </article>
+          <article className="today-agent-card">
+            <h3>{copy(language, "数据缺口", "Data gaps")}</h3>
+            {report.data_gaps.length > 0 ? (
+              <ul>
+                {report.data_gaps.slice(0, 8).map((item) => (
+                  <li key={item.entry_id}>{item.exchange}:{item.symbol} · {item.reason || copy(language, "缺少公开复盘数据", "missing public review data")}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{copy(language, "本月未报告到期不可复盘项；后续如果缺少公开价格或基准数据，会在这里显示。", "No due review-unavailable item is reported this month; missing public price or benchmark evidence will appear here.")}</p>
+            )}
+          </article>
+          <article className="today-agent-card">
+            <h3>{copy(language, "改进事项", "Improvement items")}</h3>
+            <ul>
+              {report.improvement_items.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
+          <article className="today-agent-card">
+            <h3>{copy(language, "边界", "Boundary")}</h3>
+            <p>{report.boundary || copy(language, "透明报告只说明公开研究流程和复盘覆盖，不构成投资建议或交易信号。", "Transparency report only covers public research process and review coverage, not investment advice or trading signals.")}</p>
+          </article>
+        </div>
+        <div className="related-prediction-list today-links">
+          <a href={routeHref("/monthly-reports")}>{copy(language, "返回月报列表", "Back to monthly reports")}</a>
+          <a href={routeHref("/track-record")}>{copy(language, "打开公开研究账本", "Open public research ledger")}</a>
+          <a href={routeHref("/today")}>{copy(language, "今日简报", "Today's brief")}</a>
+        </div>
+        <details className="audit-details">
+          <summary>{copy(language, "查看审计元数据", "Show audit metadata")}</summary>
+          <ul>
+            <li>schema: {report.schema}</li>
+            <li>generated_at: {report.generated_at}</li>
+            <li>source_ledger_schema: {report.source_ledger_schema || "not_reported"}</li>
+            <li>source_ledger_generated_at: {report.source_ledger_generated_at || "not_reported"}</li>
+            <li>report_hash: {report.report_hash || "not_reported"}</li>
+          </ul>
+          <a href={`/reports/${monthlyReportFileForMonth(report.month)}`}>{`/reports/${monthlyReportFileForMonth(report.month)}`}</a>
+        </details>
       </section>
     </>
   );
@@ -2518,6 +2838,14 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
             <p>
               {copy(language, "只把 PublicationDecision=publish 的研究判断写入 append-only 账本。", "Only PublicationDecision=publish research judgments enter the append-only ledger.")}{" "}
               <a href={routeHref("/track-record")}>{copy(language, "打开公开账本", "Open track record")}</a>
+            </p>
+          </article>
+          <article>
+            <span>{copy(language, "月度透明报告", "Monthly report")}</span>
+            <strong>{copy(language, "公开错误和缺口", "Errors and gaps")}</strong>
+            <p>
+              {copy(language, "月报会汇总发布数、复盘覆盖、错误案例、数据缺口和改进事项。", "Monthly reports summarize publish counts, review coverage, error cases, data gaps, and improvements.")}{" "}
+              <a href={routeHref("/monthly-reports")}>{copy(language, "打开月报", "Open monthly reports")}</a>
             </p>
           </article>
         </div>
@@ -2898,6 +3226,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           <a href={routeHref("/guide")}>{copy(language, "使用指南", "Guide")}</a>
           <a href={routeHref("/why-gotra")}>{copy(language, "为什么是 GOTRA", "Why GOTRA")}</a>
           <a href={routeHref("/reports")}>{copy(language, "生产日报审计", "Production audit")}</a>
+          <a href={routeHref("/monthly-reports")}>{copy(language, "月度透明报告", "Monthly transparency reports")}</a>
           <a href="/reports/latest/">{copy(language, "行情覆盖日报 reader", "Coverage report reader")}</a>
           <a href={routeHref("/reports/full-analyst")}>{copy(language, "Full Analyst reader", "Full Analyst reader")}</a>
         </div>
@@ -5389,6 +5718,8 @@ function App() {
       route.name === "whyGotra" ||
       route.name === "trackRecord" ||
       route.name === "trackRecordEntry" ||
+      route.name === "monthlyReports" ||
+      route.name === "monthlyReportDetail" ||
       route.name === "symbolProfile" ||
       route.name === "fullAnalystReport" ||
       route.name === "evidencePacketAudit" ||
@@ -5505,6 +5836,10 @@ function App() {
         {route.name === "trackRecord" ? <TrackRecordPage language={language} /> : null}
 
         {route.name === "trackRecordEntry" ? <TrackRecordPage entryId={route.entryId} language={language} /> : null}
+
+        {route.name === "monthlyReports" ? <MonthlyReportsPage language={language} /> : null}
+
+        {route.name === "monthlyReportDetail" ? <MonthlyReportDetailPage month={route.month} language={language} /> : null}
 
         {route.name === "ledger" && hasDataset ? (
           <>

@@ -122,6 +122,18 @@ describe("public ledger information architecture contract", () => {
     expect(siteHeaderSource).toContain("zh: \"公开账本\"");
   });
 
+  it("adds monthly transparency report routes with errors, gaps, and improvements visible", () => {
+    expect(appSource).toContain("function MonthlyReportsPage");
+    expect(appSource).toContain("function MonthlyReportDetailPage");
+    expect(appSource).toContain("monthly_transparency_reports.json");
+    expect(appSource).toContain("错误案例");
+    expect(appSource).toContain("数据缺口");
+    expect(appSource).toContain("改进事项");
+    expect(appSource).toContain("route.name === \"monthlyReports\"");
+    expect(appSource).toContain("route.name === \"monthlyReportDetail\"");
+    expect(siteHeaderSource).toContain("id: \"monthly-reports\"");
+  });
+
   it("adds reader-first symbol profile pages without fabricating ledger history", () => {
     expect(appSource).toContain("function SymbolProfilePage");
     expect(appSource).toContain("route.name === \"symbolProfile\"");

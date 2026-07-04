@@ -62,12 +62,18 @@ function main() {
     Array.isArray(manifest.routes) && manifest.routes.find((entry) => String(entry.route ?? "").startsWith("/symbol/"))?.route
       ? String(manifest.routes.find((entry) => String(entry.route ?? "").startsWith("/symbol/"))?.route)
       : "/symbol/sample";
+  const monthlyReportRoute =
+    Array.isArray(manifest.routes) && manifest.routes.find((entry) => String(entry.route ?? "").startsWith("/monthly-reports/"))?.route
+      ? String(manifest.routes.find((entry) => String(entry.route ?? "").startsWith("/monthly-reports/"))?.route)
+      : "/monthly-reports/latest";
   const requiredRoutes = [
     "/",
     "/today",
     "/why-gotra",
     "/guide",
     "/track-record",
+    "/monthly-reports",
+    monthlyReportRoute,
     symbolRoute,
     "/ledger",
     "/reports",
@@ -130,6 +136,12 @@ function main() {
   assertIncludes(pages.get("/track-record"), "PublicationDecision=publish", "/track-record");
   assertIncludes(pages.get("/track-record"), "复盘覆盖率", "/track-record");
   assertIncludes(pages.get("/track-record"), "不是投资建议", "/track-record");
+  assertIncludes(pages.get("/monthly-reports"), "Monthly Transparency Reports", "/monthly-reports");
+  assertIncludes(pages.get("/monthly-reports"), "错误案例", "/monthly-reports");
+  assertIncludes(pages.get("/monthly-reports"), "数据缺口", "/monthly-reports");
+  assertIncludes(pages.get(monthlyReportRoute), "月度透明报告", monthlyReportRoute);
+  assertIncludes(pages.get(monthlyReportRoute), "改进事项", monthlyReportRoute);
+  assertIncludes(pages.get(monthlyReportRoute), "不是收益证明", monthlyReportRoute);
   assertIncludes(pages.get(symbolRoute), "个股档案", symbolRoute);
   assertIncludes(pages.get(symbolRoute), "历史判断与观点变化", symbolRoute);
   assertIncludes(pages.get(symbolRoute), "复盘状态", symbolRoute);
