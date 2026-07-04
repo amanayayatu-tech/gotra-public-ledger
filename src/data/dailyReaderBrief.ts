@@ -71,6 +71,26 @@ export type DailyReaderBriefResearchSignal = {
   research_status?: string;
 };
 
+export type DailyReaderBriefPublicationDecisionGate = {
+  gate?: string;
+  status: string;
+  reader_safe_reason: LocalizedText;
+};
+
+export type DailyReaderBriefPublicationDecision = {
+  schema?: string;
+  decision_id?: string;
+  decision_hash?: string;
+  signal_id?: string;
+  research_signal_hash?: string;
+  decision: string;
+  reader_safe_reasons: LocalizedText[];
+  blocker_type?: string;
+  gates: Record<string, DailyReaderBriefPublicationDecisionGate>;
+  publish_with_boundary?: boolean;
+  evidence_layer?: string;
+};
+
 export type DailyReaderBriefAgentAnalysisItem = {
   symbol: string;
   title: LocalizedText;
@@ -117,6 +137,8 @@ export type DailyReaderBriefAgentAnalysisItem = {
   research_signal?: DailyReaderBriefResearchSignal;
   research_signal_hash?: string;
   agent_research_signal_hashes?: Record<string, string>;
+  publication_decision?: DailyReaderBriefPublicationDecision;
+  publication_decision_hash?: string;
   public_payload_hash?: string;
   positive_case: LocalizedText[];
   negative_case: LocalizedText[];
@@ -443,6 +465,49 @@ function normalizeResearchSignal(value: unknown): DailyReaderBriefResearchSignal
   };
 }
 
+function normalizePublicationDecision(value: unknown): DailyReaderBriefPublicationDecision | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+  const decision = stringValue(value.decision) ?? "";
+  const reasons = readerSafeLocalizedList(value.reader_safe_reasons);
+  const gatesValue = isRecord(value.gates) ? value.gates : {};
+  const gateEntries: Array<[string, DailyReaderBriefPublicationDecisionGate]> = [];
+  Object.entries(gatesValue).forEach(([key, gateValue]) => {
+    const gate = isRecord(gateValue) ? gateValue : {};
+    const status = stringValue(gate.status) ?? "";
+    const reason = readerSafeLocalized(gate.reader_safe_reason, "");
+    const safeKey = readerSafeText(key);
+    if (!safeKey || !status || (!reason.zh && !reason.en)) {
+      return;
+    }
+    gateEntries.push([
+      safeKey,
+      {
+        gate: stringValue(gate.gate) ?? key,
+        status,
+        reader_safe_reason: reason,
+      },
+    ]);
+  });
+  if (!decision || (decision !== "publish" && reasons.length === 0)) {
+    return undefined;
+  }
+  return {
+    schema: stringValue(value.schema) ?? undefined,
+    decision_id: stringValue(value.decision_id) ?? undefined,
+    decision_hash: stringValue(value.decision_hash) ?? undefined,
+    signal_id: stringValue(value.signal_id) ?? undefined,
+    research_signal_hash: stringValue(value.research_signal_hash) ?? undefined,
+    decision,
+    reader_safe_reasons: reasons,
+    blocker_type: stringValue(value.blocker_type) ?? undefined,
+    gates: Object.fromEntries(gateEntries),
+    publish_with_boundary: typeof value.publish_with_boundary === "boolean" ? value.publish_with_boundary : undefined,
+    evidence_layer: stringValue(value.evidence_layer) ?? undefined,
+  };
+}
+
 function englishDailyLabel(label: string): string {
   const labels: Record<string, string> = {
     港股早报: "HK morning report",
@@ -692,6 +757,8 @@ function normalizeAgentAnalysisItem(value: unknown, index: number): DailyReaderB
     research_signal: normalizeResearchSignal(item.research_signal),
     research_signal_hash: stringValue(item.research_signal_hash) ?? undefined,
     agent_research_signal_hashes: readerSafeStringRecord(item.agent_research_signal_hashes),
+    publication_decision: normalizePublicationDecision(item.publication_decision),
+    publication_decision_hash: stringValue(item.publication_decision_hash) ?? undefined,
     public_payload_hash: stringValue(item.public_payload_hash) ?? undefined,
     positive_case: readerSafeLocalizedList(item.positive_case),
     negative_case: readerSafeLocalizedList(item.negative_case),
