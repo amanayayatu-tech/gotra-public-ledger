@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
-  <title id="title">GOTRA v4 Ksana cognition flywheel</title>
-  <desc id="desc">A calm institutional research flow showing research task, evidence packet, K dossier, F/W/G perspectives, Chairman, Red Team, gates, Alaya readback, reader boundary, and public brief.</desc>
+  <title id="title">GOTRA 可审计研究发布流程</title>
+  <desc id="desc">读者优先的研究流程：为什么研究、公开证据、底稿、多视角复核、综合、反证、边界和公开简报。</desc>
   <defs>
     <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
       <stop offset="0" stop-color="#18242d"/>
@@ -29,52 +29,52 @@
 
   <g filter="url(#shadow)">
     <rect x="88" y="86" width="260" height="110" rx="16" fill="#101a22" stroke="#355064"/>
-    <text x="118" y="128" fill="#75d88f" font-family="Inter, Arial" font-size="20" font-weight="800">Research Task</text>
-    <text x="118" y="158" fill="#c9d4d0" font-family="Inter, Arial" font-size="16">why today · core questions</text>
+    <text x="118" y="128" fill="#75d88f" font-family="Inter, Arial" font-size="20" font-weight="800">为什么研究</text>
+    <text x="118" y="158" fill="#c9d4d0" font-family="Inter, Arial" font-size="16">原因 · 核心问题</text>
 
     <rect x="88" y="236" width="260" height="110" rx="16" fill="#101a22" stroke="#355064"/>
-    <text x="118" y="278" fill="#75d88f" font-family="Inter, Arial" font-size="20" font-weight="800">Evidence Packet</text>
-    <text x="118" y="308" fill="#c9d4d0" font-family="Inter, Arial" font-size="16">sources · freshness · gaps</text>
+    <text x="118" y="278" fill="#75d88f" font-family="Inter, Arial" font-size="20" font-weight="800">公开证据</text>
+    <text x="118" y="308" fill="#c9d4d0" font-family="Inter, Arial" font-size="16">来源 · 时效 · 缺口</text>
 
     <rect x="430" y="154" width="310" height="156" rx="18" fill="url(#paper)" stroke="#f2be63"/>
-    <text x="466" y="205" fill="#0b1117" font-family="Inter, Arial" font-size="25" font-weight="900">K Deep Research</text>
-    <text x="466" y="238" fill="#25323a" font-family="Inter, Arial" font-size="18">dossier first</text>
+    <text x="466" y="205" fill="#0b1117" font-family="Inter, Arial" font-size="25" font-weight="900">深度研究底稿</text>
+    <text x="466" y="238" fill="#25323a" font-family="Inter, Arial" font-size="18">先打底，再复核</text>
     <path d="M466 262H702" stroke="#8aa08d" stroke-width="2"/>
-    <text x="466" y="287" fill="#43534a" font-family="Inter, Arial" font-size="15">grounded observations · uncertainties</text>
+    <text x="466" y="287" fill="#43534a" font-family="Inter, Arial" font-size="15">证据观察 · 不确定性</text>
 
     <rect x="830" y="92" width="250" height="86" rx="16" fill="#101a22" stroke="#4c6b88"/>
-    <text x="860" y="128" fill="#8ec5ff" font-family="Inter, Arial" font-size="19" font-weight="800">F Perspective</text>
-    <text x="860" y="154" fill="#c9d4d0" font-family="Inter, Arial" font-size="14">independent from K</text>
+    <text x="860" y="128" fill="#8ec5ff" font-family="Inter, Arial" font-size="19" font-weight="800">F 视角</text>
+    <text x="860" y="154" fill="#c9d4d0" font-family="Inter, Arial" font-size="14">基于底稿独立复核</text>
     <rect x="830" y="206" width="250" height="86" rx="16" fill="#101a22" stroke="#4c6b88"/>
-    <text x="860" y="242" fill="#8ec5ff" font-family="Inter, Arial" font-size="19" font-weight="800">W Perspective</text>
-    <text x="860" y="268" fill="#c9d4d0" font-family="Inter, Arial" font-size="14">independent from K</text>
+    <text x="860" y="242" fill="#8ec5ff" font-family="Inter, Arial" font-size="19" font-weight="800">W 视角</text>
+    <text x="860" y="268" fill="#c9d4d0" font-family="Inter, Arial" font-size="14">基于底稿独立复核</text>
     <rect x="830" y="320" width="250" height="86" rx="16" fill="#101a22" stroke="#4c6b88"/>
-    <text x="860" y="356" fill="#8ec5ff" font-family="Inter, Arial" font-size="19" font-weight="800">G Perspective</text>
-    <text x="860" y="382" fill="#c9d4d0" font-family="Inter, Arial" font-size="14">independent from K</text>
+    <text x="860" y="356" fill="#8ec5ff" font-family="Inter, Arial" font-size="19" font-weight="800">G 视角</text>
+    <text x="860" y="382" fill="#c9d4d0" font-family="Inter, Arial" font-size="14">基于底稿独立复核</text>
 
     <rect x="430" y="420" width="300" height="106" rx="16" fill="#101a22" stroke="#75d88f"/>
-    <text x="462" y="462" fill="#75d88f" font-family="Inter, Arial" font-size="22" font-weight="900">Chairman Synthesis</text>
-    <text x="462" y="493" fill="#c9d4d0" font-family="Inter, Arial" font-size="15">consensus · conflict · weight</text>
+    <text x="462" y="462" fill="#75d88f" font-family="Inter, Arial" font-size="22" font-weight="900">综合判断</text>
+    <text x="462" y="493" fill="#c9d4d0" font-family="Inter, Arial" font-size="15">共识 · 冲突 · 权重</text>
 
     <rect x="790" y="472" width="290" height="106" rx="16" fill="#201c19" stroke="#f2be63"/>
-    <text x="822" y="514" fill="#f2be63" font-family="Inter, Arial" font-size="22" font-weight="900">Red Team Critique</text>
-    <text x="822" y="545" fill="#e1d6c5" font-family="Inter, Arial" font-size="15">counter-evidence · weak assumptions</text>
+    <text x="822" y="514" fill="#f2be63" font-family="Inter, Arial" font-size="22" font-weight="900">反证审计</text>
+    <text x="822" y="545" fill="#e1d6c5" font-family="Inter, Arial" font-size="15">反证 · 薄弱假设</text>
 
     <rect x="88" y="494" width="250" height="80" rx="15" fill="#101a22" stroke="#75d88f"/>
-    <text x="116" y="528" fill="#75d88f" font-family="Inter, Arial" font-size="18" font-weight="900">Research Quality Gate</text>
-    <text x="116" y="552" fill="#c9d4d0" font-family="Inter, Arial" font-size="13">status · boundary</text>
+    <text x="116" y="528" fill="#75d88f" font-family="Inter, Arial" font-size="18" font-weight="900">质量状态</text>
+    <text x="116" y="552" fill="#c9d4d0" font-family="Inter, Arial" font-size="13">复核 · 缺口 · 边界</text>
 
     <rect x="88" y="616" width="292" height="80" rx="15" fill="#101a22" stroke="#75d88f"/>
-    <text x="116" y="650" fill="#75d88f" font-family="Inter, Arial" font-size="18" font-weight="900">Knowledge Gate + Alaya</text>
-    <text x="116" y="674" fill="#c9d4d0" font-family="Inter, Arial" font-size="13">persist · unresolved · readback</text>
+    <text x="116" y="650" fill="#75d88f" font-family="Inter, Arial" font-size="18" font-weight="900">知识沉淀</text>
+    <text x="116" y="674" fill="#c9d4d0" font-family="Inter, Arial" font-size="13">沉淀 · 未解决 · 回读</text>
 
     <rect x="468" y="616" width="250" height="80" rx="15" fill="#101a22" stroke="#69a7ff"/>
-    <text x="496" y="650" fill="#8ec5ff" font-family="Inter, Arial" font-size="18" font-weight="900">Reader Boundary</text>
-    <text x="496" y="674" fill="#c9d4d0" font-family="Inter, Arial" font-size="13">research only · visible gaps</text>
+    <text x="496" y="650" fill="#8ec5ff" font-family="Inter, Arial" font-size="18" font-weight="900">读者边界</text>
+    <text x="496" y="674" fill="#c9d4d0" font-family="Inter, Arial" font-size="13">研究信息 · 缺口可见</text>
 
     <rect x="812" y="616" width="268" height="80" rx="15" fill="url(#blue)" stroke="#9ee5ba"/>
-    <text x="842" y="650" fill="#06100a" font-family="Inter, Arial" font-size="20" font-weight="900">Public Brief</text>
-    <text x="842" y="675" fill="#10201a" font-family="Inter, Arial" font-size="14">reader-first artifact</text>
+    <text x="842" y="650" fill="#06100a" font-family="Inter, Arial" font-size="20" font-weight="900">公开简报</text>
+    <text x="842" y="675" fill="#10201a" font-family="Inter, Arial" font-size="14">读者优先产物</text>
   </g>
 
   <g fill="none" stroke="#75d88f" stroke-width="3" marker-end="url(#arrow)" opacity=".92">
