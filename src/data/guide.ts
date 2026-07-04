@@ -57,20 +57,20 @@ export const guideReadingOrder: GuideReadingStep[] = [
     id: "full-analyst",
     href: "/#/reports/full-analyst",
     route: "/reports/full-analyst",
-    title: { zh: "Full Analyst 研究阅读器", en: "Full Analyst reader" },
+    title: { zh: "v4 Full Analyst 研究阅读器", en: "v4 Full Analyst reader" },
     body: {
-      zh: "再用产品化 reader 核对每个标的的 agent 分析、反方审查、风险因素和观察项；Markdown 原文只在审计折叠区打开。",
-      en: "Then use the product reader to inspect per-symbol agent analysis, red-team review, risk factors, and watch items; the Markdown original opens only inside the audit disclosure.",
+      zh: "再用产品化 reader 核对每个标的的 Research Task、Evidence Packet、K dossier、F/W/G、Chairman、Red Team、Knowledge Gate 和 unresolved questions；Markdown 原文只在审计折叠区打开。",
+      en: "Then use the product reader to inspect per-symbol Research Task, Evidence Packet, K dossier, F/W/G, Chairman, Red Team, Knowledge Gate, and unresolved questions; the Markdown original opens only inside the audit disclosure.",
     },
   },
   {
     id: "reports",
     href: "/#/reports",
     route: "/reports",
-    title: { zh: "报告归档 / 生产日报审计", en: "Report Archive / Production Daily Reports Audit" },
+    title: { zh: "审计中心 / 公开产物", en: "Audit Center / Public Artifacts" },
     body: {
-      zh: "核对五个日报、覆盖率、异常清单、Full Analyst 先行试跑、状态 JSON 和公开产物链接。",
-      en: "Audit the five daily reports, coverage, exceptions, Full Analyst Canary, status JSON, and public artifact links.",
+      zh: "核对覆盖日报、Full Analyst v4、状态 JSON、监控产物、raw artifact 折叠区和证据层级。",
+      en: "Audit coverage reports, Full Analyst v4, status JSON, monitor artifacts, raw artifact disclosures, and evidence layers.",
     },
   },
   {
@@ -84,100 +84,80 @@ export const guideReadingOrder: GuideReadingStep[] = [
     },
   },
   {
-    id: "ledger",
-    href: "/#/ledger",
-    route: "/ledger",
-    title: { zh: "Demo 账本", en: "Demo Ledger" },
-    body: {
-      zh: "只把它当冻结 public-safe 演示快照；不是最新生产日报、实时预测账本或交易指令。",
-      en: "Treat this only as a frozen public-safe demo snapshot; it is not the latest production daily report, live prediction ledger, or trading instruction.",
-    },
-  },
-  {
-    id: "performance",
-    href: "/#/performance",
-    route: "/performance",
-    title: { zh: "表现说明", en: "Performance Notes" },
-    body: {
-      zh: "确认当前没有生产表现证明；paper portfolio 是未来日期 demo fixture，不能解读成收益或业绩。",
-      en: "Confirm that there is no production performance proof; the paper portfolio is a future-dated demo fixture, not returns or performance.",
-    },
-  },
-  {
     id: "methodology",
     href: "/#/methodology",
     route: "/methodology",
     title: { zh: "方法论", en: "Methodology" },
     body: {
-      zh: "最后读规则：股票池、结算器、数据边界、resolved-only 口径和为什么不能后验补数据。",
-      en: "Read the rules last: universe, resolver, data boundaries, resolved-only measurement, and why backfills are not fabricated.",
+      zh: "最后读规则：Research Quality Gate、Knowledge Gate、Reader Boundary、数据边界、fallback 版本和为什么 raw artifact 只能在审计区打开。",
+      en: "Read the rules last: Research Quality Gate, Knowledge Gate, Reader Boundary, data boundaries, fallback versions, and why raw artifacts only open in audit areas.",
     },
   },
 ];
 
 export const guideSystemFlow: GuideFlowStep[] = [
   {
-    id: "universe",
-    title: { zh: "股票池与标的身份", en: "Universe and ticker identity" },
+    id: "research-task",
+    title: { zh: "Research Task Planner", en: "Research Task Planner" },
     body: {
-      zh: "每日流程先固定公开股票池和交易所身份，避免 ADR、主上市地或代码歧义导致研究错资产。",
-      en: "The daily flow fixes the public universe and exchange identity first so ADRs, primary listings, or ambiguous symbols do not point to the wrong asset.",
+      zh: "先说明为什么今天研究这只股票、核心问题、必须验证的来源，以及哪些证据缺失时不能下结论。",
+      en: "Starts with why this stock is studied today, the core questions, required sources, and what cannot be concluded if evidence is missing.",
     },
   },
   {
-    id: "daily-timer",
-    title: { zh: "生产日报定时器", en: "Production daily timers" },
+    id: "evidence-packet",
+    title: { zh: "Evidence Packet Builder", en: "Evidence Packet Builder" },
     body: {
-      zh: "五个日报定时器产出行情覆盖日报、状态 JSON、异常清单和 latest.md 别名；它们是运行/状态证据。",
-      en: "The five daily timers produce coverage reports, status JSON, exception lists, and latest.md aliases; they are runtime/status evidence.",
+      zh: "把公开来源、source type、freshness、missing required sources、stale sources 和 data_gap 放进可审计证据包。",
+      en: "Builds an auditable packet with public sources, source type, freshness, missing required sources, stale sources, and data_gap.",
     },
   },
   {
-    id: "full-analyst",
-    title: { zh: "Full Analyst 先行试跑", en: "Full Analyst candidate/canary" },
+    id: "k-dossier",
+    title: { zh: "K Deep Research Dossier", en: "K Deep Research Dossier" },
     body: {
-      zh: "Full Analyst 是先行试跑 / candidate：它补充 per-symbol agent 分析、反方审查、风险因素和观察项，但不自动升级为正式结论。",
-      en: "Full Analyst is a candidate/canary: it adds per-symbol agent analysis, red-team review, risk factors, and watch items, but it does not auto-upgrade conclusions.",
+      zh: "K 不是普通并行 agent；它先产出 deep research dossier，后续 F/W/G 必须基于 K、任务书和证据包。",
+      en: "K is not an ordinary parallel agent; it creates the deep research dossier before F/W/G run from K, the task, and the evidence packet.",
     },
   },
   {
-    id: "judge-gate",
-    title: { zh: "Judge gate", en: "Judge gate" },
+    id: "perspectives",
+    title: { zh: "F/W/G 并行视角", en: "F/W/G parallel perspectives" },
     body: {
-      zh: "发布前必须通过结构、覆盖、数据缺口和边界检查；需要复核或阻断的标的必须保留状态。",
-      en: "Before publication, structure, coverage, data gaps, and boundaries are checked; needs-review or blocked symbols must keep their status.",
+      zh: "F/W/G 在 K dossier 后并行运行，保留不同视角、冲突、证据强弱和不确定性。",
+      en: "F/W/G run in parallel after the K dossier and preserve different views, conflicts, evidence strength, and uncertainty.",
     },
   },
   {
-    id: "public-safety-scan",
-    title: { zh: "Public safety scan", en: "Public safety scan" },
+    id: "chairman-red-team",
+    title: { zh: "Chairman + Red Team", en: "Chairman + Red Team" },
     body: {
-      zh: "公开页面只能暴露 public-safe 摘要和产物链接；不能泄露 raw prompt、provider/model I/O、secrets、数据库或私有日志。",
-      en: "Public pages expose only public-safe summaries and artifact links; raw prompts, provider/model I/O, secrets, databases, and private logs are not published.",
+      zh: "Chairman 综合 K/F/W/G 的共识、冲突和权重；Red Team 做反证、漏洞和 over-certainty 审计，但不是 Judge。",
+      en: "Chairman synthesizes K/F/W/G consensus, conflicts, and weighting; Red Team audits counter-evidence, weaknesses, and over-certainty, but is not the Judge.",
+    },
+  },
+  {
+    id: "quality-knowledge-gates",
+    title: { zh: "Research Quality Gate + Knowledge Gate", en: "Research Quality Gate + Knowledge Gate" },
+    body: {
+      zh: "Quality Gate 给出 candidate/watch/needs_review/data_gap 等研究状态；Knowledge Gate 决定 persist、limited persist、temporary observation 或 do_not_persist。",
+      en: "Quality Gate sets candidate/watch/needs_review/data_gap style research status; Knowledge Gate decides persist, limited persist, temporary observation, or do_not_persist.",
     },
   },
   {
     id: "internal-alaya",
-    title: { zh: "GOTRA 内部 Alaya 认知飞轮", en: "GOTRA internal Alaya cognition flywheel" },
+    title: { zh: "内部 Alaya readback", en: "Internal Alaya readback" },
     body: {
-      zh: "这里的 Alaya 只指 GOTRA repo 内部的 cognition flywheel、knowledge memory、feedback state 和 hash-chain/readback 状态，不是外部服务或独立 repo。",
-      en: "Alaya here only means GOTRA repo internal cognition flywheel, knowledge memory, feedback state, and hash-chain/readback state, not an external service or separate repo.",
+      zh: "Alaya 只指 GOTRA repo 内部 cognition flywheel、knowledge memory、feedback state 和 hash-chain/readback，不是外部服务或独立 repo。",
+      en: "Alaya only means GOTRA repo internal cognition flywheel, knowledge memory, feedback state, and hash-chain/readback, not an external service or separate repo.",
     },
   },
   {
-    id: "public-artifacts",
-    title: { zh: "公开产物", en: "Public artifacts" },
+    id: "reader-boundary",
+    title: { zh: "Reader Boundary + Public Brief", en: "Reader Boundary + Public Brief" },
     body: {
-      zh: "最终公开产物包括今日简报、日报 Markdown、状态 JSON、Full Analyst 报告、来源页和 no-JS 原始 HTML。",
-      en: "Public artifacts include Today's Brief, daily Markdown, status JSON, Full Analyst reports, the sources page, and no-JS raw HTML pages.",
-    },
-  },
-  {
-    id: "evidence-boundary",
-    title: { zh: "证据边界", en: "Evidence boundary" },
-    body: {
-      zh: "local checks、browser smoke、public artifact smoke 和正式验收是不同层级；任何一层都不能被说成投资建议、交易信号、科学证明或业绩证明。",
-      en: "Local checks, browser smoke, public artifact smoke, and formal acceptance are separate layers; none of them become investment advice, trading signals, science proof, or performance proof.",
+      zh: "Reader Boundary Gate 不隐藏研究内容，只确保公开表达不会被误读为投资动作提示、业绩结论或科学/公开层面的验证结论。",
+      en: "Reader Boundary Gate does not hide research content; it ensures public wording is not mistaken for advice, signals, performance proof, or science/public proof.",
     },
   },
 ];

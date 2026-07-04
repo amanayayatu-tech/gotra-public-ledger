@@ -156,23 +156,23 @@ function HomeLoadingHero({ language }: { language: Language }) {
             <ShieldCheck aria-hidden="true" size={16} />
             {copy(language, "研究信息 · 非投资建议 · 非交易信号", "Research information · not advice · not a trading signal")}
           </div>
-          <p className="hero-brand-motif">{copy(language, "AI 股票研究认知系统 · 不是交易机器", "AI stock research cognition system · not a trading machine")}</p>
+          <p className="hero-brand-motif">{copy(language, "GOTRA v4 · Ksana cognition flywheel", "GOTRA v4 · Ksana cognition flywheel")}</p>
           <h1 id="home-loading-title" className="hero-title">
             {language === "zh" ? (
               <>
-                把研究过程
+                把研究过程讲清楚，
                 <br />
-                变成可审计资产
+                再交给你判断
               </>
             ) : (
-              "Turn the research process into an auditable asset"
+              "GOTRA v4 shows how the research was made"
             )}
           </h1>
           <p>
             {copy(
               language,
-              "正在读取公开安全 demo 账本。先展示 v3.5 研究系统价值：研究任务、证据包、独立视角、复核和内部 Alaya readback。",
-              "Loading the public-safe demo ledger. The v3.5 research system value is shown first: research task, evidence packet, independent views, review, and internal Alaya readback.",
+              "正在读取 v4 公开简报和页面数据。主路径是 Research Task、Evidence Packet、K dossier、F/W/G、Chairman、Red Team、Quality Gate、Knowledge Gate、内部 Alaya readback 和 Reader Boundary。",
+              "Loading the v4 public brief and page data. The main path is Research Task, Evidence Packet, K dossier, F/W/G, Chairman, Red Team, Quality Gate, Knowledge Gate, internal Alaya readback, and Reader Boundary.",
             )}
           </p>
         </div>
@@ -1494,6 +1494,13 @@ function V40ResearchSystemPanel({ language, compact = false }: { language: Langu
             "v4 runs research_task -> evidence_packet -> K dossier -> F/W/G -> Chairman -> Red Team -> Research Quality Gate -> Knowledge Gate -> Alaya readback -> Reader Boundary.",
           )}
         </p>
+        <p>
+          {copy(
+            language,
+            "这里的 Alaya 只指 GOTRA repo 内部 cognition flywheel / knowledge memory / feedback/readback state；不是外部服务、外部项目或外部 repo。",
+            "Alaya here only means GOTRA repo internal cognition flywheel / knowledge memory / feedback/readback state; it is not an external service, project, or repo.",
+          )}
+        </p>
       </div>
       <div className="v35-system-grid">
         {cards.map(([title, body]) => (
@@ -1508,7 +1515,7 @@ function V40ResearchSystemPanel({ language, compact = false }: { language: Langu
 }
 
 function ResearchSystemPanel({ brief, language, compact = false }: { brief?: DailyReaderBrief; language: Language; compact?: boolean }) {
-  return brief && isV40Brief(brief) ? <V40ResearchSystemPanel language={language} compact={compact} /> : <V35ResearchSystemPanel language={language} compact={compact} />;
+  return !brief || isV40Brief(brief) ? <V40ResearchSystemPanel language={language} compact={compact} /> : <V35ResearchSystemPanel language={language} compact={compact} />;
 }
 
 function V35ResearchSystemPanel({ language, compact = false }: { language: Language; compact?: boolean }) {
@@ -1556,9 +1563,9 @@ function V35ResearchSystemPanel({ language, compact = false }: { language: Langu
   ];
 
   return (
-    <section className={`v35-system-panel ${compact ? "compact" : ""}`} aria-label={copy(language, "v3.5 研究系统说明", "v3.5 research system explanation")}>
+    <section className={`v35-system-panel ${compact ? "compact" : ""}`} aria-label={copy(language, "legacy v3.5 fallback 说明", "legacy v3.5 fallback explanation")}>
       <div className="section-heading compact">
-        <span>{copy(language, "v3.5 研究系统", "v3.5 research system")}</span>
+        <span>{copy(language, "legacy v3.5 fallback", "legacy v3.5 fallback")}</span>
         <h2>{copy(language, "从研究任务到证据包，再到独立复核", "From research task to evidence packet to independent review")}</h2>
         <p>
           {copy(
@@ -1802,8 +1809,8 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           <p>
             {copy(
               language,
-              "本段解释 Full Analyst 先行试跑本次公开发布状态、复核项和数据缺口；它是运行/状态证据，不是正式验收或投资结论。",
-              "This section explains the Full Analyst Canary public publication status, review items, and data gaps; it is runtime/status evidence, not formal acceptance or an investment conclusion.",
+              "本段解释 Full Analyst v4 本次公开发布状态、复核项和数据缺口；它是运行/状态证据和研究过程证据，不是正式验收或投资结论。",
+              "This section explains the Full Analyst v4 public publication status, review items, and data gaps; it is runtime/status and research-process evidence, not formal acceptance or an investment conclusion.",
             )}
           </p>
           <p>{pickLocalized(language, brief.full_analyst.summary)}</p>
@@ -2133,24 +2140,64 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
 function WhyGotraPage({ language }: { language: Language }) {
   const comparisonRows = [
     [
-      copy(language, "默认输出", "Default output"),
+      copy(language, "Output style", "Output style"),
       copy(language, "把复杂证据压成一个行动答案。", "Compresses evidence into an action answer."),
       copy(language, "把变化、证据、缺口、反方和下一步拆开。", "Separates changes, evidence, gaps, counterpoints, and next checks."),
     ],
     [
-      "data_gap",
+      copy(language, "Uncertainty handling", "Uncertainty handling"),
+      copy(language, "用单一方向感掩盖不确定性。", "Hides uncertainty behind directional certainty."),
+      copy(language, "把 unresolved questions、watch conditions 和 confidence boundary 留在明面上。", "Keeps unresolved questions, watch conditions, and confidence boundary visible."),
+    ],
+    [
+      copy(language, "Evidence gaps", "Evidence gaps"),
       copy(language, "常被隐藏，或被 stale data 填平。", "Often hidden or papered over with stale data."),
       copy(language, "明确告诉读者：这里证据还不够，下一步要补什么。", "Tells readers where evidence is incomplete and what to verify next."),
+    ],
+    [
+      copy(language, "Research task", "Research task"),
+      copy(language, "通常直接跳到结论。", "Often jumps directly to an answer."),
+      copy(language, "先说明为什么今天研究、核心问题和 must-not-conclude-without。", "Starts with why today, core questions, and must-not-conclude-without."),
+    ],
+    [
+      copy(language, "Evidence packet", "Evidence packet"),
+      copy(language, "来源和 freshness 经常不可见。", "Sources and freshness are often invisible."),
+      copy(language, "把 source type、freshness、missing sources 和 data_gap 放在 agent 前。", "Places source type, freshness, missing sources, and data_gap before agents."),
+    ],
+    [
+      copy(language, "K dossier", "K dossier"),
+      copy(language, "多个观点可能只是在薄上下文上并行写。", "Multiple views may write in parallel from thin context."),
+      copy(language, "K deep research dossier 先行，F/W/G 必须基于 K 和证据包。", "K deep research dossier runs first; F/W/G must use K and the evidence packet."),
+    ],
+    [
+      copy(language, "Parallel perspectives", "Parallel perspectives"),
+      copy(language, "把观点压扁成一致口径。", "Flattens perspectives into one voice."),
+      copy(language, "F/W/G 保留独立视角、分歧和证据强弱。", "F/W/G preserve independent views, disagreements, and evidence strength."),
+    ],
+    [
+      copy(language, "Chairman synthesis", "Chairman synthesis"),
+      copy(language, "常只是总结。", "Often only summarizes."),
+      copy(language, "综合共识、冲突、权重、不确定性和 watch conditions。", "Synthesizes consensus, conflicts, weight, uncertainty, and watch conditions."),
+    ],
+    [
+      copy(language, "Red Team", "Red Team"),
+      copy(language, "容易被当成失败或最终裁判。", "Can be treated as failure or final judge."),
+      copy(language, "只做反证和漏洞审计，不替代 Research Quality Gate。", "Audits counter-evidence and weaknesses; does not replace the Research Quality Gate."),
+    ],
+    [
+      copy(language, "Knowledge memory / Alaya", "Knowledge memory / Alaya"),
+      copy(language, "可能被误解成外部服务或黑箱。", "Can be mistaken for an external service or black box."),
+      copy(language, "只指 GOTRA 内部 cognition / memory / feedback / readback state。", "Only means GOTRA internal cognition / memory / feedback / readback state."),
+    ],
+    [
+      copy(language, "Reader boundary", "Reader boundary"),
+      copy(language, "边界要么缺失，要么变成免责声明墙。", "Boundaries are either missing or become a wall of disclaimers."),
+      copy(language, "Reader Boundary Gate 保留研究内容，只确保不是投资建议或交易信号。", "Reader Boundary Gate keeps research visible while preventing advice or signal framing."),
     ],
     [
       "needs_review",
       copy(language, "容易被包装成确定结论。", "Can be packaged as certainty."),
       copy(language, "作为质量控制保留，阻止薄弱假设直接进入简报。", "Kept as quality control before weak assumptions enter the brief."),
-    ],
-    [
-      "Alaya",
-      copy(language, "可能被误解成外部服务或黑箱。", "Can be mistaken for an external service or black box."),
-      copy(language, "只指 GOTRA 内部 cognition / memory / feedback / readback state。", "Only means GOTRA internal cognition / memory / feedback / readback state."),
     ],
   ];
 
@@ -2255,7 +2302,7 @@ function WhyGotraPage({ language }: { language: Language }) {
         </div>
       </section>
 
-      <V35ResearchSystemPanel language={language} />
+      <V40ResearchSystemPanel language={language} />
 
       <section className="why-section why-two-column" aria-label={copy(language, "缺口与复核价值", "Value of gaps and review")}>
         <article>
@@ -2404,9 +2451,17 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
           <p>{pickLocalized(language, brief.full_analyst.summary)}</p>
         </div>
         <ResearchSystemPanel brief={brief} language={language} compact />
+        <nav className="full-analyst-toc" aria-label={copy(language, "研究阅读器目录", "Research reader table of contents")}>
+          <strong>{copy(language, "Symbol selector", "Symbol selector")}</strong>
+          {items.map((item) => (
+            <a href={`#symbol-${encodeURIComponent(item.symbol)}`} key={`toc-${item.symbol}`}>
+              {item.symbol}
+            </a>
+          ))}
+        </nav>
         <div className="today-agent-grid full-analyst-reader-grid">
           {items.map((item) => (
-            <article className="today-agent-card" key={item.symbol}>
+            <article className="today-agent-card" id={`symbol-${item.symbol}`} key={item.symbol}>
               <div className="today-agent-head">
                 <span>{copy(language, "symbol", "symbol")}</span>
                 <strong>{item.symbol}</strong>
@@ -2766,7 +2821,7 @@ function MethodologyPage({ dataset, records, language }: { dataset: LedgerDatase
         body={copy(language, "方法页把股票池、预测窗口、结算器、假设组合和数据边界放在结果之前，防止上线后口径漂移。", "This page places universe, horizon, resolver, portfolio, and data boundaries before interpretation so the public product cannot drift after launch.")}
         icon={BookOpenCheck}
       />
-      <V35ResearchSystemPanel language={language} />
+      <V40ResearchSystemPanel language={language} />
       <MethodologyProcessGraphic language={language} />
       <section className="route-panel" aria-labelledby="methodology-next-title">
         <div className="section-heading compact">
@@ -2816,7 +2871,7 @@ function SourcesPage({
         body={copy(language, "来源页先展示生产公开产物，再展示静态演示 / 归档产物；不会公开私有 GOTRA 原始产物。", "The sources page shows live production artifacts first, then static demo/archive artifacts; it never publishes private GOTRA raw artifacts.")}
         icon={Database}
       />
-      <V35ResearchSystemPanel language={language} />
+      <V40ResearchSystemPanel language={language} />
       <LiveArtifactSources state={liveReportsState} language={language} />
       {showSourceDetails ? (
         <>
@@ -3375,8 +3430,8 @@ function ReportsPage({ language }: { language: Language }) {
   return (
     <>
       <PageIntro
-        eyebrow={copy(language, "生产公开产物", "Live production")}
-        title={copy(language, "生产日报审计", "Production Daily Reports Audit")}
+        eyebrow={copy(language, "公开产物审计", "Public artifact audit")}
+        title={copy(language, "审计中心", "Audit Center")}
         body={copy(
           language,
           "完整状态、覆盖率、数据缺口和公开产物链接在这里审计；普通读者每日入口请看今日简报。不是投资建议、交易信号、业绩证明或科学证明。",
@@ -3416,8 +3471,8 @@ function ReportTypeIndex({ language }: { language: Language }) {
         <p>
           {copy(
             language,
-            "生产日报页同时展示覆盖日报、Full Analyst 先行试跑、状态 JSON 和监控产物；它们都是运行/状态证据，不是投资建议、交易信号、科学证明或业绩证明。",
-            "The production reports page shows coverage reports, the Full Analyst Canary, status JSON, and monitor artifacts; all are runtime/status evidence, not investment advice, trading signals, science proof, or performance proof.",
+            "审计中心同时展示覆盖日报、Full Analyst v4、状态 JSON 和监控产物；它们都是运行/状态证据或研究过程证据，不是投资建议、交易信号、科学证明或业绩证明。",
+            "The Audit Center shows coverage reports, Full Analyst v4, status JSON, and monitor artifacts; all are runtime/status or research-process evidence, not investment advice, trading signals, science proof, or performance proof.",
           )}
         </p>
       </div>
@@ -3433,8 +3488,8 @@ function ReportTypeIndex({ language }: { language: Language }) {
         <p className="desk-source-note">
           {copy(
             language,
-            "v3.5 的 reports 审计层会追踪 research_task、evidence_packet、K/F/W/G、Chairman、Red Team 与 GOTRA 内部 Alaya readback；Alaya 只指 repo 内部 cognition flywheel / knowledge memory / feedback state，不是外部服务。",
-            "The v3.5 reports audit layer tracks research_task, evidence_packet, K/F/W/G, Chairman, Red Team, and GOTRA internal Alaya readback; Alaya only means the repo-internal cognition flywheel / knowledge memory / feedback state, not an external service.",
+            "v4 的 Audit Center 追踪 Research Task、Evidence Packet、K dossier、F/W/G、Chairman、Red Team、Research Quality Gate、Knowledge Gate 与 GOTRA 内部 Alaya readback；Alaya 只指 repo 内部 cognition flywheel / knowledge memory / feedback state，不是外部服务。",
+            "The v4 Audit Center tracks Research Task, Evidence Packet, K dossier, F/W/G, Chairman, Red Team, Research Quality Gate, Knowledge Gate, and GOTRA internal Alaya readback; Alaya only means the repo-internal cognition flywheel / knowledge memory / feedback state, not an external service.",
           )}
         </p>
       </div>
@@ -3451,8 +3506,8 @@ function HowToReadGotra({ language }: { language: Language }) {
         <p>
           {copy(
             language,
-              "七步顺序把今日简报、Full Analyst reader、生产审计、来源、Demo、表现说明和方法论分开；完整解释见使用指南。",
-              "The seven-step order separates Today's Brief, Full Analyst reader, production audit, sources, demo, performance notes, and methodology; the full explanation is in the Guide.",
+              "阅读顺序把今日简报、v4 Full Analyst reader、审计中心、来源和方法论分开；Demo/表现说明只作为归档入口，不是主阅读路径。",
+              "The reading order separates Today's Brief, the v4 Full Analyst reader, Audit Center, Sources, and Methodology; Demo and performance notes are archive-only, not the main reading path.",
           )}
         </p>
       </div>
@@ -3555,6 +3610,67 @@ function GuidePage({ language }: { language: Language }) {
               <p>{guideCopy(item.body, language)}</p>
             </a>
           ))}
+        </div>
+      </section>
+
+      <section className="guide-section" aria-labelledby="guide-paths-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "三条读者路径", "Three reader paths")}</span>
+          <h2 id="guide-paths-title">{copy(language, "普通读者、每日读者和审计者看到不同层级", "Beginners, daily readers, and auditors use different layers")}</h2>
+          <p>
+            {copy(
+              language,
+              "GOTRA v4 把研究过程产品化，但不要求每个人先读 hash、timing 或 raw JSON。先读简报；需要追证据时再打开审计中心。",
+              "GOTRA v4 productizes the research process, but nobody has to start with hashes, timings, or raw JSON. Start with the brief; open the Audit Center when you need evidence.",
+            )}
+          </p>
+        </div>
+        <div className="guide-playbook-grid">
+          <article>
+            <h3>{copy(language, "Beginner path", "Beginner path")}</h3>
+            <ol>
+              <li>{copy(language, "从 /today 读 TLDR 和 top observations。", "Start at /today for TLDR and top observations.")}</li>
+              <li>{copy(language, "只看 needs_review / data_gap 的简短解释。", "Read the short needs_review / data_gap explanation.")}</li>
+              <li>{copy(language, "不要把研究状态当成交易按钮。", "Do not treat research status as a trading button.")}</li>
+            </ol>
+          </article>
+          <article>
+            <h3>{copy(language, "Daily reader path", "Daily reader path")}</h3>
+            <ol>
+              <li>{copy(language, "打开 Research Reader。", "Open the Research Reader.")}</li>
+              <li>{copy(language, "按 Research Task、Evidence Packet、K dossier、F/W/G、Chairman、Red Team 顺序读。", "Read Research Task, Evidence Packet, K dossier, F/W/G, Chairman, and Red Team in order.")}</li>
+              <li>{copy(language, "用 watch conditions 和 unresolved questions 安排下一步复核。", "Use watch conditions and unresolved questions for the next review.")}</li>
+            </ol>
+          </article>
+          <article>
+            <h3>{copy(language, "Auditor path", "Auditor path")}</h3>
+            <ol>
+              <li>{copy(language, "从 Audit Center 查看 live status badges。", "Start from Audit Center live status badges.")}</li>
+              <li>{copy(language, "在 details 中打开 raw artifact，不把 raw JSON 当 reader。", "Open raw artifacts in details; do not treat raw JSON as the reader.")}</li>
+              <li>{copy(language, "核对 Alaya readback、public safety、fallback 和 evidence layer。", "Check Alaya readback, public safety, fallback, and evidence layer.")}</li>
+            </ol>
+          </article>
+        </div>
+      </section>
+
+      <section className="guide-section" aria-labelledby="guide-playbooks-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "复核手册", "Review playbook")}</span>
+          <h2 id="guide-playbooks-title">{copy(language, "needs_review、data_gap 和 raw artifact 怎么读", "How to read needs_review, data_gap, and raw artifacts")}</h2>
+        </div>
+        <div className="guide-playbook-grid">
+          <article>
+            <h3>needs_review</h3>
+            <p>{copy(language, "这是质量控制，不是工程失败。先看 Red Team critique、弱假设、冲突来源和 Research Quality Gate reasons。", "This is quality control, not an engineering failure. Read Red Team critique, weak assumptions, conflicting sources, and Research Quality Gate reasons first.")}</p>
+          </article>
+          <article>
+            <h3>data_gap</h3>
+            <p>{copy(language, "这是证据缺口，不应被页面隐藏。看 missing required sources、stale sources 和下一轮需要补的公开来源。", "This is an evidence gap and should not be hidden. Check missing required sources, stale sources, and the public sources needed next.")}</p>
+          </article>
+          <article>
+            <h3>{copy(language, "Raw artifact / audit only", "Raw artifact / audit only")}</h3>
+            <p>{copy(language, "raw JSON、Markdown、hash 和 timing 只在 Evidence Center details 中打开；主阅读路径始终回到 /today 或 Research Reader。", "Raw JSON, Markdown, hashes, and timings open only inside Evidence Center details; the main reading path returns to /today or the Research Reader.")}</p>
+          </article>
         </div>
       </section>
 

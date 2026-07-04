@@ -48,7 +48,10 @@ export type TermKey =
   | "full_analyst"
   | "canary"
   | "agent_matrix"
+  | "k_dossier"
+  | "perspective_agents"
   | "red_team"
+  | "knowledge_gate"
   | "risk_factors"
   | "watch_items"
   | "data_gap"
@@ -106,12 +109,36 @@ export const terms: Record<TermKey, LocalizedTerm> = {
       en: "A public-safe per-symbol matrix of summary, positive case, negative case, red-team review, risks, watch items, and source notes.",
     },
   },
+  k_dossier: {
+    term: "K dossier",
+    label: { zh: "K 深度研究底稿", en: "K dossier" },
+    explanation: {
+      zh: "v4 中先于 F/W/G 生成的 deep research dossier，后续视角必须基于研究任务、证据包和 K dossier，而不是只凭 ticker 写结论。",
+      en: "The v4 deep research dossier generated before F/W/G. Later perspectives must use the research task, evidence packet, and K dossier instead of writing from a ticker alone.",
+    },
+  },
+  perspective_agents: {
+    term: "Perspective agents",
+    label: { zh: "F/W/G 独立视角", en: "Perspective agents" },
+    explanation: {
+      zh: "F/W/G 在 K dossier 后独立并行研究，保留证据强弱、冲突和不确定性，不把分歧压成单一答案。",
+      en: "F/W/G run independently and in parallel after the K dossier, preserving evidence strength, conflicts, and uncertainty instead of flattening disagreement into one answer.",
+    },
+  },
   red_team: {
     term: "Red-team",
     label: { zh: "反方审查", en: "Red-team" },
     explanation: {
       zh: "主动寻找过度声明、隐藏假设、反证缺失和边界破坏的审查步骤。",
       en: "A review step that actively searches for overclaims, hidden assumptions, missing counterevidence, and boundary breaks.",
+    },
+  },
+  knowledge_gate: {
+    term: "Knowledge Gate",
+    label: { zh: "知识沉淀闸 / Knowledge Gate", en: "Knowledge Gate" },
+    explanation: {
+      zh: "决定哪些研究知识可以 persist、persist_with_limitations、temporary_observation 或 do_not_persist，并把 unresolved questions 留给下一轮。",
+      en: "Decides which research knowledge can persist, persist with limitations, remain a temporary observation, or not persist, while carrying unresolved questions into the next cycle.",
     },
   },
   risk_factors: {

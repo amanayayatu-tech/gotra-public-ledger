@@ -13,9 +13,9 @@ type SeoHeadProps = {
 };
 
 const siteUrl = "https://gotra.me/";
-const defaultTitle = "GOTRA Public Ledger | AI股票研究公开预测账本";
+const defaultTitle = "GOTRA Public Ledger | v4 Ksana Cognition Flywheel";
 const defaultDescription =
-  "GOTRA Public Ledger 是可审计的 AI股票研究公开预测账本，展示 public-safe demo 数据、错误复盘与研究边界。";
+  "GOTRA Public Ledger 展示 v4 Ksana cognition flywheel：研究任务、证据包、K dossier、F/W/G、Chairman、Red Team、Knowledge Gate 和 Reader Boundary。";
 const ogImageUrl = `${siteUrl}og-image.svg`;
 
 type RouteSeo = {
@@ -69,12 +69,12 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
 
   const routes: Record<string, { zhTitle: string; enTitle: string; zhDescription: string; enDescription: string }> = {
     "/": {
-      zhTitle: "GOTRA Public Ledger | 生产日报、Demo 账本与公开研究边界",
-      enTitle: "GOTRA Public Ledger | Production Reports, Demo Ledger, and Research Boundaries",
+      zhTitle: "GOTRA Public Ledger | v4 Ksana Cognition Flywheel",
+      enTitle: "GOTRA Public Ledger | v4 Ksana Cognition Flywheel",
       zhDescription:
-        "GOTRA Public Ledger 展示最新生产日报、Full Analyst 先行试跑、冻结 Demo 账本和透明度文章。研究信息，不是投资建议、交易信号、业绩证明或科学/公开证明。",
+        "GOTRA v4 把 Research Task、Evidence Packet、K deep research dossier、F/W/G、Chairman、Red Team、Research Quality Gate、Knowledge Gate 和 Reader Boundary 产品化展示。研究信息，不是投资建议、交易信号、业绩证明或科学/公开证明。",
       enDescription:
-        "GOTRA Public Ledger separates production daily reports, the Full Analyst Canary, a frozen demo ledger, and transparency articles. Research information only; not investment advice, not a trading signal, not performance proof, and not science/public proof.",
+        "GOTRA v4 productizes Research Task, Evidence Packet, K deep research dossier, F/W/G perspectives, Chairman synthesis, Red Team critique, Research Quality Gate, Knowledge Gate, and Reader Boundary. Research information only; not investment advice, not a trading signal, not performance proof, and not science/public proof.",
     },
     "/today": {
       zhTitle: "GOTRA 今日研究简报 | GOTRA Public Ledger",
@@ -96,25 +96,25 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       zhTitle: "Full Analyst 研究阅读器 | GOTRA Public Ledger",
       enTitle: "Full Analyst Research Reader | GOTRA Public Ledger",
       zhDescription:
-        "Full Analyst Markdown 的产品化阅读层，默认展示单票摘要、正反两面、red-team、风险和下一步观察；raw Markdown 仅在审计折叠区打开。",
+        "Full Analyst v4 的产品化阅读层，默认展示 why this stock today、Research Task、Evidence Packet、K dossier、F/W/G、Chairman、Red Team、Research Quality Gate、Knowledge Gate 和 Reader Boundary；raw Markdown 仅在审计折叠区打开。",
       enDescription:
-        "The product reader for the Full Analyst Markdown artifact, showing symbol summaries, both sides, red-team notes, risks, and next watch items before raw Markdown audit links.",
+        "The product reader for Full Analyst v4, showing why this stock today, Research Task, Evidence Packet, K dossier, F/W/G, Chairman, Red Team, Research Quality Gate, Knowledge Gate, and Reader Boundary before raw Markdown audit links.",
     },
     "/guide": {
       zhTitle: "GOTRA 使用指南 | 如何阅读 GOTRA",
       enTitle: "GOTRA Guide | How to read GOTRA",
       zhDescription:
-        "GOTRA 使用指南说明七步阅读顺序、生产日报系统流、Full Analyst 先行试跑、内部 Alaya 认知飞轮、术语表和证据边界。不是投资建议、交易信号、业绩证明或科学/公开证明。",
+        "GOTRA 使用指南说明 v4 阅读顺序、Ksana cognition flywheel、K dossier、Knowledge Gate、内部 Alaya 认知飞轮、术语表和证据边界。不是投资建议、交易信号、业绩证明或科学/公开证明。",
       enDescription:
-        "The GOTRA Guide explains the seven-step reading order, production daily flow, Full Analyst Canary, internal Alaya cognition flywheel, glossary, and evidence boundaries. Not investment advice, trading signals, performance proof, or science/public proof.",
+        "The GOTRA Guide explains the v4 reading order, Ksana cognition flywheel, K dossier, Knowledge Gate, internal Alaya cognition flywheel, glossary, and evidence boundaries. Not investment advice, trading signals, performance proof, or science/public proof.",
     },
     "/reports": {
-      zhTitle: "生产日报审计 | GOTRA Public Ledger",
-      enTitle: "Production Daily Reports Audit | GOTRA Public Ledger",
+      zhTitle: "v4 审计中心 | GOTRA Public Ledger",
+      enTitle: "v4 Audit Center | GOTRA Public Ledger",
       zhDescription:
-        "生产日报页面展示港股早报、港股晚报、美股早报、美股晚报、全局汇总和 Full Analyst 先行试跑公开安全产物。不是投资建议、交易信号、业绩证明或科学/公开证明。",
+        "审计中心展示生产日报、Full Analyst v4、status JSON 和明确折叠的 raw artifacts，区分 local checks、smoke evidence、2h pressure 与 formal acceptance。",
       enDescription:
-        "Production Daily Reports show HK morning, HK evening, US morning, US evening, global summary, and Full Analyst Canary public-safe artifacts. Not investment advice, not a trading signal, not performance proof, and not science/public proof.",
+        "The Audit Center shows production reports, Full Analyst v4, status JSON, and explicit raw artifact disclosures while separating local checks, smoke evidence, 2h pressure, and formal acceptance.",
     },
     "/notes": {
       zhTitle: "透明度文章 | GOTRA Public Ledger",
@@ -144,9 +144,9 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       zhTitle: "来源与产物 | GOTRA Public Ledger",
       enTitle: "Sources and Artifacts | GOTRA Public Ledger",
       zhDescription:
-        "来源与产物页面区分生产公开产物与静态 demo/archive artifact，不公开私有 GOTRA 原始产物、提示词、供应商原始输出或 secrets。",
+        "来源与产物页面解释 v4 Evidence Packet 的 source type、freshness、missing required sources 和 data_gap；raw artifact 只在审计折叠区打开。",
       enDescription:
-        "Sources and Artifacts separates live production artifacts from static demo/archive artifacts and does not publish private GOTRA raw artifacts, prompts, provider raw output, or secrets.",
+        "Sources and Artifacts explains v4 Evidence Packet source types, freshness, missing required sources, and data_gap; raw artifacts open only inside audit disclosures.",
     },
     "/system": {
       zhTitle: "系统说明 | GOTRA Public Ledger",
@@ -160,9 +160,9 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
       zhTitle: "方法论 | GOTRA Public Ledger",
       enTitle: "Methodology | GOTRA Public Ledger",
       zhDescription:
-        "方法论说明股票池、结算器、假设组合和数据边界如何先固定规则再解释结果。研究信息，不是投资建议、交易信号或业绩证明。",
+        "方法论说明 v4 为什么先生成 K deep research dossier，再让 F/W/G 并行审查，并用 Research Quality Gate、Knowledge Gate 和 Reader Boundary 分层。",
       enDescription:
-        "Methodology explains how universe, resolver, paper portfolio, and data boundaries are fixed before interpretation. Research information only; not investment advice, trading signals, or performance proof.",
+        "Methodology explains why v4 generates a K deep research dossier before parallel F/W/G review, then separates Research Quality Gate, Knowledge Gate, and Reader Boundary.",
     },
   };
 
@@ -241,12 +241,12 @@ function setJsonLd(dataset: LedgerDataset, records: RecordView[], seo: RouteSeo)
       {
         "@type": "Dataset",
         "@id": `${siteUrl}#dataset`,
-        name: "GOTRA Public Ledger public-safe demo dataset",
+        name: "GOTRA Public Ledger v4 public research artifact",
         description: defaultDescription,
         url: siteUrl,
         dateModified: dataset.metadata.snapshot_date,
         license: `${siteUrl}docs/DATA_BOUNDARY.md`,
-        measurementTechnique: "public-safe demo ledger snapshot; not OOS validation",
+        measurementTechnique: "v4 Ksana cognition flywheel public research artifact; not investment advice; not a trading signal",
         variableMeasured: ["prediction_id", "ticker", "decision_date", "expected_change_pct", "actual_change_pct", "error"],
         includedInDataCatalog: {
           "@type": "DataCatalog",
@@ -255,7 +255,7 @@ function setJsonLd(dataset: LedgerDataset, records: RecordView[], seo: RouteSeo)
         creator: {
           "@id": `${siteUrl}#organization`,
         },
-        keywords: ["AI股票研究", "公开预测账本", "可审计", "public-safe demo"],
+        keywords: ["GOTRA v4", "Ksana cognition flywheel", "K dossier", "Knowledge Gate", "Alaya readback"],
         temporalCoverage: dataset.metadata.snapshot_date,
         size: records.length,
       },
@@ -283,7 +283,7 @@ export function SeoHead({ dataset, records, activeRecord, route, language }: Seo
     document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
     document.title = seo.title || defaultTitle;
     setNamedMeta("description", seo.description || defaultDescription);
-    setNamedMeta("keywords", "AI股票研究, 公开预测账本, 可审计, research information only, not investment advice");
+    setNamedMeta("keywords", "GOTRA v4, Ksana cognition flywheel, K dossier, Knowledge Gate, Alaya readback, not investment advice");
     setNamedMeta("twitter:card", "summary_large_image");
     setNamedMeta("twitter:url", seo.url);
     setNamedMeta("twitter:title", seo.title);

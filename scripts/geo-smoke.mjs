@@ -84,24 +84,28 @@ function main() {
   const combinedCoreHtml = [...pages.values()].join("\n");
   const requiredPhrases = [
     "auditable AI stock-research public ledger",
-    "冻结 Demo 账本",
-    "Production Daily Reports",
+    "v4 Ksana cognition flywheel",
+    "K deep research dossier",
+    "Knowledge Gate",
+    "Audit Center",
     "research information only",
     "not investment advice",
-    "resolved-only",
+    "not science/public proof",
   ];
   requiredPhrases.forEach((phrase) => assertIncludes(combinedCoreHtml, phrase, "core routes"));
 
-  assertIncludes(pages.get("/"), "GOTRA Public Ledger 是一个可审计的 AI 股票研究公开预测账本", "/");
-  assertIncludes(pages.get("/"), "v3.5 research system", "/");
+  assertIncludes(pages.get("/"), "GOTRA Public Ledger 是一个可审计的 AI 股票研究公开账本", "/");
+  assertIncludes(pages.get("/"), "v4 Ksana Cognition Flywheel", "/");
+  assertIncludes(pages.get("/"), "K dossier first", "/");
   assertIncludes(pages.get("/"), "Research task", "/");
   assertIncludes(pages.get("/"), "Evidence packet", "/");
   assertIncludes(pages.get("/today"), "Daily Research Brief", "/today");
   assertIncludes(pages.get("/today"), "What to read first", "/today");
   assertIncludes(pages.get("/today"), "Symbol briefs", "/today");
-  assertIncludes(pages.get("/today"), "v3.5 research system", "/today");
+  assertIncludes(pages.get("/today"), "v4 Ksana Cognition Flywheel", "/today");
   assertIncludes(pages.get("/today"), "Research task", "/today");
   assertIncludes(pages.get("/today"), "Evidence packet", "/today");
+  assertIncludes(pages.get("/today"), "Knowledge Gate", "/today");
   assertIncludes(pages.get("/today"), "/reports/full-analyst/", "/today");
   assertIncludes(pages.get("/today"), "Raw artifact / Open JSON / Open Markdown", "/today");
   assertIncludes(pages.get("/why-gotra"), "Why GOTRA", "/why-gotra");
@@ -121,10 +125,10 @@ function main() {
   assertIncludes(pages.get("/ledger"), "Raw artifact / Open JSON", "/ledger");
   assertIncludes(pages.get("/ledger"), "Open ledger.demo.json raw artifact", "/ledger");
   assertIncludes(pages.get("/ledger"), "Return to the productized ledger page", "/ledger");
-  assertIncludes(pages.get("/reports"), "Production Daily Reports", "/reports");
-  assertIncludes(pages.get("/reports"), "Full Analyst Canary", "/reports");
+  assertIncludes(pages.get("/reports"), "Audit Center", "/reports");
+  assertIncludes(pages.get("/reports"), "Full Analyst v4", "/reports");
   assertIncludes(pages.get("/reports"), "Product reading surfaces", "/reports");
-  assertIncludes(pages.get("/reports"), "v3.5 research system and internal Alaya", "/reports");
+  assertIncludes(pages.get("/reports"), "v4 Ksana cognition flywheel and internal Alaya", "/reports");
   assertIncludes(pages.get("/reports"), "repo-internal cognition flywheel", "/reports");
   assertIncludes(pages.get("/reports"), "Raw artifact / Open JSON / Open Markdown", "/reports");
   if (manifest.source_report_status === "artifact_unavailable") {
@@ -134,19 +138,22 @@ function main() {
   }
   assertIncludes(pages.get("/reports/latest/"), "Coverage Report Reader", "/reports/latest/");
   assertIncludes(pages.get("/reports/latest/"), "Readable highlights", "/reports/latest/");
-  assertIncludes(pages.get("/reports/latest/"), "v3.5 research system", "/reports/latest/");
+  assertIncludes(pages.get("/reports/latest/"), "v4 Ksana Cognition Flywheel", "/reports/latest/");
   assertIncludes(pages.get("/reports/latest/"), "Raw artifact / Open JSON / Open Markdown", "/reports/latest/");
   assertIncludes(pages.get("/reports/latest/"), 'href="/reports/latest.md"', "/reports/latest/");
   assertIncludes(pages.get("/reports/latest/"), 'href="/reports/status.json"', "/reports/latest/");
   assertIncludes(pages.get("/reports/full-analyst/"), "Full Analyst Research Reader", "/reports/full-analyst/");
   assertIncludes(pages.get("/reports/full-analyst/"), "Structured symbol research", "/reports/full-analyst/");
   assertIncludes(pages.get("/reports/full-analyst/"), "Evidence packet", "/reports/full-analyst/");
+  assertIncludes(pages.get("/reports/full-analyst/"), "K deep research dossier", "/reports/full-analyst/");
+  assertIncludes(pages.get("/reports/full-analyst/"), "Knowledge Gate", "/reports/full-analyst/");
   assertIncludes(pages.get("/reports/full-analyst/"), "Raw artifact / Open JSON / Open Markdown", "/reports/full-analyst/");
   assertIncludes(pages.get("/performance"), "No production performance tracking yet", "/performance");
   assertIncludes(pages.get("/performance"), "demo fixture and future-dated sample", "/performance");
   assertIncludes(pages.get("/performance"), "not performance proof", "/performance");
-  assertIncludes(pages.get("/methodology"), "pending rows are excluded", "/methodology");
-  assertIncludes(pages.get("/methodology"), "v3.5 research system", "/methodology");
+  assertIncludes(pages.get("/methodology"), "K dossier before F/W/G", "/methodology");
+  assertIncludes(pages.get("/methodology"), "Red Team is not Judge", "/methodology");
+  assertIncludes(pages.get("/methodology"), "Knowledge Gate and Alaya", "/methodology");
   assertIncludes(pages.get("/claim-boundary"), "Not investment advice.", "/claim-boundary");
   assertIncludes(pages.get("/faq"), "FAQPage", "/faq");
   assertIncludes(pages.get("/sources"), "Manifest files", "/sources");
@@ -217,7 +224,7 @@ function main() {
 
   const llms = readDist("llms.txt");
   [
-    "Production Daily Reports",
+    "Audit Center",
     "Daily Research Brief",
     "Why GOTRA",
     "Full Analyst Research Reader",
@@ -226,6 +233,8 @@ function main() {
     "Frozen Demo Ledger",
     "Performance Notes",
     "Sources and Artifacts",
+    "v4 Ksana cognition flywheel",
+    "Knowledge Gate",
     "not investment advice",
     "not a trading signal",
     "not performance proof",

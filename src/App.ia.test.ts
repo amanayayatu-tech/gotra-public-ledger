@@ -54,7 +54,8 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("报告类型怎么分");
     expect(appSource).toContain("关键术语");
     expect(appSource).toContain("不要把这些层级混起来");
-    expect(guideSource).toContain("Full Analyst 是先行试跑");
+    expect(guideSource).toContain("K Deep Research Dossier");
+    expect(guideSource).toContain("Research Quality Gate + Knowledge Gate");
     expect(appSource).toContain("内部 Alaya 不是外部服务");
     expect(appSource).toContain("route.name === \"guide\"");
     expect(appSource).toContain("先看使用指南");
@@ -64,15 +65,18 @@ describe("public ledger information architecture contract", () => {
   });
 
   it("keeps the guide source contract explicit for all required reading and glossary terms", () => {
-    ["/today", "/why-gotra", "Full Analyst 研究阅读器", "/reports/full-analyst", "/reports", "/sources", "/ledger", "/performance", "/methodology"].forEach((phrase) => {
+    ["/today", "/why-gotra", "Full Analyst 研究阅读器", "/reports/full-analyst", "/reports", "/sources", "/methodology"].forEach((phrase) => {
       expect(guideSource).toContain(phrase);
     });
+    expect(guideSource).not.toContain('route: "/ledger"');
+    expect(guideSource).not.toContain('route: "/performance"');
     [
       "Daily Brief",
       "Full Analyst",
-      "Canary",
-      "Agent matrix",
+      "K dossier",
+      "Perspective agents",
       "Red-team",
+      "Knowledge Gate",
       "Risk factors",
       "Watch items",
       "Data gap",
