@@ -1371,6 +1371,64 @@ function researchSignalReaderRows(item: DailyReaderBriefAgentAnalysisItem): Loca
   ];
 }
 
+function publicationDecisionLabel(decision: string | undefined, language: Language): string {
+  if (decision === "publish") {
+    return copy(language, "可发布", "Publish");
+  }
+  if (decision === "blocked") {
+    return copy(language, "已阻断", "Blocked");
+  }
+  return copy(language, "需要复核", "Needs review");
+}
+
+function publicationBlockerLabel(blocker: string | undefined, language: Language): string {
+  const labels: Record<string, [string, string]> = {
+    secret_or_raw_io: ["凭证或原始 I/O 风险", "Secret or raw I/O risk"],
+    forbidden_wording: ["合规禁词", "Restricted wording"],
+    public_safety: ["公开安全扫描", "Public safety scan"],
+    future_data: ["未来数据风险", "Future-data risk"],
+    evidence_packet_contract: ["证据包合同", "EvidencePacket contract"],
+    research_signal_contract: ["研究信号合同", "ResearchSignal contract"],
+    judge_gate: ["本地判断闸门", "Local judge gate"],
+  };
+  const value = blocker ? labels[blocker] : undefined;
+  return value ? copy(language, value[0], value[1]) : copy(language, "未报告", "Not reported");
+}
+
+function publicationDecisionReaderRows(item: DailyReaderBriefAgentAnalysisItem): LocalizedText[] {
+  const decision = item.publication_decision;
+  if (!decision) {
+    return [];
+  }
+  const reviewGates = Object.entries(decision.gates)
+    .filter(([, gate]) => gate.status !== "pass")
+    .slice(0, 4);
+  return [
+    bilingualText(
+      `发布决定：${publicationDecisionLabel(decision.decision, "zh")}`,
+      `Publication decision: ${publicationDecisionLabel(decision.decision, "en")}`,
+    ),
+    ...decision.reader_safe_reasons.slice(0, 4).map((value) => bilingualText(`原因：${value.zh}`, `Reason: ${value.en}`)),
+    ...(decision.decision === "blocked"
+      ? [
+          bilingualText(
+            `阻断类型：${publicationBlockerLabel(decision.blocker_type, "zh")}`,
+            `Blocker type: ${publicationBlockerLabel(decision.blocker_type, "en")}`,
+          ),
+        ]
+      : []),
+    ...reviewGates.map(([, gate]) =>
+      bilingualText(
+        `需要关注的闸门：${gate.reader_safe_reason.zh}`,
+        `Gate to review: ${gate.reader_safe_reason.en}`,
+      ),
+    ),
+    ...(decision.evidence_layer
+      ? [bilingualText(`证据层级：${decision.evidence_layer}`, `Evidence layer: ${decision.evidence_layer}`)]
+      : []),
+  ].filter((row) => row.zh || row.en);
+}
+
 function analystSectionRows(item: DailyReaderBriefAgentAnalysisItem, language: Language): Array<[string, LocalizedText[]]> {
   const chairman = item.chairman_synthesis.length > 0 ? item.chairman_synthesis : [item.research_summary];
   const redTeam = item.red_team_audit.length > 0 ? item.red_team_audit : item.red_team_review;
@@ -1380,6 +1438,7 @@ function analystSectionRows(item: DailyReaderBriefAgentAnalysisItem, language: L
     const unresolved = combineReaderLists(item.unresolved_questions, item.future_research_tasks);
     const boundary = combineReaderLists(item.reader_boundary_gate, item.confidence_boundary ? [item.confidence_boundary] : undefined);
     const rows: Array<[string, LocalizedText[]]> = [
+      [copy(language, "发布闸门", "Publication decision"), publicationDecisionReaderRows(item)],
       [copy(language, "结构化研究信号", "Structured ResearchSignal"), researchSignalReaderRows(item)],
       [copy(language, `为什么今天研究它 / ${termTitle("research_task", language)}`, "Why this stock today / Research task"), readerMainList(item.research_task)],
       [termLabel("evidence_packet", language), readerMainList(item.evidence_packet)],
@@ -1430,6 +1489,7 @@ function gateHashRecord(item: DailyReaderBriefAgentAnalysisItem): Record<string,
     knowledge_gate_hash: item.knowledge_gate_hash,
     reader_boundary_gate_hash: item.reader_boundary_gate_hash,
     research_signal_hash: item.research_signal_hash ?? item.research_signal?.signal_hash,
+    publication_decision_hash: item.publication_decision_hash ?? item.publication_decision?.decision_hash,
     public_payload_hash: item.public_payload_hash,
   })
     .filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0);

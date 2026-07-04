@@ -396,6 +396,30 @@ describe("daily reader brief builder", () => {
             market_data_snapshot_hash: "md1234567890abcdef",
             research_status: "needs_review",
           },
+          publication_decision: {
+            schema: "gotra.publication_decision.v1",
+            decision_id: "run:HKEX:0700:publication_decision",
+            decision_hash: "pd1234567890abcdef",
+            signal_id: "run:HKEX:0700:symbol:research_signal",
+            research_signal_hash: "rs1234567890abcdef",
+            decision: "needs_review",
+            reader_safe_reasons: ["v4 research quality gate requires visible review items"],
+            blocker_type: "",
+            gates: {
+              public_safety_scan: {
+                gate: "public_safety_scan",
+                status: "pass",
+                reader_safe_reason: "public safety scan passed",
+              },
+              data_completeness_gate: {
+                gate: "data_completeness_gate",
+                status: "needs_review",
+                reader_safe_reason: "evidence gaps remain visible",
+              },
+            },
+            publish_with_boundary: true,
+            evidence_layer: "local checks + smoke evidence",
+          },
           evidence_gaps: [],
           watch_conditions: [],
           confidence_boundary: { zh: "研究内容，不是交易信号。", en: "Research content, not a trading signal." },
@@ -409,6 +433,7 @@ describe("daily reader brief builder", () => {
           reader_boundary_gate_hash: "rb1234567890abcdef",
           research_signal_hash: "rs1234567890abcdef",
           agent_research_signal_hashes: { f_partner_view: "frs1234567890abcdef" },
+          publication_decision_hash: "pd1234567890abcdef",
           public_payload_hash: "pp1234567890abcdef",
           positive_case: [],
           negative_case: [],
@@ -434,6 +459,9 @@ describe("daily reader brief builder", () => {
     expect(normalized?.agent_analysis_items[0]?.research_signal?.evidence_ids).toContain("market_data_snapshot");
     expect(normalized?.agent_analysis_items[0]?.research_signal_hash).toBe("rs1234567890abcdef");
     expect(normalized?.agent_analysis_items[0]?.agent_research_signal_hashes?.f_partner_view).toBe("frs1234567890abcdef");
+    expect(normalized?.agent_analysis_items[0]?.publication_decision?.decision).toBe("needs_review");
+    expect(normalized?.agent_analysis_items[0]?.publication_decision_hash).toBe("pd1234567890abcdef");
+    expect(normalized?.agent_analysis_items[0]?.publication_decision?.gates.data_completeness_gate.status).toBe("needs_review");
     expect(JSON.stringify(normalized)).not.toContain("[object Object]");
   });
 
