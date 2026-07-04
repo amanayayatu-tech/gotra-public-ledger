@@ -1446,7 +1446,7 @@ function claimBoundaryPage() {
   });
 }
 
-function faqPage(summary) {
+function faqPage() {
   const faqs = [
     [
       "What is GOTRA Public Ledger?",
@@ -2002,7 +2002,7 @@ function main() {
     ["/system", systemPage(summary, manifest)],
     ["/methodology", methodologyPage(summary)],
     ["/claim-boundary", claimBoundaryPage()],
-    ["/faq", faqPage(summary)],
+    ["/faq", faqPage()],
     ["/sources", sourcesPage(manifest, evidenceIndex, contentIndex)],
     ["/notes", notesPage(contentIndex)],
   ];
