@@ -53,6 +53,7 @@ import {
   researchLedgerStatuses,
   researchLedgerSymbols,
   researchLedgerWindows,
+  type ResearchLedgerEntry,
   type ResearchLedgerLoadState,
 } from "./data/researchLedger";
 import {
@@ -82,7 +83,7 @@ import {
   type LocalizedText,
   type Language,
 } from "./i18n/language";
-import { evidencePacketRouteHref, noteRouteHref, parseBrowserRoute, parseHashRoute, predictionRouteHref, routeHref, trackRecordEntryRouteHref, type AppRoute } from "./routes/hashRouter";
+import { evidencePacketRouteHref, noteRouteHref, parseBrowserRoute, parseHashRoute, predictionRouteHref, routeHref, symbolProfileRouteHref, trackRecordEntryRouteHref, type AppRoute } from "./routes/hashRouter";
 
 const CognitionDashboard = lazy(() =>
   import("./components/CognitionDashboard").then((module) => ({ default: module.CognitionDashboard })),
@@ -1545,6 +1546,304 @@ function trackRecordStatusLabel(status: string, language: Language): string {
   return status || copy(language, "未报告", "Not reported");
 }
 
+function normalizeSymbolToken(value: string): string {
+  return value.replace(/\.HK$/i, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
+}
+
+function symbolMatchesValue(candidate: string, target: string): boolean {
+  const candidateToken = normalizeSymbolToken(candidate);
+  const targetToken = normalizeSymbolToken(target);
+  if (!candidateToken || !targetToken) {
+    return false;
+  }
+  return candidateToken === targetToken || candidateToken.endsWith(targetToken) || targetToken.endsWith(candidateToken);
+}
+
+function symbolMatchesAgentItem(item: DailyReaderBriefAgentAnalysisItem, symbol: string): boolean {
+  return symbolMatchesValue(item.symbol, symbol);
+}
+
+function symbolMatchesLedgerEntry(entry: ResearchLedgerEntry, symbol: string): boolean {
+  return symbolMatchesValue(`${entry.exchange}:${entry.symbol}`, symbol) || symbolMatchesValue(entry.symbol, symbol);
+}
+
+function symbolStatusSummary(item: DailyReaderBriefAgentAnalysisItem | undefined, entries: ResearchLedgerEntry[], language: Language): string {
+  if (entries.length > 0) {
+    return copy(
+      language,
+      `公开账本已有 ${entries.length} 条历史判断；版本变化和复盘到期项可在本页核对。`,
+      `${entries.length} public ledger entr${entries.length === 1 ? "y" : "ies"} are available for this symbol; version changes and review due dates are visible here.`,
+    );
+  }
+  if (item) {
+    return copy(
+      language,
+      "当前有单票研究摘要，但 live research_ledger.json 尚未提供该标的的 PublicationDecision=publish 历史判断；页面不会伪造过往记录。",
+      "A per-symbol research brief is available, but live research_ledger.json does not yet provide PublicationDecision=publish history for this symbol; this page does not fabricate historical records.",
+    );
+  }
+  return copy(language, "当前公开产物中没有找到该标的。", "This symbol was not found in current public artifacts.");
+}
+
+function SymbolProfilePage({
+  state,
+  language,
+  symbol,
+}: {
+  state: DailyReaderBriefLoadState;
+  language: Language;
+  symbol: string;
+}) {
+  const [ledgerState, setLedgerState] = useState<ResearchLedgerLoadState>({ kind: "loading" });
+
+  useEffect(() => {
+    let cancelled = false;
+    setLedgerState({ kind: "loading" });
+    loadResearchLedgerManifest()
+      .then((manifest) => {
+        if (!cancelled) {
+          setLedgerState({ kind: "ready", manifest });
+        }
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        if (!cancelled) {
+          setLedgerState(message === "research_ledger_unavailable" ? { kind: "unavailable", message } : { kind: "error", message });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [symbol]);
+
+  if (state.kind === "loading") {
+    return (
+      <section className="route-panel edge-state-note" role="status">
+        {copy(language, "正在读取个股档案。", "Loading symbol profile.")}
+      </section>
+    );
+  }
+  if (state.kind === "error") {
+    return (
+      <section className="route-panel edge-state-note" role="alert">
+        {copy(language, "个股档案暂不可用：", "Symbol profile is unavailable:")} {state.message}
+      </section>
+    );
+  }
+
+  const { brief } = state;
+  const item = brief.agent_analysis_items.find((candidate) => symbolMatchesAgentItem(candidate, symbol));
+  const ledgerEntries =
+    ledgerState.kind === "ready"
+      ? ledgerState.manifest.entries.filter((entry) => symbolMatchesLedgerEntry(entry, symbol)).sort((left, right) => {
+          const dateCompare = right.as_of_date.localeCompare(left.as_of_date);
+          return dateCompare || right.version - left.version;
+        })
+      : [];
+  const latestEntry = ledgerEntries[0];
+  const reviewDue = item?.research_signal?.review_due_at ?? latestEntry?.review_due_at ?? copy(language, "未报告", "Not reported");
+  const currentStatus = item?.research_status ?? item?.research_signal?.research_status ?? latestEntry?.research_status ?? latestEntry?.status ?? "unavailable";
+  const publicationDecision = item?.publication_decision?.decision ?? latestEntry?.publication_decision?.decision ?? latestEntry?.status;
+  const displaySymbol = item?.symbol ?? (latestEntry ? `${latestEntry.exchange}:${latestEntry.symbol}` : symbol);
+  const gapsAndReview = combineReaderLists(
+    item?.missing_required_sources,
+    item?.evidence_gaps,
+    item?.research_quality_gate,
+    item?.unresolved_questions,
+    item?.future_research_tasks,
+  );
+  const symbolKnownGaps = brief.known_gaps.filter((gap) => symbolMatchesValue(gap.symbol ?? gap.code, symbol));
+  const relatedWatch = brief.research_watchlist.filter((watch) => symbolMatchesValue(watch.symbol, symbol));
+  const viewChangeRows = ledgerEntries.slice(0, 8);
+
+  return (
+    <>
+      <section className="route-intro full-analyst-reader-hero" aria-labelledby="symbol-profile-title">
+        <div>
+          <span className="section-index">{copy(language, "个股档案", "Symbol profile")}</span>
+          <h1 id="symbol-profile-title">{displaySymbol}</h1>
+          <p>{symbolStatusSummary(item, ledgerEntries, language)}</p>
+          <div className="hero-actions">
+            <a className="primary-action" href={routeHref("/today")}>{copy(language, "返回今日简报", "Back to today")}</a>
+            <a className="secondary-action" href={routeHref("/track-record")}>{copy(language, "打开公开研究账本", "Open track record")}</a>
+          </div>
+        </div>
+        <Search aria-hidden="true" size={26} />
+      </section>
+
+      <section className="today-section" aria-labelledby="symbol-profile-snapshot-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "当前状态", "Current state")}</span>
+          <h2 id="symbol-profile-snapshot-title">{copy(language, "先看状态，再看证据和变化", "Read status first, then evidence and changes")}</h2>
+          <p>
+            {copy(
+              language,
+              "本页只使用公开 daily_reader_brief.v4 和 live research_ledger.json。没有 live 账本时会明确标注等待，不回退到冻结 Demo，也不伪造历史判断。",
+              "This page only uses public daily_reader_brief.v4 and live research_ledger.json. When the live ledger is absent, it says so clearly instead of falling back to the frozen demo or fabricating history.",
+            )}
+          </p>
+        </div>
+        <div className="today-effect-grid">
+          <article>
+            <span>{copy(language, "研究质量状态", "Research status")}</span>
+            <strong>{researchStatusLabel(currentStatus, language)}</strong>
+            <p>{copy(language, "candidate / watch / needs_review / data_gap 等是研究边界，不是交易动作。", "candidate / watch / needs_review / data_gap are research boundaries, not trading actions.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "发布决定", "Publication decision")}</span>
+            <strong>{publicationDecisionLabel(publicationDecision, language)}</strong>
+            <p>{copy(language, "只有 PublicationDecision=publish 才会进入 append-only 公开账本。", "Only PublicationDecision=publish enters the append-only public ledger.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "复盘到期", "Review due")}</span>
+            <strong>{reviewDue}</strong>
+            <p>{copy(language, "复盘日期用于后续核对 raw return、benchmark return 和错误归因。", "The review due date is for later raw-return, benchmark-return, and error-attribution checks.")}</p>
+          </article>
+        </div>
+      </section>
+
+      {item ? (
+        <section className="today-section" aria-labelledby="symbol-profile-current-title">
+          <div className="section-heading compact">
+            <span>{copy(language, "当前研究", "Current research")}</span>
+            <h2 id="symbol-profile-current-title">{copy(language, "研究任务、证据、底稿和反证", "Task, evidence, dossier, and critique")}</h2>
+            <p>{pickLocalized(language, item.research_summary)}</p>
+          </div>
+          <div className="status-explanation-grid">
+            <StatusExplanationCard rawStatus={currentStatus} language={language} compact />
+            {item.red_team_verdict ? <StatusExplanationCard rawStatus={item.red_team_verdict} language={language} compact /> : null}
+          </div>
+          <div className="today-agent-grid full-analyst-reader-grid">
+            {analystSectionRows(item, language).slice(0, 10).map(([title, list]) => (
+              <article className="today-agent-card" key={String(title)}>
+                <h3>{String(title)}</h3>
+                <ul>
+                  {list.slice(0, 4).map((value) => (
+                    <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+          {item.confidence_boundary ? (
+            <p className="symbol-confidence-boundary">{pickLocalized(language, item.confidence_boundary)}</p>
+          ) : null}
+        </section>
+      ) : (
+        <section className="today-section edge-state-note" role="status">
+          {copy(language, "当前 daily_reader_brief.v4 没有该标的的单票研究摘要。", "Current daily_reader_brief.v4 has no per-symbol research brief for this symbol.")}
+        </section>
+      )}
+
+      <section className="today-section" aria-labelledby="symbol-profile-history-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "历史判断与观点变化", "History and view changes")}</span>
+          <h2 id="symbol-profile-history-title">{copy(language, "只读 live 公开账本", "Live public ledger only")}</h2>
+          <p>
+            {ledgerState.kind === "ready"
+              ? copy(language, "这里按 live research_ledger.json 过滤该标的；更新会追加版本，不覆盖旧记录。", "This filters live research_ledger.json for this symbol; updates append versions instead of overwriting old rows.")
+              : ledgerState.kind === "unavailable"
+                ? copy(language, "当前生产 reports 目录没有 live research_ledger.json；历史判断等待后端 publish entries。", "The current production reports directory has no live research_ledger.json; history waits for backend publish entries.")
+                : ledgerState.kind === "error"
+                  ? `${copy(language, "公开账本读取失败：", "Public ledger failed to load:")} ${ledgerState.message}`
+                  : copy(language, "正在读取 live research_ledger.json。", "Loading live research_ledger.json.")}
+          </p>
+        </div>
+        {viewChangeRows.length > 0 ? (
+          <div className="table-scroll">
+            <table className="ledger-table">
+              <thead>
+                <tr>
+                  <th>{copy(language, "日期", "Date")}</th>
+                  <th>{copy(language, "版本", "Version")}</th>
+                  <th>{copy(language, "状态", "Status")}</th>
+                  <th>{copy(language, "窗口", "Window")}</th>
+                  <th>{copy(language, "复盘到期", "Review due")}</th>
+                  <th>{copy(language, "研究假设", "Hypothesis")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {viewChangeRows.map((entry) => (
+                  <tr key={entry.entry_id}>
+                    <td>{entry.as_of_date}</td>
+                    <td><a href={trackRecordEntryRouteHref(entry.entry_id)}>v{entry.version}</a></td>
+                    <td>{trackRecordStatusLabel(entry.status, language)}</td>
+                    <td>{entry.window_days}d</td>
+                    <td>{entry.review_due_at}</td>
+                    <td>{entry.research_signal?.hypothesis ?? copy(language, "未报告", "Not reported")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="edge-state-note">
+            {copy(language, "暂无 live 公开历史判断。这里不会用 Demo 账本或 raw Markdown 补历史。", "No live public historical judgment is available. This page does not use the Demo ledger or raw Markdown to fill history.")}
+          </div>
+        )}
+      </section>
+
+      <section className="today-section" aria-labelledby="symbol-profile-review-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "复盘、数据缺口与下一步", "Review, data gaps, and next steps")}</span>
+          <h2 id="symbol-profile-review-title">{copy(language, "哪里还不能过度确定", "Where certainty is not justified")}</h2>
+        </div>
+        <div className="today-agent-grid">
+          <article className="today-agent-card">
+            <h3>{copy(language, "复盘安排", "Review plan")}</h3>
+            <ul>
+              <li>{copy(language, `复盘到期：${reviewDue}`, `Review due: ${reviewDue}`)}</li>
+              <li>{copy(language, "Stage 10 会把 1/7/30/90 天复盘、raw return、benchmark return 和不可复盘原因做成正式复盘引擎。", "Stage 10 will formalize 1/7/30/90 day review, raw return, benchmark return, and non-reviewable reasons.")}</li>
+            </ul>
+          </article>
+          <article className="today-agent-card">
+            <h3>{copy(language, "数据缺口 / 需要复核", "Data gaps / needs review")}</h3>
+            {gapsAndReview.length > 0 || symbolKnownGaps.length > 0 ? (
+              <ul>
+                {gapsAndReview.slice(0, 5).map((value) => (
+                  <li key={`${value.zh}-${value.en}`}>{pickLocalized(language, value)}</li>
+                ))}
+                {symbolKnownGaps.slice(0, 3).map((gap) => (
+                  <li key={`${gap.code}-${gap.symbol ?? ""}`}>{pickLocalized(language, gap.explanation)}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{copy(language, "当前公开摘要没有额外数据缺口；仍以读者边界和证据包为准。", "The current public summary has no additional data gap; reader boundary and EvidencePacket still apply.")}</p>
+            )}
+          </article>
+          <article className="today-agent-card">
+            <h3>{copy(language, "下一步观察", "Watch next")}</h3>
+            {relatedWatch.length > 0 || item?.watch_conditions.length ? (
+              <ul>
+                {relatedWatch.slice(0, 3).map((watch) => (
+                  <li key={`${watch.symbol}-${watch.source}`}>{pickLocalized(language, watch.question)} · {pickLocalized(language, watch.next_check)}</li>
+                ))}
+                {(item?.watch_conditions ?? []).slice(0, 3).map((watch) => (
+                  <li key={`${watch.zh}-${watch.en}`}>{pickLocalized(language, watch)}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{copy(language, "当前没有单独观察项；请回到今日简报查看全局 watchlist。", "No symbol-specific watch item is available; use today's brief for the global watchlist.")}</p>
+            )}
+          </article>
+        </div>
+        <details className="audit-details raw-artifact-disclosure">
+          <summary>{copy(language, "查看审计入口", "Show audit links")}</summary>
+          <p className="muted">
+            {copy(language, "这些入口用于核对公开产物，不是普通阅读主路径；不展示 raw provider I/O、完整内部 prompt、secret 或私有路径。", "These links audit public artifacts, not the ordinary reading path; they do not expose raw provider I/O, full internal prompts, secrets, or private paths.")}
+          </p>
+          <div className="related-prediction-list">
+            {item ? <a href={evidencePacketRouteHref(item.symbol)}>{copy(language, "证据包审计摘要", "EvidencePacket audit summary")}</a> : null}
+            <a href={routeHref("/reports/full-analyst")}>{copy(language, "完整研究链路 reader", "Full Analyst reader")}</a>
+            <a href={routeHref("/track-record")}>{copy(language, "公开研究账本", "Public track record")}</a>
+            <a href={brief.links.daily_reader_brief}>{copy(language, "daily_reader_brief.json", "daily_reader_brief.json")}</a>
+          </div>
+        </details>
+      </section>
+    </>
+  );
+}
+
 function TrackRecordPage({ entryId, language }: { entryId?: string; language: Language }) {
   const [state, setState] = useState<ResearchLedgerLoadState>({ kind: "loading" });
   const [symbolFilter, setSymbolFilter] = useState("all");
@@ -1787,7 +2086,7 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
                   {filteredEntries.map((entry) => (
                     <tr key={entry.entry_id}>
                       <td><a href={trackRecordEntryRouteHref(entry.entry_id)}>v{entry.version} · {shortHash(entry.hash)}</a></td>
-                      <td>{entry.exchange}:{entry.symbol}</td>
+                      <td><a href={symbolProfileRouteHref(`${entry.exchange}:${entry.symbol}`)}>{entry.exchange}:{entry.symbol}</a></td>
                       <td>{trackRecordStatusLabel(entry.status, language)}</td>
                       <td>{entry.window_days}d</td>
                       <td>{entry.review_due_at}</td>
@@ -2293,6 +2592,9 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
                   <span>{copy(language, "单票研究", "Symbol brief")}</span>
                   <strong>{item.symbol}</strong>
                   {item.research_status ? <em className="research-status-pill">{researchStatusLabel(item.research_status, language)}</em> : null}
+                  <a className="inline-audit-link" href={symbolProfileRouteHref(item.symbol)}>
+                    {copy(language, "打开个股档案", "Open symbol profile")}
+                  </a>
                 </div>
                 <div className="symbol-brief-lede">
                   <span>{termLabel("chairman_synthesis", language)}</span>
@@ -2905,6 +3207,9 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
                 <span>{copy(language, "标的", "symbol")}</span>
                 <strong>{item.symbol}</strong>
                 {item.research_status ? <em className="research-status-pill">{researchStatusLabel(item.research_status, language)}</em> : null}
+                <a className="inline-audit-link" href={symbolProfileRouteHref(item.symbol)}>
+                  {copy(language, "打开个股档案", "Open symbol profile")}
+                </a>
               </div>
               <div className="symbol-brief-lede">
                 <span>{copy(language, "研究链路说明", "Research chain")}</span>
@@ -4740,7 +5045,7 @@ function App() {
   }, [route.name]);
 
   useEffect(() => {
-    if (route.name !== "today" && route.name !== "fullAnalystReport" && route.name !== "evidencePacketAudit") {
+    if (route.name !== "today" && route.name !== "fullAnalystReport" && route.name !== "evidencePacketAudit" && route.name !== "symbolProfile") {
       return;
     }
 
@@ -4965,6 +5270,7 @@ function App() {
   const routeDataPending =
     (route.name === "today" && dailyBriefState.kind === "loading") ||
     (route.name === "fullAnalystReport" && dailyBriefState.kind === "loading") ||
+    (route.name === "symbolProfile" && dailyBriefState.kind === "loading") ||
     (route.name === "evidencePacketAudit" && dailyBriefState.kind === "loading") ||
     (route.name === "sources" && liveReportsState.kind === "loading") ||
     (route.name === "home" && hasDataset && !homeDetailsReady);
@@ -4977,6 +5283,7 @@ function App() {
       route.name === "whyGotra" ||
       route.name === "trackRecord" ||
       route.name === "trackRecordEntry" ||
+      route.name === "symbolProfile" ||
       route.name === "fullAnalystReport" ||
       route.name === "evidencePacketAudit" ||
       route.name === "notes" ||
@@ -5086,6 +5393,8 @@ function App() {
         {route.name === "fullAnalystReport" ? <FullAnalystReaderPage state={dailyBriefState} language={language} /> : null}
 
         {route.name === "evidencePacketAudit" ? <EvidencePacketAuditPage state={dailyBriefState} language={language} evidenceId={route.evidenceId} /> : null}
+
+        {route.name === "symbolProfile" ? <SymbolProfilePage state={dailyBriefState} language={language} symbol={route.symbol} /> : null}
 
         {route.name === "trackRecord" ? <TrackRecordPage language={language} /> : null}
 

@@ -4,6 +4,7 @@ export type AppRoute =
   | { name: "whyGotra"; path: "/why-gotra" }
   | { name: "guide"; path: "/guide" }
   | { name: "fullAnalystReport"; path: "/reports/full-analyst" }
+  | { name: "symbolProfile"; path: "/symbol/:symbol"; symbol: string }
   | { name: "evidencePacketAudit"; path: "/audit/evidence/:id"; evidenceId: string }
   | { name: "trackRecord"; path: "/track-record" }
   | { name: "trackRecordEntry"; path: "/track-record/:entryId"; entryId: string }
@@ -77,6 +78,15 @@ export function parseHashRoute(hash: string): AppRoute {
     };
   }
 
+  const symbolMatch = path.match(/^\/symbol\/([^/]+)$/);
+  if (symbolMatch?.[1]) {
+    return {
+      name: "symbolProfile",
+      path: "/symbol/:symbol",
+      symbol: decodeURIComponent(symbolMatch[1]),
+    };
+  }
+
   const noteMatch = path.match(/^\/notes\/([^/]+)$/);
   if (noteMatch?.[1]) {
     return {
@@ -116,6 +126,10 @@ export function predictionRouteHref(predictionId: string): string {
 
 export function trackRecordEntryRouteHref(entryId: string): string {
   return routeHref(`/track-record/${encodeURIComponent(entryId)}`);
+}
+
+export function symbolProfileRouteHref(symbol: string): string {
+  return routeHref(`/symbol/${encodeURIComponent(symbol)}`);
 }
 
 export function noteRouteHref(slug: string): string {

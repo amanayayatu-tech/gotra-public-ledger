@@ -178,6 +178,10 @@ function listText(value, fallback = "") {
   return Array.isArray(value) && value.length > 0 ? value.slice(0, 3).map(textValue).join(" | ") : fallback;
 }
 
+function listLike(value) {
+  return Array.isArray(value) ? value.filter((item) => item !== null && item !== undefined) : [];
+}
+
 function readerListText(value, fallback = "") {
   if (!Array.isArray(value) || value.length === 0) {
     return fallback;
@@ -1928,6 +1932,120 @@ function trackRecordPage(source) {
   });
 }
 
+function symbolRoutePath(symbol) {
+  return `/symbol/${encodeURIComponent(symbol || "sample")}`;
+}
+
+function symbolMatchesValue(candidate, target) {
+  const normalize = (value) => String(value || "").replace(/\.HK$/i, "").replace(/[^A-Za-z0-9]/g, "").toLowerCase();
+  const left = normalize(candidate);
+  const right = normalize(target);
+  return Boolean(left && right && (left === right || left.endsWith(right) || right.endsWith(left)));
+}
+
+function symbolProfilePage(source, requestedSymbol) {
+  const brief = source.dailyReaderBrief;
+  const manifest = source.researchLedger;
+  const agentItems = Array.isArray(brief?.agent_analysis_items) ? brief.agent_analysis_items : [];
+  const item = agentItems.find((candidate) => symbolMatchesValue(candidate.symbol, requestedSymbol));
+  const entries = Array.isArray(manifest?.entries)
+    ? manifest.entries
+        .filter((entry) => symbolMatchesValue(`${entry.exchange ?? ""}:${entry.symbol ?? ""}`, requestedSymbol) || symbolMatchesValue(entry.symbol, requestedSymbol))
+        .sort((left, right) => String(right.as_of_date ?? "").localeCompare(String(left.as_of_date ?? "")) || Number(right.version ?? 0) - Number(left.version ?? 0))
+    : [];
+  const displaySymbol = item?.symbol ?? (entries[0] ? `${entries[0].exchange ?? ""}:${entries[0].symbol ?? requestedSymbol}` : requestedSymbol);
+  const gaps = [
+    ...listLike(item?.missing_required_sources),
+    ...listLike(item?.evidence_gaps),
+    ...listLike(item?.research_quality_gate),
+    ...listLike(item?.unresolved_questions),
+    ...listLike(item?.future_research_tasks),
+  ];
+  const historyRows = entries.slice(0, 10).map((entry) => [
+    entry.as_of_date ?? "",
+    `v${entry.version ?? ""}`,
+    statusLabel(entry.status ?? ""),
+    entry.window_days ?? "",
+    entry.review_due_at ?? "",
+    entry.research_signal?.hypothesis ?? "",
+  ]);
+
+  return pageShell({
+    route: symbolRoutePath(requestedSymbol),
+    title: `${displaySymbol} Symbol Profile | GOTRA Public Ledger`,
+    description:
+      "Crawler-readable symbol profile for current research, live ledger history, view changes, review due items, and data gaps. Research information only; not investment advice or a trading signal.",
+    extraJsonLd: [
+      {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        name: `${displaySymbol} GOTRA Symbol Profile`,
+        url: `${baseUrl}${symbolRoutePath(requestedSymbol)}`,
+        about: {
+          "@type": "Thing",
+          name: displaySymbol,
+        },
+      },
+    ],
+    body: `      <h1>${escapeHtml(displaySymbol)} 个股档案 / Symbol Profile</h1>
+      <p class="lede">个股档案汇总当前研究摘要、公开账本历史判断、观点变化、复盘到期项和数据缺口。研究信息，不是投资建议或交易信号。</p>
+      <section class="notice">
+        <h2>当前状态</h2>
+        ${table(
+          ["项目", "读者解释"],
+          [
+            ["研究质量状态", statusLabel(item?.research_status ?? item?.research_signal?.research_status ?? entries[0]?.research_status ?? entries[0]?.status ?? "unavailable")],
+            ["发布决定", statusLabel(item?.publication_decision?.decision ?? entries[0]?.publication_decision?.decision ?? entries[0]?.status ?? "unavailable")],
+            ["复盘到期", item?.research_signal?.review_due_at ?? entries[0]?.review_due_at ?? "未报告"],
+            ["公开账本历史", entries.length > 0 ? `${entries.length} 条 live LedgerEntry` : "等待 live research_ledger.json；不会回退到冻结 Demo 账本，也不会伪造历史判断。"],
+          ],
+        )}
+      </section>
+      <section>
+        <h2>当前研究摘要</h2>
+        ${
+          item
+            ? table(
+                ["模块", "摘要"],
+                [
+                  ["研究摘要", textValue(item.research_summary)],
+                  ["研究任务书", readerListText(item.research_task)],
+                  ["证据包", readerListText(item.evidence_packet)],
+                  ["K 深度研究底稿", combinedReaderListText("", item.k_deep_research_dossier, item.k_deep_research)],
+                  ["F/W/G 独立视角", [readerListText(item.f_partner_view), readerListText(item.w_partner_view), readerListText(item.g_partner_view)].filter(Boolean).join(" | ")],
+                  ["主席综合", readerListText(item.chairman_synthesis, textValue(item.research_summary))],
+                  ["红队反证审计", readerListText(item.red_team_audit, readerListText(item.red_team_review))],
+                  ["知识闸门 / 内部 Alaya", readerListText(item.knowledge_gate)],
+                ],
+              )
+            : "<p>当前 daily_reader_brief.v4 没有该标的的单票研究摘要；页面不会从 raw JSON 或私有产物推断。</p>"
+        }
+      </section>
+      <section>
+        <h2>历史判断与观点变化</h2>
+        ${
+          historyRows.length > 0
+            ? table(["日期", "版本", "状态", "窗口", "复盘到期", "研究假设"], historyRows)
+            : "<p>暂无 live 公开历史判断。这里不会用 Demo 账本或 raw Markdown 补历史。</p>"
+        }
+      </section>
+      <section>
+        <h2>复盘、数据缺口与下一步</h2>
+        ${
+          gaps.length > 0
+            ? `<ul>${gaps.slice(0, 10).map((line) => `<li>${escapeHtml(textValue(line))}</li>`).join("")}</ul>`
+            : "<p>当前公开摘要没有额外数据缺口；仍以读者边界、证据包和后续复盘为准。</p>"
+        }
+        <p>Stage 10 会把 1/7/30/90 天复盘、raw return、benchmark return 和不可复盘原因做成正式复盘引擎。</p>
+      </section>
+      <section class="notice">
+        <h2>审计入口</h2>
+        <p>这些入口用于核对公开产物，不是普通阅读主路径；不展示 raw provider I/O、完整内部 prompt、secret 或私有路径。</p>
+        <p><a href="/today">今日简报</a> · <a href="/reports/full-analyst/">完整研究链路 reader</a> · <a href="/track-record">公开研究账本</a> · <a href="/reports/daily_reader_brief.json">daily_reader_brief.json</a></p>
+      </section>`,
+  });
+}
+
 function predictionPage(record) {
   const route = `/predictions/${encodeURIComponent(record.prediction_id)}`;
   const rows = [
@@ -2201,6 +2319,7 @@ Methodology and Audit still document the internal v4 chain, including K dossier,
 - https://gotra.me/why-gotra - Why GOTRA. Research discipline for seeing what changed, what is known, and what still needs review.
 - https://gotra.me/guide - Guide. Seven-step reading order, daily system flow, report type labels, glossary, internal Alaya boundary, and evidence boundaries.
 - https://gotra.me/track-record - Public Track Record. Live append-only research ledger for published ResearchSignal entries with hash chain and publication decision references.
+- https://gotra.me/symbol/sample - Symbol Profile template. Current research, live ledger history, view changes, review due items, and data gaps for one symbol; populated with real symbols when public artifacts are available.
 - https://gotra.me/reports - Audit Center. Live production/status artifacts, Full Analyst v4 status, raw artifact disclosures, and evidence boundaries.
 - https://gotra.me/reports/latest/ - Coverage Report Reader. Productized HTML reader for the latest public coverage report; raw Markdown appears only in audit disclosure.
 - https://gotra.me/reports/full-analyst/ - Full Analyst Research Reader. Productized per-symbol research reader; raw Markdown appears only in audit disclosure.
@@ -2256,6 +2375,10 @@ function main() {
   const portfolio = readJson("public/data/paper-portfolio.latest.json", false);
   const summary = summarizeLedger(ledger);
   const source = reportSource();
+  const symbolProfileSymbols =
+    Array.isArray(source.dailyReaderBrief?.agent_analysis_items) && source.dailyReaderBrief.agent_analysis_items.length > 0
+      ? source.dailyReaderBrief.agent_analysis_items.map((item) => item.symbol).filter(Boolean).slice(0, 3)
+      : ["sample"];
 
   injectHomepage(summary, source);
 
@@ -2283,6 +2406,10 @@ function main() {
     generated.push(writeRoute(route, html));
   }
 
+  for (const symbol of symbolProfileSymbols) {
+    generated.push(writeRoute(symbolRoutePath(symbol), symbolProfilePage(source, symbol)));
+  }
+
   for (const record of ledger.records) {
     generated.push(writeRoute(`/predictions/${encodeURIComponent(record.prediction_id)}`, predictionPage(record)));
   }
@@ -2295,6 +2422,7 @@ function main() {
     "/why-gotra",
     "/guide",
     "/track-record",
+    ...symbolProfileSymbols.map(symbolRoutePath),
     "/ledger",
     "/reports",
     "/reports/latest/",

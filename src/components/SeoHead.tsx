@@ -53,6 +53,9 @@ function canonicalRoutePath(route: AppRoute): string {
   if (route.name === "note") {
     return `/notes/${encodeURIComponent(route.slug)}`;
   }
+  if (route.name === "symbolProfile") {
+    return `/symbol/${encodeURIComponent(route.symbol)}`;
+  }
   return route.path;
 }
 
@@ -175,7 +178,17 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
   };
 
   const path = canonicalRoutePath(route);
-  const page = routes[path] ?? routes["/"];
+  const page =
+    route.name === "symbolProfile"
+      ? {
+          zhTitle: `${route.symbol} 个股档案 | GOTRA Public Ledger`,
+          enTitle: `${route.symbol} Symbol Profile | GOTRA Public Ledger`,
+          zhDescription:
+            "个股档案汇总该标的的当前研究摘要、公开账本历史判断、观点变化、复盘到期项和数据缺口。研究信息，不是投资建议或交易信号。",
+          enDescription:
+            "The symbol profile summarizes current research, live ledger history, view changes, review due items, and data gaps for this symbol. Research information only; not investment advice or a trading signal.",
+        }
+      : routes[path] ?? routes["/"];
   return {
     title: copy(language, page.zhTitle, page.enTitle),
     description: copy(language, page.zhDescription, page.enDescription),

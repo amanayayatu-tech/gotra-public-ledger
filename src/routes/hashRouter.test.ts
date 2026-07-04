@@ -7,6 +7,7 @@ import {
   parseHashRoute,
   predictionRouteHref,
   routeHref,
+  symbolProfileRouteHref,
   trackRecordEntryRouteHref,
 } from "./hashRouter";
 
@@ -37,6 +38,14 @@ describe("hash router", () => {
     expect(route.name).toBe("trackRecordEntry");
     expect(route.name === "trackRecordEntry" ? route.entryId : "").toBe("gotra:ledger:HKEX:0700:2026-06-29:30:v1");
     expect(trackRecordEntryRouteHref("entry 1")).toBe("/#/track-record/entry%201");
+  });
+
+  it("parses symbol profile routes", () => {
+    const route = parseHashRoute("#/symbol/HKEX%3A0700");
+    expect(route.name).toBe("symbolProfile");
+    expect(route.name === "symbolProfile" ? route.symbol : "").toBe("HKEX:0700");
+    expect(symbolProfileRouteHref("HKEX:0700")).toBe("/#/symbol/HKEX%3A0700");
+    expect(parseBrowserRoute("/symbol/HKEX%3A0700", "").name).toBe("symbolProfile");
   });
 
   it("parses note detail routes", () => {
