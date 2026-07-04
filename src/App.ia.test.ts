@@ -128,7 +128,9 @@ describe("public ledger information architecture contract", () => {
     expect(appSource).toContain("symbolProfileRouteHref(item.symbol)");
     expect(appSource).toContain("历史判断与观点变化");
     expect(appSource).toContain("不会回退到冻结 Demo");
-    expect(appSource).toContain("Stage 10 会把 1/7/30/90 天复盘");
+    expect(appSource).toContain("复盘引擎支持 1/7/30/90 天窗口");
+    expect(appSource).toContain("ReviewResult");
+    expect(appSource).toContain("reviewUnavailableSummary");
     expect(geoGeneratorSource).toContain("function symbolProfilePage");
     expect(geoGeneratorSource).toContain("symbolRoutePath");
     expect(geoGeneratorSource).toContain("不会回退到冻结 Demo 账本");
