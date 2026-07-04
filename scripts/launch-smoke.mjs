@@ -772,6 +772,7 @@ async function runBrowserSmoke(args, ledger, contentIndex) {
     }
 
     await navigate(client, `${args.baseUrl}#/ledger`, desktop);
+    await inspectPageWhenRequiredTextSettles(client, ["冻结 Demo 账本", "当前显示"]);
     const ledgerExercise = await exerciseLedger(client);
     report.ledgerInteraction = ledgerExercise;
     assert(ledgerExercise.ok && ledgerExercise.containsCountLine, "Ledger search/filter interaction failed", ledgerExercise);
