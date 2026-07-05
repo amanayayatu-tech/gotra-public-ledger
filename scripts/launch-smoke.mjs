@@ -4,7 +4,16 @@ import os from "node:os";
 import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
 
-const defaultChromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const chromePathCandidates = [
+  process.env.CHROME_PATH,
+  process.env.GOOGLE_CHROME_BIN,
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "/usr/bin/google-chrome",
+  "/usr/bin/google-chrome-stable",
+  "/usr/bin/chromium-browser",
+  "/usr/bin/chromium",
+  "/snap/bin/chromium",
+].filter(Boolean);
 const FORBIDDEN_PHRASES = [
   "this demo format",
   "demo report format",
@@ -13,11 +22,15 @@ const FORBIDDEN_PHRASES = [
   "demo evening review format",
 ];
 
+function resolveDefaultChromePath() {
+  return chromePathCandidates.find((candidate) => fs.existsSync(candidate)) ?? chromePathCandidates[0];
+}
+
 function parseArgs(argv) {
   const args = {
     baseUrl: "https://gotra.me/",
     outDir: "docs/launch-validation/p8-reader-first-ux-i18n-production",
-    chromePath: defaultChromePath,
+    chromePath: resolveDefaultChromePath(),
   };
 
   argv.forEach((arg, index) => {
@@ -141,6 +154,12 @@ function waitForDevTools(processHandle, timeoutMs = 10000) {
   });
 }
 
+function chromeSandboxFlags() {
+  const runningAsRoot = typeof process.getuid === "function" && process.getuid() === 0;
+  const noSandboxRequested = process.env.GOTRA_CHROME_NO_SANDBOX === "1";
+  return runningAsRoot || noSandboxRequested ? ["--no-sandbox"] : [];
+}
+
 async function startChrome(chromePath) {
   if (!fs.existsSync(chromePath)) {
     throw browserToolingError("Chrome binary not found", { chromePath });
@@ -150,6 +169,7 @@ async function startChrome(chromePath) {
     "--headless=new",
     "--disable-gpu",
     "--disable-dev-shm-usage",
+    ...chromeSandboxFlags(),
     "--no-first-run",
     "--no-default-browser-check",
     "--disable-extensions",
@@ -592,6 +612,7 @@ function runChromeScreenshotFallback(args) {
         "--headless=new",
         "--disable-gpu",
         "--disable-dev-shm-usage",
+        ...chromeSandboxFlags(),
         "--no-first-run",
         "--no-default-browser-check",
         "--disable-extensions",
