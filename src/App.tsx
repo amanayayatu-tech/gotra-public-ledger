@@ -135,6 +135,33 @@ type DailyReaderBriefLoadState =
   | { kind: "ready"; brief: DailyReaderBrief; source: "artifact" | "fallback"; fallbackReason: string | null }
   | { kind: "error"; message: string };
 
+type PublicBetaStatus = {
+  schema?: string;
+  beta_started?: boolean;
+  beta_clock_started?: boolean;
+  started_at?: string;
+  elapsed_days?: number;
+  required_days?: number;
+  beta_complete?: boolean;
+  paid_features_enabled?: boolean;
+  free_beta?: boolean;
+  last_daily_event_at?: string;
+  last_daily_run_status?: string;
+  next_daily_run_due_at?: string;
+  no_fabrication?: boolean;
+  not_launch_ready?: boolean;
+  not_paid_ready?: boolean;
+  not_investment_advice?: boolean;
+  not_trading_signal?: boolean;
+  remaining_review_items?: string[];
+};
+
+type PublicBetaStatusLoadState =
+  | { kind: "loading" }
+  | { kind: "ready"; status: PublicBetaStatus }
+  | { kind: "not_found" }
+  | { kind: "error"; message: string };
+
 function compareRecord(a: RecordView, b: RecordView, key: SortKey): number {
   const left = a[key];
   const right = b[key];
@@ -458,6 +485,17 @@ async function fetchText(url: string): Promise<string> {
     throw new Error(`${url} returned HTTP ${response.status}`);
   }
   return response.text();
+}
+
+async function loadPublicBetaStatus(): Promise<PublicBetaStatus | null> {
+  const response = await fetch(reportAssetPath("beta_status.json"), { cache: "no-store" });
+  if (response.status === 404) {
+    return null;
+  }
+  if (!response.ok) {
+    throw new Error(`/reports/beta_status.json returned HTTP ${response.status}`);
+  }
+  return (await response.json()) as PublicBetaStatus;
 }
 
 function marketStatusFallbacks(error: string | null): ReportStatusFileResult[] {
@@ -2348,28 +2386,67 @@ const betaUniverse = [
 ];
 
 function BetaReadinessPage({ language }: { language: Language }) {
+  const [state, setState] = useState<PublicBetaStatusLoadState>({ kind: "loading" });
+
+  useEffect(() => {
+    let cancelled = false;
+    setState({ kind: "loading" });
+    loadPublicBetaStatus()
+      .then((status) => {
+        if (!cancelled) {
+          setState(status ? { kind: "ready", status } : { kind: "not_found" });
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setState({ kind: "error", message: error instanceof Error ? error.message : String(error) });
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const status = state.kind === "ready" ? state.status : null;
+  const isStarted = Boolean(status?.beta_started && status?.beta_clock_started);
+  const elapsedDays = typeof status?.elapsed_days === "number" ? status.elapsed_days : 0;
+  const requiredDays = typeof status?.required_days === "number" ? status.required_days : 30;
+  const betaStateTitle = isStarted
+    ? copy(language, "30 天公开 beta 运行中", "30-day public beta running")
+    : copy(language, "30 天公开 beta 尚未启动", "30-day public beta not started");
+  const betaStateBody = isStarted
+    ? copy(
+        language,
+        "Stage 15B 已从 day 0 开始真实计时。当前只是公开 beta 运行中：未满真实 30 天前，不是正式上线、付费准备完成、投资建议、交易信号或业绩证明。",
+        "Stage 15B has started counting from day 0. This is only the public beta runtime: until a real 30 days completes, it is not launch readiness, paid readiness, investment advice, a trading signal, or performance proof.",
+      )
+    : copy(
+        language,
+        "这里说明 beta 启动前的工程、监控、周报和团队复核准备。beta 尚未启动，30 天时钟没有开始；这不是正式上线、付费准备完成、投资建议、交易信号或业绩证明。",
+        "This page explains engineering, monitoring, weekly-report, and team-review readiness before beta starts. The beta has not started and the 30-day clock has not begun; this is not launch readiness, paid readiness, investment advice, a trading signal, or performance proof.",
+      );
   return (
     <>
       <PageIntro
-        eyebrow={copy(language, "Stage 15A · Beta readiness", "Stage 15A · Beta readiness")}
-        title={copy(language, "30 天公开 beta 尚未启动", "30-day public beta not started")}
-        body={copy(
-          language,
-          "这里说明 beta 启动前的工程、监控、周报和团队复核准备。beta 尚未启动，30 天时钟没有开始；这不是正式上线、付费准备完成、投资建议、交易信号或业绩证明。",
-          "This page explains engineering, monitoring, weekly-report, and team-review readiness before beta starts. The beta has not started and the 30-day clock has not begun; this is not launch readiness, paid readiness, investment advice, a trading signal, or performance proof.",
-        )}
+        eyebrow={isStarted ? copy(language, "Stage 15B · Beta runtime", "Stage 15B · Beta runtime") : copy(language, "Stage 15A · Beta readiness", "Stage 15A · Beta readiness")}
+        title={betaStateTitle}
+        body={betaStateBody}
         icon={BookOpenCheck}
       />
       <section className="today-section" aria-labelledby="beta-state-title">
         <div className="today-effect-grid">
           <article>
             <span>{copy(language, "当前状态", "Current state")}</span>
-            <strong>{copy(language, "准备完成，未启动", "Ready, not started")}</strong>
-            <p>{copy(language, "团队复核通过后，才允许显式启动 Stage 15B 30 天公开 beta。", "Stage 15B 30-day public beta can start only after explicit team review approval.")}</p>
+            <strong>{isStarted ? copy(language, "运行中，等待 30 天真实时间", "Running, waiting for real 30 days") : copy(language, "准备完成，未启动", "Ready, not started")}</strong>
+            <p>
+              {isStarted
+                ? copy(language, "beta clock 已启动；每天必须写 beta heartbeat、daily events 和 no-fabrication 状态。", "The beta clock has started; beta heartbeat, daily events, and no-fabrication state must be written daily.")
+                : copy(language, "团队复核通过后，才允许显式启动 Stage 15B 30 天公开 beta。", "Stage 15B 30-day public beta can start only after explicit team review approval.")}
+            </p>
           </article>
           <article>
             <span>{copy(language, "Beta 时钟", "Beta clock")}</span>
-            <strong>{copy(language, "0 / 30 天", "0 / 30 days")}</strong>
+            <strong>{elapsedDays} / {requiredDays} {copy(language, "天", "days")}</strong>
             <p>{copy(language, "未满真实 30 天前，不能进入正式上线闸。", "The full launch gate is blocked until a real 30 days completes.")}</p>
           </article>
           <article>
@@ -2379,10 +2456,19 @@ function BetaReadinessPage({ language }: { language: Language }) {
           </article>
           <article>
             <span>{copy(language, "付费状态", "Paid state")}</span>
-            <strong>{copy(language, "关闭", "Off")}</strong>
+            <strong>{status?.paid_features_enabled ? copy(language, "异常：需要复核", "Unexpected: review required") : copy(language, "关闭", "Off")}</strong>
             <p>{copy(language, "Beta 期间免费开放，不收取订阅费，也不会开启付费功能。不会承诺回报，也不会展示业绩证明。", "The beta period is free: no subscription fee and no paid feature will be enabled. There is no return promise and no performance proof.")}</p>
           </article>
         </div>
+        {state.kind === "ready" ? (
+          <p className="muted">
+            {copy(language, "公开状态来源：", "Public status source:")} <a href="/reports/beta_status.json">/reports/beta_status.json</a>
+            {status?.last_daily_run_status ? ` · ${status.last_daily_run_status}` : ""}
+          </p>
+        ) : null}
+        {state.kind === "error" ? (
+          <p className="edge-state-note">{copy(language, "beta_status.json 暂时无法读取；页面保留保守边界。", "beta_status.json is temporarily unreadable; this page keeps the conservative boundary.")} {state.message}</p>
+        ) : null}
       </section>
       <section className="today-section" aria-labelledby="beta-readiness-title">
         <div className="section-heading compact">
@@ -2417,11 +2503,17 @@ function BetaReadinessPage({ language }: { language: Language }) {
           <article className="today-agent-card">
             <h3>{copy(language, "下一步", "Next action")}</h3>
             <p>
-              {copy(
-                language,
-                "当前只适合团队 review。人类明确批准后，才启动 Stage 15B，并从 0 开始计 30 天。",
-                "This is ready for team review only. Start Stage 15B only after explicit human approval, with the 30-day clock beginning from zero.",
-              )}
+              {isStarted
+                ? copy(
+                    language,
+                    "下一步是按日监控 beta heartbeat、daily events、public safety、no-fabrication 状态和每周报告；满真实 30 天后才能做 Stage 15B closeout。",
+                    "Next, monitor beta heartbeat, daily events, public safety, no-fabrication state, and weekly reports daily; Stage 15B closeout can run only after a real 30 days.",
+                  )
+                : copy(
+                    language,
+                    "当前只适合团队 review。人类明确批准后，才启动 Stage 15B，并从 0 开始计 30 天。",
+                    "This is ready for team review only. Start Stage 15B only after explicit human approval, with the 30-day clock beginning from zero.",
+                  )}
             </p>
             <div className="related-prediction-list">
               <a href={routeHref("/track-record")}>{copy(language, "公开研究账本", "Public track record")}</a>
@@ -2435,15 +2527,22 @@ function BetaReadinessPage({ language }: { language: Language }) {
       <section className="today-section" aria-labelledby="beta-boundary-title">
         <div className="boundary-banner warning">
           <ShieldCheck aria-hidden="true" size={18} />
-          <span>{copy(language, "Beta 未启动；不构成正式上线、付费准备、投资建议、交易信号或业绩证明。", "Beta not started; not launch readiness, paid readiness, investment advice, a trading signal, or performance proof.")}</span>
+          <span>
+            {isStarted
+              ? copy(language, "Beta 运行中但未满 30 天；不构成正式上线、付费准备、投资建议、交易信号或业绩证明。", "Beta is running but has not completed 30 days; not launch readiness, paid readiness, investment advice, a trading signal, or performance proof.")
+              : copy(language, "Beta 未启动；不构成正式上线、付费准备、投资建议、交易信号或业绩证明。", "Beta not started; not launch readiness, paid readiness, investment advice, a trading signal, or performance proof.")}
+          </span>
         </div>
         <details className="audit-details">
-          <summary id="beta-boundary-title">{copy(language, "查看 Stage 15A 原始状态", "Show Stage 15A raw status")}</summary>
+          <summary id="beta-boundary-title">{isStarted ? copy(language, "查看 Stage 15B 原始状态", "Show Stage 15B raw status") : copy(language, "查看 Stage 15A 原始状态", "Show Stage 15A raw status")}</summary>
           <ul>
-            <li>BETA_READY_NOT_STARTED</li>
-            <li>beta_clock_started=false</li>
-            <li>thirty_day_beta_complete=false</li>
-            <li>paid_subscription_enabled=false</li>
+            <li>{isStarted ? "BETA_IN_PROGRESS_REAL_TIME_WAIT" : "BETA_READY_NOT_STARTED"}</li>
+            <li>beta_started={String(Boolean(status?.beta_started))}</li>
+            <li>beta_clock_started={String(Boolean(status?.beta_clock_started))}</li>
+            <li>thirty_day_beta_complete={String(Boolean(status?.beta_complete))}</li>
+            <li>paid_subscription_enabled={String(Boolean(status?.paid_features_enabled))}</li>
+            <li>started_at={status?.started_at || "not_started"}</li>
+            <li>last_daily_run_status={status?.last_daily_run_status || "not_started"}</li>
             <li>launch_ready=false</li>
           </ul>
         </details>
