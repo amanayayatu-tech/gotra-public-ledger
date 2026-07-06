@@ -200,6 +200,27 @@ function HomeLoadingHero({ language }: { language: Language }) {
               "Loading today's research brief, public evidence, data gaps, review items, and audit records. Internal research-chain terms stay in Methodology and Audit instead of becoming the homepage entry barrier.",
             )}
           </p>
+          <p>
+            {copy(
+              language,
+              "GOTRA 展示 AI 金融研究如何从任务、证据、分歧、反证和复盘一步步形成公开记录。它不提供买卖建议、目标价或收益承诺，而是把研究过程和不确定性摊开给读者审计。",
+              "GOTRA shows how AI financial research turns tasks, evidence, disagreement, counter-evidence, and review into public records. It does not provide action advice, target prices, or return promises; it exposes the research process and uncertainty for audit.",
+            )}
+          </p>
+          <div className="hero-actions" aria-label="Page shortcuts">
+            <a className="primary-action" href="/today/">
+              {copy(language, "今日研究", "Today")}
+            </a>
+            <a className="secondary-action" href="/beta">
+              {copy(language, "30 天 beta 状态", "30-day beta state")}
+            </a>
+            <a className="secondary-action" href="/methodology">
+              {copy(language, "方法论", "Methodology")}
+            </a>
+            <a className="secondary-action" href="/audit">
+              {copy(language, "审计中心", "Audit center")}
+            </a>
+          </div>
         </div>
         <div className="hero-side home-loading-side" aria-hidden="true">
           <div className="loading-shell">
