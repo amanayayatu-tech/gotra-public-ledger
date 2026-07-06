@@ -133,7 +133,8 @@ function main() {
   assertIncludes(pages.get("/guide"), "交易信号", "/guide");
   assertIncludes(pages.get("/guide"), "内部 Alaya", "/guide");
   assertIncludes(pages.get("/guide"), "not performance proof", "/guide");
-  assertIncludes(pages.get("/beta"), "30 天公开 beta 准备区", "/beta");
+  assertIncludes(pages.get("/beta"), "30 天公开 beta 尚未启动", "/beta");
+  assertIncludes(pages.get("/beta"), "Beta 期间免费开放", "/beta");
   assertIncludes(pages.get("/beta"), "BETA_READY_NOT_STARTED", "/beta");
   assertIncludes(pages.get("/beta"), "beta_clock_started", "/beta");
   assertIncludes(pages.get("/beta"), "人类明确批准后", "/beta");

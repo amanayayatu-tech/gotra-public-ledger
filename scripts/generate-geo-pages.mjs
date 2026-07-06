@@ -486,6 +486,7 @@ function countText(value) {
 function statusLabel(value) {
   const raw = String(value ?? "unavailable");
   const labels = new Map([
+    ["partial", "覆盖未完整，需要复核（partial）"],
     ["completed_with_review_items", "已完成但保留复核项（completed_with_review_items）"],
     ["pass_with_review_items", "通过但保留复核项（pass_with_review_items）"],
     ["needs_review", "需要复核（needs_review）"],
@@ -503,6 +504,123 @@ function statusLabel(value) {
     ["not_applicable", "不适用（not_applicable）"],
   ]);
   return labels.get(raw) ?? raw;
+}
+
+function numberOrNull(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function reportCoverageReview(status) {
+  const runStatus = String(status?.run_status ?? status?.status ?? "artifact_unavailable");
+  const universe = numberOrNull(status?.universe_count);
+  const success = numberOrNull(status?.success_count);
+  const failed = numberOrNull(status?.failed_count);
+  const allowedMissing = numberOrNull(status?.allowed_missing_count) ?? 0;
+  const unexpectedFailed = numberOrNull(status?.unexpected_failed_count);
+  const failureRatio = universe && failed !== null ? failed / universe : null;
+  const exchangeRows = status && typeof status.by_exchange === "object" && status.by_exchange !== null ? Object.entries(status.by_exchange) : [];
+  const exchangeSummary = exchangeRows.length > 0
+    ? exchangeRows
+        .map(([exchange, row]) => {
+          const record = row && typeof row === "object" ? row : {};
+          return `${exchange}: ${numberOrNull(record.success ?? record.success_count) ?? 0}/${numberOrNull(record.universe ?? record.universe_count) ?? 0}`;
+        })
+        .join("；")
+    : "未报告分市场覆盖。";
+  const needsReview = runStatus === "partial" || (failed ?? 0) > 0 || (unexpectedFailed ?? 0) > 0;
+  const marketFramingNeeded = (failed ?? 0) > 0 || allowedMissing > 0;
+  return {
+    runStatus,
+    universe,
+    success,
+    failed,
+    allowedMissing,
+    unexpectedFailed,
+    failureRatio,
+    exchangeSummary,
+    needsReview,
+    marketFramingNeeded,
+  };
+}
+
+function latestReportReaderRows(status) {
+  const review = reportCoverageReview(status);
+  const coverageText =
+    review.universe !== null && review.success !== null
+      ? `${review.success}/${review.universe}`
+      : "公开状态文件未报告完整覆盖分母。";
+  return [
+    ["阅读结论", review.needsReview ? "本次覆盖未完整，需要复核；不适合作为完整覆盖日报阅读。" : "本次覆盖状态未报告阻断项。"],
+    ["运行状态", statusLabel(review.runStatus)],
+    ["覆盖情况", coverageText],
+    ["失败/缺失摘要", review.failed !== null ? `${review.failed} 个标的未进入可读覆盖，明细已移入审计区。` : "未报告失败数量。"],
+    ["分市场摘要", review.exchangeSummary],
+    [
+      "读者解释",
+      review.marketFramingNeeded
+        ? "部分标的未进入公开研究，可能与交易日历、数据源可得性或本次运行窗口有关；这些标的不会被当作研究结论依据。"
+        : "未报告需要读者处理的市场日历或数据源缺口。",
+    ],
+    ["下一步", "等待下一次完整覆盖或人工复核；原始字段仅供审计排查。"],
+  ];
+}
+
+function latestReportAuditRows(status) {
+  const review = reportCoverageReview(status);
+  return [
+    ["原始运行状态码", review.runStatus],
+    ["as_of_date", status?.as_of_date ?? "not_reported"],
+    ["trading_date", status?.trading_date ?? "not_reported"],
+    ["success_count", review.success ?? "not_reported"],
+    ["failed_count", review.failed ?? "not_reported"],
+    ["universe_count", review.universe ?? "not_reported"],
+    ["allowed_missing_count", review.allowedMissing],
+    ["unexpected_failed_count", review.unexpectedFailed ?? "not_reported"],
+    ["raw 列表处理", "failed_symbols / missing_symbols / unexpected_failed_symbols 不在 HTML 主路径展开；请打开 status.json 审计原文。"],
+  ];
+}
+
+function normalizedSampleText(value) {
+  return textValue(value)
+    .replace(/\bHKEX:\d+\b|\bNASDAQ:[A-Z.]+\b|\bNYSE:[A-Z.]+\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function joinedReaderBlock(item, keys) {
+  return keys
+    .flatMap((key) => (Array.isArray(item?.[key]) ? item[key] : []))
+    .map(normalizedSampleText)
+    .filter(Boolean)
+    .join(" ");
+}
+
+function fullAnalystSampleRisk(agentItems) {
+  const items = Array.isArray(agentItems) ? agentItems : [];
+  if (items.length === 0) {
+    return { hasRisk: false, reasons: [] };
+  }
+  const allText = items.map((item) => JSON.stringify(item)).join("\n");
+  const reasons = [];
+  if (/fixture context|summary:\s*English|Full Analyst rich brief unavailable/i.test(allText)) {
+    reasons.push("public sample contains fixture/generic wording");
+  }
+  const blocks = [
+    ["f_partner_view", ["f_partner_view"]],
+    ["w_partner_view", ["w_partner_view"]],
+    ["g_partner_view", ["g_partner_view"]],
+    ["chairman_synthesis", ["chairman_synthesis"]],
+    ["red_team_audit", ["red_team_audit", "red_team_review"]],
+  ];
+  for (const [label, keys] of blocks) {
+    const values = items.map((item) => joinedReaderBlock(item, keys)).filter(Boolean);
+    if (values.length >= 2 && new Set(values).size <= 1) {
+      reasons.push(`${label} is identical across symbols`);
+    }
+  }
+  return { hasRisk: reasons.length > 0, reasons };
 }
 
 function reviewStatusForEntry(manifest, entry) {
@@ -589,6 +707,11 @@ function homeFallback(summary, source) {
   return `<main id="geo-crawler-home" aria-label="GOTRA crawler-readable summary">
       <h1>GOTRA Public Ledger 中文研究阅读入口</h1>
       ${definitionBlock()}
+      <section class="notice">
+        <h2>先从哪里读</h2>
+        <p>GOTRA 展示 AI 金融研究如何从任务、证据、分歧、反证和复盘一步步形成公开记录。它不提供买卖建议、目标价或收益承诺，而是把研究过程和不确定性摊开给读者审计。</p>
+        <p><a href="/today/">今日研究</a> · <a href="/beta">30 天 beta 状态</a> · <a href="/methodology">方法论</a> · <a href="/audit">审计中心</a></p>
+      </section>
       ${latestReportHealthHtml(source)}
       ${researchSystemHtml(source.dailyReaderBrief)}
       <section class="summary-grid" aria-label="Snapshot metadata">
@@ -1049,7 +1172,7 @@ function v40ResearchSystemHtml() {
         ${table(
           ["步骤", "读者价值"],
           [
-            ["为什么今天研究 / 研究任务书", "说明选择原因、研究任务、核心问题、必需证据、数据缺口策略、K 目标和 F/W/G brief。"],
+	            ["为什么今天研究 / 研究任务书（Research Task）", "说明选择原因、研究任务、核心问题、必需证据、数据缺口策略、K 目标和 F/W/G brief。"],
             ["证据包（Evidence Packet）", "在任何综合之前记录公开来源、缺失必需来源、陈旧来源、数据缺口和限制。"],
             ["K 底稿先行", "K 不是普通并行 agent；它先创建深度研究底稿，再给 F/W/G 使用。"],
             ["F/W/G 基于 K 并行", "F/W/G 从研究任务书、证据包、K 底稿、内部 Alaya 回读和各自 brief 出发并行研究。"],
@@ -1062,7 +1185,24 @@ function v40ResearchSystemHtml() {
 }
 
 function researchSystemHtml(brief) {
-  return isV40Brief(brief) ? v40ResearchSystemHtml() : v35ResearchSystemHtml();
+  if (!brief || brief.status === "artifact_unavailable" || brief.mode === "artifact_unavailable") {
+	    return `<section class="notice">
+	        <h2>今日研究链路暂不可用</h2>
+	        <p>本次构建没有可用于普通阅读的 daily_reader_brief.json。页面不会回退到 legacy v3.5 表格，也不会从 raw Markdown、私有日志或旧 canary 推断今日研究。</p>
+	        <p>当存在真实可读 v4 产物时，普通读者应按这些节点阅读：研究任务书（Research Task）、证据包、K 深度研究底稿、F/W/G 独立视角、主席综合、红队反证审计、研究质量闸门、知识闸门、内部 Alaya 回读和读者边界。</p>
+	        <p>若要核对历史兼容层，请进入方法论或审计中心；它不作为今日研究样本。</p>
+	      </section>`;
+  }
+  if (isV40Brief(brief)) {
+    return v40ResearchSystemHtml();
+  }
+  if (brief.schema === "gotra.daily_reader_brief.v3_5" || brief.schema === "gotra.daily_reader_brief.v3") {
+    return v35ResearchSystemHtml();
+  }
+  return `<section class="notice">
+        <h2>研究链路版本未确认</h2>
+        <p>公开 brief 未报告 v4 schema；页面只展示 reader-safe 状态摘要，不把旧格式包装成今日研究。</p>
+      </section>`;
 }
 
 function todayPage(source) {
@@ -1082,7 +1222,16 @@ function todayPage(source) {
   const knownGaps = Array.isArray(brief?.known_gaps) ? brief.known_gaps : [];
   const nextWatch = Array.isArray(brief?.next_watch) ? brief.next_watch : [];
   const fullAnalyst = brief?.full_analyst ?? {};
-  const agentItems = Array.isArray(brief?.agent_analysis_items) ? brief.agent_analysis_items : [];
+  const rawAgentItems = Array.isArray(brief?.agent_analysis_items) ? brief.agent_analysis_items : [];
+  const sampleRisk = fullAnalystSampleRisk(rawAgentItems);
+  const agentItems = sampleRisk.hasRisk ? [] : rawAgentItems;
+  const readerTldrText = sampleRisk.hasRisk
+    ? "Full Analyst 试跑样本已从主阅读路径撤下：上一版 canary 存在模板化/fixture 风险，不能作为 beta 样本或今日日报阅读。今天只展示日报状态、覆盖状态、审计入口和边界说明。"
+    : tldr;
+  const readerSubtitle = sampleRisk.hasRisk
+    ? "等待 fresh real v4 canary 重新生成；旧 v3.5 兼容层只保留在审计/方法论历史里。"
+    : subtitle;
+  const visibleTopItems = sampleRisk.hasRisk ? [] : topItems;
   const researchWatchlist = Array.isArray(brief?.research_watchlist) ? brief.research_watchlist : [];
   const internalAlaya = brief?.internal_alaya ?? {};
   const promptFramework = brief?.prompt_framework_summary ?? {};
@@ -1127,8 +1276,8 @@ function todayPage(source) {
       <p class="lede">Research brief, not a trading signal. Some items require review.</p>
       <section class="notice">
         <h2>今天先读什么</h2>
-        <p>${escapeHtml(tldr)}</p>
-        <p>${escapeHtml(subtitle)}</p>
+        <p>${escapeHtml(readerTldrText)}</p>
+        <p>${escapeHtml(readerSubtitle)}</p>
         <p><a href="/why-gotra">为什么是 GOTRA：解释 data_gap 和 needs_review 为什么是研究纪律，而不是系统失败。</a></p>
       </section>
       ${researchSystemHtml(brief)}
@@ -1143,18 +1292,28 @@ function todayPage(source) {
             ["复核项 / 数据缺口", reviewCount],
             ["复盘到期项", reviewDueItems.length > 0 ? reviewDueItems.map((item) => `${item.symbol} ${item.due}`).join(" · ") : "今天没有公开报告的复盘到期项。"],
             ["公开账本", `${Number(fullAnalyst.publish_count ?? 0) > 0 ? "可核对" : "等待 publish"}；只把 PublicationDecision=publish 的研究判断写入 append-only 账本。`],
-            ["研究状态", textValue(fullAnalyst.summary ?? localized("完整研究链路摘要不可用。", "Full Analyst rich brief unavailable."))],
+            ["研究状态", sampleRisk.hasRisk ? "Full Analyst 试跑样本已从主路径撤下，等待真实可审计 canary。" : textValue(fullAnalyst.summary ?? localized("完整研究链路摘要不可用。", "Full Analyst rich brief unavailable."))],
           ],
         )}
         <p><a href="/track-record">打开公开研究账本 / Public Track Record</a></p>
         ${statusExplanationHtml(fullAnalyst.run_status ?? effect.canary_status ?? "unavailable")}
       </section>
+      ${
+        sampleRisk.hasRisk
+          ? `<section class="notice warning">
+        <h2>Full Analyst 试跑样本不等于今日日报</h2>
+        <p>上一版试跑样本存在模板化/fixture 风险，已从今日主阅读路径撤下。今天是否有可公开阅读的日报，以 daily_reader_brief.json 和本页状态为准；旧 v3.5 兼容层只作为审计/方法论历史，不作为今日研究。</p>
+      </section>`
+          : ""
+      }
       <section>
         <h2>今日重点</h2>
         ${
-          topItems.length > 0
-		        ? table(["标签", "摘要", "为什么重要"], topItems.map((item) => [textValue(item.label), textValue(item.summary), textValue(item.why_it_matters)]))
-            : "<p>daily_reader_brief.json 不可用；本页不会推断今日重点。</p>"
+	          visibleTopItems.length > 0
+			        ? table(["标签", "摘要", "为什么重要"], visibleTopItems.map((item) => [textValue(item.label), textValue(item.summary), textValue(item.why_it_matters)]))
+            : sampleRisk.hasRisk
+              ? "<p>旧 canary 今日重点已撤下；本页不把模板化/fixture 样本当作今日研究重点。</p>"
+              : "<p>daily_reader_brief.json 不可用；本页不会推断今日重点。</p>"
         }
       </section>
       <section>
@@ -1212,7 +1371,9 @@ function todayPage(source) {
                       ]),
                 ]),
               )
-            : "<p>完整研究链路摘要不可用；不会从私有或 raw 产物推断单票 agent 分析。</p>"
+            : sampleRisk.hasRisk
+              ? "<p>Full Analyst public sample withheld pending fresh real v4 canary；不会展示旧 canary 的模板化单票 agent 分析。</p>"
+              : "<p>完整研究链路摘要不可用；不会从私有或 raw 产物推断单票 agent 分析。</p>"
         }
         <p><a href="/reports/full-analyst/">打开完整研究链路阅读器，阅读产品化研究视图。</a></p>
       </section>
@@ -1276,6 +1437,7 @@ function fullAnalystReportPage(source) {
   const brief = source.dailyReaderBrief;
   const fullAnalyst = brief?.full_analyst ?? {};
   const agentItems = Array.isArray(brief?.agent_analysis_items) ? brief.agent_analysis_items : [];
+  const sampleRisk = fullAnalystSampleRisk(agentItems);
   const rawMarkdownHref = brief?.links?.full_analyst_report ?? fullAnalyst.report_markdown ?? "/reports/full_analyst_evening_hk_YYYY-MM-DD.md";
   const rawStatusHref = brief?.links?.full_analyst_status ?? fullAnalyst.status_json ?? "/reports/status_full_analyst_evening_hk.json";
   const rawMonitorHref = brief?.links?.full_analyst_monitor ?? "/reports/status_full_analyst_monitor.json";
@@ -1306,16 +1468,27 @@ function fullAnalystReportPage(source) {
       <p class="lede">${v40Reader ? "K 底稿先行，F/W/G 基于 K 并行，主席负责综合冲突，红队只做反证审计，知识闸门决定什么能沉淀。raw Markdown、hash 和 timing 只放在下方审计折叠区。" : v35Reader ? "execution model 是 research task + evidence packet + independent agent calls；raw Markdown 只放在下方审计折叠区。" : v3Reader ? "execution model 是 independent agent calls；raw Markdown 只放在下方审计折叠区。" : "执行模型按公开状态展示，不把 single-call multi-perspective 伪装成 independent agents；raw Markdown 只放在下方审计折叠区。"}</p>
       <section class="notice">
         <h2>读者摘要</h2>
-        <p>${escapeHtml(textValue(fullAnalyst.summary ?? localized("完整研究链路摘要不可用。", "Full Analyst rich brief unavailable.")))}</p>
+        <p>${escapeHtml(sampleRisk.hasRisk ? "Full Analyst v4 样本暂不公开展示：上一版试跑样本存在模板化/fixture 风险，已从主阅读路径撤下，等待真实可审计 canary 重新生成。" : textValue(fullAnalyst.summary ?? localized("完整研究链路摘要不可用。", "Full Analyst rich brief unavailable.")))}</p>
         ${statusExplanationHtml(fullAnalyst.run_status ?? "unavailable")}
         <p>执行模型：${escapeHtml(statusLabel(fullAnalyst.execution_model ?? "not_reported"))} · 方法版本：${escapeHtml(fullAnalyst.methodology_version ?? "not_reported")} · agent 并行度：${escapeHtml(fullAnalyst.agent_parallelism ?? "not_applicable")}</p>
         <p><a href="/today">回到今日研究简报</a> · <a href="/reports">打开审计中心</a> · <a href="/audit/evidence/latest/">证据包审计摘要</a> · <a href="/why-gotra">为什么是 GOTRA</a></p>
       </section>
+      ${
+        sampleRisk.hasRisk
+          ? `<section class="notice warning">
+        <h2>Full Analyst 试跑样本已撤下</h2>
+        <p>旧 canary 中的 F/W/G、主席综合和红队段落存在跨标的模板化重复，不能作为 v4 beta 样本展示。GOTRA 不会把 fixture 或模板化文本伪装成真实研究。</p>
+        <p>下一步需要重新生成真实、可审计、逐标的有差异的 v4 canary；在此之前，本页只保留审计说明和原始产物入口。</p>
+      </section>`
+          : ""
+      }
       ${researchSystemHtml(brief)}
       <section>
         <h2>结构化单票研究</h2>
         ${
-          agentItems.length > 0
+          sampleRisk.hasRisk
+            ? "<p>Full Analyst public sample withheld pending fresh real v4 canary. 旧 canary 审计产物不作为 beta 样本。</p>"
+            : agentItems.length > 0
             ? table(
                 v40Reader
                   ? [
@@ -1395,8 +1568,8 @@ function fullAnalystReportPage(source) {
         }
       </section>
       <details class="notice">
-        <summary>原始审计产物（Raw artifact / Open JSON / Open Markdown）</summary>
-        <p>这些链接仅供审计复核。普通阅读请回到 <a href="/reports/full-analyst/">/reports/full-analyst/</a> 或 <a href="/today">/today</a>。</p>
+        <summary>原始审计产物 / 旧 canary 审计产物，不作为 beta 样本</summary>
+        <p>这些链接仅供审计复核。普通阅读请回到 <a href="/reports/full-analyst/">/reports/full-analyst/</a> 或 <a href="/today">/today</a>。若旧产物含模板化或 fixture 风险，不能把它当作 v4 样本。</p>
         ${table(
           ["产物", "类型", "审计含义"],
           [
@@ -1466,7 +1639,8 @@ function evidencePacketAuditPage(source) {
 }
 
 function latestReportPage(source) {
-  const statusRows = Object.entries(source.status ?? { status: "artifact_unavailable" });
+  const status = source.status ?? { status: "artifact_unavailable" };
+  const review = reportCoverageReview(status);
   const rawMetadataLinePattern =
     /^(?:as_of_date|trading_date|mode|reason|session_status|generated_at(?:_utc)?|run_status|universe_count|success_count|failed_count|allowed_missing_count|unexpected_failed_count|failed_symbols|exit_status)\s*:/i;
   const markdownHighlights = source.latestMarkdown
@@ -1496,19 +1670,22 @@ function latestReportPage(source) {
       <p class="lede">这是最新公开覆盖日报的默认 HTML 阅读页；先展示可读摘要和状态解释，raw Markdown 与 status JSON 只在审计折叠区打开。</p>
       <p class="lede">This is the default HTML reader for the latest public coverage report. It summarizes status and readable highlights before exposing raw artifacts.</p>
       <section class="notice">
-        <h2>报告状态</h2>
+        <h2>${review.needsReview ? "本次覆盖未完整" : "报告状态"}</h2>
+        <p>${review.needsReview ? "本页当前只能作为覆盖运行状态与审计入口阅读；失败明细已移入审计区，不在主路径展开。" : "本页展示读者化状态摘要；原始字段只在审计区打开。"}</p>
         ${table(
           ["字段", "读者解释"],
-          [
-            ["来源状态", statusLabel(source.state)],
-            ["日期", source.status?.as_of_date ?? source.status?.trading_date ?? "artifact_unavailable"],
-            ["运行状态", statusLabel(source.status?.run_status ?? source.status?.exit_status ?? "artifact_unavailable")],
-            ["成功数量", source.status?.success_count ?? "artifact_unavailable"],
-            ["失败数量", source.status?.failed_count ?? "artifact_unavailable"],
-            ["允许缺失数量", source.status?.allowed_missing_count ?? "artifact_unavailable"],
-          ],
+          latestReportReaderRows(status),
         )}
       </section>
+      ${
+        review.needsReview
+          ? `<section class="notice warning">
+        <h2>需要复核</h2>
+        <p>本次 <code>${escapeHtml(review.runStatus)}</code> 状态包含较多未覆盖标的。它不会被包装成完整日报，也不会被当作研究结论依据。</p>
+        <p>可能原因包括交易日历、数据源可得性或本次运行窗口；具体排查请查看 status.json 审计原文。</p>
+      </section>`
+          : ""
+      }
       ${researchSystemHtml(source.dailyReaderBrief)}
       <section>
         <h2>可读重点</h2>
@@ -1524,14 +1701,14 @@ function latestReportPage(source) {
         </ul>
       </section>
       <details class="notice">
-        <summary>原始审计产物（Raw artifact / Open JSON / Open Markdown）</summary>
-        <p>这些链接用于审计和证据复核。普通阅读请回到 <a href="/reports/latest/">/reports/latest/</a>。</p>
+        <summary>原始审计产物 / 原始审计字段，仅供排查，不是普通阅读内容</summary>
+        <p>这些链接用于审计和证据复核。普通阅读请回到 <a href="/reports/latest/">/reports/latest/</a>。长列表字段不会在 HTML 主体展开，避免把 100 个 ticker 变成工程字段墙。</p>
         <ul>
           <li><a href="/reports/latest.md">打开 latest.md Markdown 原文</a></li>
           <li><a href="/reports/status.json">打开 status.json 审计产物</a></li>
         </ul>
-        <h3>Status JSON 字段</h3>
-        ${table(["字段", "值"], statusRows)}
+        <h3>短审计摘要</h3>
+        ${table(["字段", "值"], latestReportAuditRows(status))}
         <h3>Markdown 原文预览</h3>
         ${
           source.latestMarkdown
@@ -1975,11 +2152,12 @@ function trackRecordPage(source) {
 function betaPage() {
   return pageShell({
     route: "/beta",
-    title: "30-day Public Beta Prep | GOTRA Public Ledger",
+    title: "30 天公开 beta 尚未启动 | GOTRA Public Ledger",
     description:
       "Stage 15A beta readiness page. The 30-day beta has not started; not launch readiness, not paid readiness, not investment advice, not a trading signal, and not performance proof.",
-    body: `      <h1>30 天公开 beta 准备区 / 30-day public beta prep</h1>
+    body: `      <h1>30 天公开 beta 尚未启动</h1>
       <p class="lede">Stage 15A 只说明 beta 启动前的工程、监控、周报和团队复核准备。beta 尚未启动，30 天时钟没有开始；这不是正式上线、付费准备完成、投资建议、交易信号或业绩证明。</p>
+      <p class="lede">Beta 期间免费开放，不收取订阅费，也不会开启付费功能。</p>
       <section class="notice">
         <h2>当前状态</h2>
         ${table(
@@ -1989,6 +2167,7 @@ function betaPage() {
             ["beta_clock_started", "false"],
             ["thirty_day_beta_complete", "false"],
             ["paid_subscription_enabled", "false"],
+            ["beta_period_fee", "free"],
             ["launch_ready", "false"],
           ],
         )}
@@ -2156,7 +2335,9 @@ function symbolProfilePage(source, requestedSymbol) {
   const brief = source.dailyReaderBrief;
   const manifest = source.researchLedger;
   const agentItems = Array.isArray(brief?.agent_analysis_items) ? brief.agent_analysis_items : [];
-  const item = agentItems.find((candidate) => symbolMatchesValue(candidate.symbol, requestedSymbol));
+  const sampleRisk = fullAnalystSampleRisk(agentItems);
+  const rawItem = agentItems.find((candidate) => symbolMatchesValue(candidate.symbol, requestedSymbol));
+  const item = sampleRisk.hasRisk ? null : rawItem;
   const entries = Array.isArray(manifest?.entries)
     ? manifest.entries
         .filter((entry) => symbolMatchesValue(`${entry.exchange ?? ""}:${entry.symbol ?? ""}`, requestedSymbol) || symbolMatchesValue(entry.symbol, requestedSymbol))
@@ -2199,6 +2380,14 @@ function symbolProfilePage(source, requestedSymbol) {
     ],
     body: `      <h1>${escapeHtml(displaySymbol)} 个股档案 / Symbol Profile</h1>
       <p class="lede">个股档案汇总当前研究摘要、公开账本历史判断、观点变化、复盘到期项和数据缺口。研究信息，不是投资建议或交易信号。</p>
+      ${
+        sampleRisk.hasRisk
+          ? `<section class="notice warning">
+        <h2>旧 Full Analyst canary 已从个股档案撤下</h2>
+        <p>该标的在旧 canary 中存在模板化/fixture 风险；个股档案不会把它当作 beta 样本、今日研究或历史判断展示。等待 fresh real v4 canary 重新生成后，再恢复逐标的研究摘要。</p>
+      </section>`
+          : ""
+      }
       <section class="notice">
         <h2>当前状态</h2>
         ${table(
