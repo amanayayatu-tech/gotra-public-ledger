@@ -173,8 +173,8 @@ export function Hero({ language }: HeroProps) {
         <p>
           {copy(
               language,
-            "GOTRA 把每日研究观察、公开证据、数据缺口、复核项和审计记录放在同一条公开账本里。内部研究链路仍可在方法论和审计页查看；首页先说明它不是荐股 agent，也不是交易信号。",
-            "GOTRA puts daily research observations, public evidence, data gaps, review items, and audit records into one public ledger. The internal research chain remains available in Methodology and Audit; the homepage first states that this is not a stock-picking agent or a trading signal.",
+            "GOTRA 展示 AI 金融研究如何从任务、证据、分歧、反证和复盘一步步形成公开记录。它不提供买卖建议、目标价或收益承诺，而是把研究过程和不确定性摊开给读者审计。",
+            "GOTRA shows how AI financial research turns tasks, evidence, disagreement, counter-evidence, and review into public records. It does not provide action advice, target prices, or return promises; it exposes the research process and uncertainty for audit.",
           )}
         </p>
         <div className="hero-mechanism-strip" aria-label={copy(language, "公开研究阅读顺序", "Public research reading order")}>
@@ -185,12 +185,18 @@ export function Hero({ language }: HeroProps) {
           <span>{copy(language, "公开简报", "Public brief")}</span>
         </div>
         <div className="hero-actions" aria-label="Page shortcuts">
-          <a className="primary-action" href="/#/today">
-            {copy(language, "阅读今日简报", "Read today's brief")}
+          <a className="primary-action" href="/today/">
+            {copy(language, "今日研究", "Today")}
             <ArrowRight aria-hidden="true" size={16} />
           </a>
-          <a className="secondary-action" href="/#/reports/full-analyst">
-            {copy(language, "打开研究阅读器", "Open research reader")}
+          <a className="secondary-action" href="/beta">
+            {copy(language, "30 天 beta 状态", "30-day beta state")}
+          </a>
+          <a className="secondary-action" href="/#/methodology">
+            {copy(language, "方法论", "Methodology")}
+          </a>
+          <a className="secondary-action" href="/audit">
+            {copy(language, "审计中心", "Audit center")}
           </a>
         </div>
         <HeroStatusStrip language={language} state={briefStatus} />

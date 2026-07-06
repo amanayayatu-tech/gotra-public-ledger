@@ -124,7 +124,8 @@ describe("public ledger information architecture contract", () => {
 
   it("adds a beta readiness route that is explicitly not started", () => {
     expect(appSource).toContain("function BetaReadinessPage");
-    expect(appSource).toContain("30 天公开 beta 准备区");
+    expect(appSource).toContain("30 天公开 beta 尚未启动");
+    expect(appSource).toContain("Beta 期间免费开放");
     expect(appSource).toContain("BETA_READY_NOT_STARTED");
     expect(appSource).toContain("beta_clock_started=false");
     expect(appSource).toContain("Stage 15B 30 天公开 beta");

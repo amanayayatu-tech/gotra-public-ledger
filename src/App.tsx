@@ -1364,6 +1364,60 @@ function readerMainList(list: LocalizedText[] | undefined): LocalizedText[] {
   });
 }
 
+function localizedPlain(value: LocalizedText | string | undefined): string {
+  if (!value) {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  return `${value.zh} ${value.en}`.trim();
+}
+
+function normalizedSampleBlock(value: LocalizedText | string | undefined): string {
+  return localizedPlain(value)
+    .replace(/\bHKEX:\d+\b|\bNASDAQ:[A-Z.]+\b|\bNYSE:[A-Z.]+\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function agentBlockText(item: DailyReaderBriefAgentAnalysisItem, keys: Array<keyof DailyReaderBriefAgentAnalysisItem>): string {
+  return keys
+    .flatMap((key) => {
+      const value = item[key];
+      return Array.isArray(value) ? value : [];
+    })
+    .map((value) => normalizedSampleBlock(value as LocalizedText))
+    .filter(Boolean)
+    .join(" ");
+}
+
+function fullAnalystSampleRisk(items: DailyReaderBriefAgentAnalysisItem[]): { hasRisk: boolean; reasons: string[] } {
+  if (items.length === 0) {
+    return { hasRisk: false, reasons: [] };
+  }
+  const allText = items.map((item) => JSON.stringify(item)).join("\n");
+  const reasons: string[] = [];
+  if (/fixture context|summary:\s*English|Full Analyst rich brief unavailable/i.test(allText)) {
+    reasons.push("public sample contains fixture/generic wording");
+  }
+  const sections: Array<[string, Array<keyof DailyReaderBriefAgentAnalysisItem>]> = [
+    ["f_partner_view", ["f_partner_view"]],
+    ["w_partner_view", ["w_partner_view"]],
+    ["g_partner_view", ["g_partner_view"]],
+    ["chairman_synthesis", ["chairman_synthesis"]],
+    ["red_team_audit", ["red_team_audit", "red_team_review"]],
+  ];
+  sections.forEach(([label, keys]) => {
+    const values = items.map((item) => agentBlockText(item, keys)).filter(Boolean);
+    if (values.length >= 2 && new Set(values).size <= 1) {
+      reasons.push(`${label} is identical across symbols`);
+    }
+  });
+  return { hasRisk: reasons.length > 0, reasons };
+}
+
 function combineReaderLists(...lists: Array<LocalizedText[] | undefined>): LocalizedText[] {
   const seen = new Set<string>();
   return lists
@@ -1707,7 +1761,9 @@ function SymbolProfilePage({
   }
 
   const { brief } = state;
-  const item = brief.agent_analysis_items.find((candidate) => symbolMatchesAgentItem(candidate, symbol));
+  const sampleRisk = fullAnalystSampleRisk(brief.agent_analysis_items);
+  const rawItem = brief.agent_analysis_items.find((candidate) => symbolMatchesAgentItem(candidate, symbol));
+  const item = sampleRisk.hasRisk ? undefined : rawItem;
   const ledgerEntries =
     ledgerState.kind === "ready"
       ? ledgerState.manifest.entries.filter((entry) => symbolMatchesLedgerEntry(entry, symbol)).sort((left, right) => {
@@ -1747,6 +1803,19 @@ function SymbolProfilePage({
         </div>
         <Search aria-hidden="true" size={26} />
       </section>
+
+      {sampleRisk.hasRisk ? (
+        <section className="today-section edge-state-note warning" role="status">
+          <strong>{copy(language, "旧 Full Analyst canary 已从个股档案撤下", "Old Full Analyst canary withheld from symbol profiles")}</strong>
+          <p>
+            {copy(
+              language,
+              "该标的在旧 canary 中存在模板化/fixture 风险；个股档案不会把它当作 beta 样本、今日研究或历史判断展示。等待 fresh real v4 canary 重新生成后，再恢复逐标的研究摘要。",
+              "This symbol belongs to an old canary with template/fixture risk; the symbol profile will not show it as a beta sample, today's research, or a historical judgment. Per-symbol research summaries will return after a fresh real v4 canary is generated.",
+            )}
+          </p>
+        </section>
+      ) : null}
 
       <section className="today-section" aria-labelledby="symbol-profile-snapshot-title">
         <div className="section-heading compact">
@@ -2262,7 +2331,7 @@ function BetaReadinessPage({ language }: { language: Language }) {
     <>
       <PageIntro
         eyebrow={copy(language, "Stage 15A · Beta readiness", "Stage 15A · Beta readiness")}
-        title={copy(language, "30 天公开 beta 准备区", "30-day public beta prep")}
+        title={copy(language, "30 天公开 beta 尚未启动", "30-day public beta not started")}
         body={copy(
           language,
           "这里说明 beta 启动前的工程、监控、周报和团队复核准备。beta 尚未启动，30 天时钟没有开始；这不是正式上线、付费准备完成、投资建议、交易信号或业绩证明。",
@@ -2290,7 +2359,7 @@ function BetaReadinessPage({ language }: { language: Language }) {
           <article>
             <span>{copy(language, "付费状态", "Paid state")}</span>
             <strong>{copy(language, "关闭", "Off")}</strong>
-            <p>{copy(language, "没有付费订阅，不承诺回报，也没有业绩证明。", "No paid subscription, no return promise, and no performance proof.")}</p>
+            <p>{copy(language, "Beta 期间免费开放，不收取订阅费，也不会开启付费功能。不会承诺回报，也不会展示业绩证明。", "The beta period is free: no subscription fee and no paid feature will be enabled. There is no return promise and no performance proof.")}</p>
           </article>
         </div>
       </section>
@@ -2407,6 +2476,13 @@ function MonthlyReportsPage({ language }: { language: Language }) {
           icon={FileText}
         />
         <section className="today-section">
+          <div className="edge-state-note">
+            {copy(
+              language,
+              "30 天 beta 尚未启动，所以这里还不会出现真实月报。beta 启动并运行满一个自然月后，本页应展示公开判断数量、复盘覆盖率、错误案例、数据缺口和改进事项；在此之前不会用样例数据制造表现证明。",
+              "The 30-day beta has not started, so no real monthly report appears here yet. After beta starts and completes a calendar month, this page should show public judgment counts, review coverage, error cases, data gaps, and improvements; until then it will not use sample data to manufacture performance proof.",
+            )}
+          </div>
           <div className="related-prediction-list today-links">
             <a href={routeHref("/today")}>{copy(language, "今日简报", "Today's brief")}</a>
             <a href={routeHref("/track-record")}>{copy(language, "公开研究账本", "Public research ledger")}</a>
@@ -2835,7 +2911,17 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           icon={AlertCircle}
         />
         <section className="route-panel edge-state-note" role="alert">
-          {state.message}
+          <p>
+            {copy(
+              language,
+              "今天没有可公开阅读的日报产物；页面不会回退到 legacy v3.5 表格，也不会从旧 canary、raw JSON 或私有运行日志推断今日研究。",
+              "No public daily brief is readable today; this page will not fall back to a legacy v3.5 table or infer today's research from an old canary, raw JSON, or private run logs.",
+            )}
+          </p>
+          <details className="audit-details">
+            <summary>{copy(language, "查看原始状态", "Show raw status")}</summary>
+            <span className="mono">{state.message}</span>
+          </details>
         </section>
       </>
     );
@@ -2844,12 +2930,27 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
   const { brief } = state;
   const hasWatchlist = brief.watchlist.length > 0;
   const hasKnownGaps = brief.known_gaps.length > 0;
-  const selectedAgentItems = brief.agent_analysis_items.slice(0, 8);
+  const fullAnalystSampleRiskResult = fullAnalystSampleRisk(brief.agent_analysis_items);
+  const selectedAgentItems = fullAnalystSampleRiskResult.hasRisk ? [] : brief.agent_analysis_items.slice(0, 8);
   const hasRichAgentBrief = selectedAgentItems.length > 0;
   const topFocusSymbols = selectedAgentItems.slice(0, 5).map((item) => item.symbol);
   const reviewCount = brief.full_analyst.needs_review_count + brief.full_analyst.data_gap_count;
   const reviewDueItems = todayReviewDueItems(brief);
-  const cleanTldr = readerTldr(pickLocalized(language, brief.tldr));
+  const cleanTldr = fullAnalystSampleRiskResult.hasRisk
+    ? copy(
+        language,
+        "Full Analyst 试跑样本已从主阅读路径撤下：上一版 canary 存在模板化/fixture 风险，不能作为 beta 样本或今日日报阅读。今天只展示日报状态、覆盖状态、审计入口和边界说明。",
+        "The Full Analyst trial sample has been withheld from the main reading path: the prior canary carries template/fixture risk and cannot be read as a beta sample or today's daily brief. Today only shows daily status, coverage status, audit entries, and boundaries.",
+      )
+    : readerTldr(pickLocalized(language, brief.tldr));
+  const readerSummary = fullAnalystSampleRiskResult.hasRisk
+    ? copy(
+        language,
+        "等待 fresh real v4 canary 重新生成；旧 v3.5 兼容层只保留在审计/方法论历史里。",
+        "Waiting for a fresh real v4 canary; the old v3.5 compatibility layer stays only as audit/methodology history.",
+      )
+    : pickLocalized(language, brief.reader_summary);
+  const visibleTopItems = fullAnalystSampleRiskResult.hasRisk ? [] : brief.top_items;
 
   return (
     <>
@@ -2870,13 +2971,13 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           </p>
           <div className="today-tldr">
             <strong>{copy(language, "今天先读什么", "What to read first")}</strong>
-            <p>{cleanTldr || pickLocalized(language, brief.reader_summary)}</p>
+            <p>{cleanTldr || readerSummary}</p>
           </div>
           <div className="today-focus-row" aria-label={copy(language, "今日聚焦标的", "Top focus symbols")}>
             <span>{copy(language, "今日聚焦", "Top focus")}</span>
-            {topFocusSymbols.map((symbol) => (
+            {topFocusSymbols.length > 0 ? topFocusSymbols.map((symbol) => (
               <strong key={symbol}>{symbol}</strong>
-            ))}
+            )) : <strong>{copy(language, "等待 fresh canary", "Fresh canary pending")}</strong>}
           </div>
           <div className="today-context-row">
             <ContextStatusExplainer language={language} type="research_only" />
@@ -2885,7 +2986,7 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           </div>
           <div className="hero-actions today-actions">
             <a className="primary-action" href="#today-agent-matrix-title">
-              {copy(language, "读单票研究", "Read symbol briefs")}
+              {fullAnalystSampleRiskResult.hasRisk ? copy(language, "查看样本状态", "Check sample status") : copy(language, "读单票研究", "Read symbol briefs")}
             </a>
             <a className="secondary-action" href={routeHref("/why-gotra")}>
               {copy(language, "为什么这样设计", "Why GOTRA works this way")}
@@ -2975,10 +3076,10 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
         <div className="section-heading compact">
           <span>{copy(language, "今日重点", "Top items")}</span>
           <h2 id="today-top-items-title">{copy(language, "今天先看什么", "What to read first today")}</h2>
-          <p>{pickLocalized(language, brief.reader_summary)}</p>
+          <p>{readerSummary}</p>
         </div>
         <div className="today-card-grid">
-          {brief.top_items.map((item) => (
+          {visibleTopItems.length > 0 ? visibleTopItems.map((item) => (
             <article className="today-card" key={item.id}>
               <span>{pickLocalized(language, item.label)}</span>
               <h3>{pickLocalized(language, item.summary)}</h3>
@@ -2990,18 +3091,35 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
                 </details>
               ) : null}
             </article>
-          ))}
+          )) : (
+            <article className="today-card">
+              <span>{copy(language, "样本状态", "Sample state")}</span>
+              <h3>{copy(language, "旧 canary 今日重点已撤下", "Old canary top items withheld")}</h3>
+              <p>{copy(language, "本页不把模板化/fixture 样本当作今日研究重点。", "This page does not treat a templated/fixture sample as today's research focus.")}</p>
+            </article>
+          )}
         </div>
       </section>
 
       {state.source === "fallback" || !hasRichAgentBrief ? (
         <section className="route-panel edge-state-note">
-          {copy(
-            language,
-            "Full Analyst rich brief unavailable：当前页面从公开状态文件临时合成 fallback，不能展示完整 per-symbol agent 分析。",
-            "Full Analyst rich brief unavailable: this page is using a public-status fallback and cannot show complete per-symbol agent analysis.",
-          )}{" "}
-          {state.fallbackReason ? <span className="mono">{state.fallbackReason}</span> : null}
+          {fullAnalystSampleRiskResult.hasRisk
+            ? copy(
+                language,
+                "Full Analyst 试跑样本已从今日主路径撤下：旧 canary 存在模板化/fixture 风险，不能作为 beta 样本。",
+                "The Full Analyst trial sample has been withheld from today's main path: the old canary carries template/fixture risk and is not a beta sample.",
+              )
+            : copy(
+                language,
+                "完整单票研究摘要暂不可读：当前页面从公开状态文件临时合成 fallback，不能展示完整 per-symbol agent 分析。",
+                "Complete per-symbol research summaries are not readable: this page is using a public-status fallback and cannot show complete per-symbol agent analysis.",
+              )}{" "}
+          {state.fallbackReason ? (
+            <details className="audit-details inline-details">
+              <summary>{copy(language, "查看 fallback 原因", "Show fallback reason")}</summary>
+              <span className="mono">{state.fallbackReason}</span>
+            </details>
+          ) : null}
         </section>
       ) : null}
 
@@ -3090,8 +3208,28 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
               "This section explains the Full Analyst v4 public publication status, review items, and data gaps; it is runtime/status and research-process evidence, not formal acceptance or an investment conclusion.",
             )}
           </p>
-          <p>{pickLocalized(language, brief.full_analyst.summary)}</p>
+          <p>
+            {fullAnalystSampleRiskResult.hasRisk
+              ? copy(
+                  language,
+                  "Full Analyst v4 样本暂不公开展示：上一版试跑样本存在模板化/fixture 风险，已从主阅读路径撤下，等待真实可审计 canary 重新生成。",
+                  "The Full Analyst v4 sample is not publicly shown for now: the prior trial sample carries template/fixture risk and has been removed from the main reading path pending a fresh auditable canary.",
+                )
+              : pickLocalized(language, brief.full_analyst.summary)}
+          </p>
         </div>
+        {fullAnalystSampleRiskResult.hasRisk ? (
+          <section className="route-panel edge-state-note warning">
+            <strong>{copy(language, "Full Analyst 试跑样本不等于今日日报", "The Full Analyst trial sample is not today's daily brief")}</strong>
+            <p>
+              {copy(
+                language,
+                "今天是否有可公开阅读的日报，以 daily_reader_brief.json 和本页状态为准；旧 v3.5 兼容层只作为审计/方法论历史，不作为今日研究。",
+                "Whether a readable daily brief exists is determined by daily_reader_brief.json and this page state; the old v3.5 compatibility layer is audit/methodology history, not today's research.",
+              )}
+            </p>
+          </section>
+        ) : null}
         <div className="status-explanation-grid">
           <StatusExplanationCard rawStatus={brief.full_analyst.run_status ?? brief.research_effectiveness.canary_status} language={language} compact />
           <StatusExplanationCard rawStatus={brief.full_analyst.needs_review_count > 0 ? "needs_review" : "ok"} language={language} compact />
@@ -3123,8 +3261,12 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           <p>
             {copy(
               language,
-              `daily_reader_brief.json 是本页数据源，包含 ${brief.agent_analysis_items.length} 个公开单票研究摘要；本页展示精选样本，完整阅读请打开完整研究链路 reader。`,
-              `daily_reader_brief.json is this page's data source and contains ${brief.agent_analysis_items.length} public per-symbol research summaries; this page shows selected examples, and the full reading path is the Full Analyst reader.`,
+              fullAnalystSampleRiskResult.hasRisk
+                ? "daily_reader_brief.json 中存在旧 canary 单票摘要，但由于模板化/fixture 风险，本页不把它作为 beta 样本展示。"
+                : `daily_reader_brief.json 是本页数据源，包含 ${brief.agent_analysis_items.length} 个公开单票研究摘要；本页展示精选样本，完整阅读请打开完整研究链路 reader。`,
+              fullAnalystSampleRiskResult.hasRisk
+                ? "daily_reader_brief.json contains old canary per-symbol summaries, but this page does not show them as a beta sample because of template/fixture risk."
+                : `daily_reader_brief.json is this page's data source and contains ${brief.agent_analysis_items.length} public per-symbol research summaries; this page shows selected examples, and the full reading path is the Full Analyst reader.`,
             )}
           </p>
         </div>
@@ -3220,7 +3362,13 @@ function TodayPage({ state, language }: { state: DailyReaderBriefLoadState; lang
           </div>
         ) : (
           <div className="edge-state-note">
-            {copy(language, "没有可展示的公开 per-symbol agent 分析；请打开 Full Analyst reader 或等待 rich brief artifact。", "No public per-symbol agent analysis is available; open the Full Analyst reader or wait for the rich brief artifact.")}
+            {fullAnalystSampleRiskResult.hasRisk
+              ? copy(
+                  language,
+                  "Full Analyst public sample withheld pending fresh real v4 canary；不会展示旧 canary 的模板化单票 agent 分析。",
+                  "Full Analyst public sample withheld pending a fresh real v4 canary; old canary templated per-symbol agent analysis is not shown.",
+                )
+              : copy(language, "没有可展示的公开 per-symbol agent 分析；请打开 Full Analyst reader 或等待 rich brief artifact。", "No public per-symbol agent analysis is available; open the Full Analyst reader or wait for the rich brief artifact.")}
           </div>
         )}
       </section>
@@ -3690,7 +3838,8 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
   }
 
   const { brief } = state;
-  const items = brief.agent_analysis_items.slice(0, 24);
+  const sampleRisk = fullAnalystSampleRisk(brief.agent_analysis_items);
+  const items = sampleRisk.hasRisk ? [] : brief.agent_analysis_items.slice(0, 24);
   const v40Reader = isV40Brief(brief);
   const v35Reader =
     !v40Reader &&
@@ -3734,19 +3883,64 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
         <div className="section-heading compact">
           <span>{copy(language, "单票研究", "Symbol research")}</span>
           <h2 id="full-analyst-symbols-title">{copy(language, "按阅读结构展开", "Structured for reading")}</h2>
-          <p>{pickLocalized(language, brief.full_analyst.summary)}</p>
+          <p>
+            {sampleRisk.hasRisk
+              ? copy(
+                  language,
+                  "Full Analyst v4 样本暂不公开展示：上一版试跑样本存在模板化/fixture 风险，已从主阅读路径撤下，等待真实可审计 canary 重新生成。",
+                  "The Full Analyst v4 sample is not publicly shown for now: the prior trial sample carries template/fixture risk and has been removed from the main reading path pending a fresh auditable canary.",
+                )
+              : pickLocalized(language, brief.full_analyst.summary)}
+          </p>
         </div>
+        {sampleRisk.hasRisk ? (
+          <section className="route-panel edge-state-note warning">
+            <strong>{copy(language, "Full Analyst 试跑样本已撤下", "Full Analyst trial sample withheld")}</strong>
+            <p>
+              {copy(
+                language,
+                "旧 canary 中的 F/W/G、主席综合和红队段落存在跨标的模板化重复，不能作为 v4 beta 样本展示。GOTRA 不会把 fixture 或模板化文本伪装成真实研究。",
+                "The old canary has templated repetition across F/W/G, Chairman, and Red Team sections, so it cannot be shown as a v4 beta sample. GOTRA will not present fixture or templated text as real research.",
+              )}
+            </p>
+            <p>
+              {copy(
+                language,
+                "下一步需要重新生成真实、可审计、逐标的有差异的 v4 canary；在此之前，本页只保留审计说明和原始产物入口。",
+                "Next step is to regenerate a real, auditable, symbol-specific v4 canary; until then this page keeps only the audit explanation and raw artifact entry.",
+              )}
+            </p>
+          </section>
+        ) : null}
         <ResearchSystemPanel brief={brief} language={language} compact />
-        <nav className="full-analyst-toc" aria-label={copy(language, "研究阅读器目录", "Research reader table of contents")}>
-          <strong>{copy(language, "标的目录", "Symbol selector")}</strong>
-          {items.map((item) => (
-            <a href={`#symbol-${encodeURIComponent(item.symbol)}`} key={`toc-${item.symbol}`}>
-              {item.symbol}
-            </a>
-          ))}
-        </nav>
+        {sampleRisk.hasRisk ? null : (
+          <nav className="full-analyst-toc" aria-label={copy(language, "研究阅读器目录", "Research reader table of contents")}>
+            <strong>{copy(language, "标的目录", "Symbol selector")}</strong>
+            {items.map((item) => (
+              <a href={`#symbol-${encodeURIComponent(item.symbol)}`} key={`toc-${item.symbol}`}>
+                {item.symbol}
+              </a>
+            ))}
+          </nav>
+        )}
         <div className="today-agent-grid full-analyst-reader-grid">
-          {items.map((item) => (
+          {sampleRisk.hasRisk ? (
+            <article className="today-agent-card">
+              <h3>{copy(language, "样本已从主阅读路径撤下", "Sample withheld from main reading path")}</h3>
+              <p>
+                {copy(
+                  language,
+                  "Full Analyst public sample withheld pending fresh real v4 canary. 旧 canary 审计产物不作为 beta 样本。",
+                  "Full Analyst public sample withheld pending a fresh real v4 canary. The old canary audit artifact is not a beta sample.",
+                )}
+              </p>
+              <ul>
+                <li>{copy(language, "不展示 fixture context。", "Fixture context is not shown.")}</li>
+                <li>{copy(language, "不展示跨标的重复 agent 段落。", "Repeated cross-symbol agent sections are not shown.")}</li>
+                <li>{copy(language, "不把旧 canary 说成今日日报或 beta 样本。", "The old canary is not described as today's daily brief or a beta sample.")}</li>
+              </ul>
+            </article>
+          ) : items.map((item) => (
             <article className="today-agent-card" id={`symbol-${item.symbol}`} key={item.symbol}>
               <div className="today-agent-head">
                 <span>{copy(language, "标的", "symbol")}</span>
@@ -3892,7 +4086,7 @@ function FullAnalystReaderPage({ state, language }: { state: DailyReaderBriefLoa
       </section>
       <section className="today-section" aria-labelledby="full-analyst-raw-title">
         <details className="audit-details raw-artifact-disclosure">
-          <summary id="full-analyst-raw-title">{copy(language, "Raw artifact / Open Markdown", "Raw artifact / Open Markdown")}</summary>
+          <summary id="full-analyst-raw-title">{sampleRisk.hasRisk ? copy(language, "原始审计产物 / 旧 canary 审计产物，不作为 beta 样本", "Raw audit artifact / old canary audit artifact, not a beta sample") : copy(language, "Raw artifact / Open Markdown", "Raw artifact / Open Markdown")}</summary>
           <p className="muted">
             {copy(
               language,
