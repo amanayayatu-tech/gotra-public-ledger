@@ -2242,6 +2242,126 @@ function TrackRecordPage({ entryId, language }: { entryId?: string; language: La
   );
 }
 
+const betaUniverse = [
+  "HKEX:0700",
+  "HKEX:1810",
+  "HKEX:9688",
+  "HKEX:9988",
+  "HKEX:3690",
+  "HKEX:1211",
+  "NASDAQ:MSFT",
+  "NASDAQ:NVDA",
+  "NASDAQ:AAPL",
+  "NASDAQ:GOOGL",
+  "NASDAQ:META",
+  "NYSE:TSM",
+];
+
+function BetaReadinessPage({ language }: { language: Language }) {
+  return (
+    <>
+      <PageIntro
+        eyebrow={copy(language, "Stage 15A · Beta readiness", "Stage 15A · Beta readiness")}
+        title={copy(language, "30 天公开 beta 准备区", "30-day public beta prep")}
+        body={copy(
+          language,
+          "这里说明 beta 启动前的工程、监控、周报和团队复核准备。beta 尚未启动，30 天时钟没有开始；这不是正式上线、付费准备完成、投资建议、交易信号或业绩证明。",
+          "This page explains engineering, monitoring, weekly-report, and team-review readiness before beta starts. The beta has not started and the 30-day clock has not begun; this is not launch readiness, paid readiness, investment advice, a trading signal, or performance proof.",
+        )}
+        icon={BookOpenCheck}
+      />
+      <section className="today-section" aria-labelledby="beta-state-title">
+        <div className="today-effect-grid">
+          <article>
+            <span>{copy(language, "当前状态", "Current state")}</span>
+            <strong>{copy(language, "准备完成，未启动", "Ready, not started")}</strong>
+            <p>{copy(language, "团队复核通过后，才允许显式启动 Stage 15B 30 天公开 beta。", "Stage 15B 30-day public beta can start only after explicit team review approval.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "Beta 时钟", "Beta clock")}</span>
+            <strong>{copy(language, "0 / 30 天", "0 / 30 days")}</strong>
+            <p>{copy(language, "未满真实 30 天前，不能进入正式上线闸。", "The full launch gate is blocked until a real 30 days completes.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "股票池", "Universe")}</span>
+            <strong>{betaUniverse.length}</strong>
+            <p>{copy(language, "覆盖港股和美股核心观察池；每个标的使用 1/7/30/90 天复盘窗口。", "Covers a core HK/US watch universe with 1/7/30/90-day review windows for each symbol.")}</p>
+          </article>
+          <article>
+            <span>{copy(language, "付费状态", "Paid state")}</span>
+            <strong>{copy(language, "关闭", "Off")}</strong>
+            <p>{copy(language, "没有付费订阅，不承诺回报，也没有业绩证明。", "No paid subscription, no return promise, and no performance proof.")}</p>
+          </article>
+        </div>
+      </section>
+      <section className="today-section" aria-labelledby="beta-readiness-title">
+        <div className="section-heading compact">
+          <span>{copy(language, "启动前检查", "Pre-start checklist")}</span>
+          <h2 id="beta-readiness-title">{copy(language, "团队复核前需要确认什么", "What team review must confirm")}</h2>
+        </div>
+        <div className="today-agent-grid full-analyst-reader-grid">
+          <article className="today-agent-card">
+            <h3>{copy(language, "工程与监控", "Engineering and monitoring")}</h3>
+            <ul>
+              <li>{copy(language, "10h readiness 已完成，但不等于 30d beta。", "10h readiness completed, but it is not 30d beta.")}</li>
+              <li>{copy(language, "需要 durable beta heartbeat、daily beta events、weekly report 和 rollback notes。", "Requires durable beta heartbeat, daily beta events, weekly report, and rollback notes.")}</li>
+              <li>{copy(language, "每日输出失败、raw artifact 暴露或安全扫描失败时必须停止并复核。", "Daily-output failures, raw artifact exposure, or security-scan failures must stop and trigger review.")}</li>
+            </ul>
+          </article>
+          <article className="today-agent-card">
+            <h3>{copy(language, "公开读者边界", "Reader boundary")}</h3>
+            <ul>
+              <li>{copy(language, "公开内容是研究信息，不是荐股、交易信号或投顾。", "Public content is research information, not stock picking, trading signals, or advisory service.")}</li>
+              <li>{copy(language, "needs_review、data_gap、红队质疑和错误案例必须保留。", "needs_review, data_gap, red-team critique, and error cases must stay visible.")}</li>
+              <li>{copy(language, "Alaya 仅指 GOTRA repo 内部认知飞轮 / memory / readback。", "Alaya only means GOTRA repo internal cognition flywheel / memory / readback.")}</li>
+            </ul>
+          </article>
+          <article className="today-agent-card">
+            <h3>{copy(language, "Beta 股票池", "Beta universe")}</h3>
+            <div className="related-prediction-list">
+              {betaUniverse.map((symbol) => (
+                <a href={symbolProfileRouteHref(symbol)} key={symbol}>{symbol}</a>
+              ))}
+            </div>
+          </article>
+          <article className="today-agent-card">
+            <h3>{copy(language, "下一步", "Next action")}</h3>
+            <p>
+              {copy(
+                language,
+                "当前只适合团队 review。人类明确批准后，才启动 Stage 15B，并从 0 开始计 30 天。",
+                "This is ready for team review only. Start Stage 15B only after explicit human approval, with the 30-day clock beginning from zero.",
+              )}
+            </p>
+            <div className="related-prediction-list">
+              <a href={routeHref("/track-record")}>{copy(language, "公开研究账本", "Public track record")}</a>
+              <a href={routeHref("/monthly-reports")}>{copy(language, "月度透明报告", "Monthly transparency reports")}</a>
+              <a href={routeHref("/methodology")}>{copy(language, "方法论", "Methodology")}</a>
+              <a href={routeHref("/reports")}>{copy(language, "审计中心", "Audit Center")}</a>
+            </div>
+          </article>
+        </div>
+      </section>
+      <section className="today-section" aria-labelledby="beta-boundary-title">
+        <div className="boundary-banner warning">
+          <ShieldCheck aria-hidden="true" size={18} />
+          <span>{copy(language, "Beta 未启动；不构成正式上线、付费准备、投资建议、交易信号或业绩证明。", "Beta not started; not launch readiness, paid readiness, investment advice, a trading signal, or performance proof.")}</span>
+        </div>
+        <details className="audit-details">
+          <summary id="beta-boundary-title">{copy(language, "查看 Stage 15A 原始状态", "Show Stage 15A raw status")}</summary>
+          <ul>
+            <li>BETA_READY_NOT_STARTED</li>
+            <li>beta_clock_started=false</li>
+            <li>thirty_day_beta_complete=false</li>
+            <li>paid_subscription_enabled=false</li>
+            <li>launch_ready=false</li>
+          </ul>
+        </details>
+      </section>
+    </>
+  );
+}
+
 function MonthlyReportsPage({ language }: { language: Language }) {
   const [state, setState] = useState<MonthlyReportsLoadState>({ kind: "loading" });
 
@@ -5716,6 +5836,7 @@ function App() {
       route.name === "guide" ||
       route.name === "today" ||
       route.name === "whyGotra" ||
+      route.name === "beta" ||
       route.name === "trackRecord" ||
       route.name === "trackRecordEntry" ||
       route.name === "monthlyReports" ||
@@ -5826,6 +5947,8 @@ function App() {
         {route.name === "today" ? <TodayPage state={dailyBriefState} language={language} /> : null}
 
         {route.name === "whyGotra" ? <WhyGotraPage language={language} /> : null}
+
+        {route.name === "beta" ? <BetaReadinessPage language={language} /> : null}
 
         {route.name === "fullAnalystReport" ? <FullAnalystReaderPage state={dailyBriefState} language={language} /> : null}
 

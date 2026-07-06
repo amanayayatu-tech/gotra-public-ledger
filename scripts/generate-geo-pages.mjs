@@ -1972,6 +1972,49 @@ function trackRecordPage(source) {
   });
 }
 
+function betaPage() {
+  return pageShell({
+    route: "/beta",
+    title: "30-day Public Beta Prep | GOTRA Public Ledger",
+    description:
+      "Stage 15A beta readiness page. The 30-day beta has not started; not launch readiness, not paid readiness, not investment advice, not a trading signal, and not performance proof.",
+    body: `      <h1>30 天公开 beta 准备区 / 30-day public beta prep</h1>
+      <p class="lede">Stage 15A 只说明 beta 启动前的工程、监控、周报和团队复核准备。beta 尚未启动，30 天时钟没有开始；这不是正式上线、付费准备完成、投资建议、交易信号或业绩证明。</p>
+      <section class="notice">
+        <h2>当前状态</h2>
+        ${table(
+          ["field", "value"],
+          [
+            ["status", "BETA_READY_NOT_STARTED"],
+            ["beta_clock_started", "false"],
+            ["thirty_day_beta_complete", "false"],
+            ["paid_subscription_enabled", "false"],
+            ["launch_ready", "false"],
+          ],
+        )}
+      </section>
+      <section>
+        <h2>启动前检查</h2>
+        <ul>
+          <li>10h readiness 已完成，但不等于 30d beta。</li>
+          <li>需要 durable beta heartbeat、daily beta events、weekly report 和 rollback notes。</li>
+          <li>needs_review、data_gap、红队质疑和错误案例必须保留。</li>
+          <li>Alaya 只指 GOTRA repo 内部 cognition flywheel / memory / readback。</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Beta 股票池</h2>
+        <p>Stage 15A 准备 10-20 只核心股票池；每个标的使用 1/7/30/90 天复盘窗口。</p>
+        <p>HKEX:0700 · HKEX:1810 · HKEX:9688 · HKEX:9988 · HKEX:3690 · HKEX:1211 · NASDAQ:MSFT · NASDAQ:NVDA · NASDAQ:AAPL · NASDAQ:GOOGL · NASDAQ:META · NYSE:TSM</p>
+      </section>
+      <section class="notice">
+        <h2>下一步</h2>
+        <p>当前只适合团队 review。人类明确批准后，才启动 Stage 15B，并从 0 开始计 30 天。</p>
+        <p><a href="/track-record">公开研究账本</a> · <a href="/monthly-reports">月度透明报告</a> · <a href="/methodology">方法论</a> · <a href="/reports">审计中心</a></p>
+      </section>`,
+  });
+}
+
 function monthlyReportsPage(source) {
   const index = source.monthlyReportIndex;
   const reports = Array.isArray(index?.reports) ? index.reports : [];
@@ -2566,6 +2609,7 @@ Methodology and Audit still document the internal v4 chain, including K dossier,
 - https://gotra.me/today - Daily Research Brief. Reader-first Full Analyst research brief with agent analysis items, red-team review, risk factors, internal Alaya readback, known data gaps, and next watch points.
 - https://gotra.me/why-gotra - Why GOTRA. Research discipline for seeing what changed, what is known, and what still needs review.
 - https://gotra.me/guide - Guide. Seven-step reading order, daily system flow, report type labels, glossary, internal Alaya boundary, and evidence boundaries.
+- https://gotra.me/beta - 30-day Public Beta Prep. Stage 15A readiness page; beta not started, no paid subscription, no launch readiness claim.
 - https://gotra.me/track-record - Public Track Record. Live append-only research ledger for published ResearchSignal entries with hash chain, publication decision references, Stage 10 review coverage, ReviewResult rows, and review-unavailable reasons.
 - https://gotra.me/monthly-reports - Monthly Transparency Reports. Monthly public research ledger counts, review coverage, error cases, data gaps, and improvement items; not performance proof.
 - https://gotra.me/symbol/sample - Symbol Profile template. Current research, live ledger history, view changes, review due items, and data gaps for one symbol; populated with real symbols when public artifacts are available.
@@ -2643,6 +2687,7 @@ function main() {
     ["/today", todayPage(source)],
     ["/why-gotra", whyGotraPage()],
     ["/guide", guidePage()],
+    ["/beta", betaPage()],
     ["/track-record", trackRecordPage(source)],
     ["/monthly-reports", monthlyReportsPage(source)],
     [monthlyReportDetailRoute(monthlyReportMonth), monthlyReportDetailPage(source, monthlyReportMonth)],
@@ -2680,6 +2725,7 @@ function main() {
     "/today",
     "/why-gotra",
     "/guide",
+    "/beta",
     "/track-record",
     "/monthly-reports",
     monthlyReportDetailRoute(monthlyReportMonth),
