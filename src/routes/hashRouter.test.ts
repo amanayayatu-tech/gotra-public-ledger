@@ -19,11 +19,13 @@ describe("hash router", () => {
     expect(routeHref("/performance")).toBe("/#/performance");
     expect(routeHref("/today")).toBe("/#/today");
     expect(routeHref("/guide")).toBe("/#/guide");
+    expect(routeHref("/beta")).toBe("/#/beta");
     expect(routeHref("/track-record")).toBe("/#/track-record");
     expect(routeHref("/monthly-reports")).toBe("/#/monthly-reports");
     expect(parseHashRoute("#/audit").name).toBe("reports");
     expect(parseHashRoute("#/today").name).toBe("today");
     expect(parseHashRoute("#/guide").name).toBe("guide");
+    expect(parseHashRoute("#/beta").name).toBe("beta");
     expect(parseHashRoute("#/track-record").name).toBe("trackRecord");
     expect(parseHashRoute("#/monthly-reports").name).toBe("monthlyReports");
     expect(parseHashRoute("#/system").name).toBe("system");
@@ -86,6 +88,7 @@ describe("hash router", () => {
     expect(parseBrowserRoute("/monthly-reports", "").name).toBe("monthlyReports");
     expect(parseBrowserRoute("/audit", "").name).toBe("reports");
     expect(parseBrowserRoute("/guide", "").name).toBe("guide");
+    expect(parseBrowserRoute("/beta", "").name).toBe("beta");
     expect(parseBrowserRoute("/reports", "#/notes").name).toBe("notes");
   });
 });

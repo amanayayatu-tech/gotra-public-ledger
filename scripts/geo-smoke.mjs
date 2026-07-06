@@ -71,6 +71,7 @@ function main() {
     "/today",
     "/why-gotra",
     "/guide",
+    "/beta",
     "/track-record",
     "/monthly-reports",
     monthlyReportRoute,
@@ -132,6 +133,11 @@ function main() {
   assertIncludes(pages.get("/guide"), "交易信号", "/guide");
   assertIncludes(pages.get("/guide"), "内部 Alaya", "/guide");
   assertIncludes(pages.get("/guide"), "not performance proof", "/guide");
+  assertIncludes(pages.get("/beta"), "30 天公开 beta 准备区", "/beta");
+  assertIncludes(pages.get("/beta"), "BETA_READY_NOT_STARTED", "/beta");
+  assertIncludes(pages.get("/beta"), "beta_clock_started", "/beta");
+  assertIncludes(pages.get("/beta"), "人类明确批准后", "/beta");
+  assertIncludes(pages.get("/beta"), "不是正式上线", "/beta");
   assertIncludes(pages.get("/track-record"), "Public Track Record", "/track-record");
   assertIncludes(pages.get("/track-record"), "research_ledger.json", "/track-record");
   assertIncludes(pages.get("/track-record"), "PublicationDecision=publish", "/track-record");

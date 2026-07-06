@@ -122,6 +122,17 @@ describe("public ledger information architecture contract", () => {
     expect(siteHeaderSource).toContain("zh: \"公开账本\"");
   });
 
+  it("adds a beta readiness route that is explicitly not started", () => {
+    expect(appSource).toContain("function BetaReadinessPage");
+    expect(appSource).toContain("30 天公开 beta 准备区");
+    expect(appSource).toContain("BETA_READY_NOT_STARTED");
+    expect(appSource).toContain("beta_clock_started=false");
+    expect(appSource).toContain("Stage 15B 30 天公开 beta");
+    expect(appSource).toContain("route.name === \"beta\"");
+    expect(siteHeaderSource).toContain("id: \"beta\"");
+    expect(siteHeaderSource).toContain("zh: \"Beta 准备\"");
+  });
+
   it("adds monthly transparency report routes with errors, gaps, and improvements visible", () => {
     expect(appSource).toContain("function MonthlyReportsPage");
     expect(appSource).toContain("function MonthlyReportDetailPage");

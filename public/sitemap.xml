@@ -25,6 +25,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://gotra.me/beta</loc>
+    <lastmod>2026-06-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://gotra.me/track-record</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>weekly</changefreq>

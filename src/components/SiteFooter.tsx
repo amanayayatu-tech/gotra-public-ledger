@@ -18,6 +18,7 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
       note: copy(language, "每日先读读者化摘要、观察清单、数据缺口和下一步观察。", "Start with the reader brief, watchlist, data gaps, and next watch."),
       links: [
         { href: routeHref("/today"), label: copy(language, "今日研究简报", "Daily Research Brief") },
+        { href: routeHref("/beta"), label: copy(language, "30 天 beta 准备区", "30-day beta prep") },
         { href: routeHref("/track-record"), label: copy(language, "公开研究账本", "Public research ledger") },
         { href: routeHref("/monthly-reports"), label: copy(language, "月度透明报告", "Monthly transparency reports") },
         { href: routeHref("/why-gotra"), label: copy(language, "为什么是 GOTRA", "Why GOTRA") },
@@ -58,6 +59,7 @@ export function SiteFooter({ metadata, language }: SiteFooterProps) {
       note: copy(language, "方法和来源是审计与透明度材料。", "Methods and sources are audit and transparency materials."),
       links: [
         { href: routeHref("/system"), label: copy(language, "系统说明", "System overview") },
+        { href: routeHref("/beta"), label: copy(language, "Beta 启动前检查", "Beta preflight") },
         { href: routeHref("/methodology"), label: copy(language, "方法论", "Methodology") },
         { href: routeHref("/sources"), label: copy(language, "来源与产物", "Sources & artifacts") },
       ],

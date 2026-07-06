@@ -6,6 +6,7 @@ export type AppRoute =
   | { name: "fullAnalystReport"; path: "/reports/full-analyst" }
   | { name: "symbolProfile"; path: "/symbol/:symbol"; symbol: string }
   | { name: "evidencePacketAudit"; path: "/audit/evidence/:id"; evidenceId: string }
+  | { name: "beta"; path: "/beta" }
   | { name: "trackRecord"; path: "/track-record" }
   | { name: "trackRecordEntry"; path: "/track-record/:entryId"; entryId: string }
   | { name: "monthlyReports"; path: "/monthly-reports" }
@@ -20,7 +21,7 @@ export type AppRoute =
   | { name: "notes"; path: "/notes" }
   | { name: "note"; path: "/notes/:slug"; slug: string };
 
-const corePaths = new Set(["/", "/today", "/why-gotra", "/guide", "/track-record", "/monthly-reports", "/ledger", "/performance", "/system", "/methodology", "/sources", "/reports", "/audit", "/reports/full-analyst", "/notes"]);
+const corePaths = new Set(["/", "/today", "/why-gotra", "/guide", "/beta", "/track-record", "/monthly-reports", "/ledger", "/performance", "/system", "/methodology", "/sources", "/reports", "/audit", "/reports/full-analyst", "/notes"]);
 
 export function normalizeHashPath(hash: string): string {
   const raw = hash.startsWith("#") ? hash.slice(1) : hash;
@@ -54,6 +55,8 @@ export function parseHashRoute(hash: string): AppRoute {
         return { name: "reports", path: "/reports" };
       case "/reports/full-analyst":
         return { name: "fullAnalystReport", path };
+      case "/beta":
+        return { name: "beta", path };
       case "/track-record":
         return { name: "trackRecord", path };
       case "/monthly-reports":
