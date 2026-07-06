@@ -124,12 +124,12 @@ function routeSeo(route: AppRoute, language: Language, record: RecordView | null
         "The Public Track Record reads live research_ledger.json, showing ResearchSignal entries whose PublicationDecision is publish, with append-only hash chain, version chain, evidence packet links, publication decisions, and Stage 10 review coverage.",
     },
     "/beta": {
-      zhTitle: "30 天公开 beta 准备区 | GOTRA Public Ledger",
-      enTitle: "30-day public beta prep | GOTRA Public Ledger",
+      zhTitle: "30 天公开 beta 状态 | GOTRA Public Ledger",
+      enTitle: "30-day public beta status | GOTRA Public Ledger",
       zhDescription:
-        "Stage 15A 只说明 30 天公开 beta 启动前的工程、监控、周报和团队复核准备。beta 尚未启动，不是 launch ready、paid ready、投资建议、交易信号或业绩证明。",
+        "30 天公开 beta 状态页读取 beta_status.json；Stage 15B 运行中也不是 launch ready、paid ready、投资建议、交易信号或业绩证明。",
       enDescription:
-        "Stage 15A describes engineering, monitoring, weekly-report, and team-review readiness before the 30-day public beta. The beta has not started; this is not launch ready, paid ready, investment advice, a trading signal, or performance proof.",
+        "The 30-day public beta status page reads beta_status.json; even when Stage 15B is running, it is not launch ready, paid ready, investment advice, a trading signal, or performance proof.",
     },
     "/monthly-reports": {
       zhTitle: "月度透明报告 | GOTRA Public Ledger",

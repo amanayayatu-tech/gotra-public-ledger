@@ -2152,15 +2152,17 @@ function trackRecordPage(source) {
 function betaPage() {
   return pageShell({
     route: "/beta",
-    title: "30 天公开 beta 尚未启动 | GOTRA Public Ledger",
+    title: "30 天公开 beta 状态 | GOTRA Public Ledger",
     description:
-      "Stage 15A beta readiness page. The 30-day beta has not started; not launch readiness, not paid readiness, not investment advice, not a trading signal, and not performance proof.",
-    body: `      <h1>30 天公开 beta 尚未启动</h1>
-      <p class="lede">Stage 15A 只说明 beta 启动前的工程、监控、周报和团队复核准备。beta 尚未启动，30 天时钟没有开始；这不是正式上线、付费准备完成、投资建议、交易信号或业绩证明。</p>
+      "Stage 15A/15B beta status page. It reads /reports/beta_status.json when Stage 15B starts; not launch readiness, not paid readiness, not investment advice, not a trading signal, and not performance proof.",
+    body: `      <h1 data-beta-title>30 天公开 beta 尚未启动</h1>
+      <p class="lede" data-beta-copy>Stage 15A 只说明 beta 启动前的工程、监控、周报和团队复核准备。beta 尚未启动，30 天时钟没有开始；这不是正式上线、付费准备完成、投资建议、交易信号或业绩证明。</p>
       <p class="lede">Beta 期间免费开放，不收取订阅费，也不会开启付费功能。</p>
       <section class="notice">
         <h2>当前状态</h2>
-        ${table(
+        <div data-beta-runtime-note></div>
+        <p><a href="/reports/beta_status.json">/reports/beta_status.json</a></p>
+        <div data-beta-status-table>${table(
           ["field", "value"],
           [
             ["status", "BETA_READY_NOT_STARTED"],
@@ -2170,7 +2172,7 @@ function betaPage() {
             ["beta_period_fee", "free"],
             ["launch_ready", "false"],
           ],
-        )}
+        )}</div>
       </section>
       <section>
         <h2>启动前检查</h2>
@@ -2188,9 +2190,37 @@ function betaPage() {
       </section>
       <section class="notice">
         <h2>下一步</h2>
-        <p>当前只适合团队 review。人类明确批准后，才启动 Stage 15B，并从 0 开始计 30 天。</p>
+        <p data-beta-next>当前只适合团队 review。人类明确批准后，才启动 Stage 15B，并从 0 开始计 30 天。</p>
         <p><a href="/track-record">公开研究账本</a> · <a href="/monthly-reports">月度透明报告</a> · <a href="/methodology">方法论</a> · <a href="/reports">审计中心</a></p>
-      </section>`,
+      </section>
+      <script>
+      (function () {
+        fetch("/reports/beta_status.json", { cache: "no-store" }).then(function (response) {
+          if (!response.ok) return null;
+          return response.json();
+        }).then(function (status) {
+          if (!status || !status.beta_started || !status.beta_clock_started) return;
+          var title = document.querySelector("[data-beta-title]");
+          var copy = document.querySelector("[data-beta-copy]");
+          var table = document.querySelector("[data-beta-status-table]");
+          var note = document.querySelector("[data-beta-runtime-note]");
+          var next = document.querySelector("[data-beta-next]");
+          if (title) title.textContent = "30 天公开 beta 运行中";
+          if (copy) copy.textContent = "Stage 15B 已从 day 0 开始真实计时。当前只是公开 beta 运行中：未满真实 30 天前，不是正式上线、付费准备完成、投资建议、交易信号或业绩证明。";
+          if (note) note.textContent = "公开状态来自 /reports/beta_status.json；last_daily_run_status=" + (status.last_daily_run_status || "unknown");
+          if (next) next.textContent = "下一步是按日监控 beta heartbeat、daily events、public safety、no-fabrication 状态和每周报告；满真实 30 天后才能做 Stage 15B closeout。";
+          if (table) table.innerHTML = "<table><thead><tr><th>field</th><th>value</th></tr></thead><tbody>"
+            + "<tr><td>status</td><td>BETA_IN_PROGRESS_REAL_TIME_WAIT</td></tr>"
+            + "<tr><td>beta_clock_started</td><td>true</td></tr>"
+            + "<tr><td>elapsed_days</td><td>" + String(status.elapsed_days || 0) + " / " + String(status.required_days || 30) + "</td></tr>"
+            + "<tr><td>thirty_day_beta_complete</td><td>" + String(Boolean(status.beta_complete)) + "</td></tr>"
+            + "<tr><td>paid_subscription_enabled</td><td>" + String(Boolean(status.paid_features_enabled)) + "</td></tr>"
+            + "<tr><td>beta_period_fee</td><td>free</td></tr>"
+            + "<tr><td>launch_ready</td><td>false</td></tr>"
+            + "</tbody></table>";
+        }).catch(function () {});
+      })();
+      </script>`,
   });
 }
 
